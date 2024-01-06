@@ -1,0 +1,60 @@
+{
+    "name": "project-x",
+    "version": "1.0.1",
+    "description": "crawler application",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "dev": "nodemon index.js",
+        "test": "mocha --require @babel/register tests",
+        "test:watch": "nodemon --exec 'npm test'",
+        "start": "node index.js"
+    },
+    "engines": {
+        "node": ">=14.0.0",
+        "npm": ">=6.0.0"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "npm test"
+        }
+    },
+    "keywords": [],
+    "author": "ray bags",
+    "license": "ISC",
+    "dependencies": {
+        "@aws-sdk/client-s3": "^3.317.0",
+        "async": "^3.2.5",
+        "aws-sdk": "^2.1363.0",
+        "axios": "^1.2.2",
+        "bcryptjs": "^2.4.3",
+        "cheerio": "^1.0.0-rc.12",
+        "cors": "^2.8.5",
+        "dotenv": "^16.0.3",
+        "express": "^4.18.2",
+        "formidable": "^2.1.2",
+        "jsonwebtoken": "^9.0.0",
+        "mongodb": "^4.13.0",
+        "mongoose": "^6.8.3",
+        "morgan": "^1.10.0",
+        "multer": "^1.4.5-lts.1",
+        "nodemailer": "^6.9.5",
+        "puppeteer": "^21.6.1",
+        "redis": "^4.6.7",
+        "request-promise": "^0.0.1",
+        "sharp": "^0.32.0",
+        "uuid": "^9.0.0",
+        "whatwg-fetch": "^3.6.2"
+    },
+    "devDependencies": {
+        "@babel/register": "^7.22.15",
+        "chai": "^4.3.8",
+        "chai-http": "^4.4.0",
+        "find-free-port": "^2.0.0",
+        "husky": "^8.0.3",
+        "mocha": "^10.2.0",
+        "mocha-watch": "^0.1.0",
+        "nodemon": "^2.0.20",
+        "sinon": "^16.0.0"
+    }
+}
