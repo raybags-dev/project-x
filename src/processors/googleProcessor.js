@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { ObjectId } from 'mongodb'
+import { findAccessibleUrl } from '../../src/utils/testEndpoints.js'
 import { USER_MODEL } from '../models/user.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { REVIEW } from '../models/documentModel.js'
@@ -29,7 +30,10 @@ export async function generateGoogleReviews (req, res) {
       return res.status(404).json('User not found!')
     }
 
-    const userProfile = await PROFILE_MODEL.findOne({ userId: user.userId })
+    const userProfile = await PROFILE_MODEL.findOne({
+      userId: user.userId,
+      reviewSiteSlug: 'google-com'
+    })
 
     if (!userProfile || !userProfile.url) {
       return res.status(400).json({
@@ -42,8 +46,10 @@ export async function generateGoogleReviews (req, res) {
       url: baseUrl,
       computedUrl,
       name: property_name,
-      internalId
+      internalId,
+      originalUrl
     } = userProfile
+
     const headers = HEADERS.googleHtmlHeaders
     let nextPageToken = null
     let savedReviews = []
@@ -96,6 +102,7 @@ export async function generateGoogleReviews (req, res) {
               reviewSiteSlug: review.reviewSiteSlug,
               reviewBody: review.reviewBody,
               propertyProfileUrl: computedUrl || review.propertyProfileUrl,
+              originalEndpoint: originalUrl,
               reviewDate: review.reviewDate,
               urlAgent: urlWithPageToken || review.urlAgent,
               propertyName: property_name || review.propertyName,
@@ -116,7 +123,6 @@ export async function generateGoogleReviews (req, res) {
           console.log('No more reviews on the current page.')
           break
         }
-
         // Update previousPageToken for the next iteration
         previousPageToken = nextPageToken
       } catch (error) {

@@ -43,12 +43,20 @@ const reviewSiteProfileModel = {
     type: Boolean,
     default: true
   },
+  reviewPageUrl: {
+    type: String,
+    default: null
+  },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'UserId',
     required: true
   },
   propertyReviewCount: {
+    type: Number,
+    default: null
+  },
+  propertyExternalId: {
     type: Number,
     default: null
   },

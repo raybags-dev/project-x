@@ -121,21 +121,26 @@ export async function GetUserController (req, res) {
       user = await USER_MODEL.findOne({ email })
       if (!user) return res.status(404).json('User not found!')
 
+      const userProfiles = await PROFILE_MODEL.find({
+        userId: user.userId
+      })
+
       count = await REVIEW.countDocuments({ userId: user.userId })
       updatedUser = {
         ...user.toObject(),
+        userProfiles,
         DocumentCount: count
       }
 
       res.status(200).json(updatedUser)
       return
     }
+
     user = await USER_MODEL.findOne(
       { email },
       {
         token: 0,
         password: 0,
-        isAdmin: 0,
         version: 0,
         __v: 0,
         superUserToken: 0,
@@ -145,9 +150,14 @@ export async function GetUserController (req, res) {
 
     if (!user) return res.status(404).json('User not found!')
 
+    const userProfiles = await PROFILE_MODEL.find({
+      userId: user.userId
+    })
+
     count = await REVIEW.countDocuments({ userID: user.userId })
     updatedUser = {
       ...user.toObject(),
+      userProfiles,
       DocumentCount: count
     }
     res.status(200).json(updatedUser)

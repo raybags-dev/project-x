@@ -6,6 +6,7 @@ const {
   logOutUser,
   setUpBackToTop,
   PaginateData,
+  roadRunners,
   setupDropdownHover,
   handleReviewButtonsEvents,
   handlePaginatedDataAllAccounts
@@ -66,4 +67,5 @@ export async function MAIN_PAGE () {
   handlePaginatedDataAllAccounts()
   handleReviewButtonsEvents()
   setupDropdownHover()
+  roadRunners()
 }

@@ -28,9 +28,17 @@ const ReviewModel = {
     type: String,
     required: true
   },
+  originalEndpoint: {
+    type: String,
+    default: null
+  },
   author: {
     type: String,
     required: true
+  },
+  country: {
+    type: String,
+    default: null
   },
   authorExternalId: {
     type: String,
@@ -48,13 +56,18 @@ const ReviewModel = {
     type: String,
     default: null
   },
+  miscellaneous: {
+    type: mongoose.Schema.Types.Mixed,
+    default: null
+  },
   reviewBody: {
     type: String,
     default: 'The guest did not post comment details. '
   },
   propertyResponse: {
     body: { type: String, default: null },
-    responseDate: { type: String, default: null }
+    responseDate: { type: String, default: null },
+    author: { type: String, default: null }
   },
   hasPropertyResponse: {
     type: Boolean,
@@ -110,6 +123,14 @@ const ReviewModel = {
     required: true
   },
   stayDate: {
+    type: String,
+    default: null
+  },
+  checkInDate: {
+    type: String,
+    default: null
+  },
+  checkOutDate: {
     type: String,
     default: null
   },

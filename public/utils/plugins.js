@@ -1,4 +1,5 @@
 import { LOGIN_HTML } from '../components/login.js'
+import { siteLogos } from '../components/logoPaths.js'
 export const PLUGINS = {
   API_CLIENT: async function () {
     const apiClient = axios.create({
@@ -169,7 +170,7 @@ export const PLUGINS = {
           accordionButton.setAttribute('aria-expanded', 'false')
           accordionButton.setAttribute('aria-controls', `flush-collapse-${_id}`)
           accordionButton.style.backgroundColor = '#373737 !important'
-          accordionButton.innerHTML = 'Property response available'
+          accordionButton.innerHTML = 'Response from the owner'
 
           accordionHeader.appendChild(accordionButton)
 
@@ -235,7 +236,6 @@ export const PLUGINS = {
       smallElement.appendChild(containerElement)
     }
   },
-
   addAdminLinkToNavbar: async function () {
     const navUl = document.getElementById('__nav')
     const userString = await PLUGINS.getAuthHandler()
@@ -869,6 +869,17 @@ export const PLUGINS = {
     }
     return null
   },
+  getSiteLogoPath: async function (reviewSiteSlug, uuid) {
+    const siteLogo = Object.values(siteLogos).find(
+      logo => logo.slug === reviewSiteSlug
+    )
+    if (siteLogo) {
+      const cardLogo = await document.querySelector(uuid)
+      if (cardLogo) {
+        cardLogo.src = siteLogo.logopath
+      }
+    }
+  },
   generateReviewCard: async function (reviewsDataOject = {}) {
     if (!reviewsDataOject) return
     const _id = reviewsDataOject?._id,
@@ -886,11 +897,14 @@ export const PLUGINS = {
       brandCheck = reviewsDataOject?.brandCheck,
       language = reviewsDataOject?.language,
       propertyProfileUrl = reviewsDataOject?.propertyProfileUrl,
+      originalEndpoint = reviewsDataOject?.originalEndpoint,
       propertyName = reviewsDataOject?.propertyName,
       rating = reviewsDataOject.rating,
       replyUrl = reviewsDataOject?.replyUrl,
       stayDate = reviewsDataOject?.stayDate,
       reviewDate = reviewsDataOject?.reviewDate,
+      checkInDate = reviewsDataOject?.checkInDate,
+      checkOutDate = reviewsDataOject?.checkOutDate,
       title = reviewsDataOject?.title,
       userId = reviewsDataOject?.userId,
       tripType = reviewsDataOject?.tripType,
@@ -899,36 +913,43 @@ export const PLUGINS = {
       siteId = reviewsDataOject.siteId,
       internalId = reviewsDataOject?.internalId,
       externallId = reviewsDataOject?.externallId,
+      country = reviewsDataOject?.country,
       createdAt = reviewsDataOject?.createdAt,
-      updatedAt = reviewsDataOject?.updatedAt
+      updatedAt = reviewsDataOject?.updatedAt,
+      miscellaneous = reviewsDataOject?.miscellaneous,
+      roomTypeName = miscellaneous?.roomTypeName,
+      lengthOfStay = miscellaneous?.lengthOfStay,
+      isExpertReviewer = miscellaneous?.isExpertReviewer
 
     const InnerReviewHTMLContent = `
       <div id="${_id}" class="row review-container bg-dark m-auto ${userId}" data-reviewPageId="${reviewPageId}">
             <div class="card text-bg-dark p-0 dark-gray-bg my-font-color  card-left" data-userId="${userId}" style="width: 22%;">
                 <div class="card-header p-0 shadow-none border-0">
-                <img src="../images/google-logo.png" style="width:27%;max-width:75px !important;min-width:57px !important" class="img-thumbnail bg-transparent" alt="...">
+                <img src="" style="width:27%;max-width:75px !important;min-width:57px !important" class="img-thumbnail review-logo-${uuid} bg-transparent-${uuid}" alt="...">
                 </div>
-                <div class="card-body d-flex flex-column" data-subratings="${authorExternalId}">
-                  <span class="text">Posted: ${
-                    (reviewDate && reviewDate) || '0000-00-00'
-                  } </span>
-                  <span class="text">Trip type: <a href="#">${
-                    (tripType && tripType) || 'Leisure'
-                  }</a></span>
-                  <br>
-                  <span class="text" data-guest-rating="rating-${authorExternalId}"></span>
+                <div class="card-body d-flex flex-column left__body" data-subratings="${authorExternalId}">
+                    <span class="text">Posted: ${
+                      (reviewDate && reviewDate) || '0000-00-00'
+                    } </span>
+                    <span class="text">Trip type: <a href="#">${
+                      (tripType && tripType) || 'Leisure'
+                    }</a></span>
+                    <br>
+                    <span class="text" data-guest-rating="rating-${authorExternalId}"></span>
                 </div>
             </div>
   
             <div class="card card-${_id} text-bg-dark p-0 bg-dark my-font-color card-middle" style="width:55%;">
-                <div class="card-body">
+                <div class="card-body middle__body">
                   <div class="d-flex">
+                      <a class="text-secondary text-decoration-underline" target="_blank" href="${authorProfileUrl}">
                       <h5 class="card-title review-author">${
-                        (author && author) || 'John Doe'
+                        (author && author) || '..'
                       }</h5>
-                      <p class="text-muted">&nbsp;&nbsp;Collected on: ${PLUGINS.formatDate(
+                      </a>
+                      <p class="card-text review-submitted-date"><small class="text-muted fst-italic">&nbsp;&nbsp;(${PLUGINS.formatDate(
                         createdAt
-                      )}</p>
+                      )})</small></p>
                   </div>
                   <p class="review-body">${reviewBody}</p>
                   <p class="card-text review-submitted-date"><small class="text-muted fst-italic">Updated: ${PLUGINS.formatDate(
@@ -941,9 +962,9 @@ export const PLUGINS = {
                 <div class="card-header border-transparent shadow-none mt-1">
                 <h5 class="card-title text-light text-center">Actions</h5>
                 </div>
-                <div class="d-grid gap-2 col-6 mx-auto m-auto action_buttons" style="width:100%;">
+                <div class="d-grid gap-2 col-6 mx-auto m-auto action_buttons right__body" style="width:100%;">
                   <button class="btn btn-transparent btn-outline-secondary action_1 hide text-white has-response-${uuid}"  type="button">Respond to review</button>
-                  <a class="btn btn-transparent btn-outline-secondary action_2 text-white" href="${propertyProfileUrl}" target="_blank"  type="button">See review on google</a>
+                  <a class="btn btn-transparent btn-outline-secondary action_2 text-white" href="${originalEndpoint}" target="_blank"  type="button">See review on google</a>
                   <button class="btn btn-transparent btn-outline-danger action_3 text-white" del-revie-data="${_id}"  type="button">Delete review</button>
                   <button class="btn btn-transparent btn-outline-secondary action_4 text-white" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
                 </div>
@@ -974,8 +995,9 @@ export const PLUGINS = {
       authorReviewCount,
       `[data-subratings="${authorExternalId}"]`
     )
+    PLUGINS.getSiteLogoPath(reviewSiteSlug, `.review-logo-${uuid}`)
   },
-  fetchData: async function (page = 1, slug) {
+  fetchData: async function (page = 1, slug = '') {
     try {
       PLUGINS.runSpinner(false, 'loading...')
 
@@ -1011,7 +1033,7 @@ export const PLUGINS = {
           PLUGINS.displayLabel([
             'review_main_wrapper',
             'alert-success',
-            `"${slug}" reviews loaded, page: ${page}`
+            `new review page (${page}) loaded.`
           ])
           return data
         }
@@ -1026,14 +1048,14 @@ export const PLUGINS = {
         return PLUGINS.displayLabel([
           'review_main_wrapper',
           'alert-warning',
-          `"${slug}" profile is not set up. Set up the profile and try again later.`
+          `Nothing found.`
         ])
       }
       if (error.response && error.response.status === 404) {
         return PLUGINS.displayLabel([
           'review_main_wrapper',
           'alert-warning',
-          `"${slug}" profile does not have any reviews.`
+          `Nothing found for this account!`
         ])
       }
     } finally {
@@ -1135,12 +1157,8 @@ export const PLUGINS = {
     links?.forEach(link => {
       link.addEventListener('click', PLUGINS.handlePaginatedDataClick)
     })
-    document.addEventListener('DOMContentLoaded', async () => {
-      try {
-        await PLUGINS.PaginateData('google-com')
-      } catch (e) {
-        console.log(e.message)
-      }
-    })
+  },
+  roadRunners: async function () {
+    await PLUGINS.PaginateData()
   }
 }
