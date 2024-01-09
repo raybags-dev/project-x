@@ -10,9 +10,6 @@ export async function generateGoogleProfile (req, res) {
     if (!frontFacingUrl) return res.status(400).json('bad request')
 
     const { email, isAdmin, userId } = await req.locals.user
-    // const isSuperUser = await USER_MODEL.isSuperUser(
-    //   req.locals.user.superUserToken
-    // )
     if (isAdmin) {
       const user = await USER_MODEL.findOne({ email })
       if (!user) return res.status(404).json('User not found!')
@@ -50,8 +47,6 @@ export async function generateGoogleProfile (req, res) {
         hotelName3 ||
         hotelName4 ||
         hotelName5
-
-      console.log(hotelName)
 
       const urlConstruct1 = hotelName.split(' ').join('+')
       const computedUrl2 = `https://www.google.com/travel/search?q=${urlConstruct1}&lrd=${featureId},1`

@@ -58,6 +58,8 @@ export async function parseReviewHtml (html, urlAgent, req, propertyProfileUrl) 
       const username = $(element).find('.TSUbDb a').text().trim()
       const siteSlug = 'google-com'
 
+      const authorProfileUrl = $(element).find('.TSUbDb a').attr('href')
+
       let originalanchor1 = $(element).find(
         'div[style="display:none;vertical-align:top"]'
       )
@@ -90,9 +92,9 @@ export async function parseReviewHtml (html, urlAgent, req, propertyProfileUrl) 
 
       const commonReviewProperties = {
         author: username,
+        authorProfileUrl,
         userId: userIDD.userId,
         authorExternalId: extractAuthorExternalId(element),
-        authorProfileUrl: extractAuthorProfileUrl(element, $),
         reviewSiteSlug: siteSlug,
         reviewBody: mainReviewBody,
         propertyProfileUrl,
@@ -175,10 +177,6 @@ function extractAuthorExternalId (element) {
 
   return hotelExternalID || restaurantExternalID
 }
-function extractAuthorProfileUrl (element, $) {
-  const anchorTag = $(element).find('div.TSUbDb.w6Pmwe a')
-  return anchorTag.attr('href')
-}
 function extractNumericRating (ariaLabel) {
   const ratingRegex = /Rated\s+(\d[\d,]*)\s+out/
   const ratingMatch = ariaLabel.match(ratingRegex)
@@ -187,8 +185,8 @@ function extractNumericRating (ariaLabel) {
 function parseReviewDate (relativeDate) {
   if (relativeDate) {
     const processedRelativeDate = relativeDate.replace(/^an?\s+/i, '1 ')
-
     const match = processedRelativeDate.match(/(\d+)\s+(\w+)\s+ago/)
+
     if (match) {
       const [, value, unit] = match
       const currentDate = new Date()
