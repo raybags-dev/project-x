@@ -47,6 +47,17 @@ const userModel = {
     type: Boolean,
     default: false
   },
+  profiles: {
+    type: [
+      {
+        _id: String,
+        name: String,
+        slug: String,
+        url: String
+      }
+    ],
+    default: null
+  },
   version: {
     type: Number,
     default: 0
