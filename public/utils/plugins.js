@@ -142,7 +142,7 @@ export const PLUGINS = {
   ) {
     try {
       if (responseObject && responseObject.body?.length !== null) {
-        const { body: responseBody, responseDate } = responseObject
+        const { body: responseBody, responseDate, author } = responseObject
 
         const reviewContainer = document.querySelector(response_anchor)
         if (reviewContainer) {
@@ -160,7 +160,7 @@ export const PLUGINS = {
 
           const accordionButton = document.createElement('button')
           accordionButton.className =
-            'accordion-button dark-gray-bg text-light collapsed'
+            'accordion-button dark-gray-bg text-light shadow-sm collapsed'
           accordionButton.type = 'button'
           accordionButton.setAttribute('data-bs-toggle', 'collapse')
           accordionButton.setAttribute(
@@ -184,8 +184,10 @@ export const PLUGINS = {
           accordionBodyContent.innerHTML = responseBody
 
           const response_date = document.createElement('p')
-          response_date.className = 'text-muted'
-          response_date.innerHTML = `&nbsp;&nbsp;(${responseDate})`
+          response_date.className = 'container text-muted'
+          response_date.innerHTML = `${
+            (author && author) || 'Response posted on: '
+          }&nbsp;&nbsp; (${responseDate})`
 
           accordionBody.appendChild(accordionBodyContent)
           accordionBody.appendChild(response_date)
@@ -922,10 +924,10 @@ export const PLUGINS = {
       isExpertReviewer = miscellaneous?.isExpertReviewer
 
     const InnerReviewHTMLContent = `
-      <div id="${_id}" class="row review-container bg-dark m-auto ${userId}" data-reviewPageId="${reviewPageId}">
-            <div class="card text-bg-dark p-0 dark-gray-bg my-font-color  card-left" data-userId="${userId}" style="width: 22%;">
-                <div class="card-header p-0 shadow-none border-0">
-                <img src="" style="width:27%;max-width:75px !important;min-width:57px !important" class="img-thumbnail review-logo-${uuid} bg-transparent-${uuid}" alt="...">
+      <div id="${_id}" class="row review-container review-incoming  bg-dark m-auto ${userId}" data-reviewPageId="${reviewPageId}">
+            <div class="card text-bg-dark dark-gray-bg my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
+                <div class="card-header shadow-none border-0">
+                <img src="" style="width:30%;max-width:75px !important;min-width:57px !important" class="img-thumbnail review-logo-${uuid} bg-transparent" alt="...">
                 </div>
                 <div class="card-body d-flex flex-column left__body" data-subratings="${authorExternalId}">
                     <span class="text">Posted: ${
@@ -939,7 +941,7 @@ export const PLUGINS = {
                 </div>
             </div>
   
-            <div class="card card-${_id} text-bg-dark p-0 bg-dark my-font-color card-middle" style="width:55%;">
+            <div class="card card-${_id} text-bg-dark dark-gray-bg my-font-color card-middle" style="width:55%;">
                 <div class="card-body middle__body">
                   <div class="d-flex">
                       <a class="text-secondary text-decoration-underline" target="_blank" href="${authorProfileUrl}">
@@ -958,7 +960,7 @@ export const PLUGINS = {
                 </div>
             </div>
   
-            <div class="card text-bg-light bg-dark card-right" style="width: 22%;">
+            <div class="card text-bg-light dark-gray-bg card-right" style="width: 22%;">
                 <div class="card-header border-transparent shadow-none mt-1">
                 <h5 class="card-title text-light text-center">Actions</h5>
                 </div>
@@ -973,6 +975,7 @@ export const PLUGINS = {
 
     const parent_wrapper = document.querySelector('#review_main_wrapper')
     parent_wrapper?.insertAdjacentHTML('beforeend', InnerReviewHTMLContent)
+
     PLUGINS.createSubratings(
       subratings,
       `[data-subratings="${authorExternalId}"]`
@@ -1030,11 +1033,19 @@ export const PLUGINS = {
             ])
             return data
           }
-          PLUGINS.displayLabel([
-            'review_main_wrapper',
-            'alert-success',
-            `new review page (${page}) loaded.`
-          ])
+          if (slug === '') {
+            PLUGINS.displayLabel([
+              'review_main_wrapper',
+              'alert-success',
+              `Reviews on page: ${page}`
+            ])
+          } else {
+            PLUGINS.displayLabel([
+              'review_main_wrapper',
+              'alert-success',
+              `Reviews for only ${slug}, page: ${page}`
+            ])
+          }
           return data
         }
       }

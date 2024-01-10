@@ -40,13 +40,22 @@ export async function generateGoogleProfile (req, res) {
       const immWithHotelName = $('img.iSN49d.us9x4d')
       const hotelName4 = immWithHotelName.attr('alt')
       const hotelName5 = $('h3.LC20lb.MBeuO.DKV0Md').first().text().trim()
+      const hotelName6 = $('a.CQYfx.hAP9Pd.gEBR9d').text().trim()
+
+      let hotelName7 = ''
+      const divWithDataKey = $('div[data-encoded-entity-key]')
+      if (divWithDataKey.length > 0) {
+        hotelName7 = divWithDataKey.attr('data-query')
+      }
 
       const hotelName =
         (hotelName1 && hotelName1) ||
-        hotelName2 ||
-        hotelName3 ||
-        hotelName4 ||
-        hotelName5
+        (hotelName2 && hotelName2) ||
+        (hotelName3 && hotelName3) ||
+        (hotelName4 && hotelName4) ||
+        (hotelName5 && hotelName5) ||
+        (hotelName6 && hotelName6) ||
+        (hotelName7 && hotelName7)
 
       const urlConstruct1 = hotelName.split(' ').join('+')
       const computedUrl2 = `https://www.google.com/travel/search?q=${urlConstruct1}&lrd=${featureId},1`

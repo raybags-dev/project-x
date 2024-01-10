@@ -39,13 +39,12 @@ export async function MAIN_PAGE () {
                       Sites
                     </a>
                     <ul class="dropdown-menu _inner_dropdown_canvas bg-dark border-2 border-secondary">
-                    <li><a class="dropdown-item dropdown-item-dark text-white  google" href="#">google-com</a></li>
-                    <li><a class="dropdown-item dropdown-item-dark text-white  booking" href="#">booking-com</a></li>
-                    <li><a class="dropdown-item dropdown-item-dark text-white  agoda" href="#">agoda-com</a></li>
-                    <li><a class="dropdown-item dropdown-item-dark text-white  agoda" href="#">agoda-com</a></li>
-                    <li><a class="dropdown-item dropdown-item-dark text-white  ctrip" href="#">ctrip-com</a></li>
-                    <li><a class="dropdown-item dropdown-item-dark text-white  tripadvisor" href="#">trip-advisor-com</a></li>
-                    <li><a class="dropdown-item dropdown-item-dark text-white  expedia" href="#">expedia-com</a></li>
+                    <li><a class="dropdown-item dropdown-item-dark text-white  google-com" href="#">google-com</a></li>
+                    <li><a class="dropdown-item dropdown-item-dark text-white  booking-com" href="#">booking-com</a></li>
+                    <li><a class="dropdown-item dropdown-item-dark text-white  agoda-com" href="#">agoda-com</a></li>
+                    <li><a class="dropdown-item dropdown-item-dark text-white  ctrip-com" href="#">ctrip-com</a></li>
+                    <li><a class="dropdown-item dropdown-item-dark text-white  tripadvisor-com" href="#">tripadvisor-com</a></li>
+                    <li><a class="dropdown-item dropdown-item-dark text-white  expedia-com" href="#">expedia-com</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">

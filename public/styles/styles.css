@@ -32,7 +32,7 @@ body {
     scroll-behavior: smooth;
     -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
-    background-color: #1c1818;
+    background-color: #1d1d1d;
 }
 
 body::after {
@@ -85,14 +85,40 @@ body::after {
 
 .review-container {
     flex: 1;
-    min-height: 25%;
     background-color: transparent;
-    margin-bottom: .8rem !important;
+    margin-bottom: .5rem !important;
     box-sizing: border-box;
     border-radius: .3rem;
     overflow-y: auto;
-    opacity: 1;
+    opacity: 0;
+
 }
+
+.review-container .card {
+    margin-left: auto;
+    margin-right: auto;
+    /* border: unset; */
+}
+
+
+.review-incoming {
+    transition: all .3s;
+    -webkit-animation: bring-inn 1 forwards ease-in .3s;
+    animation: bring-inn 1 forwards ease-in .3s;
+}
+
+@-webkit-keyframes bring-inn {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes bring-inn {
+    to {
+        opacity: 1;
+    }
+}
+
 
 .delete_ite {
     transition: margin-right .2s;
@@ -125,9 +151,9 @@ body::after {
     background-color: #2a2f34 !important;
 }
 
-.light-gray-bg {
-    background-image: linear-gradient(to right, #161616 50%, black 100%);
-    color: #bec1c4
+
+.accordion-button.collapsed {
+    color: rgb(124, 168, 128) !important;
 }
 
 .my-font-color {
@@ -138,6 +164,10 @@ body::after {
 .dark-gray-bg:focus,
 .dark-gray-bg:focus-within {
     background-color: #2a2f34 !important;
+}
+
+.light-gray-bg {
+    color: #bec1c4
 }
 
 li>a,
@@ -391,10 +421,10 @@ a {
 
 .img-thumbnail {
     padding: .2rem;
-    margin: .2rem;
-    border-radius: .5rem;
-    background-color: rgb(41, 41, 41, .5) !important;
-    border: 2px solid transparent;
+    margin: .1rem;
+    border-radius: .2rem;
+    background-color: transparent !important;
+    border: 2px solid #4847474d;
 }
 
 .nav-item:hover::before {
@@ -590,74 +620,17 @@ textarea:focus {
 }
 
 /** ===== Uncomment this css lines before commiting== */
-#search____input::-webkit-input-placeholder,
-#canvas__Search_input::-webkit-input-placeholder {
-    -webkit-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input::-moz-placeholder,
-#canvas__Search_input::-moz-placeholder {
-    -moz-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input:-ms-input-placeholder,
-#canvas__Search_input:-ms-input-placeholder {
-    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input::-ms-input-placeholder,
-#canvas__Search_input::-ms-input-placeholder {
-    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
+/*
 #search____input::placeholder,
 #canvas__Search_input::placeholder {
     transition: letter-spacing 0.5s, opacity 0.5s;
 }
-
-#search____input:focus-within::-webkit-input-placeholder,
-#canvas__Search_input:focus-within::-webkit-input-placeholder {
-    letter-spacing: 2rem;
-    opacity: 0;
-    -webkit-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input:focus-within::-moz-placeholder,
-#canvas__Search_input:focus-within::-moz-placeholder {
-    letter-spacing: 2rem;
-    opacity: 0;
-    -moz-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input:focus-within:-ms-input-placeholder,
-#canvas__Search_input:focus-within:-ms-input-placeholder {
-    letter-spacing: 2rem;
-    opacity: 0;
-    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input:focus-within::-ms-input-placeholder,
-#canvas__Search_input:focus-within::-ms-input-placeholder {
-    letter-spacing: 2rem;
-    opacity: 0;
-    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
 #search____input:focus-within::placeholder,
 #canvas__Search_input:focus-within::placeholder {
     letter-spacing: 2rem;
     opacity: 0;
     transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
+}*/
 /** ==== Uncomment this css lines before commiting=== */
 .big_spinnerr {
     background-color: transparent;

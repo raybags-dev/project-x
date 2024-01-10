@@ -102,20 +102,72 @@ reviewSiteProfileSchema.index(
   },
   { default_language: 'simple', caseInsensitive: true }
 )
-reviewSiteProfileSchema.pre('save', async function (next) {
-  if (!this.isNew) return next()
+// reviewSiteProfileSchema.pre('save', async function (next) {
+//   if (!this.isNew) return next()
+//   try {
+//     //update haReviewProfile field
+//     await USER_MODEL.updateOne(
+//       { userId: this.userId },
+//       { $set: { hasReviewProfile: true } }
+//     )
 
+//     //update profiles field in User model
+//     if (!this.isNew) return next()
+//     const { _id: profileId, name, slug, url } = this
+
+//     await USER_MODEL.updateOne(
+//       { userId: this.userId },
+//       {
+//         $push: {
+//           profiles: {
+//             _id: profileId,
+//             name,
+//             slug,
+//             url
+//           }
+//         },
+//         $set: { hasReviewProfile: true }
+//       }
+//     )
+//     next()
+//   } catch (error) {
+//     console.error('Error in profile pre-save hook:', error)
+//     next(error)
+//   }
+// })
+reviewSiteProfileSchema.pre('save', async function (next) {
   try {
+    // Update hasReviewProfile field
     await USER_MODEL.updateOne(
       { userId: this.userId },
       { $set: { hasReviewProfile: true } }
     )
+    // Update profiles field in User model
+    if (this.isNew) {
+      const { _id: profileId, name: propertyName, slug, url } = this
+
+      await USER_MODEL.updateOne(
+        { userId: this.userId },
+        {
+          $push: {
+            profiles: {
+              _id: profileId,
+              name: propertyName,
+              slug,
+              url
+            }
+          }
+        }
+      )
+    }
+
     next()
   } catch (error) {
     console.error('Error in profile pre-save hook:', error)
     next(error)
   }
 })
+
 reviewSiteProfileSchema.methods.beforeDelete = async function () {
   try {
     console.log('its working....')
