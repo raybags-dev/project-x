@@ -1019,6 +1019,74 @@ export const PLUGINS = {
       }
     })
   },
+  profileGenerator: async function () {
+    let formIsPresent = document.querySelector('#uploadForm')
+    formIsPresent && formIsPresent?.remove()
+
+    if (!formIsPresent) {
+      const uploadHTML = `
+          <form id="uploadForm" class="select-img-form text-danger profile_form">
+          <div class="input-group mb3 input-group-lg my_inputs">
+            <input type="text" name="images" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" placeholder="Type your property name here..." required>
+            <button class="btn btn-lg  btn-outline-secondary sub__this_form" type="button" id="inputGroupFileAddon04">Button</button>
+          </div>
+    
+          <div class="input-group mb3 my_inputs">
+            <textarea type="text" name="description" id="descriptionInput" placeholder="Paste your site property review page link here... " rows="4" class="form-control" aria-label="Description"></textarea>
+          </div>
+        </form>`
+
+      const container = document.querySelector('#review_main_wrapper')
+      container?.insertAdjacentHTML('afterbegin', uploadHTML)
+
+      const submit____btn = document.querySelector('.sub__this_form')
+      submit____btn?.addEventListener('click', async () => {
+        console.log('submitted')
+        //let hasfinishUpload = await uploadFiles()
+        // if (hasfinishUpload) {
+        //   document.querySelector('#uploadForm')?.remove()
+        // }
+      })
+      // Listen for the Enter key press on the document
+      document.addEventListener('keydown', async event => {
+        if (event.key === 'Enter') {
+          event.preventDefault()
+          console.log('submitted')
+
+          // let hasFinishUpload = await uploadFiles()
+          // if (hasFinishUpload) {
+          //   document.querySelector('#uploadForm')?.remove()
+          // }
+        }
+      })
+    } else {
+      formIsPresent?.remove()
+    }
+  },
+  handleProfileGenerator: async function (selector = null, hasData = true) {
+    const anchor = document.querySelector(selector)
+    if (anchor) {
+      anchor.addEventListener('click', () => {
+        return PLUGINS.profileGenerator()
+      })
+    }
+    if (!hasData) {
+      return await PLUGINS.profileGenerator()
+    }
+    document.addEventListener('click', e => {
+      const target = e.target
+      const form = document.getElementById('uploadForm')
+      const profileLink = document.querySelector('.create_profile')
+
+      if (
+        form &&
+        !form.contains(target) &&
+        !(profileLink && profileLink.contains(target))
+      ) {
+        form.remove()
+      }
+    })
+  },
   generateReviewCard: async function (reviewsDataOject = {}) {
     if (!reviewsDataOject) return
     const _id = reviewsDataOject?._id,
@@ -1096,8 +1164,10 @@ export const PLUGINS = {
                 <h5 class="card-title text-light text-center">Actions</h5>
                 </div>
                 <div class="d-grid gap-2 col-6 mx-auto m-auto action_buttons right__body" style="width:100%;">
-                  <button class="btn btn-transparent btn-outline-secondary action_1 hide text-white has-response-${uuid}"  type="button">Respond to review</button>
-                  <a class="btn btn-transparent btn-outline-secondary action_2" href="${originalEndpoint}" target="_blank"  type="button">See review on google</a>
+                  <button class="btn btn-transparent btn-outline-secondary action_1 hide has-response-${uuid}"  type="button">Respond to review</button>
+                  <a class="btn btn-transparent btn-outline-secondary action_2" href="${
+                    originalEndpoint || propertyProfileUrl
+                  }" target="_blank"  type="button">See review on ${reviewSiteSlug}</a>
                   <button class="btn btn-transparent btn-outline-danger action_3" del-revie-data="${_id}"  type="button">Delete review</button>
                   <button class="btn btn-transparent btn-outline-secondary action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
                 </div>
@@ -1204,11 +1274,11 @@ export const PLUGINS = {
         ])
       }
       if (error.response && error.response.status === 404) {
-        PLUGINS.userGuideModel()
+        PLUGINS.handleProfileGenerator(null, false)
         return PLUGINS.displayLabel([
           'review_main_wrapper',
-          'alert-warning',
-          `Nothing found for this account!`
+          'alert-secondary',
+          `Nothing found for ${slug}, or it has not been configured. \nCreate a profile for ${slug} by submiting a url in the input above and we will take care of the rest for you.`
         ])
       }
     } finally {

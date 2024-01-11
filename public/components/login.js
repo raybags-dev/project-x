@@ -6,7 +6,6 @@ import { PLUGINS } from '../utils/plugins.js'
 const { setAuthHandler, displayLabel, API_CLIENT, runSpinner } = PLUGINS
 
 const apiClient = await API_CLIENT()
-
 export async function LOGIN_HTML () {
   let pageContent = `
     <nav class="navbar navbar-expand-lg">

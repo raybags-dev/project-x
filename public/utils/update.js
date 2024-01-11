@@ -160,7 +160,3 @@ export async function disableElement (isDisabled, element) {
     console.error('Element not found:', element)
   }
 }
-export async function renderUpdateHTML (element) {
-  let link_element = document.querySelector(element)
-  link_element?.addEventListener('click', UPDATE_PASSWORD_HTML)
-}
