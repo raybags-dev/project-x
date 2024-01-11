@@ -103,7 +103,6 @@ export async function DeleteOneDocumentController (req, res) {
     res.status(500).json({ error: 'Server error', message: error.message })
   }
 }
-
 export async function AllUserDocsController (req, res) {
   try {
     const { isAdmin, userId, isSuperUser } = req.locals.user

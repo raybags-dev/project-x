@@ -165,18 +165,20 @@ const REVIEW_MODEL = new mongoose.Schema(ReviewModel, {
 })
 REVIEW_MODEL.index(
   {
-    'response.body': 'text',
-    'response.responseDate': 'text',
-    'response.createdTimestamp': 'text',
+    'propertyResponse.body': 'text',
+    'propertyResponse.responseDate': 'text',
+    'propertyResponse.createdTimestamp': 'text',
+    miscellaneous: 'text',
+    tripType: 'text',
     uuid: 'text',
     title: 'text',
     authorExternalId: 'text',
     internalId: 'text',
     reviewDate: 'text',
-    stayDate: 'text'
+    stayDate: 'text',
+    author: 'text'
   },
   {
-    author: 'compound_text_index',
     default_language: 'simple',
     caseInsensitive: true
   }

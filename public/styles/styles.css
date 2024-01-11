@@ -32,7 +32,7 @@ body {
     scroll-behavior: smooth;
     -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
-    background-color: #1d1d1d;
+    background-color: #2a2f34;
 }
 
 body::after {
@@ -85,11 +85,12 @@ body::after {
 
 .review-container {
     flex: 1;
-    background-color: transparent;
+    background-color: #2a2f34;
     margin-bottom: .5rem !important;
     box-sizing: border-box;
     border-radius: .3rem;
     overflow-y: auto;
+    border: 3px solid transparent;
     opacity: 0;
 
 }
@@ -97,7 +98,16 @@ body::after {
 .review-container .card {
     margin-left: auto;
     margin-right: auto;
-    /* border: unset; */
+    border-color: transparent;
+}
+
+.card_header {
+    background-color: transparent;
+    border-bottom: unset
+}
+
+.res_body {
+    border-radius: .6rem !important;
 }
 
 
@@ -138,6 +148,10 @@ body::after {
     }
 }
 
+.accordion-button {
+    border-radius: inherit;
+}
+
 .btn:focus,
 .btn:active,
 .accordion-button:focus,
@@ -149,11 +163,12 @@ body::after {
 
 .dark-gray-bg {
     background-color: #2a2f34 !important;
+    border-color: transparent !important;
 }
 
 
 .accordion-button.collapsed {
-    color: rgb(124, 168, 128) !important;
+    color: rgb(2, 214, 20) !important;
 }
 
 .my-font-color {
@@ -213,7 +228,12 @@ a {
     border-radius: .4rem;
     -webkit-animation: animatepages 1 forwards ease-in .5s;
     animation: animatepages 1 forwards ease-in .5s;
-    background-image: linear-gradient(to right, #232323 0%, black 100%);
+    background-color: #2a2f34;
+}
+
+.login_btn,
+.signup_btn {
+    border: 2px solid #393f46;
 }
 
 @-webkit-keyframes animatepages {
@@ -620,17 +640,75 @@ textarea:focus {
 }
 
 /** ===== Uncomment this css lines before commiting== */
-/*
+
+#search____input::-webkit-input-placeholder,
+#canvas__Search_input::-webkit-input-placeholder {
+    -webkit-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input::-moz-placeholder,
+#canvas__Search_input::-moz-placeholder {
+    -moz-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input:-ms-input-placeholder,
+#canvas__Search_input:-ms-input-placeholder {
+    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input::-ms-input-placeholder,
+#canvas__Search_input::-ms-input-placeholder {
+    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
 #search____input::placeholder,
 #canvas__Search_input::placeholder {
     transition: letter-spacing 0.5s, opacity 0.5s;
 }
+
+#search____input:focus-within::-webkit-input-placeholder,
+#canvas__Search_input:focus-within::-webkit-input-placeholder {
+    letter-spacing: 2rem;
+    opacity: 0;
+    -webkit-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input:focus-within::-moz-placeholder,
+#canvas__Search_input:focus-within::-moz-placeholder {
+    letter-spacing: 2rem;
+    opacity: 0;
+    -moz-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input:focus-within:-ms-input-placeholder,
+#canvas__Search_input:focus-within:-ms-input-placeholder {
+    letter-spacing: 2rem;
+    opacity: 0;
+    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input:focus-within::-ms-input-placeholder,
+#canvas__Search_input:focus-within::-ms-input-placeholder {
+    letter-spacing: 2rem;
+    opacity: 0;
+    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
 #search____input:focus-within::placeholder,
 #canvas__Search_input:focus-within::placeholder {
     letter-spacing: 2rem;
     opacity: 0;
     transition: letter-spacing 0.5s, opacity 0.5s;
-}*/
+}
+
 /** ==== Uncomment this css lines before commiting=== */
 .big_spinnerr {
     background-color: transparent;
@@ -762,5 +840,11 @@ textarea:focus {
         .heading {
             font-size: 15px;
         }
+    }
+}
+
+@media screen and (max-width: 351px) {
+    .heading {
+        font-size: 15px;
     }
 }
