@@ -106,7 +106,6 @@ export async function generateAgodaProfile (req, res) {
     res.status(500).json('Internal server error')
   }
 }
-
 export async function findTotalIndexById (providerList, id) {
   if (!providerList.length) return
   for (const provider of providerList) {

@@ -76,15 +76,40 @@ export const PLUGINS = {
       }
     }
   },
+  // createSubratings: async function (subratingsArray, selector) {
+  //   const cardBody = document.querySelector(selector)
+
+  //   if (subratingsArray && subratingsArray?.length > 0) {
+  //     subratingsArray.forEach(subrating => {
+  //       const { key, value } = subrating
+  //       const stars = '&bigstar;'.repeat(parseInt(value, 10))
+
+  //       const spanElement = document.createElement('small')
+  //       spanElement.classList.add('text-warning')
+
+  //       const smallElement = document.createElement('small')
+  //       smallElement.classList.add('text-light')
+  //       smallElement.textContent = `${key}: `
+
+  //       const starsElement = document.createElement('span')
+  //       starsElement.innerHTML = stars
+
+  //       spanElement.appendChild(smallElement)
+  //       spanElement.appendChild(starsElement)
+
+  //       cardBody?.appendChild(spanElement)
+  //     })
+  //   }
+  // },
   createSubratings: async function (subratingsArray, selector) {
     const cardBody = document.querySelector(selector)
 
     if (subratingsArray && subratingsArray?.length > 0) {
       subratingsArray.forEach(subrating => {
         const { key, value } = subrating
-        const stars = '&bigstar;'.repeat(parseInt(value, 10))
+        const totalStars = 5
 
-        const spanElement = document.createElement('span')
+        const spanElement = document.createElement('small')
         spanElement.classList.add('text-warning')
 
         const smallElement = document.createElement('small')
@@ -92,7 +117,21 @@ export const PLUGINS = {
         smallElement.textContent = `${key}: `
 
         const starsElement = document.createElement('span')
-        starsElement.innerHTML = stars
+
+        // Loop through all 5 stars
+        for (let i = 1; i <= totalStars; i++) {
+          const star = document.createElement('span')
+
+          if (i <= value) {
+            star.innerHTML = '&bigstar;'
+            star.style.color = '#FFCF81'
+          } else {
+            star.innerHTML = '&bigstar;'
+            star.style.color = '#fdffabb3'
+          }
+
+          starsElement.appendChild(star)
+        }
 
         spanElement.appendChild(smallElement)
         spanElement.appendChild(starsElement)
@@ -147,7 +186,8 @@ export const PLUGINS = {
         const reviewContainer = document.querySelector(response_anchor)
         if (reviewContainer) {
           const accordionElement = document.createElement('div')
-          accordionElement.className = 'accordion accordion-flush bg-dark'
+          accordionElement.className =
+            'accordion accordion-flush bg-dark res_body shadow'
           accordionElement.id = _id
 
           const accordionItem = document.createElement('div')
@@ -176,7 +216,7 @@ export const PLUGINS = {
 
           const accordionBody = document.createElement('div')
           accordionBody.id = `flush-collapse-${_id}`
-          accordionBody.className = 'accordion-collapse collapse'
+          accordionBody.className = 'accordion-collapse collapse show'
           accordionBody.setAttribute('aria-labelledby', `flush-heading-${_id}`)
 
           const accordionBodyContent = document.createElement('div')
@@ -220,16 +260,28 @@ export const PLUGINS = {
   createRating: async function (ratingValue, selector) {
     const smallElement = document.querySelector(selector)
     if (smallElement) {
-      const stars = '&bigstar;'.repeat(parseInt(ratingValue, 10))
+      const totalStars = 5
 
       const containerElement = document.createElement('span')
-      const textElement = document.createElement('span')
+      containerElement.classList.add('text-muted')
+      const textElement = document.createElement('small')
       textElement.textContent = 'Rating: '
 
-      const starsElement = document.createElement('span')
-      starsElement.innerHTML = stars
+      const starsElement = document.createElement('small')
 
-      starsElement.classList.add('text-success')
+      for (let i = 1; i <= totalStars; i++) {
+        const star = document.createElement('span')
+
+        if (i <= ratingValue) {
+          star.innerHTML = '&bigstar;'
+          star.style.color = '#65B741'
+        } else {
+          star.innerHTML = '&bigstar;'
+          star.style.color = '#C1F2B0;'
+        }
+
+        starsElement.appendChild(star)
+      }
 
       containerElement.appendChild(textElement)
       containerElement.appendChild(starsElement)
@@ -266,11 +318,13 @@ export const PLUGINS = {
   reviewCount: async function (countTotal, selector) {
     const container = document.querySelector(selector)
 
-    if (container && countTotal) {
-      const spanElement = document.createElement('span')
+    if (container && countTotal !== undefined && countTotal !== null) {
+      const spanElement = document.createElement('small')
       spanElement.classList.add('text-muted')
 
-      spanElement.innerHTML = `Review count: <span style="color: green;font-weight:700">${countTotal}</span>`
+      const displayedCount = countTotal == 0 ? 1 : countTotal
+
+      spanElement.innerHTML = `Review count: <small style="color: green; font-weight: 700">${displayedCount}</small>`
       container.insertBefore(spanElement, container.querySelector('br'))
     }
   },
@@ -329,7 +383,6 @@ export const PLUGINS = {
           Notify(`Login successful`)
           setTimeout(async () => {
             runSpinner(true)
-            PLUGINS.userGuideModel()
             return await MAIN_PAGE()
           }, 800)
         }
@@ -496,19 +549,19 @@ export const PLUGINS = {
 
       if (isCookiesAccepted === 'false' || isCookiesAccepted === null) {
         const modalHTML = `
-            <div class="modal fade text-dark" id="cookieModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="cookieModalLabel" aria-hidden="true">
+            <div class="modal fade text-dark bg-dark" id="cookieModal"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="cookieModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content bg-dark">
-                <div class="modal-header">
-                  <h1 class="modal-title fs-5 text-light" id="cookieModalLabel">Cookie Policy</h1>
+              <div class="modal-content bg-dark shadow">
+                <div class="modal-header border-0" >
+                  <h1 class="modal-title fs-5 text-light text-muted" id="cookieModalLabel">Cookie Policy</h1>
                   <button type="button" class="btn-close text-light c--iie-c-btn" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                  <p class="text-light">This website uses cookies to enhance the user experience. By accepting cookies, you agree to our <a href="#" class="text-primary">Terms of Service</a> and <a href="#" class="text-primary">Privacy Policy</a>.</p>
+                  <p class="text-light lead text-muted">This website uses cookies to enhance the user experience. By accepting cookies, you agree to our <a href="#" class="text-primary">Terms of Service</a> and <a href="#" class="text-primary">Privacy Policy</a>.</p>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer border-0 d-flex justify-content-start align-content-center">
                   <button type="button" class="btn btn-lg btn-outline-secondary" id="rejectCookies" data-bs-dismiss="modal">Reject</button>
-                  <button type="button" class="btn btn-lg btn-outline-primary" id="acceptCookies">Accept</button>
+                  <button type="button" class="btn btn-lg btn-outline-success" id="acceptCookies">Accept</button>
                 </div>
               </div>
             </div>
@@ -623,21 +676,68 @@ export const PLUGINS = {
         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content bg-transparent text-light" style="backdrop-filter:blur(20px);border:2px solid #13283b80;">
-              <div class="modal-header text-white" style="background: #13283b80;">
-                <h5 class="modal-title" id="exampleModalLabel">How it works</h5>
-                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              <div class="modal-header text-white border-0 bg-dark">
+                <h5 class="modal-title text-muted" id="exampleModalLabel">Welcome to REVIEWER, \nYour One-Stop Solution for Guest Feedback Management!</h5>
+                <hr>
               </div>
-              <div class="modal-body text-light" style="background-color: #13283b80;">
-                <ul style="opacity:0.5;">
-                  <li>Sign up: Start by creating an account with your email address and password. This will grant you access to this application.</li>
-                  <li>Once account is created, you'll be logged in automatically. Once you're logged in, you can easily upload your documents. Simply click on the 'Upload' button and select the file you wish to upload. This application supports various file formats, including 'PDF', 'jpeg', 'jpg', 'png', 'gif', 'pdf', 'webp' and 'avif'. Please note, for demo accounts, a maximum of 5 files can be uploaded at a time. </li>
-                 <li>Manage Documents: After uploading your documents, you can manage them efficiently. You can view a list of all your uploaded documents, search for specific documents, see all document count in your account delete your account or delete entire document catalogue.</li>
-                  <li>Document Security: We prioritize the security and privacy of your documents. All documents are stored securely using encryption techniques, and access to your documents is protected with user authentication and authorization. Only you can see, modify, and or delete your documents. </li>
-                 <li>Mobile Accessibility: Access your documents on the go! Our application is fully responsive and accessible on mobile devices, allowing you to manage your documents from anywhere, anytime.</li>
+              <div class="modal-body text-light bg-dark">
+                <ul class="text-muted">
+                <p class="lead">Step 1: Sign Up</p>
+                  <li>
+                  Visit Reviewer and click on the "Sign Up" button.
+                  Fill in the required details to create your account.
+                  Verify your email to activate your account.
+                  </li>
+                  <br>
+                  <p class="lead">Step 2: Create Your Review Profile</p>
+                  <li>
+                  After logging in, navigate to your dashboard.
+                  Click on "Create Review Profile."
+                  Provide the URL of your hotel or restaurant to fetch reviews from a site you wish to collect reviews from.
+                  </li>
+                  <br>
+                  <p class="lead">Step 3: Fetch Review Data</p>
+                 <li>
+                 Once your review profile is set up, our system will automatically fetch reviews from various travel sites.
+                 You can view and manage all guest feedback in one place, saving you time from visiting multiple websites.
+                 </li>
+                 <br>
+                 <p class="lead">Step 4: Respond to Guest Feedback</p>
+                  <li>
+                  Engage with your guests by responding to their reviews.
+                  Click on the respective review, type your response, and hit "Submit."
+                  Building positive relationships with your guests is just a click away!
+                  </li>
+                  <br>
+                  <p class="lead">Step 5: Deleting Reviews</p>
+                 <li>
+                 In case you need to remove a review, click on the "Delete" option next to the specific review.
+                 Confirm the deletion to maintain the quality of your review profile.
+                 </li>
+                  <br>
+                  <p class="lead">Step 6: Stay Connected with Guests</p>
+                 <li>
+                 Utilize the "Contact Guests" feature to send messages or offers directly to your guests.
+                 Strengthen your connection with guests and keep them coming back!
+                 </li>
+                  <br>
+                  <p class="lead">Step 7: Save Time, Improve Service</p>
+                 <li>
+                  By centralizing all guest feedback, you save time that can be used to enhance your services and address specific guest needs.
+                  Focus on what matters most to your business.
+                 </li>
+                  <br>
+                  <p class="lead">Thats it, You are all setup.</p>
+                 <li>
+                 Congratulations! You're now ready to streamline your guest feedback management and elevate your guest experience.
+                 If you have any questions or need assistance, feel free to reach out to our support team.
+                 </li>
+                  <br>
+                  <h5 class="text-center">Happy managing and improving!</h5>
                   </ul>
               </div>
-              <div class="modal-footer" style="border:2px solid #13283b80;background-color: #13283b80;">
-                <button type="button" class="btn text-success  bg-transparent btn-lg" style="border: 2px solid #13283b80;" data-bs-dismiss="modal">Close Modal</button>
+              <div class="container modal-footer bg-dark d-flex border-0 justify-content-center">
+                <button type="button" class="btn container btn-outline-secondary m-auto btn-lg text-center" data-bs-dismiss="modal">Close me</button>
               </div>
             </div>
           </div>
@@ -648,15 +748,25 @@ export const PLUGINS = {
     const cookieAccepted = await PLUGINS.fetchFromLocalStorage(
       'isCookiesAccepted'
     )
+
     if (!userGuideShown && cookieAccepted) {
       const container = document.getElementById('innerBody')
       container?.insertAdjacentHTML('afterbegin', userGuideServiceModal)
       setTimeout(async () => {
         const modal_btn = document.querySelector('.modaal_cont')
         modal_btn?.click()
-      }, 2000)
+      }, 200)
       PLUGINS.saveToLocalStorage('userGuideShown', true)
     }
+  },
+  hasBeenClicked: function (element) {
+    let isClicked = false
+    element?.addEventListener('click', e => {
+      if (e.type == 'click') return true
+      return false
+    })
+
+    return isClicked
   },
   setUpBackToTop: async function (mainContainerId) {
     const buttonTopInnerHTML = `<a href="#" class="back-to-top bg-transparent" aria-label="Back to Top">&uarr;</a>`
@@ -882,6 +992,33 @@ export const PLUGINS = {
       }
     }
   },
+  generateLeftContainerContent: async function (dataArray, authorExternalId) {
+    const container = document.querySelector(
+      `.left__body[data-subratings="${authorExternalId}"]`
+    )
+    if (!container) return console.error('Container not found')
+
+    dataArray.forEach((dataObject, index) => {
+      try {
+        if (!dataObject || typeof dataObject !== 'object') {
+          console.error(`Invalid object at index ${index}. Skipping append.`)
+          return
+        }
+        const { key, value } = dataObject
+        if (!key || !value) return
+
+        const displayValue = value === false ? 'No' : value
+        const spanElement = document.createElement('span')
+        spanElement.className = 'text text-muted'
+        spanElement.innerHTML = `<small>${key}: <a href="#">${displayValue}</a></small>`
+
+        const brEle = container.querySelector('.linner')
+        container.insertBefore(spanElement, brEle)
+      } catch (error) {
+        console.error(`Error appending element at index ${index}:`, error)
+      }
+    })
+  },
   generateReviewCard: async function (reviewsDataOject = {}) {
     if (!reviewsDataOject) return
     const _id = reviewsDataOject?._id,
@@ -924,20 +1061,14 @@ export const PLUGINS = {
       isExpertReviewer = miscellaneous?.isExpertReviewer
 
     const InnerReviewHTMLContent = `
-      <div id="${_id}" class="row review-container review-incoming  bg-dark m-auto ${userId}" data-reviewPageId="${reviewPageId}">
+      <div id="${_id}" class="row review-container shadow review-incoming  m-auto ${userId}" data-reviewPageId="${reviewPageId}">
             <div class="card text-bg-dark dark-gray-bg my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
-                <div class="card-header shadow-none border-0">
+                <div class="card-header shadow-none card_header">
                 <img src="" style="width:30%;max-width:75px !important;min-width:57px !important" class="img-thumbnail review-logo-${uuid} bg-transparent" alt="...">
                 </div>
                 <div class="card-body d-flex flex-column left__body" data-subratings="${authorExternalId}">
-                    <span class="text">Posted: ${
-                      (reviewDate && reviewDate) || '0000-00-00'
-                    } </span>
-                    <span class="text">Trip type: <a href="#">${
-                      (tripType && tripType) || 'Leisure'
-                    }</a></span>
-                    <br>
-                    <span class="text" data-guest-rating="rating-${authorExternalId}"></span>
+                  <span class="text" data-guest-rating="rating-${authorExternalId}"></span>
+                  <br class="linner">
                 </div>
             </div>
   
@@ -966,9 +1097,9 @@ export const PLUGINS = {
                 </div>
                 <div class="d-grid gap-2 col-6 mx-auto m-auto action_buttons right__body" style="width:100%;">
                   <button class="btn btn-transparent btn-outline-secondary action_1 hide text-white has-response-${uuid}"  type="button">Respond to review</button>
-                  <a class="btn btn-transparent btn-outline-secondary action_2 text-white" href="${originalEndpoint}" target="_blank"  type="button">See review on google</a>
-                  <button class="btn btn-transparent btn-outline-danger action_3 text-white" del-revie-data="${_id}"  type="button">Delete review</button>
-                  <button class="btn btn-transparent btn-outline-secondary action_4 text-white" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
+                  <a class="btn btn-transparent btn-outline-secondary action_2" href="${originalEndpoint}" target="_blank"  type="button">See review on google</a>
+                  <button class="btn btn-transparent btn-outline-danger action_3" del-revie-data="${_id}"  type="button">Delete review</button>
+                  <button class="btn btn-transparent btn-outline-secondary action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
                 </div>
           </div>
       </div>`
@@ -999,6 +1130,16 @@ export const PLUGINS = {
       `[data-subratings="${authorExternalId}"]`
     )
     PLUGINS.getSiteLogoPath(reviewSiteSlug, `.review-logo-${uuid}`)
+    PLUGINS.generateLeftContainerContent(
+      [
+        { key: 'Posted', value: reviewDate },
+        { key: 'Trip type', value: tripType },
+        { key: 'Room type', value: roomTypeName },
+        { key: 'Nights stayed', value: lengthOfStay },
+        { key: 'Professional Reviewer', value: isExpertReviewer }
+      ],
+      authorExternalId
+    )
   },
   fetchData: async function (page = 1, slug = '') {
     try {
@@ -1063,6 +1204,7 @@ export const PLUGINS = {
         ])
       }
       if (error.response && error.response.status === 404) {
+        PLUGINS.userGuideModel()
         return PLUGINS.displayLabel([
           'review_main_wrapper',
           'alert-warning',
@@ -1163,6 +1305,10 @@ export const PLUGINS = {
     }
   },
   handlePaginatedDataAllAccounts: async function () {
+    const cookieAccepted = await PLUGINS.fetchFromLocalStorage(
+      'isCookiesAccepted'
+    )
+    if (!cookieAccepted) return
     const dropdownMenu = document.querySelector('._inner_dropdown_canvas')
     const links = dropdownMenu?.querySelectorAll('a')
     links?.forEach(link => {

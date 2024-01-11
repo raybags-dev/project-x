@@ -3,14 +3,13 @@ import { passwordNotice, disableElement } from '../utils/update.js'
 import { MAIN_PAGE } from './main_container.js'
 
 import { PLUGINS } from '../utils/plugins.js'
-const { setAuthHandler, displayLabel, userGuideModel, API_CLIENT, runSpinner } =
-  PLUGINS
+const { setAuthHandler, displayLabel, API_CLIENT, runSpinner } = PLUGINS
 
 const apiClient = await API_CLIENT()
 
 export async function LOGIN_HTML () {
   let pageContent = `
-    <nav class="navbar navbar-expand-lg shadow">
+    <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
         <a class="navbar-brand p-2 mb-1" href="#">
             <img src="../images/logo.png" alt="" width=40" height="40" style="border-radius: 50%;filter: gray(100%)"
@@ -25,28 +24,27 @@ export async function LOGIN_HTML () {
     </div>
   </nav>
   <main id="review_main_wrapper" class="container container-fluid my-10">
-    <div class="container log___in container-fluid">
-        <h3 class="p-2 text-white">LOGIN</h3>
+    <div class="container log___in container-fluid shadow">
+        <h3 class="p-2 text-white text-muted">LOGIN</h3>
         <form id="login___form" class=" p-3 rounded pt-2 text-white container-fluid">
             <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Email address</label>
+                <label for="exampleInputEmail1" class="form-label text-muted">Email address</label>
                 <input type="email" name="email" class="form-control" placeholder="Enter your email"
                     id="exampleInputEmail1" aria-describedby="emailHelp" required>
                 <div class="invalid-feedback">Please enter a valid email address.</div>
             </div>
             <div class="mb-3">
-                  <label for="exampleInputPassword1" class="form-label">Password</label>
+                  <label for="exampleInputPassword1" class="form-label text-muted">Password</label>
                   <input type="password" name="password" placeholder="Enter your password" class="form-control"
                       id="exampleInputPassword1" autocomplete="current-password webauthn"  required>
                   <div class="invalid-feedback">Please enter your password.</div>
             </div>
             <div id="checker" class="form-check form-switch mt-3 mb-3 hide_2">
                       <input class="form-check-input"  type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                      <label class="form-check-label" for="flexSwitchCheckDefault">Forgot password</label>
+                      <label class="form-check-label text-muted" for="flexSwitchCheckDefault">Forgot password</label>
             </div>
             <div class="d-grid gap-2">
-                <button type="submit" style="box-shadow: inset 0 -3em 3em rgba(0, 0, 0, 0.1), 0 0 0 2px rgb(255, 255, 255, .4),
-                0.3em 0.3em 1em rgba(0, 0, 0, 0.3);" class="btn btn-transparent login_btn text-white">SUBMIT</button>
+                <button type="submit"  class="btn shadow login_btn text-white text-muted">SUBMIT</button>
             </div>
         </form>
     </div>
@@ -100,7 +98,6 @@ export async function LOGIN_HTML () {
           ])
           setTimeout(async () => {
             runSpinner(true)
-            userGuideModel()
             history.pushState(null, null, '/')
             return await MAIN_PAGE()
           }, 800)
