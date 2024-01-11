@@ -65,9 +65,7 @@ body::after {
 
 ._inner_dropdown_canvas {
     border-radius: .4rem;
-    height: 30vh !important;
     overflow-y: auto !important;
-    border: 2px solid rgb(75, 75, 75);
 }
 
 #review_main_wrapper {
@@ -391,6 +389,9 @@ a {
 
 .dropdown-menu {
     padding-left: .4rem;
+    border-color: rgb(94, 94, 94, .5) !important;
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
 }
 
 .dropdown-menu li {
@@ -401,7 +402,6 @@ a {
 
 .dropdown-menu>li a {
     opacity: .6;
-    font-style: italic;
 }
 
 .dropdown-menu>li:hover a {
@@ -455,9 +455,9 @@ a {
 
 #uploadForm {
     position: fixed;
-    bottom: 10%;
+    top: 50%;
     left: 50%;
-    min-width: 50%;
+    min-width: 60%;
     transform: translate(-50%, -50%);
     -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
@@ -472,6 +472,16 @@ a {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+
+/* #uploadForm:focus,
+#uploadForm:focus-within,
+#uploadForm:active {
+    border: unset;
+} */
+
+#uploadForm>.input-group .form-control {
+    border-color: transparent !important;
 }
 
 .my_inputs .form-control {
@@ -847,4 +857,8 @@ textarea:focus {
     .heading {
         font-size: 15px;
     }
+}
+
+.heading {
+    font-size: 15px;
 }
