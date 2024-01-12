@@ -72,7 +72,15 @@ export async function generateAgodaProfile (req, res) {
 
       const propertyNameRegex = /\/en-gb\/(.+?)\/hotel\/.+\.html/
       const propertyNameMatch = frontFacingUrl.match(propertyNameRegex)
-      const propertyName = propertyNameMatch ? propertyNameMatch[1] : null
+      const propertyName1 = propertyNameMatch ? propertyNameMatch[1] : null
+
+      const propertyNameRegex2 = /https:\/\/www\.agoda\.com\/(.+?)\/hotel\//
+      const propertyNameRegex2Match = frontFacingUrl.match(propertyNameRegex2)
+      const propertyName2 = propertyNameRegex2Match
+        ? propertyNameRegex2Match[1]
+        : null
+
+      const propertyName = propertyName1 ? propertyName1 : propertyName2
 
       const cleanedPropertyName = propertyName
         ? propertyName.replace(/-/g, ' ')

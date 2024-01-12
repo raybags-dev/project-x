@@ -170,7 +170,7 @@ async function fetchAgodaReviewsPerPage (
             headers,
             page + i,
             i === 0 ? pageSize1 : pageSize2,
-            i !== 0, // i === 0 for the first call, i.e., isReviewPage for pageSize1
+            i !== 0,
             allReviews
           ).catch(() => {
             errorEncountered = true

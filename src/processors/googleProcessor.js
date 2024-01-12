@@ -1,6 +1,5 @@
 import axios from 'axios'
-import { ObjectId } from 'mongodb'
-import { findAccessibleUrl } from '../../src/utils/testEndpoints.js'
+import { googleReviewUpdateHandler } from '../../src/utils/updateGoogle.js'
 import { USER_MODEL } from '../models/user.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { REVIEW } from '../models/documentModel.js'
@@ -47,6 +46,7 @@ export async function generateGoogleReviews (req, res) {
       computedUrl,
       name: property_name,
       internalId,
+      _id: profile_id,
       originalUrl
     } = userProfile
 
@@ -95,6 +95,7 @@ export async function generateGoogleReviews (req, res) {
               author: review.author,
               userId: review.userId,
               siteId: internalId,
+              uuid: profile_id,
               reviewPageId: previousPageToken,
               authorExternalId: review.authorExternalId,
               authorProfileUrl: review.authorProfileUrl,
@@ -166,9 +167,11 @@ export async function generateGoogleReviews (req, res) {
     res.status(500).json({ error: 'Server error' })
   }
 }
-export async function updateGoogleReview (req, res) {
+
+export async function updateReview (req, res) {
   try {
     const { email, isAdmin, userId } = await req.locals.user
+    const { reviewSiteSlug } = await req.body
     const isSubscribed = await USER_MODEL.getSubscriptionStatus(userId)
 
     if (!isSubscribed)
@@ -183,133 +186,52 @@ export async function updateGoogleReview (req, res) {
       })
 
     const user = await USER_MODEL.findOne({ email })
-
     if (!user) return res.status(404).json('User not found!')
 
-    const userProfile = await PROFILE_MODEL.findOne({ userId: user.userId })
+    const profile = await PROFILE_MODEL.findOne({ userId })
+    if (!profile)
+      return res.status(404).json('Profile not found or has been deleted!')
 
-    if (!userProfile || !userProfile.url)
-      return res.status(400).json({
-        status: 'failed',
-        message: 'URL is required to complete this task'
-      })
-
-    const {
-      url: baseUrl,
-      computedUrl,
-      name: property_name,
-      internalId
-    } = userProfile
-
-    const headers = HEADERS.googleHtmlHeaders
-    let savedReviews = []
-    let nextPageToken = null
-    let matchingReview = null
-
-    const reviewToDelete = req.body.reviewId
-    const authorExternalIdToDelete = req.body.authorExternalId
-
-    const deletedReview = await REVIEW.findOneAndDelete({
-      _id: new ObjectId(reviewToDelete)
-    })
-
-    if (!deletedReview) {
-      return res.status(404).json({
-        status: 'failed',
-        message: 'Review not found or already deleted'
-      })
-    }
+    const { internalId, uuid, computedUrl, name, originalUrl } = profile
 
     try {
-      do {
-        const urlWithPageToken = nextPageToken
-          ? `${baseUrl}${nextPageToken}`
-          : baseUrl
-
-        const response = await axios.get(urlWithPageToken, { headers })
-        const { data } = response
-
-        const reviewsData = await parseReviewHtml(
-          data,
-          baseUrl,
-          req,
-          computedUrl
-        )
-
-        for (const review of reviewsData) {
-          const existingReview = await REVIEW.findOne({
-            authorExternalId: review.authorExternalId
+      // ** ====================
+      if (reviewSiteSlug === 'google-com') {
+        const reviewObject = await googleReviewUpdateHandler(req, res)
+        if (reviewObject?.status === 'failed')
+          return res.status(500).json({
+            message:
+              reviewObject.message || 'Something went wrong, update failed.'
           })
-
-          if (!existingReview) {
-            const savedReview = await REVIEW.create({
-              author: review.author,
-              userId: review.userId,
-              siteId: internalId,
-              reviewPageId: nextPageToken,
-              authorExternalId: review.authorExternalId,
-              authorProfileUrl: review.authorProfileUrl,
-              reviewSiteSlug: review.reviewSiteSlug,
-              reviewBody: review.reviewBody,
-              propertyProfileUrl: computedUrl || review.propertyProfileUrl,
-              reviewDate: review.reviewDate,
-              urlAgent: deletedReview.urlAgent || review.urlAgent,
-              propertyName: property_name || review.propertyName,
-              propertyResponse: {
-                body: review.propertyResponse.body,
-                responseDate: review.propertyResponse.responseDate
-              },
-              rating: review.rating,
-              tripType: review.tripType,
-              subratings: review.subratings
-            })
-            savedReviews.push(savedReview)
-
-            if (review.authorExternalId === authorExternalIdToDelete) {
-              const targetReview = await REVIEW.findOne({
-                authorExternalId: req.body.authorExternalId
-              })
-              return res.status(200).json({
-                state: 'success',
-                message: 'Reivew updated successfullly!',
-                review: targetReview
-              })
-            }
-          }
-        }
-        nextPageToken = extractNextPageToken(data)
-      } while (nextPageToken)
-
-      const totalReviewCount = savedReviews.length
-      await PROFILE_MODEL.updateOne(
-        { userId: user.userId },
-        { $set: { propertyReviewCount: totalReviewCount } }
-      )
-
-      const ownershipId = userProfile.userId || req.locals.user.userId
-      const totalCount = await REVIEW.countDocuments({ userId: ownershipId })
-
-      function extractNextPageToken (data) {
-        const nextPageTokenMatch = data.match(/data-next-page-token="([^"]+)"/)
-        return nextPageTokenMatch ? nextPageTokenMatch[1] : null
+        return res.status(200).json({
+          message: 'Review updated success',
+          uuid: reviewObject.uuid,
+          reviewSiteSlug,
+          url: computedUrl || originalUrl,
+          data: [reviewObject],
+          propertyName: name,
+          requestTimestamp: new Date()
+        })
       }
-
-      return res.status(200).json({
-        state: 'success',
-        reviewSiteName: userProfile.reviewSiteSlug,
-        reviewDocumentCount: totalCount,
-        accountName: userProfile.name,
-        endpoint: userProfile.computedUrl,
-        siteId: internalId,
-        message: 'Reviews have been collected',
-        matchingReview
+      // ** ====================
+      // if(reviewSiteSlug === 'agoda-com'){
+      //   const response = await agodaReviewUpdateHandler(req, res)
+      //   return res.status(200).json({
+      //     message: 'Reviews have been collected',
+      //     data: response
+      //   })
+      // }
+      return res.status(404).json({
+        message: 'Process failed, No updates occured!'
       })
     } catch (error) {
-      console.error('Error fetching reviews:', error.message)
-      return res.status(500).json({ error: 'Server error' })
+      console.error('Error fetching reviews:', error)
+      return res
+        .status(500)
+        .json({ error: 'Server error', message: error.message })
     }
   } catch (error) {
-    console.log('Error fetching reviews:', error.message)
+    console.log('Error fetching reviews:', error)
     return res.status(500).json({ error: 'Server error' })
   }
 }

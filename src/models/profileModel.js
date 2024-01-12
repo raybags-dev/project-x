@@ -111,7 +111,7 @@ reviewSiteProfileSchema.pre('save', async function (next) {
     )
     // Update profiles field in User model
     if (this.isNew) {
-      const { _id: profileId, name: propertyName, slug, url } = this
+      const { _id: profileId, name: propertyName, reviewSiteSlug, url } = this
 
       await USER_MODEL.updateOne(
         { userId: this.userId },
@@ -120,7 +120,7 @@ reviewSiteProfileSchema.pre('save', async function (next) {
             profiles: {
               _id: profileId,
               name: propertyName,
-              slug,
+              slug: reviewSiteSlug,
               url
             }
           }
@@ -134,7 +134,6 @@ reviewSiteProfileSchema.pre('save', async function (next) {
     next(error)
   }
 })
-
 reviewSiteProfileSchema.methods.beforeDelete = async function () {
   try {
     console.log('its working....')
