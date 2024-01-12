@@ -1,7 +1,7 @@
 import express from 'express'
 import {
   generateGoogleReviews,
-  updateGoogleReview
+  updateReview
 } from '../processors/googleProcessor.js'
 
 import { authMiddleware, isAdmin } from '../../middleware/auth.js'
@@ -19,7 +19,7 @@ router.post(
   '/raybags/v1/review-crawler/update-review',
   authMiddleware,
   isAdmin,
-  asyncMiddleware(updateGoogleReview)
+  asyncMiddleware(updateReview)
 )
 
 export default router

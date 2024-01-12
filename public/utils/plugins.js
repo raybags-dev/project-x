@@ -851,9 +851,9 @@ export const PLUGINS = {
       }
     return {}
   },
-  updateReview: async function (documentId, authorExternalId) {
+  updateReview: async function (documentId, authorExternalId, reviewSiteSlug) {
     try {
-      if (!documentId || !authorExternalId) {
+      if (!documentId || !authorExternalId || !reviewSiteSlug) {
         throw new Error('Invalid payload')
       }
 
@@ -866,22 +866,21 @@ export const PLUGINS = {
         const apiClient = await PLUGINS.API_CLIENT()
         const response = await apiClient.post(
           baseUrl,
-          { reviewId: documentId, authorExternalId },
+          { reviewId: documentId, authorExternalId, reviewSiteSlug },
           { headers }
         )
-        console.log(response)
 
         if (response.status == 200) {
-          console.log(response.data)
-
+          let reviewObj = response.data.data[0]
           PLUGINS.displayLabel([
             'review_main_wrapper',
             'alert-success',
             `Review updated successfully`
           ])
           PLUGINS.runSpinner(true)
-          return true
+          return reviewObj
         }
+        return false
       }
       throw new Error(`Failed to update review: ${response.data}`)
     } catch (error) {
@@ -904,6 +903,7 @@ export const PLUGINS = {
     reviewContainer.addEventListener('click', async event => {
       const clickedButton = event.target.closest('button')
       if (clickedButton) {
+        // ************
         // ************
         if (clickedButton.classList.contains('action_3')) {
           const reviewId = PLUGINS.getOutermostReviewId(clickedButton)
@@ -932,6 +932,7 @@ export const PLUGINS = {
         if (clickedButton.classList.contains('action_4')) {
           const reviewId = PLUGINS.getOutermostReviewId(clickedButton)
           const authorExternalId = PLUGINS.getAuthorExternalIdId(clickedButton)
+          const reviewSiteSlug = PLUGINS.getSiteSlug(reviewId)
 
           if (reviewId) {
             try {
@@ -940,15 +941,28 @@ export const PLUGINS = {
               setTimeout(async () => {
                 const updatedReview = await PLUGINS.updateReview(
                   reviewId,
-                  authorExternalId
+                  authorExternalId,
+                  reviewSiteSlug
                 )
 
                 if (updatedReview) {
                   const deletedCard = document.getElementById(`${reviewId}`)
                   deletedCard?.classList.add('delete_item')
-                  setTimeout(() => deletedCard.remove(), 100)
-                  await PLUGINS.generateReviewCard(updatedReview)
-                  location.reload(true)
+                  setTimeout(() => deletedCard.remove(), 20)
+                  await PLUGINS.generateReviewCard(updatedReview, true)
+                  const newCard = document.querySelector(
+                    `.__${authorExternalId}`
+                  )
+                  const parentWrapper = document.querySelector(
+                    '#review_main_wrapper'
+                  )
+
+                  if (newCard && parentWrapper) {
+                    newCard.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'center'
+                    })
+                  }
                 }
               }, 1500)
             } catch (error) {
@@ -959,6 +973,7 @@ export const PLUGINS = {
           return
         }
         // ************
+        // ************
       }
     })
   },
@@ -968,6 +983,16 @@ export const PLUGINS = {
       return reviewContainer.id
     }
     return null
+  },
+  getSiteSlug: function (reviewID) {
+    const targetElement = document.getElementById(reviewID)
+    if (targetElement) {
+      const slug = targetElement.dataset.slug
+      return slug
+    } else {
+      console.error('Target element not found')
+      return null
+    }
   },
   getAuthorExternalIdId: function (buttonElement) {
     const reviewContainer = buttonElement.closest('.review-container')
@@ -1027,12 +1052,22 @@ export const PLUGINS = {
       const uploadHTML = `
           <form id="uploadForm" class="select-img-form text-danger profile_form">
           <div class="input-group mb3 input-group-lg my_inputs">
-            <input type="text" name="images" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" placeholder="Type your property name here..." required>
-            <button class="btn btn-lg  btn-outline-secondary sub__this_form" type="button" id="inputGroupFileAddon04">Button</button>
+              <select class="form-select border-transparent" id="inputGroupSiteOptions" aria-label="Example select with button addon">
+                <option selected>Choose site</option>
+                <option value="google">google-com</option>
+                <option value="agoda">agoda-com</option>
+                <!--
+                <option value="booking">booking-com</option>
+                <option value="tripadvisor">tripadvisor-com</option>
+                <option value="ctrip">ctrip-com</option>
+                <option value="expedia">expedia-com</option>
+                -->
+              </select>
+            <button class="btn btn-lg btn-outline-secondary sub__this_form" type="button" id="proertyName29">Button</button>
           </div>
     
           <div class="input-group mb3 my_inputs">
-            <textarea type="text" name="description" id="descriptionInput" placeholder="Paste your site property review page link here... " rows="4" class="form-control" aria-label="Description"></textarea>
+            <textarea type="text" name="propertyurl" id="propertUrlInputY" placeholder="Paste your site property review page link here... " rows="10" class="form-control" aria-label="propertyUrl"></textarea>
           </div>
         </form>`
 
@@ -1042,27 +1077,88 @@ export const PLUGINS = {
       const submit____btn = document.querySelector('.sub__this_form')
       submit____btn?.addEventListener('click', async () => {
         console.log('submitted')
-        //let hasfinishUpload = await uploadFiles()
-        // if (hasfinishUpload) {
-        //   document.querySelector('#uploadForm')?.remove()
-        // }
+        PLUGINS.sendCreateProfileRequest()
       })
       // Listen for the Enter key press on the document
       document.addEventListener('keydown', async event => {
         if (event.key === 'Enter') {
           event.preventDefault()
           console.log('submitted')
-
-          // let hasFinishUpload = await uploadFiles()
-          // if (hasFinishUpload) {
-          //   document.querySelector('#uploadForm')?.remove()
-          // }
+          PLUGINS.sendCreateProfileRequest()
         }
       })
     } else {
       formIsPresent?.remove()
     }
   },
+  sendCreateProfileRequest: async function () {
+    let slug = ''
+    const user = PLUGINS.getAuthHandler()
+    const { 'auth-token': token, isAdmin } = user
+    try {
+      const formData = new FormData()
+
+      if (!isAdmin || !token) {
+        displayLabel(['main__wrapper', 'alert-danger', 'Unauthorized!'])
+        return
+      }
+      if (token && isAdmin) {
+        const apiClient = await PLUGINS.API_CLIENT()
+
+        const defaultValue = 'Choose site'
+        const siteOptions = document.getElementById('inputGroupSiteOptions')
+        const selectedOption = siteOptions.querySelector('option:checked')
+
+        if (selectedOption.value === defaultValue) {
+          PLUGINS.displayLabel([
+            'review_main_wrapper',
+            'alert-danger',
+            `You must select a site you wish to create an account for!`
+          ])
+          return
+        }
+        const siteUrl = document.querySelector('#propertUrlInputY').value.trim()
+
+        if (!siteUrl.length) {
+          PLUGINS.displayLabel([
+            'review_main_wrapper',
+            'alert-danger',
+            `Property URL is missing. URL is required for this operation!`
+          ])
+          return
+        }
+        PLUGINS.runSpinner(false, 'Creating...')
+
+        formData.append('frontFacingUrl', siteUrl)
+        slug = selectedOption ? selectedOption.value : ''
+        const urlPart = slug ? `create-${slug}-review-profile` : ''
+
+        const baseUrl = `/user/${urlPart}`
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+
+        const res = await apiClient.post(baseUrl, formData, { headers })
+        if (res.status) {
+          // **** IMPLIMENTATION REQUIRED ****
+          console.log(response.data)
+          // **** IMPLIMENTATION REQUIRED *****
+        }
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        console.log(error.message)
+        return PLUGINS.displayLabel([
+          'review_main_wrapper',
+          'alert-danger',
+          `This account already has a ${slug} profile!`
+        ])
+      }
+    }
+  },
+
   handleProfileGenerator: async function (selector = null, hasData = true) {
     const anchor = document.querySelector(selector)
     if (anchor) {
@@ -1087,7 +1183,10 @@ export const PLUGINS = {
       }
     })
   },
-  generateReviewCard: async function (reviewsDataOject = {}) {
+  generateReviewCard: async function (
+    reviewsDataOject = {},
+    cardIsNew = false
+  ) {
     if (!reviewsDataOject) return
     const _id = reviewsDataOject?._id,
       reviewSiteSlug = reviewsDataOject?.reviewSiteSlug,
@@ -1129,10 +1228,10 @@ export const PLUGINS = {
       isExpertReviewer = miscellaneous?.isExpertReviewer
 
     const InnerReviewHTMLContent = `
-      <div id="${_id}" class="row review-container shadow review-incoming  m-auto ${userId}" data-reviewPageId="${reviewPageId}">
+      <div id="${_id}" class="row review-container shadow review-incoming __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
             <div class="card text-bg-dark dark-gray-bg my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
                 <div class="card-header shadow-none card_header">
-                <img src="" style="width:30%;max-width:75px !important;min-width:57px !important" class="img-thumbnail review-logo-${uuid} bg-transparent" alt="...">
+                <img src="" style="width:30%;max-width:75px !important;min-width:57px !important" class="img-thumbnail review-logo-${uuid}-${internalId} bg-transparent" alt="...">
                 </div>
                 <div class="card-body d-flex flex-column left__body" data-subratings="${authorExternalId}">
                   <span class="text" data-guest-rating="rating-${authorExternalId}"></span>
@@ -1175,7 +1274,12 @@ export const PLUGINS = {
       </div>`
 
     const parent_wrapper = document.querySelector('#review_main_wrapper')
-    parent_wrapper?.insertAdjacentHTML('beforeend', InnerReviewHTMLContent)
+
+    if (cardIsNew) {
+      parent_wrapper?.insertAdjacentHTML('afterbegin', InnerReviewHTMLContent)
+    } else {
+      parent_wrapper?.insertAdjacentHTML('beforeend', InnerReviewHTMLContent)
+    }
 
     PLUGINS.createSubratings(
       subratings,
@@ -1199,7 +1303,10 @@ export const PLUGINS = {
       authorReviewCount,
       `[data-subratings="${authorExternalId}"]`
     )
-    PLUGINS.getSiteLogoPath(reviewSiteSlug, `.review-logo-${uuid}`)
+    PLUGINS.getSiteLogoPath(
+      reviewSiteSlug,
+      `.review-logo-${uuid}-${internalId}`
+    )
     PLUGINS.generateLeftContainerContent(
       [
         { key: 'Posted', value: reviewDate },

@@ -1,16 +1,11 @@
 import mongoose from 'mongoose'
-
-import {
-  generateUUID,
-  generateUniqueId
-} from '../../middleware/uuidGenerator.js'
+import { generateUniqueId } from '../../middleware/uuidGenerator.js'
+import { PROFILE_MODEL } from './profileModel.js'
 
 const ReviewModel = {
   uuid: {
     type: String,
-    required: true,
-    unique: true,
-    default: generateUUID
+    default: null
   },
   reviewSiteSlug: {
     type: String,
@@ -228,10 +223,16 @@ REVIEW_MODEL.pre('save', async function (next) {
   if (!isNaN(rating) && rating > 5) {
     this.rating = Math.round((rating / 10) * 5)
   }
-
   if (this.propertyResponse && this.propertyResponse.body !== null) {
     this.hasPropertyResponse = true
   }
+
+  const siteProfile = await PROFILE_MODEL.findOne({
+    userId: this.userId,
+    reviewSiteSlug: this.reviewSiteSlug
+  })
+  if (siteProfile) this.uuid = siteProfile._id
+
   next()
 })
 REVIEW_MODEL.statics.convertReviewDateToTimestamp = function (reviewDate) {

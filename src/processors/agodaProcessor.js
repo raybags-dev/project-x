@@ -50,6 +50,7 @@ export async function generateAgodaReviews (req, res) {
       name: property_name,
       internalId,
       originalUrl,
+      _id: profile_id,
       reviewSiteSlug,
       reviewPageUrl
     } = userProfile
@@ -71,9 +72,7 @@ export async function generateAgodaReviews (req, res) {
         rating,
         ratingText,
         responderName,
-        responseDateText,
         responseText,
-        responseTranslateSource,
         reviewComments,
         reviewNegatives,
         reviewPositives,
@@ -98,6 +97,7 @@ export async function generateAgodaReviews (req, res) {
           author: displayMemberName,
           country: countryName,
           userId: userId,
+          uuid: profile_id,
           siteId: internalId,
           authorExternalId: hotelReviewId,
           authorProfileUrl: originalUrl,

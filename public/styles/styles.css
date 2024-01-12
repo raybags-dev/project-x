@@ -93,6 +93,10 @@ body::after {
 
 }
 
+.review-container .card-header {
+    background-color: transparent;
+}
+
 .review-container .card {
     margin-left: auto;
     margin-right: auto;
@@ -462,10 +466,11 @@ a {
     -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
     z-index: 1000;
+    border: 7px solid #33373b;
     border-radius: .5rem;
     padding: .4rem;
-    gap: 6px;
-    background-color: rgb(128, 128, 128, .1);
+    gap: 2px;
+    background-color: #2a2f34;
     max-height: 40% !important;
     overflow: hidden;
     display: flex;
@@ -474,32 +479,45 @@ a {
     align-items: center;
 }
 
-/* #uploadForm:focus,
-#uploadForm:focus-within,
-#uploadForm:active {
-    border: unset;
-} */
-
 #uploadForm>.input-group .form-control {
     border-color: transparent !important;
 }
 
-.my_inputs .form-control {
-    background-color: rgba(112, 112, 112, 0.3);
+.my_inputs .form-control,
+.my_inputs .form-select {
+    background-color: rgba(67, 66, 66, 0.5);
     display: flex;
     justify-content: baseline;
     align-items: center;
     color: white;
 }
 
+.my_inputs .form-select {
+    border: unset;
+}
+
+.my_inputs .form-select:focus,
+.my_inputs .form-select:focus-within,
+.my_inputs .form-select:active {
+    border: unset !important;
+    outline: unset !important;
+}
+
 input:focus,
 textarea:focus,
-select:focus {
+select:focus,
+.form-select {
     outline: none !important;
     box-shadow: none !important;
 }
 
-input:focus {
+.sub__this_form {
+    border-radius: .2rem !important;
+    border: 2px solid #444c53;
+}
+
+input:focus,
+.form-select:focus {
     border: 2px solid #ccc !important;
 }
 
@@ -650,75 +668,17 @@ textarea:focus {
 }
 
 /** ===== Uncomment this css lines before commiting== */
-
-#search____input::-webkit-input-placeholder,
-#canvas__Search_input::-webkit-input-placeholder {
-    -webkit-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input::-moz-placeholder,
-#canvas__Search_input::-moz-placeholder {
-    -moz-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input:-ms-input-placeholder,
-#canvas__Search_input:-ms-input-placeholder {
-    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input::-ms-input-placeholder,
-#canvas__Search_input::-ms-input-placeholder {
-    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
+/*
 #search____input::placeholder,
 #canvas__Search_input::placeholder {
     transition: letter-spacing 0.5s, opacity 0.5s;
 }
-
-#search____input:focus-within::-webkit-input-placeholder,
-#canvas__Search_input:focus-within::-webkit-input-placeholder {
-    letter-spacing: 2rem;
-    opacity: 0;
-    -webkit-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input:focus-within::-moz-placeholder,
-#canvas__Search_input:focus-within::-moz-placeholder {
-    letter-spacing: 2rem;
-    opacity: 0;
-    -moz-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input:focus-within:-ms-input-placeholder,
-#canvas__Search_input:focus-within:-ms-input-placeholder {
-    letter-spacing: 2rem;
-    opacity: 0;
-    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input:focus-within::-ms-input-placeholder,
-#canvas__Search_input:focus-within::-ms-input-placeholder {
-    letter-spacing: 2rem;
-    opacity: 0;
-    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
 #search____input:focus-within::placeholder,
 #canvas__Search_input:focus-within::placeholder {
     letter-spacing: 2rem;
     opacity: 0;
     transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
+}*/
 /** ==== Uncomment this css lines before commiting=== */
 .big_spinnerr {
     background-color: transparent;
@@ -814,6 +774,18 @@ textarea:focus {
 
     .dropdown-item {
         padding-left: .03rem !important;
+    }
+}
+
+@media screen and (max-width: 661px) {
+    #uploadForm {
+        min-width: 90% !important;
+    }
+
+    #search____input {
+        border-radius: .1rem;
+        margin-top: 1rem;
+        width: 100%;
     }
 }
 
