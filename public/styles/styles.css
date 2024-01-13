@@ -696,7 +696,6 @@ textarea:focus {
     -ms-user-select: none;
     user-select: none;
     background: transparent;
-    text-shadow: 1px 3px 0 #000000, -6px 0px 10px #aba8a8;
 }
 
 @media screen and (max-width: 1213px) {

@@ -6,6 +6,7 @@ const {
   userGuideModel,
   setupDropdownHover,
   handleProfileGenerator,
+  superManHandle,
   handleReviewButtonsEvents,
   handlePaginatedDataAllAccounts
 } = PLUGINS
@@ -24,8 +25,8 @@ export async function MAIN_PAGE () {
               </form>
               <ul id="__nav" class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll dark-gray-bg border-1 border-danger" style="--bs-scroll-height: 150px;">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          ACCOUNT
+                        <a class="nav-link dropdown-toggle text-white text-uppercase" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          account
                         </a>
                         <ul class="dropdown-menu dark-gray-bg border-3 border-secondary">
                           <li><a class="dropdown-item dropdown-item-dark text-light  account_details" href="#">Your account details</a></li>
@@ -36,8 +37,8 @@ export async function MAIN_PAGE () {
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          SITES
+                        <a class="nav-link dropdown-toggle text-white text-uppercase" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          sites
                         </a>
                         <ul class="dropdown-menu _inner_dropdown_canvas dark-gray-bg border-3 border-secondary">
                         <li><a class="dropdown-item dropdown-item-dark text-light  google-com" href="#">google-com</a></li>
@@ -65,6 +66,7 @@ export async function MAIN_PAGE () {
   })
   handlePaginatedDataAllAccounts()
   handleReviewButtonsEvents()
+  superManHandle()
   setupDropdownHover()
   roadRunners()
   handleProfileGenerator('.create_profile')
