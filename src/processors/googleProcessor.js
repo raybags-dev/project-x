@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { googleReviewUpdateHandler } from '../../src/utils/updateGoogle.js'
+import { agodaReviewUpdateHandler } from '../../src/utils/updateAgoda.js'
 import { USER_MODEL } from '../models/user.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { REVIEW } from '../models/documentModel.js'
@@ -171,7 +172,7 @@ export async function generateGoogleReviews (req, res) {
 export async function updateReview (req, res) {
   try {
     const { email, isAdmin, userId } = await req.locals.user
-    const { reviewSiteSlug } = await req.body
+    const { reviewSiteSlug } = req.body
     const isSubscribed = await USER_MODEL.getSubscriptionStatus(userId)
 
     if (!isSubscribed)
@@ -214,13 +215,23 @@ export async function updateReview (req, res) {
         })
       }
       // ** ====================
-      // if(reviewSiteSlug === 'agoda-com'){
-      //   const response = await agodaReviewUpdateHandler(req, res)
-      //   return res.status(200).json({
-      //     message: 'Reviews have been collected',
-      //     data: response
-      //   })
-      // }
+      if (reviewSiteSlug === 'agoda-com') {
+        const reviewObject = await agodaReviewUpdateHandler(req, res)
+        if (reviewObject?.status === 'failed')
+          return res.status(500).json({
+            message:
+              reviewObject.message || 'Something went wrong, update failed.'
+          })
+        return res.status(200).json({
+          message: 'Review updated success',
+          uuid: reviewObject.uuid,
+          reviewSiteSlug,
+          url: computedUrl || originalUrl,
+          data: [reviewObject],
+          propertyName: name,
+          requestTimestamp: new Date()
+        })
+      }
       return res.status(404).json({
         message: 'Process failed, No updates occured!'
       })

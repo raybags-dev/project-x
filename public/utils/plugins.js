@@ -290,31 +290,99 @@ export const PLUGINS = {
       smallElement.appendChild(containerElement)
     }
   },
-  addAdminLinkToNavbar: async function () {
+  validateSuperAdmin: async function () {
+    try {
+      PLUGINS.runSpinner(false, 'validating...')
+
+      const user = PLUGINS.getAuthHandler()
+      if (!user.superUserToken || !user.isSuperUser) return
+      if (user) {
+        const apiClient = await PLUGINS.API_CLIENT()
+
+        const baseUrl = '/user/validate'
+
+        const { 'auth-token': token, superUserToken } = user
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          'admin-token': superUserToken,
+          'Content-Type': 'application/json'
+        }
+
+        const res = await apiClient.post(baseUrl, {}, { headers })
+        if (res.status === 200 && res.statusText && res.data.state) {
+          PLUGINS.runSpinner(true)
+          return true
+        }
+        return false
+      }
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.status === 403 &&
+        error.response.data.status === 'UNAUTHORIZED'
+      ) {
+        PLUGINS.runSpinner(true)
+        return ''
+      } else {
+        console.warn('An error occurred:')
+      }
+    }
+  },
+  addSuperAdminLinkToNavbar: async function () {
     const navUl = document.getElementById('__nav')
     const userString = await PLUGINS.getAuthHandler()
+    const isSuperUser = await PLUGINS.validateSuperAdmin()
 
-    if (userString) {
-      const { superUserToken, isSuperUser, isSubscribed } = userString
-      if (superUserToken && isSuperUser && isSubscribed) {
+    if (userString && isSuperUser) {
+      const { superUserToken, isSuperUser } = userString
+
+      if (superUserToken && isSuperUser) {
         const adminLi = document.createElement('li')
         adminLi.classList.add('nav-item', 'dropdown')
 
         const adminLink = document.createElement('a')
         adminLink.classList.add(
-          'dropdown-item',
-          'dropdown-item-dark',
-          'text-white',
-          'bg-transparent',
-          'mwesigwa_link'
+          'nav-link',
+          'dropdown-toggle',
+          'text-uppercase',
+          'text-white'
         )
         adminLink.href = '#'
-        adminLink.textContent = 'Admin'
+        adminLink.setAttribute('role', 'button')
+        adminLink.setAttribute('data-bs-toggle', 'dropdown')
+        adminLink.setAttribute('aria-expanded', 'false')
+        adminLink.textContent = 'Super admin'
+
+        const dropdownMenu = document.createElement('ul')
+        dropdownMenu.classList.add(
+          'dropdown-menu',
+          'dark-gray-bg',
+          'border-3',
+          'border-secondary'
+        )
+
+        const accountsAdminTab = document.createElement('li')
+        accountsAdminTab.innerHTML =
+          '<a class="dropdown-item dropdown-item-dark text-light accounts-admin-tab text-uppercase" href="#">user accounts</a>'
+
+        dropdownMenu.appendChild(accountsAdminTab)
         adminLi.appendChild(adminLink)
+        adminLi.appendChild(dropdownMenu)
+
         navUl?.insertBefore(adminLi, navUl.firstChild)
       }
+      return true
     }
   },
+  superManHandle: async function () {
+    try {
+      const linkTabAvailable = await PLUGINS.addSuperAdminLinkToNavbar()
+    } catch (e) {
+      console.log('done')
+    }
+  },
+
   reviewCount: async function (countTotal, selector) {
     const container = document.querySelector(selector)
 
@@ -1263,7 +1331,6 @@ export const PLUGINS = {
                 <h5 class="card-title text-light text-center">Actions</h5>
                 </div>
                 <div class="d-grid gap-2 col-6 mx-auto m-auto action_buttons right__body" style="width:100%;">
-                  <button class="btn btn-transparent btn-outline-secondary action_1 hide has-response-${uuid}"  type="button">Respond to review</button>
                   <a class="btn btn-transparent btn-outline-secondary action_2" href="${
                     originalEndpoint || propertyProfileUrl
                   }" target="_blank"  type="button">See review on ${reviewSiteSlug}</a>
@@ -1355,13 +1422,7 @@ export const PLUGINS = {
             PLUGINS.displayLabel([
               'review_main_wrapper',
               'alert-success',
-              `Reviews on page: ${page}`
-            ])
-          } else {
-            PLUGINS.displayLabel([
-              'review_main_wrapper',
-              'alert-success',
-              `Reviews for only ${slug}, page: ${page}`
+              `Page: ${page}`
             ])
           }
           return data

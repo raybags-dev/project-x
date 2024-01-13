@@ -193,3 +193,11 @@ export const isAdmin = async (req, res, next) => {
   }
   next()
 }
+export const validateSuperUserToken = (userSysToken, requestToken) => {
+  try {
+    return !!userSysToken && userSysToken === requestToken
+  } catch (error) {
+    console.error('Error validating super user token:', error)
+    return false
+  }
+}

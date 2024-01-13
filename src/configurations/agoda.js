@@ -49,7 +49,8 @@ export async function callAgodaEndpoint (url, requestBody, headers) {
 export async function fetchAgodaReviews (
   depth = 1,
   propertyExternalId,
-  userProfile
+  userProfile,
+  isUpdating = false
 ) {
   const pageSize1 = 20
   const pageSize2 = 70
@@ -138,7 +139,7 @@ async function fetchPage (
       console.log('TOO_MANY_REQUEST detected. Try again later.')
       return true
     } else {
-      console.error('Error fetching page:', error.message)
+      console.error('Error fetching page:', error)
       throw error
     }
   }

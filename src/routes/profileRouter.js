@@ -5,7 +5,8 @@ import {
   deleteAccountProfile,
   deleteAccountProfileAndAllDocuments,
   pargeUserPrivate,
-  pargeUserPublic
+  pargeUserPublic,
+  validateCaller
 } from '../controllers/profileController.js'
 
 const router = express.Router()
@@ -33,6 +34,12 @@ router.delete(
   authMiddleware,
   isAdmin,
   asyncMiddleware(pargeUserPublic)
+)
+router.post(
+  '/raybags/v1/review-crawler/user/validate',
+  authMiddleware,
+  isAdmin,
+  asyncMiddleware(validateCaller)
 )
 
 export default router

@@ -1,6 +1,7 @@
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { REVIEW } from '../models/documentModel.js'
 import { USER_MODEL, USER_ID_MODEL } from '../models/user.js'
+import { validateSuperUserToken } from '../../middleware/auth.js'
 
 export async function deleteAccountProfile (req, res) {
   try {
@@ -114,5 +115,25 @@ export async function pargeUserPrivate (req, res) {
   } catch (error) {
     console.error('Error in pargeUserPrivate:', error)
     return res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
+
+export async function validateCaller (req, res) {
+  try {
+    const requestToken = req.headers['admin-token'] || ''
+    const superUserToken = req.locals.user.superUserToken
+
+    const isValid = validateSuperUserToken(superUserToken, requestToken)
+
+    if (isValid) {
+      return res
+        .status(200)
+        .json({ status: 'PASS', state: isValid, message: 'Valid Token' })
+    }
+
+    res.status(403).json({ status: 'UNAUTHORIZED', message: 'Invalid Token' })
+  } catch (e) {
+    console.error('Error in validateCaller:', e)
+    res.status(500).json({ status: 'ERROR', message: 'Internal Server Error' })
   }
 }
