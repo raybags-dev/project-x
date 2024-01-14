@@ -105,11 +105,12 @@ export async function DeleteOneDocumentController (req, res) {
 }
 export async function AllUserDocsController (req, res) {
   try {
-    const { isAdmin, userId, isSuperUser } = req.locals.user
+    const { userId } = req.locals.user
 
     const profile = await PROFILE_MODEL.findOne({ userId })
-    if (!profile)
+    if (!profile) {
       return res.status(404).json('Profile not found or has been deleted!')
+    }
 
     const { reviewSiteSlug, internalId, uuid, computedUrl, name, originalUrl } =
       profile
@@ -123,31 +124,22 @@ export async function AllUserDocsController (req, res) {
     const skip = (page - 1) * perPage
 
     if (!requestedSlug || requestedSlug == undefined) {
-      query = REVIEW.find({ userId: userId })
+      query = REVIEW.find({ userId })
         .sort({ reviewDate: -1, createdAt: 1 })
         .skip(skip)
         .limit(perPage)
 
-      count = await REVIEW.countDocuments({ userId: userId })
+      count = await REVIEW.countDocuments({ userId })
     } else {
-      if (isSuperUser) {
-        query = REVIEW.find({ token, siteId: internalId })
-          .sort({ reviewDate: -1, createdAt: 1 })
-          .skip(skip)
-          .limit(perPage)
+      query = REVIEW.find({ userId, reviewSiteSlug: requestedSlug })
+        .sort({ reviewDate: -1, createdAt: 1 })
+        .skip(skip)
+        .limit(perPage)
 
-        count = await REVIEW.countDocuments({})
-      } else {
-        query = REVIEW.find({ userId: userId, reviewSiteSlug: requestedSlug })
-          .sort({ reviewDate: -1, createdAt: 1 })
-          .skip(skip)
-          .limit(perPage)
-
-        count = await REVIEW.countDocuments({
-          userId: userId,
-          reviewSiteSlug: requestedSlug
-        })
-      }
+      count = await REVIEW.countDocuments({
+        userId,
+        reviewSiteSlug: requestedSlug
+      })
     }
 
     const response = await query
@@ -163,10 +155,10 @@ export async function AllUserDocsController (req, res) {
       reviewSiteSlug,
       url: computedUrl || originalUrl,
       documentCountTotal: count,
-      totalPageCount: totalPageCount,
-      currentPage: currentPage,
-      previousPage: previousPage,
-      nextPage: nextPage,
+      totalPageCount,
+      currentPage,
+      previousPage,
+      nextPage,
       data: response,
       propertyName: name,
       requestTimestamp: new Date()

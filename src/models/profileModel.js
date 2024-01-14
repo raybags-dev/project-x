@@ -102,6 +102,51 @@ reviewSiteProfileSchema.index(
   },
   { default_language: 'simple', caseInsensitive: true }
 )
+// reviewSiteProfileSchema.pre('save', async function (next) {
+//   try {
+//     // Update hasReviewProfile field
+//     await USER_MODEL.updateOne(
+//       { userId: this.userId },
+//       { $set: { hasReviewProfile: true } }
+//     )
+//     // Update profiles field in User model
+//     if (this.isNew) {
+//       const {
+//         _id: profileId,
+//         name: propertyName,
+//         reviewSiteSlug,
+//         url,
+//         originalUrl,
+//         propertyType,
+//         uuid,
+//         propertyEndpoints
+//       } = this
+
+//       await USER_MODEL.updateOne(
+//         { userId: this.userId },
+//         {
+//           $push: {
+//             profiles: {
+//               _id: profileId,
+//               name: propertyName,
+//               slug: reviewSiteSlug,
+//               url,
+//               originalUrl,
+//               propertyType,
+//               uuid,
+//               propertyEndpoints
+//             }
+//           }
+//         }
+//       )
+//     }
+
+//     next()
+//   } catch (error) {
+//     console.error('Error in profile pre-save hook:', error)
+//     next(error)
+//   }
+// })
 reviewSiteProfileSchema.pre('save', async function (next) {
   try {
     // Update hasReviewProfile field
@@ -109,22 +154,39 @@ reviewSiteProfileSchema.pre('save', async function (next) {
       { userId: this.userId },
       { $set: { hasReviewProfile: true } }
     )
-    // Update profiles field in User model
-    if (this.isNew) {
-      const { _id: profileId, name: propertyName, reviewSiteSlug, url } = this
 
+    // Update profiles field in User model
+    const {
+      _id: profileId,
+      name: propertyName,
+      reviewSiteSlug,
+      url,
+      originalUrl,
+      propertyType,
+      uuid,
+      propertyEndpoints
+    } = this
+
+    const userProfile = {
+      _id: profileId,
+      name: propertyName,
+      slug: reviewSiteSlug,
+      url,
+      originalUrl,
+      propertyType,
+      uuid,
+      propertyEndpoints
+    }
+
+    if (this.isNew) {
       await USER_MODEL.updateOne(
         { userId: this.userId },
-        {
-          $push: {
-            profiles: {
-              _id: profileId,
-              name: propertyName,
-              slug: reviewSiteSlug,
-              url
-            }
-          }
-        }
+        { $push: { profiles: userProfile } }
+      )
+    } else {
+      await USER_MODEL.findOneAndUpdate(
+        { userId: this.userId },
+        { $set: { profiles: [userProfile] } }
       )
     }
 
@@ -134,6 +196,7 @@ reviewSiteProfileSchema.pre('save', async function (next) {
     next(error)
   }
 })
+
 reviewSiteProfileSchema.methods.beforeDelete = async function () {
   try {
     console.log('its working....')

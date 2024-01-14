@@ -533,8 +533,37 @@ textarea:focus {
     overflow-x: auto;
 }
 
+.admin-card {
+    border: 6px solid rgb(72, 70, 70, .3) !important;
+}
+
+.deem-text {
+    color: #cccccc;
+}
+
 .sm-card {
     flex: 0 0 auto;
+}
+
+.admin-card {
+    opacity: 0;
+    transition: opacity .3s;
+    -webkit-animation: admin-animate-card 1 forwards ease-in .3s;
+    animation: admin-animate-card 1 forwards ease-in .3s;
+}
+
+@-webkit-keyframes admin-animate-card {
+    to {
+        opacity: 1;
+        transition: .3s;
+    }
+}
+
+@keyframes admin-animate-card {
+    to {
+        opacity: 1;
+        transition: .3s;
+    }
 }
 
 #notifications {

@@ -53,7 +53,11 @@ const userModel = {
         _id: String,
         name: String,
         slug: String,
-        url: String
+        url: String,
+        originalUrl: String,
+        propertyType: String,
+        uuid: String,
+        propertyEndpoints: [mongoose.Schema.Types.Mixed]
       }
     ],
     default: null
