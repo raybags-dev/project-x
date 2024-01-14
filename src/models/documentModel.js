@@ -29,7 +29,7 @@ const ReviewModel = {
   },
   author: {
     type: String,
-    required: true
+    default: 'Anonimous'
   },
   country: {
     type: String,

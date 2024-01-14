@@ -15,7 +15,12 @@ export const PLUGINS = {
           if (status === 401) {
             sessionStorage.removeItem('user')
             sessionStorage.removeItem('redirected')
-            LOGIN_HTML()
+            PLUGINS.displayLabel([
+              'review_main_wrapper',
+              'alert-danger',
+              `Your session has expired Please login again`
+            ])
+            setTimeout(() => LOGIN_HTML(), 3000)
           }
         }
         return Promise.reject(error)
@@ -113,7 +118,7 @@ export const PLUGINS = {
         spanElement.classList.add('text-warning')
 
         const smallElement = document.createElement('small')
-        smallElement.classList.add('text-light')
+        smallElement.classList.add('text-light', 'text-muted')
         smallElement.textContent = `${key}: `
 
         const starsElement = document.createElement('span')
@@ -121,6 +126,7 @@ export const PLUGINS = {
         // Loop through all 5 stars
         for (let i = 1; i <= totalStars; i++) {
           const star = document.createElement('span')
+          star.style.opacity = '0.8'
 
           if (i <= value) {
             star.innerHTML = '&bigstar;'
@@ -1455,6 +1461,7 @@ export const PLUGINS = {
   },
   PaginateData: async function (slug) {
     PLUGINS.runSpinner(false)
+    PLUGINS.removeAdminContainer()
     let page = 1
     const container = document.getElementById('review_main_wrapper')
 
@@ -1522,19 +1529,22 @@ export const PLUGINS = {
       PLUGINS.runSpinner(true)
     }
   },
+  removeAdminContainer: function () {
+    const container = document.querySelector('#admin_page')
+    if (container) return container.remove()
+  },
   handlePaginatedDataClick: async function (event) {
     try {
-      const newTextContent = event.target.textContent
-      if (newTextContent === PLUGINS.previousTextContent) return
-      PLUGINS.previousTextContent = newTextContent
+      PLUGINS.removeAdminContainer()
+      const textContent = event.target.textContent
       try {
         const reviews = document.querySelectorAll('.review-container')
         if (reviews.length) {
           reviews.forEach(reviewContainer => reviewContainer.remove())
-          await PLUGINS.PaginateData(newTextContent)
+          await PLUGINS.PaginateData(textContent)
           return
         }
-        await PLUGINS.PaginateData(newTextContent)
+        await PLUGINS.PaginateData(textContent)
       } catch (e) {
         console.log(e.message)
       }
@@ -1555,5 +1565,151 @@ export const PLUGINS = {
   },
   roadRunners: async function () {
     await PLUGINS.PaginateData()
+  },
+  createAdminProfileCard: async function (userObject, rest) {
+    if (!userObject) return
+
+    const {
+      name: propertyName,
+      slug,
+      originalUrl,
+      propertyType,
+      _id: profile_id
+    } = userObject
+    const {
+      email,
+      isAdmin,
+      isSubscribed,
+      name: accountName,
+      userId,
+      _id: account_id,
+      'auth-token': authToken
+    } = rest
+
+    const profileCardHTML = `
+    <div id="${profile_id}" class="card admin-card dark-gray-bg shadow-lg user-${account_id}" style="min-width:250px; width:30%; max-width: 25rem;">
+    <div class="card-header deem-text d-flex justify-content-between align-content-center">
+        <h4 class="lead text-decoration-underline text-uppercase deem-text">${
+          slug || ''
+        }</h4>
+      </div>
+      <div class="card-body deem-text d-block justify-content-around align-content-center">
+          <div class="container d-block">
+          <p class="card-title text-uppercase">Property:</p>
+          <span class="text-success d-block text-uppercase">${propertyName}</span>
+          </div>
+          <hr>
+          <div class="container d-block">
+          <p class="card-text text-uppercase ">Account email:</p>
+          <span class="text-success d-block">${email}</span>
+          </div>
+          <hr>
+          <div class="container d-block">
+          <p class="card-text text-uppercase">Account name:</p>
+          <span class="text-success d-block text-uppercase">${accountName}</span>
+          </div>
+          <hr>
+          <div class="container d-flex justify-content-between align-content-center">
+          <p class="card-text text-uppercase">Property type: </p>
+          <span class="text-success d-block text-uppercase ">${propertyType}</span>
+          </div>
+          <hr>
+          <div class="container d-flex justify-content-between align-content-center">
+          <p class="card-text text-uppercase">Property Page:</p>
+          <a class="text-decoration-underline text-uppercase fa-1x text-success d-block" style="font-size:15px" href="${originalUrl}" target="_blank">visit page</a>
+          </div>
+          <hr>
+          <div class="container d-flex justify-content-between align-content-center">
+          <p class="card-text text-uppercase">Administrator:</p>
+          <span class="text-uppercase text-success">${
+            (isAdmin && 'Yes') || 'No'
+          }</span>
+          </div>
+          <hr>
+          <div class="container d-flex justify-content-between align-content-center">
+          <p class="card-text text-uppercase">Subscription active:</p>
+          <span class="text-uppercase text-success _subscription">${
+            (isSubscribed && 'Yes') || 'No'
+          }</span>
+          </div>
+    </div>
+    <div class="card-footer d-flex justify-content-between align-content-center">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              Actions
+            </button>
+            <ul class="dropdown-menu bg-dark text-light shadow">
+              <li class="d-flex justify-content-between align-content-center">
+                  <a class="dropdown-item text-light text-muted" href="#">Run Crawler</a>
+                  <div class="container">
+                    <div class="form-check text-muted crawl-${profile_id}">
+                        <label class="form-check-label" for="gridCheck">full</label>
+                        <input class="form-check-input text-muted" data-full="${profile_id}" type="checkbox" id="gridCheck">
+                    </div>
+                    <div class="form-group d-flex p-2 gap-2 justify-content-between align-content-center">
+                        <label for="pagesInput" class="text-light text-muted">Pages</label>
+                        <div class="text-light">
+                            <input type="number" data-page="${profile_id}" style="color:#000000; width:inherit;" class="form-control active dark-gray-bg  text-light" id="pagesInput" name="pages" value="1">
+                        </div>
+                    </div>
+                  </div>
+              </li>
+            </ul>
+        </div>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              Danger zone
+            </button>
+            <ul class="dropdown-menu bg-dark text-light">
+              <li class="d-flex justify-content-between align-content-center">
+                <a class="dropdown-item text-danger" href="#">Delete reviews</a>
+                  
+              </li>
+              <li><a class="dropdown-item text-danger" href="#">Delete account</a></li>
+            </ul>
+        </div>
+    </div>
+  </div>  
+    `
+
+    const parent_wrapper = document.querySelector('#admin_page')
+    parent_wrapper?.insertAdjacentHTML('beforeend', profileCardHTML)
+
+    const checkbox = document.querySelector(`[data-full="${profile_id}"]`)
+    const numberInput = document.querySelector(`[data-page="${profile_id}"]`)
+
+    if (checkbox && numberInput) {
+      checkbox.addEventListener('change', function () {
+        numberInput.disabled = !numberInput.disabled
+        numberInput.value = 0
+      })
+    }
+  },
+  createAdminPage: async function (param) {
+    const pageAlreadyExists = document.querySelector('#admin_page')
+    if (pageAlreadyExists)
+      return PLUGINS.displayLabel([
+        'review_main_wrapper',
+        'alert-success',
+        `You are already on the admin page. `
+      ])
+
+    const adminHTMLContent = `
+    <div id="admin_page" class="container d-flex justify-content-center pt-3 flex-grow-1 align-content-center flex-wrap gap-2"></div>
+    `
+    const parent_wrapper = document.querySelector('#review_main_wrapper')
+    if (parent_wrapper) {
+      parent_wrapper.innerHTML = adminHTMLContent
+    }
+
+    const { profiles, ...rest } = await PLUGINS.getAuthHandler()
+
+    for (let i = 0; i < profiles.length; i++) {
+      const userObject = profiles[i]
+      const delay = i * 100
+
+      await new Promise(resolve => setTimeout(resolve, delay))
+      await PLUGINS.createAdminProfileCard(userObject, rest)
+    }
   }
 }

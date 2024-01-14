@@ -7,6 +7,7 @@ const {
   setupDropdownHover,
   handleProfileGenerator,
   superManHandle,
+  createAdminPage,
   handleReviewButtonsEvents,
   handlePaginatedDataAllAccounts
 } = PLUGINS
@@ -29,11 +30,11 @@ export async function MAIN_PAGE () {
                           account
                         </a>
                         <ul class="dropdown-menu dark-gray-bg border-3 border-secondary">
-                          <li><a class="dropdown-item dropdown-item-dark text-light  account_details" href="#">Your account details</a></li>
-                          <li><a class="dropdown-item dropdown-item-dark text-light  profile_details" href="#">Your profile details</a></li>
-                          <li><a class="dropdown-item  dropdown-item-dark text-light   how_to_link" href="#">How to guide</a></li>
-                          <li><a class="dropdown-item  dropdown-item-dark text-light   create_profile" href="#">Create review profile</a></li>
-                          <li><a class="dropdown-item  dropdown-item-dark text-light   logoutuser_link" href="#">Logout</a></li>
+                            <li><a class="dropdown-item dropdown-item-dark text-light  account_details" href="#">Account details</a></li>
+                            <li><a class="dropdown-item dropdown-item-dark text-light  profile_details" href="#">Profile details</a></li>
+                            <li><a class="dropdown-item  dropdown-item-dark text-light   how_to_link" href="#">How to guide</a></li>
+                            <li><a class="dropdown-item  dropdown-item-dark text-light   create_profile" href="#">Create review profile</a></li>
+                            <li><a class="dropdown-item  dropdown-item-dark text-light   logoutuser_link" href="#">Logout</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -41,12 +42,12 @@ export async function MAIN_PAGE () {
                           sites
                         </a>
                         <ul class="dropdown-menu _inner_dropdown_canvas dark-gray-bg border-3 border-secondary">
-                        <li><a class="dropdown-item dropdown-item-dark text-light  google-com" href="#">google-com</a></li>
-                        <li><a class="dropdown-item dropdown-item-dark text-light  booking-com" href="#">booking-com</a></li>
-                        <li><a class="dropdown-item dropdown-item-dark text-light  agoda-com" href="#">agoda-com</a></li>
-                        <li><a class="dropdown-item dropdown-item-dark text-light  ctrip-com" href="#">ctrip-com</a></li>
-                        <li><a class="dropdown-item dropdown-item-dark text-light  tripadvisor-com" href="#">tripadvisor-com</a></li>
-                        <li><a class="dropdown-item dropdown-item-dark text-light  expedia-com" href="#">expedia-com</a></li>
+                          <li><a class="dropdown-item dropdown-item-dark text-light  google-com" href="#">google-com</a></li>
+                          <li><a class="dropdown-item dropdown-item-dark text-light  agoda-com" href="#">agoda-com</a></li>
+                          <li><a class="dropdown-item dropdown-item-dark text-light  booking-com" href="#">booking-com</a></li>
+                          <li><a class="dropdown-item dropdown-item-dark text-light  ctrip-com" href="#">ctrip-com</a></li>
+                          <li><a class="dropdown-item dropdown-item-dark text-light  tripadvisor-com" href="#">tripadvisor-com</a></li>
+                          <li><a class="dropdown-item dropdown-item-dark text-light  expedia-com" href="#">expedia-com</a></li>
                         </ul>
                     </li>
               </ul>
@@ -63,6 +64,9 @@ export async function MAIN_PAGE () {
   document.querySelector('.how_to_link')?.addEventListener('click', () => {
     localStorage.setItem('userGuideShown', false)
     userGuideModel()
+  })
+  document.querySelector('.profile_details')?.addEventListener('click', () => {
+    createAdminPage()
   })
   handlePaginatedDataAllAccounts()
   handleReviewButtonsEvents()
