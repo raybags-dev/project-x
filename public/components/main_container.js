@@ -29,12 +29,12 @@ export async function MAIN_PAGE () {
                         <a class="nav-link dropdown-toggle text-white text-uppercase" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                           account
                         </a>
-                        <ul class="dropdown-menu dark-gray-bg border-3 border-secondary">
-                            <li><a class="dropdown-item dropdown-item-dark text-light  account_details" href="#">Account details</a></li>
-                            <li><a class="dropdown-item dropdown-item-dark text-light  profile_details" href="#">Profile details</a></li>
-                            <li><a class="dropdown-item  dropdown-item-dark text-light   how_to_link" href="#">How to guide</a></li>
-                            <li><a class="dropdown-item  dropdown-item-dark text-light   create_profile" href="#">Create review profile</a></li>
-                            <li><a class="dropdown-item  dropdown-item-dark text-light   logoutuser_link" href="#">Logout</a></li>
+                        <ul class="dropdown-menu dark-gray-bg border-3 border-secondary" style="z-index:10 !important">
+                            <li><a class="dropdown-item dropdown-item-dark text-warning  account_details text-uppercase" href="#">Account details</a></li>
+                            <li><a class="dropdown-item dropdown-item-dark text-warning  profile_details text-uppercase" href="#">Profile details</a></li>
+                            <li><a class="dropdown-item  dropdown-item-dark text-warning   how_to_link text-uppercase" href="#">How to guide</a></li>
+                            <li><a class="dropdown-item  dropdown-item-dark text-warning   create_profile text-uppercase" href="#">Create review profile</a></li>
+                            <li><a class="dropdown-item  dropdown-item-dark text-warning   logoutuser_link text-uppercase" href="#">Logout</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -42,12 +42,12 @@ export async function MAIN_PAGE () {
                           sites
                         </a>
                         <ul class="dropdown-menu _inner_dropdown_canvas dark-gray-bg border-3 border-secondary">
-                          <li><a class="dropdown-item dropdown-item-dark text-light  google-com" href="#">google-com</a></li>
-                          <li><a class="dropdown-item dropdown-item-dark text-light  agoda-com" href="#">agoda-com</a></li>
-                          <li><a class="dropdown-item dropdown-item-dark text-light  booking-com" href="#">booking-com</a></li>
-                          <li><a class="dropdown-item dropdown-item-dark text-light  ctrip-com" href="#">ctrip-com</a></li>
-                          <li><a class="dropdown-item dropdown-item-dark text-light  tripadvisor-com" href="#">tripadvisor-com</a></li>
-                          <li><a class="dropdown-item dropdown-item-dark text-light  expedia-com" href="#">expedia-com</a></li>
+                          <li><a class="dropdown-item dropdown-item-dark btn btn-outline-success text-warning text-uppercase  google-com" href="#">google-com</a></li>
+                          <li><a class="dropdown-item dropdown-item-dark btn btn-outline-success text-warning text-uppercase  agoda-com" href="#">agoda-com</a></li>
+                          <li><a class="dropdown-item dropdown-item-dark btn btn-outline-success text-warning text-uppercase  booking-com" href="#">booking-com</a></li>
+                          <li><a class="dropdown-item dropdown-item-dark btn btn-outline-success text-warning text-uppercase  ctrip-com" href="#">ctrip-com</a></li>
+                          <li><a class="dropdown-item dropdown-item-dark btn btn-outline-success text-warning text-uppercase  tripadvisor-com" href="#">tripadvisor-com</a></li>
+                          <li><a class="dropdown-item dropdown-item-dark text-warning text-uppercase  expedia-com" href="#">expedia-com</a></li>
                         </ul>
                     </li>
               </ul>

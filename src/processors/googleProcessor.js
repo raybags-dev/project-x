@@ -216,7 +216,11 @@ export async function updateReview (req, res) {
       }
       // ** ====================
       if (reviewSiteSlug === 'agoda-com') {
-        return console.log('site loigc not not yet implimented')
+        console.log('site loigc not not yet implimented')
+        return res.status(501).json({
+          error: 'Not completed',
+          message: 'Endpoint not yet implimented!'
+        })
         const reviewObject = await agodaReviewUpdateHandler(req, res)
         if (reviewObject?.status === 'failed')
           return res.status(500).json({

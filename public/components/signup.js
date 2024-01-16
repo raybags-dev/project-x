@@ -1,6 +1,8 @@
 import { LOGIN_HTML } from './login.js'
 import { PLUGINS } from '../utils/plugins.js'
-const { loginUser, displayLabel, API_CLIENT, runSpinner, Notify } = PLUGINS
+import { MAIN_PAGE } from './main_container.js'
+const { justForAMoment, displayLabel, API_CLIENT, runSpinner, loginUser } =
+  PLUGINS
 
 const apiClient = await API_CLIENT()
 
@@ -59,46 +61,56 @@ export async function SIGNUP_HTML () {
   signupForm?.addEventListener('submit', async event => {
     event.preventDefault()
     const formData = new FormData(signupForm)
+
     const user = {
       name: formData.get('name'),
       email: formData.get('email'),
       password: formData.get('password')
     }
+
     try {
-      runSpinner(false, 'Busy...')
-      let url = '/create-user'
+      justForAMoment('Creating...')
+      const url = '/create-user'
       const response = await apiClient.post(url, user, {
         headers: { 'Content-Type': 'application/json' }
       })
-      const { data, status } = await response
-      const { email, name, isAdmin } = data.user
+
+      const { status } = await response
 
       if (status === 201) {
-        runSpinner(true)
-        const storedUser = { name, email, isAdmin: true }
-        localStorage.setItem('user', JSON.stringify(storedUser))
+        justForAMoment('Almost done')
 
-        displayLabel([
-          'review_main_wrapper',
-          'alert-success',
-          `Success: ${storedUser.name} account created 🥳`
-        ])
-        setTimeout(async () => {
-          history.pushState(null, null, '/')
-          runSpinner(true)
-          await loginUser(user)
-        }, 1000)
+        const userIsLoggedIn = await loginUser(user)
+
+        if (userIsLoggedIn && userIsLoggedIn.status === 200) {
+          displayLabel([
+            'review_main_wrapper',
+            'alert-success',
+            'Login successful 😀'
+          ])
+
+          setTimeout(async () => {
+            history.pushState(null, null, '/')
+            return await MAIN_PAGE()
+          }, 800)
+        } else {
+          displayLabel([
+            'review_main_wrapper',
+            'alert-danger',
+            'Login failed 😀'
+          ])
+        }
         return
       }
-      Notify('Something went wrong, try again later.')
+
       displayLabel([
         'review_main_wrapper',
         'alert-danger',
-        'Opps. something went wrong, try again later.'
+        'Oops. Something went wrong, try again later.'
       ])
       setTimeout(() => runSpinner(true), 3000)
     } catch (error) {
-      console.log(error.message)
+      console.error('Signup error:', error)
     } finally {
       runSpinner(true)
     }
