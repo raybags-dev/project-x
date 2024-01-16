@@ -15,19 +15,13 @@ const {
 
 export async function CreateUserController (req, res) {
   try {
-    const { name, email, password, isAdmin, secret, superUserToken } = req.body
-
-    if (!secret && isAdmin) {
-      return res
-        .status(403)
-        .send({ error: 'Forbidden - Action is not allowed!' })
-    }
+    const secret = SECRET_ADMIN_TOKEN
+    const { name, email, password, superUserToken } = req.body
 
     const isAdminUser = secret === SECRET_ADMIN_TOKEN
-    const userIsAdmin = isAdmin && isAdminUser
     const isSuperUser = superUserToken === SUPER_USER_TOKEN
 
-    if (isSuperUser && !isAdmin) {
+    if (!isAdminUser && isSuperUser) {
       return res
         .status(403)
         .send({ error: 'Forbidden - SuperUser must be an Admin' })
@@ -42,9 +36,9 @@ export async function CreateUserController (req, res) {
     const userId = newUserId._id
 
     let user
-    const isSubscribed = false
+    const isSubscribed = true
 
-    if (isSuperUser && userIsAdmin) {
+    if (isAdminUser || isSuperUser) {
       user = new USER_MODEL({
         name,
         email,
@@ -52,31 +46,22 @@ export async function CreateUserController (req, res) {
         userId,
         isAdmin: true,
         superUserToken,
-        isSuperUser: true,
-        isSubscribed: true
+        isSuperUser: isSuperUser,
+        isSubscribed
       })
-      await user.save()
-    } else if (isAdminUser) {
-      user = new USER_MODEL({
-        name,
-        email,
-        password,
-        userId,
-        isAdmin: true,
-        isSubscribed: true
-      })
-      await user.save()
     } else {
       user = new USER_MODEL({
         name,
         email,
         password,
         userId,
-        isAdmin: true,
-        isSubscribed: isSubscribed
+        isAdmin: false,
+        isSubscribed
       })
-      await user.save()
     }
+
+    await user.save()
+
     const token = user.generateAuthToken()
 
     const createUserEmailData = {
@@ -84,6 +69,7 @@ export async function CreateUserController (req, res) {
       body: `A user:\n${user}\n has successfully been created in your S3 bucket: "${AWS_BUCKET_NAME}" in: ${AWS_REGION}.`
     }
     await sendEmail(createUserEmailData, RECIPIENT_EMAIL)
+
     res.status(201).send({
       state: 'successful',
       message: 'user created',

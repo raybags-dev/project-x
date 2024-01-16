@@ -1,13 +1,5 @@
 import { PLUGINS } from './plugins.js'
-const {
-  createSubratings,
-  addReviewResponse,
-  createRating,
-  formatDate,
-  reviewCount,
-  responseButtonVisibility,
-  API_CLIENT
-} = PLUGINS
+const { API_CLIENT } = PLUGINS
 
 // Main page loader
 

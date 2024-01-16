@@ -3,7 +3,6 @@ import connectDB from '../DB/connect.js'
 import { config } from 'dotenv'
 config()
 const { MONGO_URI } = process.env
-
 export default async app => {
   const PORT = process.env.PORT || 3001
 

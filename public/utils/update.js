@@ -1,7 +1,7 @@
 import { MAIN_PAGE } from '../components/main_container.js'
 import { LOGIN_HTML } from '../components/login.js'
 import { PLUGINS } from './plugins.js'
-const { displayLabel, API_CLIENT, runSpinner, Notify } = PLUGINS
+const { displayLabel, API_CLIENT, runSpinner } = PLUGINS
 
 export async function UPDATE_PASSWORD_HTML () {
   let pageContent = `
@@ -94,7 +94,6 @@ export async function UPDATE_PASSWORD_HTML () {
     } catch (error) {
       runSpinner(false, 'Failed!')
       const errorMessage = error.response.data.error || 'An error occurred.'
-      Notify(`${errorMessage}.`)
       displayLabel([
         'review_main_wrapper',
         'alert-danger',

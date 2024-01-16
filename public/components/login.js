@@ -3,9 +3,9 @@ import { passwordNotice, disableElement } from '../utils/update.js'
 import { MAIN_PAGE } from './main_container.js'
 
 import { PLUGINS } from '../utils/plugins.js'
-const { setAuthHandler, displayLabel, API_CLIENT, runSpinner } = PLUGINS
+const { setAuthHandler, displayLabel, justForAMoment, runSpinner, loginUser } =
+  PLUGINS
 
-const apiClient = await API_CLIENT()
 export async function LOGIN_HTML () {
   let pageContent = `
     <nav class="navbar navbar-expand-lg">
@@ -70,30 +70,30 @@ export async function LOGIN_HTML () {
 
   const loginForm = document.querySelector('#login___form')
   loginForm?.addEventListener('submit', async event => {
-    runSpinner(false, 'Processing')
+    justForAMoment()
+
     event.preventDefault()
     const formData = new FormData(loginForm)
     const email = formData.get('email')
     const password = formData.get('password')
 
     try {
-      let url = '/user/login'
-      const response = await apiClient.post(url, { email, password })
-      if (response.status == 200) {
-        runSpinner(true)
-        const user = response.data.user
-        const headers = response.headers
+      const loginResponse = await loginUser({ email, password })
+
+      if (loginResponse.status === 200) {
+        justForAMoment('Almost done')
+        const { user } = loginResponse.data
+        const { headers } = loginResponse
+
         const userCreds = await setAuthHandler(user, headers)
         const { isAdmin } = userCreds
 
         if (isAdmin) {
-          // Redirect to main page
           sessionStorage.setItem('redirected', true)
-          //   show logout button
           displayLabel([
             'review_main_wrapper',
             'alert-success',
-            'Loginsuccessfull 😀'
+            'Login successful 😀'
           ])
           setTimeout(async () => {
             runSpinner(true)
@@ -112,7 +112,7 @@ export async function LOGIN_HTML () {
       if (errorMessage.trim() === 'Invalid email or password') {
         document.querySelector('#checker').classList.remove('hide_2')
       }
-      setTimeout(() => runSpinner(true), 100)
+      setTimeout(() => runSpinner(true), 3000)
     }
   })
 }

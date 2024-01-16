@@ -90,7 +90,10 @@ body::after {
     overflow-y: auto;
     border: 3px solid transparent;
     opacity: 0;
+}
 
+.review-container:hover {
+    border-color: rgb(80, 80, 80);
 }
 
 .review-container .card-header {
@@ -319,10 +322,10 @@ a {
 .main___alert {
     display: flex;
     flex-wrap: wrap;
-    z-index: 1000;
+    z-index: 100;
     position: fixed;
     left: -50%;
-    bottom: -2% !important;
+    bottom: 0% !important;
     opacity: 0;
     padding: .4rem !important;
     width: -webkit-max-content;
@@ -366,6 +369,7 @@ a {
         opacity: 0;
     }
 }
+
 
 .navbar {
     z-index: 1000;
@@ -566,45 +570,8 @@ textarea:focus {
     }
 }
 
-#notifications {
-    position: fixed !important;
-    top: 0% !important;
-    left: 50% !important;
-    transform: translate(-50%, 1%) !important;
-    z-index: 2000 !important;
-    min-width: 30%;
-    border: 1px solid transparent;
-    height: -webkit-fit-content !important;
-    height: -moz-fit-content !important;
-    height: fit-content !important;
-    margin-top: -10%;
-    padding-bottom: 0% !important;
-    padding-top: .5rem !important;
-    transition: all .2s;
-    border-bottom-color: transparent !important;
-}
-
 .review-body {
     padding-left: .3rem;
-}
-
-.showNotification {
-    -webkit-animation: snimate_notific 1 forwards ease-out .2s;
-    animation: snimate_notific 1 forwards ease-out .2s;
-}
-
-@-webkit-keyframes snimate_notific {
-    to {
-        margin-top: 0%;
-        opacity: 1 !important;
-    }
-}
-
-@keyframes snimate_notific {
-    to {
-        margin-top: 0%;
-        opacity: 1 !important;
-    }
 }
 
 .loader {

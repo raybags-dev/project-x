@@ -18,9 +18,8 @@ export const PLUGINS = {
             PLUGINS.displayLabel([
               'review_main_wrapper',
               'alert-danger',
-              `Your session has expired Please login again`
+              `Invalid login credentials. Please try again!`
             ])
-            setTimeout(() => LOGIN_HTML(), 3000)
           }
         }
         return Promise.reject(error)
@@ -30,6 +29,10 @@ export const PLUGINS = {
   },
   previousTextContent: null,
   simpleLoader: async function (anchor, isLoading) {
+    if (!anchor && !isLoading) {
+      const shouldBeRemoved = document.getElementById('spinner-container')
+      shouldBeRemoved && shouldBeRemoved.remove()
+    }
     const containerId = 'spinner-container'
     if (isLoading) {
       if (!document.getElementById(containerId)) {
@@ -81,31 +84,6 @@ export const PLUGINS = {
       }
     }
   },
-  // createSubratings: async function (subratingsArray, selector) {
-  //   const cardBody = document.querySelector(selector)
-
-  //   if (subratingsArray && subratingsArray?.length > 0) {
-  //     subratingsArray.forEach(subrating => {
-  //       const { key, value } = subrating
-  //       const stars = '&bigstar;'.repeat(parseInt(value, 10))
-
-  //       const spanElement = document.createElement('small')
-  //       spanElement.classList.add('text-warning')
-
-  //       const smallElement = document.createElement('small')
-  //       smallElement.classList.add('text-light')
-  //       smallElement.textContent = `${key}: `
-
-  //       const starsElement = document.createElement('span')
-  //       starsElement.innerHTML = stars
-
-  //       spanElement.appendChild(smallElement)
-  //       spanElement.appendChild(starsElement)
-
-  //       cardBody?.appendChild(spanElement)
-  //     })
-  //   }
-  // },
   createSubratings: async function (subratingsArray, selector) {
     const cardBody = document.querySelector(selector)
 
@@ -154,7 +132,7 @@ export const PLUGINS = {
             <div id="main-page-loader" class="d-flex align-items-center text-white justify-content-center"
               style="position:fixed; top:0; left:0; right:0; bottom:0;z-index:3000">
               <div class="d-flex">
-                <p class="fs-4" id="my_text" style="position:absolute;top:50%;opacity:.7;left:50%;transform:translate(-50%, -50%);">
+                <p class="fs-4" id="my_text" style="position:absolute;top:50%;opacity:.8;left:50%;transform:translate(-50%, -50%);text-shadow:1px 1px 1px #000000;">
                   ${message}
                 </p>
                 <span class="loader text-white" style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);"></span>
@@ -260,7 +238,7 @@ export const PLUGINS = {
         }
       }
     } catch (error) {
-      console.error('Error in addReviewResponse:', error.message)
+      console.log('Error in addReviewResponse:', error.message)
     }
   },
   createRating: async function (ratingValue, selector) {
@@ -414,15 +392,18 @@ export const PLUGINS = {
     }
   },
   setAuthHandler: function (userObject, headers) {
-    if (userObject && headers) {
-      const { version, createdAt, updatedAt, ...userWithoutMeta } = userObject
+    if (userObject && headers && headers.authorization) {
+      try {
+        const authToken = headers.authorization.split(' ')[1]
+        const { version, createdAt, updatedAt, ...userWithoutMeta } = userObject
 
-      const auth_token = headers.authorization.split(' ')[1]
-      userWithoutMeta['auth-token'] = auth_token
+        userWithoutMeta['auth-token'] = authToken
+        sessionStorage.setItem('user', JSON.stringify(userWithoutMeta))
 
-      sessionStorage.setItem('user', JSON.stringify(userWithoutMeta))
-
-      return userWithoutMeta
+        return userWithoutMeta
+      } catch (error) {
+        console.error('Error parsing authorization header:', error)
+      }
     }
     return null
   },
@@ -431,49 +412,77 @@ export const PLUGINS = {
     const user = userString ? JSON.parse(userString) : null
     return user
   },
+  justForAMoment: function (message = 'Loading') {
+    PLUGINS.runSpinner(false, message)
+    setTimeout(() => PLUGINS.runSpinner(true), 2000)
+  },
+  clearStorage: function (storage) {
+    if (!storage) return
+
+    if (storage === 'sessionStorage') {
+      sessionStorage.clear()
+      return true
+    }
+    if (storage === 'localStorage') {
+      localStorage.clear()
+      console.log('Local Storage cleared.')
+      return true
+    }
+    return false
+  },
   loginUser: async function (user) {
-    if (!user) return
-    const cookieRef = await PLUGINS.handleCookieAcceptance()
-    if (!cookieRef) return
-    runSpinner(false, 'On it')
-    const email = user.email
-    const password = user.password
-
-    try {
-      let url = '/user/login'
-      const response = await API_CLIENT.post(url, { email, password })
-      if (response.status == 200) {
-        await displayLabel([
-          'review_main_wrapper',
-          'alert-success',
-          'Login successful...'
-        ])
-        runSpinner(true)
-        const userCreds = await setAuthHandler(user, headers)
-        const { isAdmin } = userCreds
-
-        if (isAdmin) {
-          sessionStorage.setItem('redirected', true)
-          Notify(`Login successful`)
-          setTimeout(async () => {
-            runSpinner(true)
-            return await MAIN_PAGE()
-          }, 800)
-        }
-      }
-    } catch (error) {
-      console.log(passwordsuggest)
-      runSpinner(false, 'Failed!')
-      const errorMessage = error.response.data.error || 'An error occurred.'
-      displayLabel([
+    if (!user || !user.email || !user.password) {
+      PLUGINS.displayLabel([
         'review_main_wrapper',
         'alert-danger',
-        `Session error: ${errorMessage}`
+        'Invalid credentials.'
       ])
-      setTimeout(() => runSpinner(true), 800)
-      console.log(error)
-    } finally {
-      runSpinner(true)
+      console.error('Invalid user or credentials')
+      return null
+    }
+    const url = '/user/login'
+    try {
+      const apiClient = await PLUGINS.API_CLIENT()
+      const loginResponse = await apiClient.post(url, {
+        email: user.email,
+        password: user.password
+      })
+      const { user: userData } = loginResponse.data
+      const { headers, status } = loginResponse
+
+      if (status === 200) {
+        await PLUGINS.setAuthHandler(userData, headers)
+        sessionStorage.setItem('redirected', true)
+        PLUGINS.displayLabel([
+          'review_main_wrapper',
+          'alert-success',
+          'Login successful.'
+        ])
+        return loginResponse
+      }
+      console.log('Error in login!', loginResponse && loginResponse)
+      return PLUGINS.displayLabel([
+        'review_main_wrapper',
+        'alert-danger',
+        'Login failed!'
+      ])
+    } catch (error) {
+      PLUGINS.runSpinner(false, 'Failed!')
+      console.error('Login error:', error)
+      PLUGINS.displayLabel([
+        'review_main_wrapper',
+        'alert-danger',
+        'Login failed. PLease try to login again!'
+      ])
+      setTimeout(() => {
+        PLUGINS.displayLabel([
+          'review_main_wrapper',
+          'alert-danger',
+          'If the issue persist, please open a ticket and we will assist promptly!'
+        ])
+        PLUGINS.runSpinner(true)
+      }, 2000)
+      return error?.response
     }
   },
   logOutUser: async function (selector) {
@@ -503,9 +512,14 @@ export const PLUGINS = {
       })
     }
   },
-  removeElementFromDOM: function (elementAnchor) {
-    if (document.contains(elementAnchor)) {
-      elementAnchor.remove()
+  removeElementFromDOM: async function (elementAnchor) {
+    try {
+      const element = document.querySelector(elementAnchor)
+      if (element) {
+        element.remove()
+      }
+    } catch (e) {
+      console.log(e.message)
     }
   },
   formatEmail: function (email) {
@@ -516,34 +530,6 @@ export const PLUGINS = {
     }
     return ''
   },
-  Notify: async function (message = '...') {
-    const existingNotification = document.getElementById('notifications')
-    if (existingNotification) {
-      existingNotification.remove()
-    }
-
-    const notification = document.createElement('div')
-    notification.id = 'notifications'
-    notification.className =
-      'alert alert-transparent p-1 rounded showNotification'
-    notification.setAttribute('role', 'alert')
-    notification.style.cssText =
-      'min-width:fit-content;font-size:0.7rem;font-style:italic;'
-
-    const messageElement = document.createElement('p')
-
-    messageElement.style.color = 'white'
-    messageElement.innerText = message || ''
-    notification.appendChild(messageElement && messageElement)
-
-    document.body.appendChild(notification)
-    setTimeout(() => {
-      notification.classList.remove('showNotification')
-      setTimeout(() => {
-        notification.remove()
-      }, 500)
-    }, 5000)
-  },
   displayLabel: async function ([anchorId, labelClass, labelText]) {
     const existingAlert = document.querySelector('.main___alert')
     if (existingAlert) {
@@ -552,11 +538,11 @@ export const PLUGINS = {
     const label = document.createElement('div')
     label.classList.add('alert', labelClass, 'text-center', 'main___alert')
     label.textContent = labelText
+    label.style.textShadow = '0.5px 0.5px #000000'
 
     const anchor = document.getElementById(anchorId)
     if (anchor) {
       anchor.appendChild(label)
-
       setTimeout(() => {
         if (anchor.contains(label)) {
           anchor.removeChild(label)
@@ -565,10 +551,6 @@ export const PLUGINS = {
     } else {
       console.log(`Anchor with ID '${anchorId}' could not be found`)
     }
-  },
-  notifyAndDisplayLabel: function (alertClass, message) {
-    PLUGINS.Notify(message)
-    PLUGINS.displayLabel(['review_main_wrapper', alertClass, message])
   },
   confirmAction: async function (containerId, message) {
     if (message === undefined || null)
@@ -607,7 +589,6 @@ export const PLUGINS = {
 
       const abortBtn = document.querySelector('.cancel_delete')
       abortBtn?.addEventListener('click', async () => {
-        PLUGINS.Notify('Process aborted.')
         PLUGINS.displayLabel([
           'review_main_wrapper',
           'alert-secondary',
@@ -694,10 +675,7 @@ export const PLUGINS = {
       try {
         await callback(event)
       } catch (error) {
-        console.error(
-          'An error occurred from handleAsyncErrors:',
-          error.message
-        )
+        console.log('An error occurred from handleAsyncErrors:', error.message)
       }
     }
   },
@@ -731,7 +709,7 @@ export const PLUGINS = {
       const serializedData = localStorage.getItem(key)
       return serializedData ? JSON.parse(serializedData) : null
     } catch (error) {
-      console.error('Error fetching from localStorage:', error)
+      console.log('Error fetching from localStorage:', error)
       return null
     }
   },
@@ -740,7 +718,7 @@ export const PLUGINS = {
       const serializedData = JSON.stringify(data)
       localStorage.setItem(key, serializedData)
     } catch (error) {
-      console.error('Error saving to localStorage:', error)
+      console.log('Error saving to localStorage:', error)
     }
   },
   userGuideModel: async function () {
@@ -874,7 +852,7 @@ export const PLUGINS = {
         throw new Error('Invalid document ID')
       }
 
-      PLUGINS.runSpinner(false)
+      PLUGINS.runSpinner(false, 'Deleting...')
 
       const auth = PLUGINS.getAuthHandler()
       const { 'auth-token': authToken, isAdmin, isSubscribed } = auth
@@ -904,7 +882,7 @@ export const PLUGINS = {
         return true
       }
     } catch (error) {
-      console.error('Error deleting document:', error.message)
+      console.log('Error deleting document:', error.message)
       PLUGINS.displayLabel([
         'review_main_wrapper',
         'alert-danger',
@@ -958,12 +936,25 @@ export const PLUGINS = {
       }
       throw new Error(`Failed to update review: ${response.data}`)
     } catch (error) {
-      console.error('Error deleting document:', error.message)
+      if (
+        error.response.status === 501 &&
+        error.response.statusText === 'Not Implemented'
+      ) {
+        PLUGINS.simpleLoader(false)
+
+        return PLUGINS.displayLabel([
+          'review_main_wrapper',
+          'alert-secondary',
+          `This feature has not yet been implimented: We are working in it! `
+        ])
+      }
+
       PLUGINS.displayLabel([
         'review_main_wrapper',
         'alert-danger',
         `An error occurred: ${error.message}`
       ])
+      console.log(error.message)
     } finally {
       PLUGINS.runSpinner(true)
     }
@@ -971,7 +962,7 @@ export const PLUGINS = {
   handleReviewButtonsEvents: async function () {
     const reviewContainer = document.getElementById('review_main_wrapper')
     if (!reviewContainer) {
-      console.error('Review container not found')
+      console.log('Review container not found')
       return
     }
     reviewContainer.addEventListener('click', async event => {
@@ -996,7 +987,7 @@ export const PLUGINS = {
               }, 1500)
             } catch (error) {
               PLUGINS.simpleLoader(`[del-review-data="${reviewId}"]`, false)
-              console.error('Error handling button click:', error.message)
+              console.log('Error handling button click:', error.message)
             }
           }
           return
@@ -1041,7 +1032,7 @@ export const PLUGINS = {
               }, 1500)
             } catch (error) {
               PLUGINS.simpleLoader(`[del-review-data="${reviewId}"]`, false)
-              console.error('Error handling button click:', error.message)
+              console.log('Error handling button click:', error.message)
             }
           }
           return
@@ -1064,7 +1055,7 @@ export const PLUGINS = {
       const slug = targetElement.dataset.slug
       return slug
     } else {
-      console.error('Target element not found')
+      console.log('Target element not found')
       return null
     }
   },
@@ -1095,12 +1086,12 @@ export const PLUGINS = {
     const container = document.querySelector(
       `.left__body[data-subratings="${authorExternalId}"]`
     )
-    if (!container) return console.error('Container not found')
+    if (!container) return console.log('Container not found')
 
     dataArray.forEach((dataObject, index) => {
       try {
         if (!dataObject || typeof dataObject !== 'object') {
-          console.error(`Invalid object at index ${index}. Skipping append.`)
+          console.log(`Invalid object at index ${index}. Skipping append.`)
           return
         }
         const { key, value } = dataObject
@@ -1109,12 +1100,12 @@ export const PLUGINS = {
         const displayValue = value === false ? 'No' : value
         const spanElement = document.createElement('span')
         spanElement.className = 'text text-muted'
-        spanElement.innerHTML = `<small>${key}: <a href="#">${displayValue}</a></small>`
+        spanElement.innerHTML = `<small>${key}: <a href="#" data-datatype="${value}">${displayValue}</a></small>`
 
         const brEle = container.querySelector('.linner')
         container.insertBefore(spanElement, brEle)
       } catch (error) {
-        console.error(`Error appending element at index ${index}:`, error)
+        console.log(`Error appending element at index ${index}:`, error)
       }
     })
   },
@@ -1150,10 +1141,8 @@ export const PLUGINS = {
 
       const submit____btn = document.querySelector('.sub__this_form')
       submit____btn?.addEventListener('click', async () => {
-        console.log('submitted')
         PLUGINS.sendCreateProfileRequest()
       })
-      // Listen for the Enter key press on the document
       document.addEventListener('keydown', async event => {
         if (event.key === 'Enter') {
           event.preventDefault()
@@ -1165,10 +1154,13 @@ export const PLUGINS = {
       formIsPresent?.remove()
     }
   },
+
   sendCreateProfileRequest: async function () {
     let slug = ''
     const user = PLUGINS.getAuthHandler()
-    const { 'auth-token': token, isAdmin } = user
+    if (!user) return
+    const { 'auth-token': token, isAdmin, _id } = user
+
     try {
       const formData = new FormData()
 
@@ -1176,6 +1168,7 @@ export const PLUGINS = {
         displayLabel(['main__wrapper', 'alert-danger', 'Unauthorized!'])
         return
       }
+
       if (token && isAdmin) {
         const apiClient = await PLUGINS.API_CLIENT()
 
@@ -1187,26 +1180,38 @@ export const PLUGINS = {
           PLUGINS.displayLabel([
             'review_main_wrapper',
             'alert-danger',
-            `You must select a site you wish to create an account for!`
+            'You must select a site you wish to create an account for!'
           ])
           return
         }
+
         const siteUrl = document.querySelector('#propertUrlInputY').value.trim()
 
         if (!siteUrl.length) {
           PLUGINS.displayLabel([
             'review_main_wrapper',
             'alert-danger',
-            `Property URL is missing. URL is required for this operation!`
+            'Property URL is missing. URL is required for this operation!'
           ])
           return
         }
+
+        // Validate URL format
+        const urlRegex = /^(https?:\/\/(www\.)?|www\.)\S*$/
+        if (!urlRegex.test(siteUrl)) {
+          PLUGINS.displayLabel([
+            'review_main_wrapper',
+            'alert-danger',
+            'Invalid URL format. Please provide a valid URL starting with http:// or https://'
+          ])
+          return
+        }
+
         PLUGINS.runSpinner(false, 'Creating...')
 
         formData.append('frontFacingUrl', siteUrl)
         slug = selectedOption ? selectedOption.value : ''
         const urlPart = slug ? `create-${slug}-review-profile` : ''
-
         const baseUrl = `/user/${urlPart}`
 
         const headers = {
@@ -1215,24 +1220,100 @@ export const PLUGINS = {
         }
 
         const res = await apiClient.post(baseUrl, formData, { headers })
-        if (res.status) {
-          // **** IMPLIMENTATION REQUIRED ****
-          console.log(response.data)
-          // **** IMPLIMENTATION REQUIRED *****
+        PLUGINS.runSpinner(true)
+
+        if (res.status === 200) {
+          PLUGINS.removeElementFromDOM('#uploadForm')
+
+          PLUGINS.displayLabel([
+            'review_main_wrapper',
+            'alert-success',
+            `Account profile for ${slug} has been created successfully`
+          ])
+          setTimeout(() => {
+            PLUGINS.runSpinner(false)
+            PLUGINS.displayLabel([
+              'review_main_wrapper',
+              'alert-success',
+              `Collecting reviews for ${slug} in progress...`
+            ])
+          }, 2000)
+
+          // **** IMPLEMENTATION COLLECTING REVIEWS *****
+          // **** IMPLEMENTATION COLLECTING REVIEWS *****
+
+          const response = await PLUGINS.fetchReviewSiteProfile(_id, slug)
+
+          if (response.status === 200) {
+            const data = await response.data
+            if (data.length) {
+              await PLUGINS.runCrawlerHandler(slug)
+            }
+          }
+          // **** IMPLEMENTATION COLLECTING REVIEWS *****
+          // **** IMPLEMENTATION COLLECTING REVIEWS *****
+          // **** IMPLEMENTATION COLLECTING REVIEWS *****
         }
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        console.log(error.message)
-        return PLUGINS.displayLabel([
+        const formContainer = document.getElementById('propertUrlInputY')
+        PLUGINS.removeElementFromDOM('#uploadForm')
+        PLUGINS.runSpinner(true)
+        if (formContainer) formContainer.value = ''
+        PLUGINS.displayLabel([
           'review_main_wrapper',
           'alert-danger',
           `This account already has a ${slug} profile!`
         ])
+        PLUGINS.runSpinner('Running...')
+        await PLUGINS.runCrawlerHandler(slug)
+        PLUGINS.runSpinner(true)
       }
     }
   },
+  fetchReviewSiteProfile: async function (user_id, slug) {
+    PLUGINS.runSpinner(false)
+    if (!user_id) {
+      PLUGINS.runSpinner(true)
+      return PLUGINS.displayLabel([
+        'review_main_wrapper',
+        'alert-danger',
+        `Invalid request!`
+      ])
+    }
 
+    try {
+      PLUGINS.runSpinner(false, 'Processing...')
+      const user = PLUGINS.getAuthHandler()
+      const { 'auth-token': token } = user
+
+      const baseUrl = `/user/get-profile/${user_id}?slug=${slug}-com`
+      console.log(baseUrl)
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+
+      const apiClient = await PLUGINS.API_CLIENT()
+      const response = await apiClient.post(baseUrl, {}, { headers })
+
+      if (response.status === 200) {
+        PLUGINS.runSpinner(true)
+        const profile = await response
+        return profile
+      }
+      return null
+    } catch (e) {
+      console.log(e.message)
+      PLUGINS.displayLabel([
+        'review_main_wrapper',
+        'alert-danger',
+        `Error collecting profile ${e.message} `
+      ])
+    }
+  },
   handleProfileGenerator: async function (selector = null, hasData = true) {
     const anchor = document.querySelector(selector)
     if (anchor) {
@@ -1256,6 +1337,54 @@ export const PLUGINS = {
         form.remove()
       }
     })
+  },
+  runCrawlerHandler: async function (slug, depth = 10) {
+    if (!slug) return
+    PLUGINS.runSpinner(false, 'Crawling...')
+
+    try {
+      const user = PLUGINS.getAuthHandler()
+      if (user) {
+        const apiClient = await PLUGINS.API_CLIENT()
+
+        const baseUrl = `/user/generate-${slug}-reviews`
+        const query = `?depth=${depth}`
+
+        const { 'auth-token': token } = user
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+
+        const url = `${baseUrl}${query}`
+        const res = await apiClient.post(url, {}, { headers })
+
+        PLUGINS.removeElementFromDOM('#uploadForm')
+
+        if (res.status === 200) {
+          PLUGINS.displayLabel([
+            'review_main_wrapper',
+            'alert-success',
+            `Review data has been collected successfully!`
+          ])
+          setTimeout(() => location.reload(), 2000)
+        } else {
+          PLUGINS.displayLabel([
+            'review_main_wrapper',
+            'alert-warning',
+            `Someting went wrong: Review data could not be collected!`
+          ])
+        }
+      }
+    } catch (e) {
+      console.log(e.message)
+      PLUGINS.displayLabel([
+        'review_main_wrapper',
+        'alert-danger',
+        `Someting went wrong during review data collection: ${e.message}`
+      ])
+    }
   },
   generateReviewCard: async function (
     reviewsDataOject = {},
@@ -1308,7 +1437,7 @@ export const PLUGINS = {
                 <img src="" style="width:30%;max-width:75px !important;min-width:57px !important" class="img-thumbnail review-logo-${uuid}-${internalId} bg-transparent" alt="...">
                 </div>
                 <div class="card-body d-flex flex-column left__body" data-subratings="${authorExternalId}">
-                  <span class="text" data-guest-rating="rating-${authorExternalId}"></span>
+                  <span class="text" data-guest-rating="rating-${authorExternalId}" data-rating="${rating}"></span>
                   <br class="linner">
                 </div>
             </div>
@@ -1340,8 +1469,8 @@ export const PLUGINS = {
                   <a class="btn btn-transparent btn-outline-secondary action_2" href="${
                     originalEndpoint || propertyProfileUrl
                   }" target="_blank"  type="button">See review on ${reviewSiteSlug}</a>
-                  <button class="btn btn-transparent btn-outline-danger action_3" del-revie-data="${_id}"  type="button">Delete review</button>
                   <button class="btn btn-transparent btn-outline-secondary action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
+                  <button class="btn btn-transparent btn-outline-danger action_3" del-revie-data="${_id}"  type="button">Delete review</button>
                 </div>
           </div>
       </div>`
@@ -1452,7 +1581,7 @@ export const PLUGINS = {
         return PLUGINS.displayLabel([
           'review_main_wrapper',
           'alert-secondary',
-          `Nothing found for ${slug}, or it has not been configured. \nCreate a profile for ${slug} by submiting a url in the input above and we will take care of the rest for you.`
+          `No review data available. \nCreate a profile for ${slug} by submiting a url in the input above and we will take care of the rest for you.`
         ])
       }
     } finally {
@@ -1495,7 +1624,6 @@ export const PLUGINS = {
                   })
 
                   if (data.length < 20) {
-                    PLUGINS.Notify(`Last page: ${page}`)
                     observer.unobserve(target)
                   } else {
                     loading = false
@@ -1639,7 +1767,7 @@ export const PLUGINS = {
               Actions
             </button>
             <ul class="dropdown-menu bg-dark text-light shadow">
-              <li class="d-flex justify-content-between align-content-center">
+              <li class="d-flex justify-content-between align-content-center" style="width: 100% !important;height:50%;z-index:50 !important">
                   <a class="dropdown-item text-light text-muted" href="#">Run Crawler</a>
                   <div class="container">
                     <div class="form-check text-muted crawl-${profile_id}">
@@ -1691,7 +1819,7 @@ export const PLUGINS = {
       return PLUGINS.displayLabel([
         'review_main_wrapper',
         'alert-success',
-        `You are already on the admin page. `
+        `You are already on the admin page.`
       ])
 
     const adminHTMLContent = `
@@ -1704,6 +1832,12 @@ export const PLUGINS = {
 
     const { profiles, ...rest } = await PLUGINS.getAuthHandler()
 
+    if (!profiles.length)
+      return PLUGINS.displayLabel([
+        'review_main_wrapper',
+        'alert-warning',
+        `No profiles could be found. Try logout and login again!`
+      ])
     for (let i = 0; i < profiles.length; i++) {
       const userObject = profiles[i]
       const delay = i * 100
@@ -1711,5 +1845,6 @@ export const PLUGINS = {
       await new Promise(resolve => setTimeout(resolve, delay))
       await PLUGINS.createAdminProfileCard(userObject, rest)
     }
+    history.pushState(null, null, '/')
   }
 }

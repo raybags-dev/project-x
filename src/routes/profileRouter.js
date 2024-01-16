@@ -6,7 +6,8 @@ import {
   deleteAccountProfileAndAllDocuments,
   pargeUserPrivate,
   pargeUserPublic,
-  validateCaller
+  validateCaller,
+  getAccountProfile
 } from '../controllers/profileController.js'
 
 const router = express.Router()
@@ -40,6 +41,12 @@ router.post(
   authMiddleware,
   isAdmin,
   asyncMiddleware(validateCaller)
+)
+router.post(
+  '/raybags/v1/review-crawler/user/get-profile/:_id',
+  authMiddleware,
+  isAdmin,
+  asyncMiddleware(getAccountProfile)
 )
 
 export default router

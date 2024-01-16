@@ -5,7 +5,6 @@ export default function connectToDB (url, isConnect) {
     try {
       mongoose.set('strictQuery', true)
       // mongoose.set('debug', true)
-
       console.log('connecting...')
       return mongoose
         .connect(url, {
@@ -24,7 +23,7 @@ export default function connectToDB (url, isConnect) {
           )
         })
     } catch (e) {
-      console.error(e.message)
+      console.error(e)
     }
   }
   return console.log('Database connection failed.')

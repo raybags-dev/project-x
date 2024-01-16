@@ -117,6 +117,36 @@ export async function pargeUserPrivate (req, res) {
     return res.status(500).json({ error: 'Internal Server Error' })
   }
 }
+export async function getAccountProfile (req, res) {
+  try {
+    const { userId } = req.locals.user
+
+    const _id = req.params._id
+    const siteSlug = req.query.slug
+
+    const user = await USER_MODEL.findById(_id)
+
+    if (!user)
+      return res
+        .status(404)
+        .json(
+          `A profile associated with this user account for ${siteSlug}, could not be found`
+        )
+
+    const siteProfile = await PROFILE_MODEL.find({
+      userId,
+      reviewSiteSlug: siteSlug
+    })
+
+    if (!siteProfile
+ || !siteProfile.length)
+      return res.status(404).json(`Profile could not be found!`)
+
+    res.status(200).json(siteProfile)
+  } catch (e) {
+    console.log(e.message)
+  }
+}
 
 export async function validateCaller (req, res) {
   try {
