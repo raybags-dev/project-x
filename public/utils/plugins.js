@@ -1331,18 +1331,16 @@ export const PLUGINS = {
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        const formContainer = document.getElementById('propertUrlInputY')
         PLUGINS.removeElementFromDOM('#uploadForm')
         PLUGINS.runSpinner(true)
-        if (formContainer) formContainer.value = ''
         PLUGINS.displayLabel([
           'review_main_wrapper',
           'alert-danger',
           `This account already has a ${slug} profile!`
         ])
-        // PLUGINS.runSpinner('Running...')
-        // await PLUGINS.runCrawlerHandler(slug)
-        // PLUGINS.runSpinner(true)
+        PLUGINS.runSpinner('Running...')
+        await PLUGINS.runCrawlerHandler(slug)
+        PLUGINS.runSpinner(true)
       }
     }
   },
@@ -1363,8 +1361,6 @@ export const PLUGINS = {
       const { 'auth-token': token } = user
 
       const baseUrl = `/user/get-profile/${user_id}?slug=${slug}-com`
-      console.log(baseUrl)
-
       const headers = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -1453,11 +1449,19 @@ export const PLUGINS = {
       }
     } catch (e) {
       console.log(e.message)
-      PLUGINS.displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        `Someting went wrong during review data collection: ${e.message}`
-      ])
+      if (
+        e &&
+        e.response &&
+        e.response.error &&
+        e.response.error.status === 503
+      ) {
+        PLUGINS.displayLabel([
+          'review_main_wrapper',
+          'alert-danger',
+          `Service unavailable, please try again later ${e.message}`
+        ])
+        return
+      }
     }
   },
   generateReviewCard: async function (
