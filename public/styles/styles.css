@@ -324,48 +324,54 @@ a {
     flex-wrap: wrap;
     z-index: 100;
     position: fixed;
-    left: -50%;
-    bottom: 0% !important;
+    left: 50%;
+    bottom: -30%;
+    transform: translate(-50%, -50%);
     opacity: 0;
     padding: .4rem !important;
     width: -webkit-max-content;
     width: -moz-max-content;
     width: max-content;
+    min-width: 100px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
     transition: all 0.3s;
-    -webkit-animation: notice-wrapper 4.5s forwards ease-in-out;
-    animation: notice-wrapper 4.5s forwards ease-in-out;
+    -webkit-animation: notice-wrapper 4s forwards ease-in-out;
+    animation: notice-wrapper 4s forwards ease-in-out;
 }
+
 
 @-webkit-keyframes notice-wrapper {
     10% {
-        left: 0%;
+        bottom: 0%;
         opacity: 1;
     }
 
     80% {
-        left: 0%;
+        bottom: 0%;
         opacity: 1;
     }
 
     100% {
-        left: -50%;
+        bottom: -30%;
         opacity: 0;
     }
 }
 
 @keyframes notice-wrapper {
     10% {
-        left: 0%;
+        bottom: 0%;
         opacity: 1;
     }
 
     80% {
-        left: 0%;
+        bottom: 0%;
         opacity: 1;
     }
 
     100% {
-        left: -50%;
+        bottom: -30%;
         opacity: 0;
     }
 }
@@ -482,6 +488,42 @@ a {
     justify-content: center;
     align-items: center;
 }
+
+.shake-animation {
+    animation: shake-form 0.2s alternate-reverse ease-in-out 2;
+}
+
+@-webkit-keyframes shake-form {
+
+    0% {
+        left: 40%;
+    }
+
+    50% {
+        left: 60%;
+    }
+
+    100% {
+        left: 50%;
+    }
+}
+
+@keyframes shake-form {
+
+    0% {
+        left: 49%;
+    }
+
+    50% {
+        left: 51%;
+    }
+
+    100% {
+        left: 50%;
+    }
+}
+
+
 
 #uploadForm>.input-group .form-control {
     border-color: transparent !important;
@@ -664,17 +706,75 @@ textarea:focus {
 }
 
 /** ===== Uncomment this css lines before commiting== */
-/*
+
+#search____input::-webkit-input-placeholder,
+#canvas__Search_input::-webkit-input-placeholder {
+    -webkit-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input::-moz-placeholder,
+#canvas__Search_input::-moz-placeholder {
+    -moz-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input:-ms-input-placeholder,
+#canvas__Search_input:-ms-input-placeholder {
+    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input::-ms-input-placeholder,
+#canvas__Search_input::-ms-input-placeholder {
+    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
 #search____input::placeholder,
 #canvas__Search_input::placeholder {
     transition: letter-spacing 0.5s, opacity 0.5s;
 }
+
+#search____input:focus-within::-webkit-input-placeholder,
+#canvas__Search_input:focus-within::-webkit-input-placeholder {
+    letter-spacing: 2rem;
+    opacity: 0;
+    -webkit-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input:focus-within::-moz-placeholder,
+#canvas__Search_input:focus-within::-moz-placeholder {
+    letter-spacing: 2rem;
+    opacity: 0;
+    -moz-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input:focus-within:-ms-input-placeholder,
+#canvas__Search_input:focus-within:-ms-input-placeholder {
+    letter-spacing: 2rem;
+    opacity: 0;
+    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input:focus-within::-ms-input-placeholder,
+#canvas__Search_input:focus-within::-ms-input-placeholder {
+    letter-spacing: 2rem;
+    opacity: 0;
+    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
 #search____input:focus-within::placeholder,
 #canvas__Search_input:focus-within::placeholder {
     letter-spacing: 2rem;
     opacity: 0;
     transition: letter-spacing 0.5s, opacity 0.5s;
-}*/
+}
+
 /** ==== Uncomment this css lines before commiting=== */
 .big_spinnerr {
     background-color: transparent;
@@ -824,6 +924,10 @@ textarea:focus {
     .heading {
         font-size: 15px;
     }
+}
+
+.heading {
+    font-size: 15px;
 }
 
 .heading {
