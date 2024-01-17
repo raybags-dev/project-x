@@ -265,6 +265,10 @@ a {
     border: none;
 }
 
+.heading {
+    font-size: 15px;
+}
+
 #innerBody {
     min-width: 100vw;
     height: 100vh;
@@ -924,12 +928,4 @@ textarea:focus {
     .heading {
         font-size: 15px;
     }
-}
-
-.heading {
-    font-size: 15px;
-}
-
-.heading {
-    font-size: 15px;
 }
