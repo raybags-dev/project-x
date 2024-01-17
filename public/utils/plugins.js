@@ -538,7 +538,6 @@ export const PLUGINS = {
     const label = document.createElement('div')
     label.classList.add('alert', labelClass, 'text-center', 'main___alert')
     label.textContent = labelText
-    label.style.textShadow = '0.5px 0.5px #000000'
 
     const anchor = document.getElementById(anchorId)
     if (anchor) {
@@ -547,7 +546,7 @@ export const PLUGINS = {
         if (anchor.contains(label)) {
           anchor.removeChild(label)
         }
-      }, 5000)
+      }, 6000)
     } else {
       console.log(`Anchor with ID '${anchorId}' could not be found`)
     }
@@ -1059,6 +1058,15 @@ export const PLUGINS = {
       return null
     }
   },
+  clearProfileForm: function () {
+    const selectDropdown = document.getElementById('inputGroupSiteOptions')
+    const textareaInput = document.getElementById('propertUrlInputY')
+    if (selectDropdown && textareaInput) {
+      selectDropdown.selectedIndex = 0
+      textareaInput.value = ''
+    }
+    return
+  },
   getAuthorExternalIdId: function (buttonElement) {
     const reviewContainer = buttonElement.closest('.review-container')
     if (reviewContainer) {
@@ -1109,6 +1117,28 @@ export const PLUGINS = {
       }
     })
   },
+  shakeAnimation: function (selector) {
+    return new Promise(resolve => {
+      try {
+        const element = document.querySelector(selector),
+          shakeClass = 'shake-animation'
+
+        if (element) {
+          element.classList.add(shakeClass)
+
+          setTimeout(() => {
+            element.classList.remove(shakeClass)
+            resolve()
+          }, 2000)
+        } else {
+          resolve()
+        }
+      } catch (e) {
+        console.error(e.message)
+        resolve()
+      }
+    })
+  },
   profileGenerator: async function () {
     let formIsPresent = document.querySelector('#uploadForm')
     formIsPresent && formIsPresent?.remove()
@@ -1155,6 +1185,44 @@ export const PLUGINS = {
     }
   },
 
+  validateSlug: function (slug, url) {
+    let httpOccurrences = 0
+    let httpsOccurrences = 0
+
+    if (url.includes('http://')) {
+      httpOccurrences = (url.match(/http:\/\//g) || []).length
+    }
+
+    if (url.includes('https://')) {
+      httpsOccurrences = (url.match(/https:\/\//g) || []).length
+    }
+
+    if (httpOccurrences + httpsOccurrences > 1) {
+      const errorMessage =
+        'Invalid charactors detected in the provided url. Use a valid url!'
+      PLUGINS.displayLabel([
+        'review_main_wrapper',
+        'alert-danger',
+        errorMessage
+      ])
+      PLUGINS.justForAMoment('Aborting...')
+      return false
+    }
+
+    const validFormats = [`https://www.${slug}`, `https://${slug}`]
+
+    for (const format of validFormats) {
+      if (url.startsWith(format)) {
+        console.log('is valid...')
+        return true
+      }
+    }
+
+    const errorMessage = `The provided URL does not match the selected site name (${slug}).`
+    PLUGINS.displayLabel(['review_main_wrapper', 'alert-danger', errorMessage])
+    PLUGINS.justForAMoment('Aborting...')
+    return false
+  },
   sendCreateProfileRequest: async function () {
     let slug = ''
     const user = PLUGINS.getAuthHandler()
@@ -1214,6 +1282,12 @@ export const PLUGINS = {
         const urlPart = slug ? `create-${slug}-review-profile` : ''
         const baseUrl = `/user/${urlPart}`
 
+        const isValidRequest = PLUGINS.validateSlug(slug, siteUrl)
+        if (!isValidRequest) {
+          PLUGINS.shakeAnimation('#uploadForm')
+          return PLUGINS.clearProfileForm()
+        }
+
         const headers = {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -1266,9 +1340,9 @@ export const PLUGINS = {
           'alert-danger',
           `This account already has a ${slug} profile!`
         ])
-        PLUGINS.runSpinner('Running...')
-        await PLUGINS.runCrawlerHandler(slug)
-        PLUGINS.runSpinner(true)
+        // PLUGINS.runSpinner('Running...')
+        // await PLUGINS.runCrawlerHandler(slug)
+        // PLUGINS.runSpinner(true)
       }
     }
   },
