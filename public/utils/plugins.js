@@ -1,4 +1,5 @@
 import { LOGIN_HTML } from '../components/login.js'
+import { SIGNUP_HTML } from '../components/signup.js'
 import { siteLogos } from '../components/logoPaths.js'
 export const PLUGINS = {
   API_CLIENT: async function () {
@@ -391,23 +392,6 @@ export const PLUGINS = {
       }
     }
   },
-  // setAuthHandler: function (userObject, headers) {
-  //   console.log(userObject)
-  //   if (userObject && headers && headers.authorization) {
-  //     try {
-  //       const authToken = headers.authorization.split(' ')[1]
-  //       const { version, createdAt, updatedAt, ...userWithoutMeta } = userObject
-
-  //       userWithoutMeta['auth-token'] = authToken
-  //       sessionStorage.setItem('user', JSON.stringify(userWithoutMeta))
-
-  //       return userWithoutMeta
-  //     } catch (error) {
-  //       console.error('Error parsing authorization header:', error)
-  //     }
-  //   }
-  //   return null
-  // },
   setAuthHandler: function (userObject, headers) {
     if (userObject && headers && headers.authorization) {
       try {
@@ -491,14 +475,6 @@ export const PLUGINS = {
         'alert-danger',
         'Login failed. PLease try to login again!'
       ])
-      setTimeout(() => {
-        PLUGINS.displayLabel([
-          'review_main_wrapper',
-          'alert-danger',
-          'If the issue persist, please open a ticket and we will assist promptly!'
-        ])
-        PLUGINS.runSpinner(true)
-      }, 2000)
       return error?.response
     }
   },
@@ -573,17 +549,16 @@ export const PLUGINS = {
       message = `This action cannot be reversed. Are you sure you want to proceed ? `
     return new Promise(resolve => {
       const modalHTML = `
-        <div class="modal fade" style="backdrop-filter: blur(7px) !important;" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+        <div class="modal fade border-2 border-danger p-1" style="backdrop-filter: blur(15px) !important;" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
           <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-light">
-              <div class="modal-header">
+            <div class="modal-content bg-light-custom  text-light">
+              <div class="container text-center d-flex justify-content-center align-content-center text-uppercase p-2">
                 <h1 class="modal-title fs-5 text-danger" id="exampleModalToggleLabel">Danger zone</h1>
-                <button type="button" class="btn-close btn-primary" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
-              <div class="modal-body text-muted">${message}</div>
-              <div class="modal-footer">
-                <button type="button" class="btn-lg bg-transparent btn-outline-danger proceed_delete" data-bs-dismiss="modal">Proceed</button>
-                <button type="button" class="btn-lg bg-transparent btn-outline-success cancel_delete" data-bs-dismiss="modal">Cancel</button>
+              <div class="modal-body custome-color2">${message}</div>
+              <div class="container mb-2 d-flex justify-content-around align-content-center gap-2">
+                <button type="button" class="btn-lg bg-transparent btn-outline-danger w-50 proceed_delete overflow-hidden" data-bs-dismiss="modal">Proceed</button>
+                <button type="button" class="btn-lg bg-transparent btn-outline-success  w-50 cancel_delete overflow-hidden" data-bs-dismiss="modal">Cancel</button>
               </div>
             </div>
           </div>
@@ -1916,6 +1891,7 @@ export const PLUGINS = {
       })
     }
     const del_review_btns = document.querySelectorAll('.del_all_reviews')
+    const del_account = document.querySelectorAll('.del_entire_account')
     del_review_btns.forEach(btn => {
       btn.addEventListener('click', async e => {
         try {
@@ -1924,15 +1900,50 @@ export const PLUGINS = {
           const slug = (h4 && h4.innerText).toLowerCase()
           const cardId = card && card.getAttribute('id')
 
-          const deletedProfile = await PLUGINS.deletProfileAndAssociatedReviews(
-            slug,
-            cardId
+          const confirmation = await PLUGINS.confirmAction(
+            '#body',
+            `Caution: You are about to delete your account. By confirming account deletion with button 'Proceed', you acknowledge that all your account details, including account data, profiles and associated reviews, will be permanently erased. This irreversible action is not recoverable. Once confirmed, you will lose access to your account, and all data will be unrecoverable. Are you certain you want to proceed with the deletion?`
           )
-          if (deletedProfile) {
-            await PLUGINS.fetchCurrentUserUpdateSeesionStorage()
-            const deletedProfileCard = document.getElementById(`${cardId}`)
-            deletedProfileCard.remove()
-            PLUGINS.runSpinner(true)
+          if (confirmation === 'confirmed!') {
+            const deletedProfile =
+              await PLUGINS.deletProfileAndAssociatedReviews(slug, cardId)
+            if (deletedProfile) {
+              await PLUGINS.fetchCurrentUserUpdateSeesionStorage()
+              const deletedProfileCard = document.getElementById(`${cardId}`)
+              deletedProfileCard.remove()
+              PLUGINS.runSpinner(true)
+            }
+          }
+        } catch (e) {
+          console.log(e.message)
+          PLUGINS.displayLabel([
+            'review_main_wrapper',
+            'alert-danger',
+            `Something went wrong please try again later`
+          ])
+        }
+      })
+    })
+    del_account.forEach(btn => {
+      btn.addEventListener('click', async e => {
+        try {
+          const confirmation = await PLUGINS.confirmAction(
+            '#body',
+            `Caution: You are about to delete your account. By confirming account deletion with button 'Proceed', you acknowledge that all your account details, including account data, profiles and associated reviews, will be permanently erased. This irreversible action is not recoverable. Once confirmed, you will lose access to your account, and all data will be unrecoverable. Are you certain you want to proceed with the deletion?`
+          )
+          if (confirmation === 'confirmed!') {
+            const accountIsDeleted = await PLUGINS.deletEntireAccount()
+            if (accountIsDeleted) {
+              PLUGINS.displayLabel([
+                'review_main_wrapper',
+                'alert-secondary',
+                `Sad to see you go. If you wish to use our service, you can always signup`
+              ])
+              setTimeout(async () => {
+                await SIGNUP_HTML()
+                PLUGINS.runSpinner(true)
+              }, 3000)
+            }
           }
         } catch (e) {
           console.log(e.message)
@@ -1945,7 +1956,6 @@ export const PLUGINS = {
       })
     })
   },
-
   deletProfileAndAssociatedReviews: async function (slug, profile_Id) {
     try {
       if (!slug) return
@@ -1985,6 +1995,50 @@ export const PLUGINS = {
         'review_main_wrapper',
         'alert-danger',
         `Something went wrong! Profile could not be deleted. `
+      ])
+    } finally {
+      PLUGINS.runSpinner(true)
+    }
+  },
+  deletEntireAccount: async function () {
+    try {
+      PLUGINS.runSpinner(false, 'Deleting...')
+
+      const user = PLUGINS.getAuthHandler()
+      const { 'auth-token': token } = user
+
+      const baseUrl = '/user/purge-own-user-account'
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+      const apiClient = await PLUGINS.API_CLIENT()
+      const response = await apiClient.delete(baseUrl, { headers })
+      if (response.status === 200) {
+        PLUGINS.runSpinner(true)
+
+        PLUGINS.displayLabel([
+          'review_main_wrapper',
+          'alert-success',
+          `Your account has been deleted.`
+        ])
+        PLUGINS.clearStorage('sessionStorage')
+        PLUGINS.clearStorage('localStorage')
+        return true
+      } else {
+        PLUGINS.displayLabel([
+          'review_main_wrapper',
+          'alert-danger',
+          `Something went wrong! Profile could not be deleted. `
+        ])
+        return false
+      }
+    } catch (e) {
+      console.log(e)
+      PLUGINS.displayLabel([
+        'review_main_wrapper',
+        'alert-danger',
+        `Something went wrong! account could not be deleted.`
       ])
     } finally {
       PLUGINS.runSpinner(true)
@@ -2070,8 +2124,9 @@ export const PLUGINS = {
                     }</p>
                     <div class="row profile__container bg-light-custom gap-3"></div>
                   </div>
-                  <div class="container">
-                    <button type="button" class="btn  btn-outline-secondary m-auto border-1 btn-lg mt-1 mb-3 w-100" data-bs-dismiss="modal">Close me</button>
+                  <div class="container d-flex justify-content-around align-content-center gap-2">
+                    <button type="button" class="btn  btn-outline-secondary m-auto border-1 btn-lg mt-1 mb-3 w-50" data-bs-dismiss="modal">Exit</button>
+                    <button type="button" class="btn  btn-outline-danger m-auto border-1 btn-lg mt-1 mb-3 w-50 del_account__btn">Delete account</button>
                   </div>
                 </div>
           </div>
@@ -2142,11 +2197,36 @@ export const PLUGINS = {
               </div>`
             cardBody.innerHTML = cardContent
             card.appendChild(cardBody)
-
             return card
           }
+
+          const profDelbtn = document.querySelector('.del_account__btn')
+          profDelbtn &&
+            profDelbtn.addEventListener('click', async e => {
+              const confirmation = await PLUGINS.confirmAction(
+                '#body',
+                `Caution: You are about to delete your account. By confirming account deletion with button 'Proceed', you acknowledge that all your account details, including account data, profiles and associated reviews, will be permanently erased. This irreversible action is not recoverable. Once confirmed, you will lose access to your account, and all data will be unrecoverable. Are you certain you want to proceed with the deletion?`
+              )
+              if (confirmation === 'confirmed!') {
+                const isDeleted = await PLUGINS.deletEntireAccount()
+                if (isDeleted) {
+                  {
+                    PLUGINS.displayLabel([
+                      'review_main_wrapper',
+                      'alert-secondary',
+                      `Sad to see you go. If you wish to use our service, you can always signup`
+                    ])
+                    setTimeout(async () => {
+                      await SIGNUP_HTML()
+                      PLUGINS.runSpinner(true)
+                    }, 3000)
+                  }
+                }
+              }
+            })
         })
       }
+
       PLUGINS.displayLabel([
         'review_main_wrapper',
         'alert-danger',
