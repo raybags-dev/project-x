@@ -19,7 +19,7 @@ router.delete(
   asyncMiddleware(deleteAccountProfile)
 )
 router.delete(
-  '/raybags/v1/review-crawler/user/delete-own-profile-and-documents',
+  '/raybags/v1/review-crawler/user/delete-own-profile-and-documents/:_id',
   authMiddleware,
   isAdmin,
   asyncMiddleware(deleteAccountProfileAndAllDocuments)

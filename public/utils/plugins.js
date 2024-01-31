@@ -28,6 +28,7 @@ export const PLUGINS = {
     return apiClient
   },
   previousTextContent: null,
+
   simpleLoader: async function (anchor, isLoading) {
     if (!anchor && !isLoading) {
       const shouldBeRemoved = document.getElementById('spinner-container')
@@ -366,7 +367,6 @@ export const PLUGINS = {
       console.log('done')
     }
   },
-
   reviewCount: async function (countTotal, selector) {
     const container = document.querySelector(selector)
 
@@ -391,13 +391,30 @@ export const PLUGINS = {
       }
     }
   },
+  // setAuthHandler: function (userObject, headers) {
+  //   console.log(userObject)
+  //   if (userObject && headers && headers.authorization) {
+  //     try {
+  //       const authToken = headers.authorization.split(' ')[1]
+  //       const { version, createdAt, updatedAt, ...userWithoutMeta } = userObject
+
+  //       userWithoutMeta['auth-token'] = authToken
+  //       sessionStorage.setItem('user', JSON.stringify(userWithoutMeta))
+
+  //       return userWithoutMeta
+  //     } catch (error) {
+  //       console.error('Error parsing authorization header:', error)
+  //     }
+  //   }
+  //   return null
+  // },
   setAuthHandler: function (userObject, headers) {
     if (userObject && headers && headers.authorization) {
       try {
         const authToken = headers.authorization.split(' ')[1]
-        const { version, createdAt, updatedAt, ...userWithoutMeta } = userObject
 
-        userWithoutMeta['auth-token'] = authToken
+        const userWithoutMeta = { ...userObject, 'auth-token': authToken }
+
         sessionStorage.setItem('user', JSON.stringify(userWithoutMeta))
 
         return userWithoutMeta
@@ -1041,6 +1058,12 @@ export const PLUGINS = {
       }
     })
   },
+  formatDBDate: function (date) {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  },
   getOutermostReviewId: function (buttonElement) {
     const reviewContainer = buttonElement.closest('.review-container')
     if (reviewContainer) {
@@ -1108,7 +1131,7 @@ export const PLUGINS = {
         const displayValue = value === false ? 'No' : value
         const spanElement = document.createElement('span')
         spanElement.className = 'text text-muted'
-        spanElement.innerHTML = `<small>${key}: <a href="#" data-datatype="${value}">${displayValue}</a></small>`
+        spanElement.innerHTML = `<small>${key}: <a href="#" style="cursor:pointer;" class="sub_link text-success" data-datatype="${value}">${displayValue}</a></small>`
 
         const brEle = container.querySelector('.linner')
         container.insertBefore(spanElement, brEle)
@@ -1184,7 +1207,6 @@ export const PLUGINS = {
       formIsPresent?.remove()
     }
   },
-
   validateSlug: function (slug, url) {
     let httpOccurrences = 0
     let httpsOccurrences = 0
@@ -1298,7 +1320,6 @@ export const PLUGINS = {
 
         if (res.status === 200) {
           PLUGINS.removeElementFromDOM('#uploadForm')
-
           PLUGINS.displayLabel([
             'review_main_wrapper',
             'alert-success',
@@ -1312,21 +1333,16 @@ export const PLUGINS = {
               `Collecting reviews for ${slug} in progress...`
             ])
           }, 2000)
-
-          // **** IMPLEMENTATION COLLECTING REVIEWS *****
-          // **** IMPLEMENTATION COLLECTING REVIEWS *****
-
           const response = await PLUGINS.fetchReviewSiteProfile(_id, slug)
 
           if (response.status === 200) {
+            //update localsession
+            await PLUGINS.fetchCurrentUserUpdateSeesionStorage()
             const data = await response.data
             if (data.length) {
               await PLUGINS.runCrawlerHandler(slug)
             }
           }
-          // **** IMPLEMENTATION COLLECTING REVIEWS *****
-          // **** IMPLEMENTATION COLLECTING REVIEWS *****
-          // **** IMPLEMENTATION COLLECTING REVIEWS *****
         }
       }
     } catch (error) {
@@ -1541,7 +1557,16 @@ export const PLUGINS = {
   
             <div class="card text-bg-light dark-gray-bg card-right" style="width: 22%;">
                 <div class="card-header border-transparent shadow-none mt-1">
-                <h5 class="card-title text-light text-center">Actions</h5>
+                <!--===================-->
+                    <div class="btn-group d-block text-center align-content-center">
+                        <button class="btn btn-lg text-muted  btn-outline-transparent dropdown-toggle btn-block" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                          Actions
+                        </button>
+                        <ul class="dropdown-menu  dark-gray-bg">
+                          <li><a class="dropdown-item text-light" href="#">Copye link</a></li>
+                        </ul>
+                    </div>
+                <!--===================-->
                 </div>
                 <div class="d-grid gap-2 col-6 mx-auto m-auto action_buttons right__body" style="width:100%;">
                   <a class="btn btn-transparent btn-outline-secondary action_2" href="${
@@ -1793,7 +1818,7 @@ export const PLUGINS = {
     } = rest
 
     const profileCardHTML = `
-    <div id="${profile_id}" class="card admin-card dark-gray-bg shadow-lg user-${account_id}" style="min-width:250px; width:30%; max-width: 25rem;">
+    <div id="${profile_id}" class="card admin-card dark-gray-bg shadow user-${account_id}" style="min-width:250px; width:30%; max-width: 25rem;">
     <div class="card-header deem-text d-flex justify-content-between align-content-center">
         <h4 class="lead text-decoration-underline text-uppercase deem-text">${
           slug || ''
@@ -1868,10 +1893,10 @@ export const PLUGINS = {
             </button>
             <ul class="dropdown-menu bg-dark text-light">
               <li class="d-flex justify-content-between align-content-center">
-                <a class="dropdown-item text-danger" href="#">Delete reviews</a>
+                <a class="dropdown-item text-danger del_all_reviews" href="#">Delete profile & reviews</a>
                   
               </li>
-              <li><a class="dropdown-item text-danger" href="#">Delete account</a></li>
+              <li><a class="dropdown-item text-danger del_entire_account" href="#">Delete entire account</a></li>
             </ul>
         </div>
     </div>
@@ -1885,13 +1910,87 @@ export const PLUGINS = {
     const numberInput = document.querySelector(`[data-page="${profile_id}"]`)
 
     if (checkbox && numberInput) {
-      checkbox.addEventListener('change', function () {
+      checkbox.addEventListener('change', async function () {
         numberInput.disabled = !numberInput.disabled
         numberInput.value = 0
       })
     }
+    const del_review_btns = document.querySelectorAll('.del_all_reviews')
+    del_review_btns.forEach(btn => {
+      btn.addEventListener('click', async e => {
+        try {
+          const card = e.target.closest('.admin-card')
+          const h4 = card.querySelector('.card-header h4')
+          const slug = (h4 && h4.innerText).toLowerCase()
+          const cardId = card && card.getAttribute('id')
+
+          const deletedProfile = await PLUGINS.deletProfileAndAssociatedReviews(
+            slug,
+            cardId
+          )
+          if (deletedProfile) {
+            await PLUGINS.fetchCurrentUserUpdateSeesionStorage()
+            const deletedProfileCard = document.getElementById(`${cardId}`)
+            deletedProfileCard.remove()
+            PLUGINS.runSpinner(true)
+          }
+        } catch (e) {
+          console.log(e.message)
+          PLUGINS.displayLabel([
+            'review_main_wrapper',
+            'alert-danger',
+            `Something went wrong please try again later`
+          ])
+        }
+      })
+    })
   },
-  createAdminPage: async function (param) {
+
+  deletProfileAndAssociatedReviews: async function (slug, profile_Id) {
+    try {
+      if (!slug) return
+      PLUGINS.runSpinner(false, 'Deleting...')
+
+      const user = PLUGINS.getAuthHandler()
+      const { 'auth-token': token } = user
+
+      const baseUrl = `/user/delete-own-profile-and-documents/${profile_Id}?slug=${slug}`
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+      const apiClient = await PLUGINS.API_CLIENT()
+      const response = await apiClient.delete(baseUrl, { headers })
+      if (response.status === 200) {
+        PLUGINS.runSpinner(true)
+
+        PLUGINS.displayLabel([
+          'review_main_wrapper',
+          'alert-success',
+          `Profile and all reviews associated with it have been deleted successfully`
+        ])
+        await PLUGINS.fetchCurrentUserUpdateSeesionStorage()
+        return true
+      } else {
+        PLUGINS.displayLabel([
+          'review_main_wrapper',
+          'alert-danger',
+          `Something went wrong! Profile could not be deleted. `
+        ])
+        return false
+      }
+    } catch (e) {
+      console.log(e)
+      PLUGINS.displayLabel([
+        'review_main_wrapper',
+        'alert-danger',
+        `Something went wrong! Profile could not be deleted. `
+      ])
+    } finally {
+      PLUGINS.runSpinner(true)
+    }
+  },
+  createAdminPage: async function () {
     const pageAlreadyExists = document.querySelector('#admin_page')
     if (pageAlreadyExists)
       return PLUGINS.displayLabel([
@@ -1908,6 +2007,16 @@ export const PLUGINS = {
       parent_wrapper.innerHTML = adminHTMLContent
     }
 
+    document.body.addEventListener('click', async e => {
+      const clickedOutsideProfileCard =
+        !e.target.closest('.admin-card') &&
+        !e.target.closest('.profile_details')
+      if (clickedOutsideProfileCard) {
+        location.reload()
+      }
+    })
+    // up[date profile storage
+    await PLUGINS.fetchCurrentUserUpdateSeesionStorage()
     const { profiles, ...rest } = await PLUGINS.getAuthHandler()
 
     if (!profiles.length)
@@ -1923,6 +2032,153 @@ export const PLUGINS = {
       await new Promise(resolve => setTimeout(resolve, delay))
       await PLUGINS.createAdminProfileCard(userObject, rest)
     }
-    history.pushState(null, null, '/')
+  },
+  createAccountPage: async function () {
+    const isContainerInDOM = document.querySelector('#userAccount')
+    if (isContainerInDOM) isContainerInDOM.remove()
+    try {
+      let user = {}
+      const userLocalStorage = await PLUGINS.getAuthHandler()
+      const userDB = await PLUGINS.fetchCurrentUserUpdateSeesionStorage()
+
+      userDB ? (user = userDB) : (user = userLocalStorage)
+
+      if (user && Object.keys(user).length > 0) {
+        const {
+          _id,
+          name: propertyName,
+          email,
+          isAdmin,
+          isSubscribed,
+          profiles
+        } = user
+
+        return new Promise(resolve => {
+          const userAccountModal = `
+      <div class="modal fade" id="userAccount" tabindex="-1" data-bs-backdrop="static" aria-labelledby="userAccountLabel" aria-hidden="true" style="backdrop-filter:blur(3px);">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered bg-transparent">
+          <div class="modal-content bg-transparent text-light border-4 custome-color3" style="backdrop-filter:blur(30px);border-radius:.8rem;">
+                <div class="card bg-light-custom custome-color2 h-100 w-100">
+                  <div class="card-body bg-light-custom  border-transparent">
+                    <h3 class="card-title">Account name: ${propertyName}</h3>
+                    <p class="card-text">Email: ${email}</p>
+                    <p class="card-text">Admin: ${
+                      (isAdmin && 'Yes') || 'No'
+                    }</p>
+                    <p class="card-text">Subscription:  ${
+                      (isSubscribed && 'Active') || 'Inactive'
+                    }</p>
+                    <div class="row profile__container bg-light-custom gap-3"></div>
+                  </div>
+                  <div class="container">
+                    <button type="button" class="btn  btn-outline-secondary m-auto border-1 btn-lg mt-1 mb-3 w-100" data-bs-dismiss="modal">Close me</button>
+                  </div>
+                </div>
+          </div>
+        </div>
+      </div>`
+          const container = document.querySelector('body')
+          container?.insertAdjacentHTML('beforeend', userAccountModal)
+
+          const modal = new bootstrap.Modal(
+            document.getElementById('userAccount')
+          )
+          PLUGINS.runSpinner(false, 'Fetching...')
+          setTimeout(() => {
+            modal.show()
+            PLUGINS.runSpinner(true)
+            PLUGINS.runSpinner(false, 'Finishing...')
+            setTimeout(() => {
+              PLUGINS.runSpinner(true)
+              PLUGINS.displayLabel([
+                'review_main_wrapper',
+                'alert-success',
+                `Success. These are the profiles available in your account`
+              ])
+            }, 1000)
+          }, 1000)
+          const profileContainer = document.querySelector('.profile__container')
+
+          if (!profileContainer) {
+            console.error(`container "${containerSelector}" not found.`)
+            return
+          }
+          profiles &&
+            profiles.forEach(object => {
+              const card = createCard(object)
+              profileContainer.appendChild(card)
+            })
+
+          function createCard (object) {
+            if (!object)
+              return PLUGINS.displayLabel([
+                'review_main_wrapper',
+                'alert-danger',
+                `You dont have any profiles sofur!`
+              ])
+            const {
+              _id: profileId,
+              name: profileName,
+              originalUrl,
+              propertyType
+            } = object
+            const card = document.createElement('div')
+            card.classList.add('w-100')
+
+            const cardBody = document.createElement('div')
+            cardBody.classList.add('card', 'bg-light-custom', 'custome-color3')
+
+            const cardContent = `
+              <div class="card-body bg-light-custom2">
+                  <h5 class="card-title">${profileName}</h5>
+                  <p>ID: ${profileId} </p>
+                  <p>Property type: ${propertyType} </p>
+                  <p class="card-text">${
+                    object.description || 'No description available.'
+                  }</p>
+                  <a href="${
+                    originalUrl || '#'
+                  }" class="btn btn-outline-secondary" target="_blunk">Visit review Site</a>
+              </div>`
+            cardBody.innerHTML = cardContent
+            card.appendChild(cardBody)
+
+            return card
+          }
+        })
+      }
+      PLUGINS.displayLabel([
+        'review_main_wrapper',
+        'alert-danger',
+        `You dont see to have any profiles currently. `
+      ])
+    } catch (e) {
+      console.log(e)
+    }
+  },
+  fetchCurrentUserUpdateSeesionStorage: async function () {
+    try {
+      PLUGINS.runSpinner(false, 'Processing...')
+      const user = PLUGINS.getAuthHandler()
+      const { 'auth-token': token } = user
+
+      const baseUrl = `/get-user`
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+      const apiClient = await PLUGINS.API_CLIENT()
+      const response = await apiClient.post(baseUrl, {}, { headers })
+
+      if (response.status === 200) {
+        const authToken = headers.Authorization.split(' ')[1]
+        const userWithoutMeta = { ...response.data, 'auth-token': authToken }
+        sessionStorage.setItem('user', JSON.stringify(userWithoutMeta))
+        PLUGINS.runSpinner(true)
+        return response.data
+      }
+    } catch (e) {
+      console.log(e.message)
+    }
   }
 }
