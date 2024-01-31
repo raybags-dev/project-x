@@ -531,6 +531,7 @@ export const PLUGINS = {
     const label = document.createElement('div')
     label.classList.add('alert', labelClass, 'text-center', 'main___alert')
     label.textContent = labelText
+    label.style.zIndex = 5000
 
     const anchor = document.getElementById(anchorId)
     if (anchor) {
@@ -599,15 +600,14 @@ export const PLUGINS = {
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content bg-dark shadow">
                 <div class="modal-header border-0" >
-                  <h1 class="modal-title fs-5 text-light text-muted" id="cookieModalLabel">Cookie Policy</h1>
-                  <button type="button" class="btn-close text-light c--iie-c-btn" data-bs-dismiss="modal" aria-label="Close"></button>
+                  <h1 class="modal-title fs-5 text-light m-auto text-uppercase text-muted" id="cookieModalLabel">Cookie Policy</h1>
                 </div>
                 <div class="modal-body">
                   <p class="text-light lead text-muted">This website uses cookies to enhance the user experience. By accepting cookies, you agree to our <a href="#" class="text-primary">Terms of Service</a> and <a href="#" class="text-primary">Privacy Policy</a>.</p>
                 </div>
-                <div class="modal-footer border-0 d-flex justify-content-start align-content-center">
-                  <button type="button" class="btn btn-lg btn-outline-secondary" id="rejectCookies" data-bs-dismiss="modal">Reject</button>
-                  <button type="button" class="btn btn-lg btn-outline-success" id="acceptCookies">Accept</button>
+                <div class="container border-0 d-flex justify-content-around align-content-center gap-2 p-2">
+                  <button type="button" class="btn btn-lg btn-outline-secondary w-50" id="rejectCookies" data-bs-dismiss="modal">Reject</button>
+                  <button type="button" class="btn btn-lg btn-outline-success w-50" id="acceptCookies">Accept</button>
                 </div>
               </div>
             </div>
@@ -1793,13 +1793,11 @@ export const PLUGINS = {
     } = rest
 
     const profileCardHTML = `
-    <div id="${profile_id}" class="card admin-card dark-gray-bg shadow user-${account_id}" style="min-width:250px; width:30%; max-width: 25rem;">
+    <div id="${profile_id}" class="card admin-card bg-light-custom shadow user-${account_id}" style="min-width:250px; width:30%; max-width: 25rem;">
     <div class="card-header deem-text d-flex justify-content-between align-content-center">
-        <h4 class="lead text-decoration-underline text-uppercase deem-text">${
-          slug || ''
-        }</h4>
+        <h4 class="lead text-uppercase deem-text">${slug || ''}</h4>
       </div>
-      <div class="card-body deem-text d-block justify-content-around align-content-center">
+      <div class="card-body custome-color2 d-block justify-content-around align-content-center">
           <div class="container d-block">
           <p class="card-title text-uppercase">Property:</p>
           <span class="text-success d-block text-uppercase">${propertyName}</span>
@@ -1841,21 +1839,21 @@ export const PLUGINS = {
     </div>
     <div class="card-footer d-flex justify-content-between align-content-center">
         <div class="btn-group" role="group">
-            <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <button type="button" class="btn btn-outline-success w-50 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
               Actions
             </button>
-            <ul class="dropdown-menu bg-dark text-light shadow">
+            <ul class="dropdown-menu bg-dark text-dark shadow">
               <li class="d-flex justify-content-between align-content-center" style="width: 100% !important;height:50%;z-index:50 !important">
-                  <a class="dropdown-item text-light text-muted" href="#">Run Crawler</a>
+                  <a class="dropdown-item text-light text-decoration-underline" href="#">Run Crawler</a>
                   <div class="container">
                     <div class="form-check text-muted crawl-${profile_id}">
                         <label class="form-check-label" for="gridCheck">full</label>
-                        <input class="form-check-input text-muted" data-full="${profile_id}" type="checkbox" id="gridCheck">
+                        <input class="form-check-input text-dark" data-full="${profile_id}" type="checkbox" id="gridCheck">
                     </div>
                     <div class="form-group d-flex p-2 gap-2 justify-content-between align-content-center">
                         <label for="pagesInput" class="text-light text-muted">Pages</label>
                         <div class="text-light">
-                            <input type="number" data-page="${profile_id}" style="color:#000000; width:inherit;" class="form-control active dark-gray-bg  text-light" id="pagesInput" name="pages" value="1">
+                            <input type="number" data-page="${profile_id}" style="color:#000000; width:inherit;" class="form-control active bg-light-custom pagesInput  text-light" id="pagesInput" name="pages" value="1">
                         </div>
                     </div>
                   </div>
@@ -1863,11 +1861,11 @@ export const PLUGINS = {
             </ul>
         </div>
         <div class="btn-group" role="group">
-            <button type="button" class="btn btn-outline-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <button type="button" class="btn btn-outline-danger w-50 dropdown-toggle shadow" data-bs-toggle="dropdown" aria-expanded="false">
               Danger zone
             </button>
             <ul class="dropdown-menu bg-dark text-light">
-              <li class="d-flex justify-content-between align-content-center">
+              <li class="d-flex justify-content-between align-content-center shadow">
                 <a class="dropdown-item text-danger del_all_reviews" href="#">Delete profile & reviews</a>
                   
               </li>
@@ -2077,7 +2075,7 @@ export const PLUGINS = {
       return PLUGINS.displayLabel([
         'review_main_wrapper',
         'alert-warning',
-        `No profiles could be found. Try logout and login again!`
+        `No profiles could be found. You can create profiles for review sites through the menu tab`
       ])
     for (let i = 0; i < profiles.length; i++) {
       const userObject = profiles[i]
@@ -2210,17 +2208,17 @@ export const PLUGINS = {
               if (confirmation === 'confirmed!') {
                 const isDeleted = await PLUGINS.deletEntireAccount()
                 if (isDeleted) {
-                  {
-                    PLUGINS.displayLabel([
-                      'review_main_wrapper',
-                      'alert-secondary',
-                      `Sad to see you go. If you wish to use our service, you can always signup`
-                    ])
-                    setTimeout(async () => {
-                      await SIGNUP_HTML()
-                      PLUGINS.runSpinner(true)
-                    }, 3000)
-                  }
+                  document.querySelector('.modal-backdrop')?.remove()
+                  document.querySelector('#userAccount')?.remove()
+                  PLUGINS.displayLabel([
+                    'review_main_wrapper',
+                    'alert-secondary',
+                    `Sad to see you go. If you wish to use our service, you can always signup`
+                  ])
+                  setTimeout(async () => {
+                    await SIGNUP_HTML()
+                    PLUGINS.runSpinner(true)
+                  }, 3000)
                 }
               }
             })
