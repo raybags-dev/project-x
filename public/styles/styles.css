@@ -306,6 +306,8 @@ a {
 
 .bg-light-custom2 {
     background-color: rgba(48, 48, 48, 0.3);
+    -webkit-backdrop-filter: blur(30px);
+    backdrop-filter: blur(30px);
 }
 
 .back-to-top {
@@ -494,6 +496,24 @@ a {
     border-radius: .2rem;
     background-color: transparent !important;
     border: 2px solid #4847474d;
+}
+
+.pagesInput {
+    color: white;
+    padding: 10px;
+    border: none;
+}
+
+.pagesInput:focus {
+    background-color: black;
+    color: lightgray;
+    border: unset !important;
+}
+
+.pagesInput:focus-within {
+    background-color: rgba(48, 48, 48, 0.3);
+    color: lightgray;
+    border: unset !important;
 }
 
 .nav-item:hover::before {
