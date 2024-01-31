@@ -57,7 +57,7 @@ const ReviewModel = {
   },
   reviewBody: {
     type: String,
-    default: 'The guest did not post comment details. '
+    default: 'no text provided'
   },
   propertyResponse: {
     body: { type: String, default: null },
@@ -82,7 +82,7 @@ const ReviewModel = {
   },
   language: {
     type: String,
-    default: null
+    default: ''
   },
   internalId: {
     type: String,
@@ -158,26 +158,7 @@ const ReviewModel = {
 const REVIEW_MODEL = new mongoose.Schema(ReviewModel, {
   timestamps: true
 })
-REVIEW_MODEL.index(
-  {
-    'propertyResponse.body': 'text',
-    'propertyResponse.responseDate': 'text',
-    'propertyResponse.createdTimestamp': 'text',
-    miscellaneous: 'text',
-    tripType: 'text',
-    uuid: 'text',
-    title: 'text',
-    authorExternalId: 'text',
-    internalId: 'text',
-    reviewDate: 'text',
-    stayDate: 'text',
-    author: 'text'
-  },
-  {
-    default_language: 'simple',
-    caseInsensitive: true
-  }
-)
+
 REVIEW_MODEL.statics.validateDocumentOwnership = async function (
   req,
   res,

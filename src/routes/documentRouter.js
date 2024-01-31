@@ -2,12 +2,11 @@ import express from 'express'
 import {
   FindOneDocController,
   DeleteOneDocumentController,
-  AllUserDocsController
+  AllUserDocsController,
+  SearchDocumentsController
 } from '../controllers/documentController.js'
 
-import { loginUser } from '../../middleware/auth.js'
-
-import { authMiddleware, isAdmin } from '../../middleware/auth.js'
+import { authMiddleware } from '../../middleware/auth.js'
 import { asyncMiddleware } from '../../middleware/asyncErros.js'
 
 const router = express.Router()
@@ -26,5 +25,10 @@ router.post(
   '/raybags/v1/review-crawler/get-user-account-review-docs',
   authMiddleware,
   asyncMiddleware(AllUserDocsController)
+)
+router.post(
+  '/raybags/v1/review-crawler/search/:id',
+  authMiddleware,
+  asyncMiddleware(SearchDocumentsController)
 )
 export default router

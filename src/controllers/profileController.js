@@ -1,5 +1,6 @@
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { REVIEW } from '../models/documentModel.js'
+import { ObjectId } from 'mongodb'
 import { USER_MODEL, USER_ID_MODEL } from '../models/user.js'
 import { validateSuperUserToken } from '../../middleware/auth.js'
 
@@ -19,25 +20,6 @@ export async function deleteAccountProfile (req, res) {
     await PROFILE_MODEL.deleteOne({ userId })
 
     return res.status(200).json({ message: 'Profile deleted successfully' })
-  } catch (error) {
-    console.error('Error in deleteAccountProfile:', error)
-    return res.status(500).json({ error: 'Internal Server Error' })
-  }
-}
-export async function deleteAccountProfileAndAllDocuments (req, res) {
-  try {
-    const userId = req.locals.user.userId
-    const profile = await PROFILE_MODEL.findOne({ userId })
-
-    if (!profile) {
-      return res.status(404).json({ error: 'Profile not found for this user' })
-    }
-    await PROFILE_MODEL.deleteOne({ userId })
-    await REVIEW.deleteMany({ userId })
-
-    return res
-      .status(200)
-      .json({ message: 'Profile and associated reviews deleted successfully' })
   } catch (error) {
     console.error('Error in deleteAccountProfile:', error)
     return res.status(500).json({ error: 'Internal Server Error' })
@@ -138,8 +120,7 @@ export async function getAccountProfile (req, res) {
       reviewSiteSlug: siteSlug
     })
 
-    if (!siteProfile
- || !siteProfile.length)
+    if (!siteProfile || !siteProfile.length)
       return res.status(404).json(`Profile could not be found!`)
 
     res.status(200).json(siteProfile)
@@ -165,5 +146,41 @@ export async function validateCaller (req, res) {
   } catch (e) {
     console.error('Error in validateCaller:', e)
     res.status(500).json({ status: 'ERROR', message: 'Internal Server Error' })
+  }
+}
+
+export async function deleteAccountProfileAndAllDocuments (req, res) {
+  try {
+    const slug = req.query.slug
+    const profileId = req.params._id
+    const { userId, _id } = req.locals.user
+
+    const profile = await PROFILE_MODEL.findOneAndDelete({
+      _id: new ObjectId(profileId),
+      userId
+    })
+
+    if (!profile) {
+      return res.status(404).json({ error: 'Profile not found for this user' })
+    }
+
+    await USER_MODEL.updateOne(
+      { _id: new ObjectId(_id) },
+      { $pull: { profiles: { _id: new ObjectId(profileId) } } }
+    )
+
+    const deleteResult = await REVIEW.deleteMany({
+      userId,
+      reviewSiteSlug: slug
+    })
+    const deletedReviewsCount = deleteResult.deletedCount
+
+    return res.status(200).json({
+      message: 'Profile and associated reviews deleted successfully',
+      deletedReviewsCount
+    })
+  } catch (error) {
+    console.error('Error in deleteAccountProfile:', error)
+    return res.status(500).json({ error: 'Internal Server Error' })
   }
 }

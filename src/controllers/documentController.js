@@ -1,19 +1,12 @@
-import { USER_MODEL, USER_ID_MODEL } from '../models/user.js'
-import fs from 'fs'
-import path from 'path'
+import { USER_MODEL } from '../models/user.js'
+import mongoose from 'mongoose'
 
+import dateFns from 'date-fns'
+
+import { ObjectId } from 'mongodb'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { sendEmail } from '../../middleware/emailer.js'
 import { REVIEW } from '../models/documentModel.js'
-import { token } from 'morgan'
-
-const currentModuleURL = new URL(import.meta.url)
-const currentModuleDir = path.dirname(currentModuleURL.pathname)
-const SLUGS_FILE_PATH = path.join(
-  currentModuleDir,
-  '..',
-  '_data_/data/slugs.txt'
-)
 
 export async function FindOneDocController (req, res) {
   try {
@@ -40,7 +33,6 @@ export async function FindOneDocController (req, res) {
           .json({ status: 'failed', message: 'Document not found!' })
       }
 
-      // Allow access if the user is the owner or a superuser
       if (document.userId.toString() === userId.toString() || isSuperUser) {
         return res.status(200).json({ message: 'Success', document })
       }
@@ -166,5 +158,71 @@ export async function AllUserDocsController (req, res) {
   } catch (error) {
     console.error('Error in AllUserDocsRouter:', error)
     res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
+export async function SearchDocumentsController (req, res) {
+  try {
+    const requestingUser = req.params.id
+    const query = req.query.q
+    const qValue = req.query.qValue
+
+    if (!query || !qValue) {
+      return res
+        .status(400)
+        .json({ error: 'Both query (q) and qValue parameters are required.' })
+    }
+
+    const user = await USER_MODEL.findOne({ _id: requestingUser })
+    if (!user) {
+      return res.status(404).json({ error: 'User making request not found' })
+    }
+
+    const ownerReviewsUUIDs = user.profiles.map(profile => profile._id)
+
+    if (req.query.hasOwnProperty('dateValue')) {
+      const dateRange = req.query.dateValue
+      const timeZone = 'Europe/Berlin'
+      const [startDateString, endDateString] = dateRange.split(' to ')
+
+      try {
+        const startDate = dateFns.parse(
+          startDateString,
+          'yyyy-MM-dd',
+          new Date()
+        )
+        const formattedStartDate = dateFns.format(
+          startDate,
+          'yyyy-MM-dd',
+          timeZone
+        )
+        const endDate = dateFns.parse(endDateString, 'yyyy-MM-dd', new Date())
+        const formattedEndDate = dateFns.format(endDate, 'yyyy-MM-dd', timeZone)
+
+        if (!isNaN(startDate) && !isNaN(endDate)) {
+          const documents = await REVIEW.find({
+            uuid: { $in: ownerReviewsUUIDs },
+            checkInDate: {
+              $gte: formattedStartDate,
+              $lte: formattedEndDate
+            }
+          })
+            .sort({ [query]: qValue ? 1 : -1 })
+            .exec()
+
+          if (!documents || documents.length === 0) {
+            return res.status(404).json('Nothing found!')
+          }
+          console.log(documents.length)
+          return res.status(200).json({ count: documents.length, documents })
+        }
+      } catch (error) {
+        console.error('Error parsing dates:', error)
+      }
+    }
+
+    return res.status(400).json({ error: 'Invalid date range' })
+  } catch (error) {
+    console.error('Error in SearchDocumentsController:', error)
+    return res.status(500).json({ error: 'Server error' })
   }
 }
