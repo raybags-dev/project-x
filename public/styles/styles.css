@@ -758,17 +758,75 @@ textarea:focus {
 }
 
 /** ===== Uncomment this css lines before commiting== */
-/* 
+
+#search____input::-webkit-input-placeholder,
+#canvas__Search_input::-webkit-input-placeholder {
+    -webkit-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input::-moz-placeholder,
+#canvas__Search_input::-moz-placeholder {
+    -moz-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input:-ms-input-placeholder,
+#canvas__Search_input:-ms-input-placeholder {
+    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input::-ms-input-placeholder,
+#canvas__Search_input::-ms-input-placeholder {
+    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
 #search____input::placeholder,
 #canvas__Search_input::placeholder {
     transition: letter-spacing 0.5s, opacity 0.5s;
 }
+
+#search____input:focus-within::-webkit-input-placeholder,
+#canvas__Search_input:focus-within::-webkit-input-placeholder {
+    letter-spacing: 2rem;
+    opacity: 0;
+    -webkit-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input:focus-within::-moz-placeholder,
+#canvas__Search_input:focus-within::-moz-placeholder {
+    letter-spacing: 2rem;
+    opacity: 0;
+    -moz-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input:focus-within:-ms-input-placeholder,
+#canvas__Search_input:focus-within:-ms-input-placeholder {
+    letter-spacing: 2rem;
+    opacity: 0;
+    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input:focus-within::-ms-input-placeholder,
+#canvas__Search_input:focus-within::-ms-input-placeholder {
+    letter-spacing: 2rem;
+    opacity: 0;
+    -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+    transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
 #search____input:focus-within::placeholder,
 #canvas__Search_input:focus-within::placeholder {
     letter-spacing: 2rem;
     opacity: 0;
     transition: letter-spacing 0.5s, opacity 0.5s;
-} */
+}
+
 /** ==== Uncomment this css lines before commiting=== */
 .big_spinnerr {
     background-color: transparent;
