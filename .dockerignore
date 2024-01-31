@@ -1,2 +1,16 @@
 .env
-/node_modules
+node_modules
+npm-debug.log
+yarn-error.log
+.DS_Store
+.env
+.git
+.gitignore
+*.md
+*.markdown
+*.log
+test
+tests
+__tests__
+coverage
+docs
