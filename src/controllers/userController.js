@@ -2,6 +2,8 @@ import { USER_MODEL, USER_ID_MODEL } from '../models/user.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { sendEmail } from '../../middleware/emailer.js'
 import { REVIEW } from '../models/documentModel.js'
+import { logger } from '../utils/logger.js'
+
 import { config } from 'dotenv'
 config()
 
@@ -77,7 +79,7 @@ export async function CreateUserController (req, res) {
       token
     })
   } catch (error) {
-    console.error('Error processing request:', error.message)
+    logger(`Error processing request:${error.message}`, 'error')
     res.status(400).send({ error: error.message })
   }
 }
@@ -90,7 +92,7 @@ export async function LoginController (req, res) {
     delete userObject.password
     res.status(200).json({ user: userObject, token })
   } catch (error) {
-    console.log(error.message)
+    logger(error.message, 'error')
     res.status(500).json({ error: 'Server error' })
   }
 }
@@ -148,7 +150,7 @@ export async function GetUserController (req, res) {
     }
     res.status(200).json(updatedUser)
   } catch (e) {
-    console.log(e)
+    logger(e, 'error')
   }
 }
 export async function GetAllUsersController (req, res) {
@@ -241,7 +243,7 @@ export async function GetAllUsersController (req, res) {
       user_profiles: users
     })
   } catch (error) {
-    console.error('Error getting all users:', error)
+    logger(`Error getting all users: ${error}`, 'error')
     res.status(500).json({ error: 'Internal Server Error' })
   }
 }
@@ -270,7 +272,7 @@ export async function UpdateSubscriptionController (req, res) {
       isSubscribed: user.isSubscribed
     })
   } catch (error) {
-    console.error('Error updating subscription status:', error)
+    logger(`Error updating subscription status: ${error}`, 'error')
     res.status(500).json({ error: 'Internal Server Error' })
   }
 }

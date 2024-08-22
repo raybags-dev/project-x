@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { HEADERS } from '../_data_/headers/headers.js'
+import { logger } from '../utils/logger.js'
 import { findTotalIndexById } from '../profileGeneratorsControllers/agodaProfileGeneratorController.js'
 /**
  *
@@ -35,7 +36,7 @@ export async function getAgodaCreds (req, res) {
       return hotelId1 || hotelId2 || hotelId3
     }
   } catch (error) {
-    console.error('Error: ', 'hotelId could not be fetched - ', error.message)
+    logger(`Error, 'hotelId could not be fetched: ${error.message}`, 'error')
   }
 }
 export async function callAgodaEndpoint (url, requestBody, headers) {
@@ -43,7 +44,7 @@ export async function callAgodaEndpoint (url, requestBody, headers) {
     const response = await axios.post(url, requestBody, { headers })
     return response.data
   } catch (error) {
-    console.error('Error calling Agoda API:', error.message)
+    logger(`Error calling Agoda API: ${error.message}`, 'error')
   }
 }
 export async function fetchAgodaReviews (
@@ -63,7 +64,7 @@ export async function fetchAgodaReviews (
     const headers = { ...HEADERS.agodaApiHeaders, method: 'POST' }
 
     const parallelCalls = Math.max(2, Math.min(depth, 2))
-    console.log(`Running with ${parallelCalls} parallel calls...`)
+    logger(`Running with ${parallelCalls} parallel calls...`, 'info')
 
     const allReviews = await fetchAgodaReviewsPerPage(
       propertyExternalId,
@@ -77,10 +78,10 @@ export async function fetchAgodaReviews (
       []
     )
 
-    console.log('All pages fetched.')
+    logger('All pages fetched.', 'info')
     return allReviews
   } catch (error) {
-    console.error('Error calling Agoda API:', error.message)
+    logger(`Error calling Agoda API: ${error.message}`, 'error')
   }
 }
 async function fetchPageData (endpointUrl, requestBody, headers) {
@@ -101,7 +102,7 @@ async function fetchPage (
   isReviewPage,
   allReviews
 ) {
-  console.log(`Fetching page: ${page}...`)
+  logger(`Fetching page: ${page}...`, 'info')
 
   const requestBody = createRequestBody(
     propertyExternalId,
@@ -124,8 +125,9 @@ async function fetchPage (
 
     allReviews.push(...comments)
 
-    console.log(
-      `Done fetching page: ${page}. Total reviews collected: ${allReviews.length}/${totalReviewsCount}`
+    logger(
+      `Done fetching page: ${page}. Total reviews collected: ${allReviews.length}/${totalReviewsCount}`,
+      'info'
     )
 
     return allReviews.length >= totalReviewsCount
@@ -136,10 +138,10 @@ async function fetchPage (
       error.response.data &&
       error.response.data.errorCode === 'TOO_MANY_REQUEST'
     ) {
-      console.log('TOO_MANY_REQUEST detected. Try again later.')
+      logger('TOO_MANY_REQUEST detected. Try again later.', 'info')
       return true
     } else {
-      console.error('Error fetching page:', error)
+      logger(`Error fetching page: ${error}`, 'error')
       throw error
     }
   }
@@ -183,7 +185,7 @@ async function fetchAgodaReviewsPerPage (
     await Promise.all(pagePromises)
 
     if (errorEncountered) {
-      console.log('Aborting due to error. Try again later.')
+      logger('Aborting due to error. Try again later.', 'warn')
       break
     }
 

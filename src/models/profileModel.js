@@ -4,6 +4,7 @@ import {
   generateUUID,
   generateUniqueId
 } from '../../middleware/uuidGenerator.js'
+import { logger } from '../../src/utils/logger.js'
 
 const reviewSiteProfileModel = {
   uuid: {
@@ -88,7 +89,7 @@ reviewSiteProfileSchema.statics.nextRunType = async function (req, res) {
 
     return profile ? profile.nextRunType : 'REGULAR'
   } catch (error) {
-    console.error('Error fetching nextRunType:', error.message)
+    logger(`Error fetching nextRunType: ${error.message}`, 'error')
     return 'REGULAR'
   }
 }
@@ -147,22 +148,22 @@ reviewSiteProfileSchema.pre('save', async function (next) {
 
     next()
   } catch (error) {
-    console.error('Error in profile pre-save hook:', error)
+    logger(`Error in profile pre-save hook: ${error}`, 'error')
     next(error)
   }
 })
 
 reviewSiteProfileSchema.methods.beforeDelete = async function () {
   try {
-    console.log('its working....')
+    logger('its working....', 'info')
     await USER_MODEL.updateOne(
       { userId: this.userId },
       { $set: { hasReviewProfile: false } }
     )
   } catch (error) {
-    console.error(
-      'Error in custom beforeDelete method on reviewSiteProfileSchema: ',
-      error.message
+    logger(
+      `Error in custom beforeDelete method on reviewSiteProfileSchema: ${error.message}`,
+      'error'
     )
   }
 }

@@ -4,6 +4,7 @@ config()
 const { MY_SECRET } = process.env
 import { USER_MODEL } from '../src/models/user.js'
 import { REVIEW } from '../src/models/documentModel.js'
+import { logger } from '../src/utils/logger.js'
 
 export const generateToken = payload => {
   const expiresIn = 60000
@@ -62,7 +63,7 @@ export const loginUser = async (req, res, next) => {
           .status(200)
           .json({ message: 'Password updated successfully.' })
       } catch (error) {
-        console.log(error)
+        logger(error, 'error')
         return res
           .status(500)
           .json({ error: 'Error updating password', message: error.message })
@@ -103,7 +104,7 @@ export const loginUser = async (req, res, next) => {
     req.user = user.toObject()
     next()
   } catch (error) {
-    console.log(error)
+    logger(error, 'error')
     res.status(500).json({ error: 'Server error', message: error.message })
   }
 }
@@ -155,7 +156,7 @@ export const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ error: 'Token expired' })
     }
 
-    console.error('Authentication error:', error || error)
+    logger(`Authentication error: ${error}`, 'error')
     return res.status(401).json({ error: 'Authentication failed' })
   }
 }
@@ -181,7 +182,7 @@ export const checkDocumentAccess = async (req, res, next) => {
     req.document = document
     next()
   } catch (error) {
-    console.error(error.message)
+    logger(error.message, 'error')
     res.status(500).json({ error: 'Server error', message: 'Try again later' })
   }
 }
@@ -197,7 +198,7 @@ export const validateSuperUserToken = (userSysToken, requestToken) => {
   try {
     return !!userSysToken && userSysToken === requestToken
   } catch (error) {
-    console.error('Error validating super user token:', error)
+    logger(`Error validating super user token: ${error}`, 'error')
     return false
   }
 }

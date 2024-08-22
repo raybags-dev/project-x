@@ -3,11 +3,12 @@ import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import { HEADERS } from '../_data_/headers/headers.js'
 import { getAgodaCreds, callAgodaEndpoint } from '../configurations/agoda.js'
+import { logger } from '../utils/logger.js'
 
 export async function generateAgodaProfile (req, res) {
   try {
     const frontFacingUrl = req.body.frontFacingUrl
-    console.log(frontFacingUrl)
+    logger(frontFacingUrl, 'info')
 
     if (!frontFacingUrl) return res.status(400).json('Bad request')
 
@@ -110,7 +111,7 @@ export async function generateAgodaProfile (req, res) {
       })
     }
   } catch (error) {
-    console.error('Error generating Agoda profile:', error.message)
+    logger(`Error generating Agoda profile: ${error.message}`, 'error')
     res.status(500).json('Internal server error')
   }
 }

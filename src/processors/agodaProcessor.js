@@ -2,6 +2,7 @@ import { USER_MODEL } from '../models/user.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { REVIEW } from '../models/documentModel.js'
 import { fetchAgodaReviews } from '../configurations/agoda.js'
+import { logger } from '../utils/logger.js'
 
 export async function generateAgodaReviews (req, res) {
   try {
@@ -134,7 +135,7 @@ export async function generateAgodaReviews (req, res) {
       }
     }
 
-    console.log('All pages fetched. Process completed.')
+    logger('All pages fetched. Process completed.', 'info')
     let ownershipId = userId || req.locals.user.userId
     const totalCount = await REVIEW.countDocuments({ userId: ownershipId })
 
@@ -152,7 +153,7 @@ export async function generateAgodaReviews (req, res) {
       message: 'Agoda reviews have been collected!'
     })
   } catch (error) {
-    console.error('Error generating Agoda reviews:', error.message)
+    logger(`Error generating Agoda reviews: ${error.message}`, 'error')
     res.status(500).json({ error: 'Server error' })
   }
 }

@@ -3,6 +3,7 @@ import { REVIEW } from '../models/documentModel.js'
 import { ObjectId } from 'mongodb'
 import { USER_MODEL, USER_ID_MODEL } from '../models/user.js'
 import { validateSuperUserToken } from '../../middleware/auth.js'
+import { logger } from '../utils/logger.js'
 
 export async function deleteAccountProfile (req, res) {
   try {
@@ -21,7 +22,7 @@ export async function deleteAccountProfile (req, res) {
 
     return res.status(200).json({ message: 'Profile deleted successfully' })
   } catch (error) {
-    console.error('Error in deleteAccountProfile:', error)
+    logger(`Error in deleteAccountProfile: ${error}`, 'error')
     return res.status(500).json({ error: 'Internal Server Error' })
   }
 }
@@ -55,7 +56,7 @@ export async function pargeUserPublic (req, res) {
       }
     })
   } catch (error) {
-    console.error('Error in pargeUserPublic:', error)
+    logger(`Error in pargeUserPublic: ${error}`, 'error')
     return res.status(500).json({ error: 'Internal Server Error' })
   }
 }
@@ -95,7 +96,7 @@ export async function pargeUserPrivate (req, res) {
       }
     })
   } catch (error) {
-    console.error('Error in pargeUserPrivate:', error)
+    logger(`Error in pargeUserPrivate: ${error}`, 'error')
     return res.status(500).json({ error: 'Internal Server Error' })
   }
 }
@@ -125,7 +126,7 @@ export async function getAccountProfile (req, res) {
 
     res.status(200).json(siteProfile)
   } catch (e) {
-    console.log(e.message)
+    logger(e.message, 'error')
   }
 }
 
@@ -144,7 +145,7 @@ export async function validateCaller (req, res) {
 
     res.status(403).json({ status: 'UNAUTHORIZED', message: 'Invalid Token' })
   } catch (e) {
-    console.error('Error in validateCaller:', e)
+    logger(`Error in validateCaller: ${e}`, 'error')
     res.status(500).json({ status: 'ERROR', message: 'Internal Server Error' })
   }
 }
@@ -180,7 +181,7 @@ export async function deleteAccountProfileAndAllDocuments (req, res) {
       deletedReviewsCount
     })
   } catch (error) {
-    console.error('Error in deleteAccountProfile:', error)
+    logger(`Error in deleteAccountProfile: ${error}`, 'error')
     return res.status(500).json({ error: 'Internal Server Error' })
   }
 }

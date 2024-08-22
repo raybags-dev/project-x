@@ -1,3 +1,9 @@
+# main modules
 .env
 node_modules/
 terraform.tfvars
+
+# Logs
+logs/*
+*.log
+logs/

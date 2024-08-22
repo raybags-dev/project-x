@@ -1,12 +1,11 @@
 import { USER_MODEL } from '../models/user.js'
 import mongoose from 'mongoose'
-
 import dateFns from 'date-fns'
-
 import { ObjectId } from 'mongodb'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { sendEmail } from '../../middleware/emailer.js'
 import { REVIEW } from '../models/documentModel.js'
+import { logger } from '../utils/logger.js'
 
 export async function FindOneDocController (req, res) {
   try {
@@ -49,7 +48,7 @@ export async function FindOneDocController (req, res) {
       throw error
     }
   } catch (error) {
-    console.error(error)
+    logger(error, 'error')
     res.status(500).json({ error: 'Server error' })
   }
 }
@@ -83,7 +82,7 @@ export async function DeleteOneDocumentController (req, res) {
     })
   } catch (error) {
     if (error.name === 'CastError' || error.name === 'ObjectId') {
-      console.log(error.message)
+      logger(error.message, 'warn')
       const statusCode = 400
       return res.status(statusCode).json({
         status: 'mongo-error',
@@ -91,7 +90,7 @@ export async function DeleteOneDocumentController (req, res) {
       })
     }
 
-    console.error(error.message)
+    logger(error.message, 'error')
     res.status(500).json({ error: 'Server error', message: error.message })
   }
 }
@@ -156,7 +155,7 @@ export async function AllUserDocsController (req, res) {
       requestTimestamp: new Date()
     })
   } catch (error) {
-    console.error('Error in AllUserDocsRouter:', error)
+    logger(`Error in AllUserDocsRouter: ${error}`, 'error')
     res.status(500).json({ error: 'Internal Server Error' })
   }
 }
@@ -212,17 +211,17 @@ export async function SearchDocumentsController (req, res) {
           if (!documents || documents.length === 0) {
             return res.status(404).json('Nothing found!')
           }
-          console.log(documents.length)
+          logger(documents.length, 'info')
           return res.status(200).json({ count: documents.length, documents })
         }
       } catch (error) {
-        console.error('Error parsing dates:', error)
+        logger(`Error parsing dates: ${error}`, 'error')
       }
     }
 
     return res.status(400).json({ error: 'Invalid date range' })
   } catch (error) {
-    console.error('Error in SearchDocumentsController:', error)
+    logger(`Error in SearchDocumentsController: ${error}`, 'error')
     return res.status(500).json({ error: 'Server error' })
   }
 }

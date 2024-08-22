@@ -1,14 +1,21 @@
-import AWS from 'aws-sdk'
 import { promisify } from 'util'
 import { Readable } from 'stream'
 import { sendEmail } from './emailer.js'
 import {
   S3Client,
-  CreateBucketCommand,
-  DeleteObjectCommand
+  DeleteObjectCommand,
+  PutObjectCommand,
+  GetObjectCommand,
+  CreateBucketCommand
 } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { config } from 'dotenv'
+
+import { REVIEW } from '../src/models/documentModel.js'
+import { logger } from '../src/utils/logger.js'
+
 config()
+
 const {
   AWS_ACCESS_KEY_ID,
   AWS_SECRET_ACCESS_KEY,
@@ -16,19 +23,13 @@ const {
   AWS_REGION,
   RECIPIENT_EMAIL
 } = process.env
-import { REVIEW } from '../src/models/documentModel.js'
-// S3 client
+
 const s3 = new S3Client({
   region: AWS_REGION,
   credentials: {
     accessKeyId: AWS_ACCESS_KEY_ID,
     secretAccessKey: AWS_SECRET_ACCESS_KEY
   }
-})
-const S_3 = new AWS.S3({
-  accessKeyId: AWS_ACCESS_KEY_ID,
-  secretAccessKey: AWS_SECRET_ACCESS_KEY,
-  region: AWS_REGION
 })
 export const dbFileUploader = async (files, req, res) => {
   try {
@@ -50,7 +51,7 @@ export const dbFileUploader = async (files, req, res) => {
       files: validFiles
     })
   } catch (error) {
-    console.log(error.message, 'in dbFileUploader')
+    logger(`Error occured in <dbFileUploader>: {error.message}`, 'error')
     return res.status(500).json({
       status: 'Error',
       message:
@@ -70,23 +71,23 @@ export const createBucket = async () => {
     }
     await sendEmail(createBucketEmailData, RECIPIENT_EMAIL)
 
-    console.log('Bucket created successfully.\n')
+    logger('Bucket created successfully.\n', 'error')
     return AWS_BUCKET_NAME
   } catch (err) {
     if (err.Code === 'BucketAlreadyOwnedByYou') {
-      console.log(`Bucket ${err.BucketName} already exists.`)
+      logger(`Bucket ${err.BucketName} already exists.`, 'error')
       return err.BucketName
     }
     if (err.statusCode === 404) {
-      console.log(`Bucket does not exist.`)
+      logger(`Bucket does not exist.`, 'error')
       return false
     }
     if (err.Code === 'BucketAlreadyOwnedByYou') {
-      console.log(`Bucket ${err.BucketName} already exists.`)
+      logger(`Bucket ${err.BucketName} already exists.`, 'error')
       return err.BucketName
     }
     if (err.httpStatusCode === 409) {
-      console.log(`Bucket ${err.BucketName} already exists.`)
+      logger(`Bucket ${err.BucketName} already exists.`, 'error')
       return err.BucketName
     }
   }
@@ -95,56 +96,49 @@ export const createBucket = async () => {
 export async function saveImagesToS3 (files) {
   try {
     const urls = []
-    const s3 = new AWS.S3()
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-
+    for (let file of files) {
       // Check if the file exists in MongoDB
       const existingDocument = await REVIEW.findOne({
         originalname: file.originalname
       })
 
       if (existingDocument) {
-        // File already exists, return the URL and signature from the database
         urls.push({
           url: existingDocument.url,
           signature: existingDocument.signature,
           error: 'Duplication detected'
         })
       } else {
-        // File does not exist, upload to S3 and save to MongoDB
+        // Upload to S3 using v3 PutObjectCommand
         const uploadParams = {
           Bucket: AWS_BUCKET_NAME,
           Body: file.data,
           Key: file.filename,
           ContentType: file.contentType
         }
+        await s3.send(new PutObjectCommand(uploadParams))
 
         const signedUrlParams = {
           Bucket: AWS_BUCKET_NAME,
-          Key: file.filename,
-          Expires: 604800
+          Key: file.filename
         }
-
-        await s3.upload(uploadParams).promise()
-        const signedUrls = await s3.getSignedUrlPromise(
-          'getObject',
-          signedUrlParams
+        const signedUrl = await getSignedUrl(
+          s3,
+          new GetObjectCommand(signedUrlParams),
+          { expiresIn: 604800 }
         )
 
-        const urlParts = signedUrls.split('?')
+        const urlParts = signedUrl.split('?')
         const url = urlParts[0]
         const signature = urlParts[1]
 
-        // Create a new document for the uploaded file
         const newDocument = new REVIEW({
           ...file,
           url: url,
           signature: signature,
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
         })
-        // Save the new document to the database
         await newDocument.save()
 
         urls.push({
@@ -154,18 +148,19 @@ export async function saveImagesToS3 (files) {
         })
       }
     }
-    // notify incase of successful upload
+
+    // Send upload notification email (unchanged)
     const uploadEmailData = {
       title: 'Upload successful',
-      body: `There has been a successful upload to your S3 bucket "${AWS_BUCKET_NAME}" in ${AWS_REGION}. A total of ${urls.length}, was uploaded successfuly`
+      body: `A total of ${urls.length} files were uploaded successfully to your S3 bucket "${AWS_BUCKET_NAME}".`
     }
     await sendEmail(uploadEmailData, RECIPIENT_EMAIL)
 
     return urls
   } catch (err) {
-    console.log(err)
+    logger(err, 'error')
     if (err.code === 'NoSuchBucket') {
-      console.error('This bucket does not exist')
+      logger('This bucket does not exist', 'warn')
     }
   }
 }
@@ -174,19 +169,21 @@ export async function deleteFromS3 (filename) {
     Bucket: AWS_BUCKET_NAME,
     Key: filename
   })
+
   try {
     const response = await s3.send(command)
     if (response.$metadata.httpStatusCode === 204) {
-      // notify incase of successful deleted
+      // Send delete notification email (unchanged)
       const deleteEmailData = {
-        title: 'Document deleted successful',
-        body: `This document:\n${filename}\n has succesfully been deleted from your S3 bucket "${AWS_BUCKET_NAME}" in ${AWS_REGION}.`
+        title: 'Document deleted successfully',
+        body: `The document "${filename}" was deleted from your S3 bucket "${AWS_BUCKET_NAME}".`
       }
       await sendEmail(deleteEmailData, RECIPIENT_EMAIL)
-      return console.log(`File ${filename} deleted successfully from S3`)
+
+      logger(`File ${filename} deleted successfully from S3.`, 'info')
     }
   } catch (err) {
-    console.error(`Error deleting file ${filename} from S3: ${err.message}`)
+    logger(`Error deleting file ${filename} from S3: ${err.message}`, 'error')
   }
 }
 export async function checkAndUpdateDocumentUrls (files) {
@@ -204,11 +201,12 @@ export async function checkAndUpdateDocumentUrls (files) {
           Expires: 604800
         }
 
-        const newUrl = await promisify(S_3.getSignedUrl.bind(S_3))(
+        const newUrl = await promisify(s_3.getSignedUrl.bind(s_3))(
           'getObject',
           getObjectParams
         )
-        console.log(newUrl)
+
+        logger(newUrl, 'info')
         const urlParts = newUrl.split('?')
         const url = urlParts[0]
         const signature = urlParts[1]
@@ -226,7 +224,7 @@ export async function checkAndUpdateDocumentUrls (files) {
         notExpiredDocs.push(file)
       }
     } catch (err) {
-      console.error(err)
+      logger(err, 'error')
     }
   }
 
@@ -248,7 +246,7 @@ export async function createFileReadStream (imageData) {
       throw new Error('Invalid image data')
     }
   } catch (error) {
-    console.log(error.message)
+    logger(error.message, 'error')
     throw error
   }
 }

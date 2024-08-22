@@ -1,5 +1,6 @@
 import fs from 'fs/promises'
 import path from 'path'
+import { logger } from '../utils/logger.js'
 
 const __dirname = path.resolve()
 
@@ -16,11 +17,11 @@ export default async app => {
           const router = routerModule.default
           app.use(router)
         } catch (e) {
-          console.log(`Error importing souter ${file}: `, e)
+          logger(`Error importing souter >>>${file}<<<: ${e}`, 'error')
         }
       }
     }
   } catch (error) {
-    console.error('Error reading router files:', error)
+    logger(`Error reading router files: ${error}`, 'error')
   }
 }
