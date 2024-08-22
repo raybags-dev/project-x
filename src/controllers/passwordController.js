@@ -1,9 +1,10 @@
 import { USER_MODEL } from '../models/user.js'
 import { sendEmail } from '../../middleware/emailer.js'
+import { logger } from '../utils/logger.js'
 
 export async function ForgotPasswordController (req, res) {
   const email = req.body.email
-  console.log(email)
+  logger(email, 'info')
   const the_user = await USER_MODEL.findOne({ email: req.body.email })
 
   if (!the_user) {
@@ -23,20 +24,20 @@ export async function ForgotPasswordController (req, res) {
     await sendEmail(emailData, email, resetToken)
     res.status(200).json({ message: 'Password reset email sent.' })
   } catch (error) {
-    console.error('Error generating verification token:', error)
+    logger(`Error generating verification token: ${error}`, 'error')
     res.status(500).json({ error: 'Error generating verification token.' })
   }
 }
 export async function UpdatePasswordController (req, res) {
   try {
-    console.log(req.body.email)
+    logger(req.body.email, 'info')
     const user = await USER_MODEL.findOne({ email: req.body.email })
     const token = user.generateAuthToken()
     const userObject = user.toObject()
     delete userObject.password
     res.status(200).json({ user: userObject, token })
   } catch (error) {
-    console.log(error.message)
+    logger(error.message, 'error')
     res.status(500).json({ error: 'Server error' })
   }
 }

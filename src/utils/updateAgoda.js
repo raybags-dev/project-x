@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { REVIEW } from '../models/documentModel.js'
 import { fetchAgodaReviews } from '../configurations/agoda.js'
+import { logger } from './logger.js'
 
 export async function agodaReviewUpdateHandler (req, res) {
   try {
@@ -23,7 +24,7 @@ export async function agodaReviewUpdateHandler (req, res) {
     })
 
     if (!reviewToBeDeleted) {
-      console.log('Review could not be found or has already been deleted')
+      logger('Review could not be found or has already been deleted', 'warn')
       return {
         status: 'failed',
         message: 'Review not found or already deleted'
@@ -131,14 +132,14 @@ export async function agodaReviewUpdateHandler (req, res) {
         message: 'Review not found after update'
       }
     } catch (error) {
-      console.error('Error: update failed:', error)
+      logger(`Error: update failed: ${error}`, 'error')
       return {
         status: 'failed',
         message: 'Error updating review'
       }
     }
   } catch (error) {
-    console.error('Error updating review:', error)
+    logger(`Error updating review: ${error}`, 'error')
     return {
       status: 'failed',
       message: 'Error updating review'

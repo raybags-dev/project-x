@@ -1,13 +1,13 @@
 import redis from 'redis'
+import { logger } from '../src/utils/logger.js'
 
 /*
-* =====================
-* =====================
-* Implimenting REDIS caching....
-* =====================
-* =====================
-
-*/
+ * =====================
+ * =====================
+ * Implimenting REDIS for caching....
+ * =====================
+ * =====================
+ */
 async function createRedisClient () {
   try {
     const REDIS_PORT = process.env.REDIS_PORT || 6379
@@ -28,7 +28,6 @@ async function createRedisClient () {
     console.log('connection to redis failed!!!.')
   }
 }
-
 export async function cacheResponse (key, expirySeconds, value) {
   return new Promise((resolve, reject) => {
     const redis_client = createRedisClient()
@@ -75,10 +74,9 @@ export async function getCachedData (key) {
 }
 
 /*
-* =====================
-* =====================
-* Implimenting REDIS caching....
-* =====================
-* =====================
-
-*/
+ * =====================
+ * =====================
+ * Implimenting REDIS for caching....
+ * =====================
+ * =====================
+ */

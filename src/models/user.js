@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs'
 import { generateToken } from '../../middleware/auth.js'
 import { randomBytes } from 'crypto'
 import { config } from 'dotenv'
+import { logger } from '../../src/utils/logger.js'
+
 config()
 const { SUPER_USER_TOKEN } = process.env
 const userIdSchema = new mongoose.Schema({}, { timestamps: true })
@@ -141,7 +143,7 @@ userSchema.statics.setSubStatus = async function (user, subStatus) {
       return { success: true, message: `User ${statusMessage} successfully` }
     }
   } catch (error) {
-    console.error('Error updating subscription status:', error.message)
+    logger(`Error updating subscription status: ${error.message}`, 'error')
     return { success: false, message: 'Subscription status update failed' }
   }
 }

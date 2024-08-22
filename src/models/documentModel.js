@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import { generateUniqueId } from '../../middleware/uuidGenerator.js'
 import { PROFILE_MODEL } from './profileModel.js'
+import { logger } from '../../src/utils/logger.js'
 
 const ReviewModel = {
   uuid: {
@@ -182,7 +183,7 @@ REVIEW_MODEL.statics.validateDocumentOwnership = async function (
     req.locals = { userdocuments }
     next()
   } catch (error) {
-    console.log(error)
+    logger(error, 'error')
     return res.status(500).json({ error: 'Server error' })
   }
 }
@@ -195,7 +196,7 @@ REVIEW_MODEL.statics.isDocumentOwner = async function (req) {
 
     return reviewDoc !== null
   } catch (error) {
-    console.error('Error in isDocumentOwner:', error)
+    logger(`Error in isDocumentOwner: ${error}`, 'error')
     return false
   }
 }

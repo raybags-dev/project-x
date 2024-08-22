@@ -5,6 +5,7 @@ import { HEADERS } from '../_data_/headers/headers.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { REVIEW } from '../models/documentModel.js'
 import { parseReviewHtml } from '../configurations/google.js'
+import { logger } from './logger.js'
 
 export async function googleReviewUpdateHandler (req, res) {
   try {
@@ -39,7 +40,7 @@ export async function googleReviewUpdateHandler (req, res) {
     })
 
     if (!reviewToBeDeleted) {
-      console.log('Review could not be found or has already been deleted')
+      logger('Review could not be found or has already been deleted', 'warn')
       return {
         status: 'failed',
         message: 'Review not found or already deleted'
@@ -121,15 +122,15 @@ export async function googleReviewUpdateHandler (req, res) {
 
       function extractNextPageToken (data) {
         const nextPageTokenMatch = data.match(/data-next-page-token="([^"]+)"/)
-        console.log(`Processesing reviews on page: ${++pageCount}`)
+        logger(`Processesing reviews on page: ${++pageCount}`, 'info')
         return nextPageTokenMatch ? nextPageTokenMatch[1] : null
       }
 
       return reviewObject
     } catch (error) {
-      return console.error('Error:  update failed:', error)
+      return logger(`Error:  update failed: ${error}`, 'error')
     }
   } catch (error) {
-    return console.error('Error updating review:', error)
+    return logger(`Error updating review: ${error}`, 'error')
   }
 }

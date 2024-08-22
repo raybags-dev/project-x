@@ -6,6 +6,7 @@ import { PROFILE_MODEL } from '../models/profileModel.js'
 import { REVIEW } from '../models/documentModel.js'
 import { HEADERS } from '../_data_/headers/headers.js'
 import { parseReviewHtml } from '../configurations/google.js'
+import { logger } from '../utils/logger.js'
 
 export async function generateGoogleReviews (req, res) {
   try {
@@ -60,7 +61,7 @@ export async function generateGoogleReviews (req, res) {
     const runType = await PROFILE_MODEL.nextRunType(req, res)
 
     const totalPagesToFetch = depth
-      ? parseInt(depth) || 5
+      ? parseInt(depth) || 10
       : runType === 'INITIAL' || depth === 'full'
       ? Infinity
       : Infinity
@@ -70,7 +71,7 @@ export async function generateGoogleReviews (req, res) {
         currentPage === 0 ? baseUrl : `${baseUrl}${nextPageToken}`
 
       try {
-        console.log(`Fetching page ${currentPage + 1}: ${urlWithPageToken}`)
+        logger(`Fetching page ${currentPage + 1}: ${urlWithPageToken}`, 'info')
 
         let response = await axios.get(urlWithPageToken, { headers })
         let { data } = response
@@ -120,15 +121,15 @@ export async function generateGoogleReviews (req, res) {
           }
         }
 
-        console.log(`Review objects processed: ${savedReviews.length}`)
+        logger(`Review objects processed: ${savedReviews.length}`, 'info')
         if (reviewsData.length === 0) {
-          console.log('No more reviews on the current page.')
+          logger('No more reviews on the current page.', 'error')
           break
         }
         // Update previousPageToken for the next iteration
         previousPageToken = nextPageToken
       } catch (error) {
-        console.error('Error fetching reviews:', error.message)
+        logger(`Error fetching reviews: ${error.message}`, 'info')
       }
     }
 
@@ -150,7 +151,7 @@ export async function generateGoogleReviews (req, res) {
       return res.status(204).end()
     }
 
-    console.log('All pages fetched. Process completed.')
+    logger('All pages fetched. Process completed.', 'info')
     let ownershipId = userProfile.userId || req.locals.user.userId
     const totalCount = await REVIEW.countDocuments({ userId: ownershipId })
 
@@ -164,7 +165,7 @@ export async function generateGoogleReviews (req, res) {
       message: 'Reviews have been collected'
     })
   } catch (error) {
-    console.log('Error fetching reviews:', error.message)
+    logger(`Error fetching reviews: ${error.message}`, 'error')
     res.status(500).json({ error: 'Server error' })
   }
 }
@@ -196,7 +197,6 @@ export async function updateReview (req, res) {
     const { internalId, uuid, computedUrl, name, originalUrl } = profile
 
     try {
-      // ** ====================
       if (reviewSiteSlug === 'google-com') {
         const reviewObject = await googleReviewUpdateHandler(req, res)
         if (reviewObject?.status === 'failed')
@@ -214,9 +214,8 @@ export async function updateReview (req, res) {
           requestTimestamp: new Date()
         })
       }
-      // ** ====================
       if (reviewSiteSlug === 'agoda-com') {
-        console.log('site loigc not not yet implimented')
+        logger('review update for this site not yet implimented', 'warn')
         return res.status(501).json({
           error: 'Not completed',
           message: 'Endpoint not yet implimented!'
@@ -241,13 +240,11 @@ export async function updateReview (req, res) {
         message: 'Process failed, No updates occured!'
       })
     } catch (error) {
-      console.error('Error fetching reviews:', error)
-      return res
-        .status(500)
-        .json({ error: 'Server error', message: error.message })
+      logger(`Error fetching reviews: ${error}`, 'error')
+      return res.status(500).json({ error: 'Server error', message: error })
     }
   } catch (error) {
-    console.log('Error fetching reviews:', error)
+    logger(`Error fetching reviews: ${error}`, 'error')
     return res.status(500).json({ error: 'Server error' })
   }
 }

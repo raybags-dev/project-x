@@ -1,8 +1,9 @@
 import axios from 'axios'
-import cheerio from 'cheerio'
+import * as cheerio from 'cheerio'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import { HEADERS } from '../_data_/headers/headers.js'
+import { logger } from '../utils/logger.js'
 
 export async function generateGoogleProfile (req, res) {
   try {
@@ -119,7 +120,7 @@ export async function generateGoogleProfile (req, res) {
         'Profile could not be saved. Please the property url and try again!'
     })
   } catch (e) {
-    console.log(e)
+    logger(e, 'error')
     res.status(500).json({ status: 'failed', message: 'Internal server error' })
   }
 }

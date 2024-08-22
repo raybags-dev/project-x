@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer'
 import { config } from 'dotenv'
 import { generatePasswordResetToken } from '../src/models/user.js'
+import { logger } from '../src/utils/logger.js'
 
 config()
 
@@ -35,15 +36,15 @@ export async function sendEmail (
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.error('Error sending email:', error.message)
+        logger(`Error sending email: ${error.message}`, 'error')
         if (callback) callback(error.message)
       } else {
-        console.log('Email sent:', info.response)
+        logger(`Email sent: ${info.response}`, 'info')
         if (callback) callback(null, info.response)
       }
     })
   } catch (e) {
-    console.log(e.message)
+    logger(e.message, 'error')
   }
 }
 export async function generateVerificationLink (verificationToken) {
@@ -54,18 +55,18 @@ export async function generateVerificationLink (verificationToken) {
       return await generatePasswordResetToken()
     }
   } catch (error) {
-    console.error('Error generating verification link:', error)
+    logger(`Error generating verification link: ${error}`, 'error')
     return ''
   }
 }
 export async function emailerhandler (error, response) {
   try {
     if (error) {
-      console.error('Email sending failed:', error)
+      logger(`Email sending failed: ${error}`, 'error')
     } else {
-      console.log('@@: ' + response)
+      logger(`@@: ${response}`, 'info')
     }
   } catch (e) {
-    console.log('Email notification handler failed: ' + e.message)
+    logger(`Email notification handler failed: ${e.message}`, 'error')
   }
 }
