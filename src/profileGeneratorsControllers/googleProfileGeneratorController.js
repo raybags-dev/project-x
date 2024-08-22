@@ -1,9 +1,9 @@
-import axios from 'axios'
 import * as cheerio from 'cheerio'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import { HEADERS } from '../_data_/headers/headers.js'
 import { logger } from '../utils/logger.js'
+import axiosInstance from '../utils/proxy.js'
 
 export async function generateGoogleProfile (req, res) {
   try {
@@ -16,7 +16,7 @@ export async function generateGoogleProfile (req, res) {
       if (!user) return res.status(404).json('User not found!')
 
       const headers = HEADERS.google_headers
-      const response = await axios.get(frontFacingUrl, { headers })
+      const response = await axiosInstance.get(frontFacingUrl, { headers })
       const htmlContent = response.data
       const $ = cheerio.load(htmlContent)
 

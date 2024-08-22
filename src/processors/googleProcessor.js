@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { googleReviewUpdateHandler } from '../../src/utils/updateGoogle.js'
 import { agodaReviewUpdateHandler } from '../../src/utils/updateAgoda.js'
 import { USER_MODEL } from '../models/user.js'
@@ -7,6 +6,7 @@ import { REVIEW } from '../models/documentModel.js'
 import { HEADERS } from '../_data_/headers/headers.js'
 import { parseReviewHtml } from '../configurations/google.js'
 import { logger } from '../utils/logger.js'
+import axiosInstance from '../utils/proxy.js'
 
 export async function generateGoogleReviews (req, res) {
   try {
@@ -73,7 +73,7 @@ export async function generateGoogleReviews (req, res) {
       try {
         logger(`Fetching page ${currentPage + 1}: ${urlWithPageToken}`, 'info')
 
-        let response = await axios.get(urlWithPageToken, { headers })
+        let response = await axiosInstance.get(urlWithPageToken, { headers })
         let { data } = response
 
         let nextPageTokenMatch = data.match(/data-next-page-token="([^"]+)"/)

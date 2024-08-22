@@ -1,11 +1,10 @@
-import axios from 'axios'
 import { ObjectId } from 'mongodb'
-
 import { HEADERS } from '../_data_/headers/headers.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { REVIEW } from '../models/documentModel.js'
 import { parseReviewHtml } from '../configurations/google.js'
 import { logger } from './logger.js'
+import axiosInstance from '../utils/proxy.js'
 
 export async function googleReviewUpdateHandler (req, res) {
   try {
@@ -54,7 +53,7 @@ export async function googleReviewUpdateHandler (req, res) {
           ? `${baseUrl}${nextPageToken}`
           : baseUrl
 
-        const response = await axios.get(urlWithPageToken, { headers })
+        const response = await axiosInstance.get(urlWithPageToken, { headers })
         const { data } = response
 
         const reviewsData = await parseReviewHtml(data, baseUrl, req)

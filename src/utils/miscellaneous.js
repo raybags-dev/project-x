@@ -1,15 +1,15 @@
-import axios from 'axios'
 import favicon from 'serve-favicon'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
+import axiosInstance from './proxy.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 async function testUrl (url) {
   try {
-    const response = await axios.head(url)
+    const response = await axiosInstance.head(url)
     return response.status >= 200 && response.status < 400
   } catch (error) {
     return false
