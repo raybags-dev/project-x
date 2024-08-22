@@ -1,7 +1,8 @@
-import axios from 'axios'
 import { HEADERS } from '../_data_/headers/headers.js'
 import { logger } from '../utils/logger.js'
 import { findTotalIndexById } from '../profileGeneratorsControllers/agodaProfileGeneratorController.js'
+import axiosInstance from '../utils/proxy.js'
+
 /**
  *
  * @param {string} url - The Agoda API endpoint URL.
@@ -15,7 +16,7 @@ export async function getAgodaCreds (req, res) {
     const frontFacingUrl = req.body.frontFacingUrl
     const { agodaHeadersGenProfile } = HEADERS
 
-    const response = await axios.get(frontFacingUrl, {
+    const response = await axiosInstance.get(frontFacingUrl, {
       headers: agodaHeadersGenProfile
     })
     if (response.status === 200) {
@@ -41,7 +42,7 @@ export async function getAgodaCreds (req, res) {
 }
 export async function callAgodaEndpoint (url, requestBody, headers) {
   try {
-    const response = await axios.post(url, requestBody, { headers })
+    const response = await axiosInstance.post(url, requestBody, { headers })
     return response.data
   } catch (error) {
     logger(`Error calling Agoda API: ${error.message}`, 'error')
@@ -86,7 +87,9 @@ export async function fetchAgodaReviews (
 }
 async function fetchPageData (endpointUrl, requestBody, headers) {
   try {
-    const response = await axios.post(endpointUrl, requestBody, { headers })
+    const response = await axiosInstance.post(endpointUrl, requestBody, {
+      headers
+    })
     return response.data
   } catch (error) {
     throw error

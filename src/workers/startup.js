@@ -14,7 +14,7 @@ async function starterLogger (port) {
     const currentTime = new Date().toLocaleString()
     const environment = process.env.NODE_ENV || 'development'
     const currentUser = process.env.USER || 'guest_user'
-    const logname = process.env.LOGNAME || 'undefined'
+    const logname = process.env.LOGNAME || 'placeholder'
 
     devLogger(`Memory usage: ${currentMemory} MB`, 'info')
     devLogger(`Current time: ${currentTime}`, 'info')
