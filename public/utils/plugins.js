@@ -1399,7 +1399,7 @@ export const PLUGINS = {
       }
     })
   },
-  runCrawlerHandler: async function (slug, depth = 10) {
+  runCrawlerHandler: async function (slug, depth = 20) {
     if (!slug) return
     PLUGINS.runSpinner(false, 'Crawling...')
 

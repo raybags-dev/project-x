@@ -1,47 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>not supported</title>
-    <!-- favicon -->
-    <link
-      rel="icon"
-      type="image/png"
-      style="border-radius: 50px; filter: grayscale(100%) !important"
-      sizes="32x32"
-      href="https://github.com/raybags-web-dev/image_base/blob/master/images/logo/logo9_5_21257.jpeg?raw=true"
-    />
-    <!-- Bootstrap styles -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-      crossorigin="anonymous"
-    />
 
-    <style>
-      body {
-        background-color: #000000;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>not supported</title>
+  <!-- favicon -->
+  <link rel="icon" type="image/png" style="border-radius: 50px; filter: grayscale(100%) !important" sizes="32x32"
+    href="https://github.com/raybags-web-dev/image_base/blob/master/images/logo/logo9_5_21257.jpeg?raw=true" />
+  <!-- Bootstrap styles -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+
+  <style>
+    body {
+      background-color: #000000;
+    }
+
+    #_card_lost {
+      backdrop-filter: blur(30px);
+      background-color: rgba(0, 0, 0, 0.3) !important;
+    }
+
+    @media screen and (max-width: 600px) {
       #_card_lost {
-        backdrop-filter: blur(30px);
-        background-color: rgba(0, 0, 0, 0.3) !important;
+        width: 100% !important;
       }
-      @media screen and (max-width: 600px) {
-        #_card_lost {
-          width: 100% !important;
-        }
-      }
-    </style>
-  </head>
+    }
+  </style>
+</head>
 
-  <body class="bg-dark text-light">
-    <main class="container-fluid bg-transparent">
-      <div
-        class="container-fluid text-light p-0 d-flex align-items-center justify-content-center"
-        style="
+<body class="bg-dark text-light">
+  <main class="container-fluid bg-transparent">
+    <div class="container-fluid text-light p-0 d-flex align-items-center justify-content-center" style="
           position: fixed;
           top: 0;
           left: 0;
@@ -49,67 +41,46 @@
           bottom: 0;
           backdrop-filter: blur(10px);
           overflow: hidden;
-        "
-      >
-        <img
-          class="img-fluid w-100 h-100"
-          style="object-fit: cotext-light; filter: blur(10px)"
-          src="https://github.com/raybags-web-dev/image_base/blob/master/images/background/__5.jpg?raw=true"
-          alt="Blurred Background"
-        />
-      </div>
+        ">
+      <img class="img-fluid w-100 h-100" style="object-fit: cotext-light; filter: blur(5px)"
+        src="https://github.com/raybags-dev/image_base/blob/master/images/computer_2.jpeg?raw=true" alt="Blurred Background" />
+    </div>
 
-      <div
-        class="container container-fluid d-flex align-items-center justify-content-center"
-        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0"
-      >
-        <!--==========================-->
-        <!--==========================-->
-        <div
-          id="_card_lost"
-          class="card text-center bg-transparent text-bg-dark w-50"
-          styles="border-radius: .5rem;"
-        >
-          <div class="card-header">
-            <ul class="nav nav-pills card-header-pills">
-              <li class="nav-item m-auto">
-                <h4 class="card-title">Nothing here</h4>
-              </li>
-            </ul>
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">
-              Oops! The page you're looking for doesn't exist.
-            </h5>
-            <p class="card-text">
-              It seems like you've taken a wrong turn - No worries, it happens
-              to us all. No worries though! Click the button below to safely
-              find your way back to safety.
-            </p>
-            <a
-              href="/"
-              class="btn btn-lg btn-outline-success"
-              style="min-width: 50%"
-              >Head home</a
-            >
-          </div>
+    <div class="container container-fluid d-flex align-items-center justify-content-center"
+      style="position: fixed; top: 0; left: 0; right: 0; bottom: 0">
+      <!--==========================-->
+      <!--==========================-->
+      <div id="_card_lost" class="card text-center bg-transparent text-bg-dark w-50" styles="border-radius: .5rem;">
+        <div class="card-header">
+          <ul class="nav nav-pills card-header-pills">
+            <li class="nav-item m-auto">
+              <h4 class="card-title">Nothing here</h4>
+            </li>
+          </ul>
         </div>
-        <!--==========================-->
-        <!--==========================-->
+        <div class="card-body">
+          <h5 class="card-title">
+            Oops! The page you're looking for doesn't exist.
+          </h5>
+          <p class="card-text">
+            It seems like you've taken a wrong turn - No worries, it happens
+            to us all. No worries though! Click the button below to safely
+            find your way back to safety.
+          </p>
+          <a href="/" class="btn btn-lg btn-outline-success" style="min-width: 50%">Head home</a>
+        </div>
       </div>
-    </main>
+      <!--==========================-->
+      <!--==========================-->
+    </div>
+  </main>
 
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-      crossorigin="anonymous"
-    ></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.2/axios.min.js"
-      integrity="sha512-QTnb9BQkG4fBYIt9JGvYmxPpd6TBeKp6lsUrtiVQsrJ9sb33Bn9s0wMQO9qVBFbPX3xHRAsBHvXlcsrnJjExjg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
-  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.2/axios.min.js"
+    integrity="sha512-QTnb9BQkG4fBYIt9JGvYmxPpd6TBeKp6lsUrtiVQsrJ9sb33Bn9s0wMQO9qVBFbPX3xHRAsBHvXlcsrnJjExjg==" crossorigin="anonymous"
+    referrerpolicy="no-referrer"></script>
+</body>
+
 </html>

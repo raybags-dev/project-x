@@ -24,26 +24,26 @@ export async function LOGIN_HTML () {
   </nav>
   <main id="review_main_wrapper" class="container container-fluid my-10">
     <div class="container log___in container-fluid shadow">
-        <h3 class="p-2 text-white text-muted">LOGIN</h3>
+        <h3 class="p-2 text-white ">LOGIN</h3>
         <form id="login___form" class=" p-3 rounded pt-2 text-white container-fluid">
             <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label text-muted">Email address</label>
+                <label for="exampleInputEmail1" class="form-label">Email address</label>
                 <input type="email" name="email" class="form-control" placeholder="Enter your email"
                     id="exampleInputEmail1" aria-describedby="emailHelp" required>
                 <div class="invalid-feedback">Please enter a valid email address.</div>
             </div>
             <div class="mb-3">
-                  <label for="exampleInputPassword1" class="form-label text-muted">Password</label>
+                  <label for="exampleInputPassword1" class="form-label">Password</label>
                   <input type="password" name="password" placeholder="Enter your password" class="form-control"
                       id="exampleInputPassword1" autocomplete="current-password webauthn"  required>
                   <div class="invalid-feedback">Please enter your password.</div>
             </div>
             <div id="checker" class="form-check form-switch mt-3 mb-3 hide_2">
                       <input class="form-check-input"  type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                      <label class="form-check-label text-muted" for="flexSwitchCheckDefault">Forgot password</label>
+                      <label class="form-check-label" for="flexSwitchCheckDefault">Forgot password</label>
             </div>
             <div class="d-grid gap-2">
-                <button type="submit"  class="btn shadow login_btn text-white text-muted">SUBMIT</button>
+                <button type="submit"  class="btn shadow login_btn text-white">SUBMIT</button>
             </div>
         </form>
     </div>
