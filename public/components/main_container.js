@@ -54,8 +54,9 @@ export async function MAIN_PAGE () {
           </div>
         </div>
       </nav>
-      <main>
-      <div id="review_main_wrapper"  class="container review__wrapper"></div>
+      <main>     
+      <div id="review_main_wrapper"  class="container review__wrapper"> 
+      </div>
       </main>
     `
   document.getElementById('innerBody').innerHTML = pageContent

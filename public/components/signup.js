@@ -23,28 +23,28 @@ export async function SIGNUP_HTML () {
   </nav>
   <main id="review_main_wrapper" class="container container-fluid my-10">
       <div class="container sign___up container-fluid shadow">
-          <h3 class="p-2 text-white text-muted">SIGNUP</h3>
+          <h3 class="p-2 text-white ">SIGNUP</h3>
           <form class="p-3 rounded pt-2 text-white" id="signup_form">
               <div class="mb-3">
-                  <label for="exampleInputName" class="form-label text-muted">Name</label>
+                  <label for="exampleInputName" class="form-label">Name</label>
                   <input type="text" name="name" class="form-control" id="exampleInputName"
                       placeholder="Enter your name" required>
                   <div class="invalid-feedback">Please enter your name.</div>
               </div>
               <div class="mb-3">
-                  <label for="exampleInputEmail1" class="form-label text-muted">Email address</label>
+                  <label for="exampleInputEmail1" class="form-label">Email address</label>
                   <input type="email" name="email" class="form-control" placeholder="Enter your email"
                       id="exampleInputEmail1" aria-describedby="emailHelp" required>
                   <div class="invalid-feedback">Please enter a valid email address.</div>
               </div>
               <div class="mb-3">
-                  <label for="exampleInputPassword1" class="form-label text-muted">Password</label>
+                  <label for="exampleInputPassword1" class="form-label">Password</label>
                   <input type="password" name="password" autocomplete="current-password webauthn" placeholder="Enter your password" class="form-control"
                       id="exampleInputPassword1" required>
                   <div class="invalid-feedback">Please enter your password.</div>
               </div>
               <div class="d-grid gap-2">
-                  <button id="signup_bt" type="submit" class="btn shadow signup_btn text-white text-muted" type="button">SUBMIT</button>
+                  <button id="signup_bt" type="submit" class="btn shadow signup_btn text-white" type="button">SUBMIT</button>
               </div>
           </form>
       </div>
