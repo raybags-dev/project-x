@@ -1140,7 +1140,7 @@ export const PLUGINS = {
                 <option value="expedia">expedia-com</option>
                 -->
               </select>
-            <button class="btn btn-lg btn-outline-secondary sub__this_form" type="button" id="proertyName29">Button</button>
+            <button class="btn btn-lg btn-outline-secondary sub__this_form" type="button" id="proertyName29">Submit</button>
           </div>
     
           <div class="input-group mb3 my_inputs">
