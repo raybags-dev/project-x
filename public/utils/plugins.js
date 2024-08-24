@@ -1133,14 +1133,12 @@ export const PLUGINS = {
                 <option selected>Choose site</option>
                 <option value="google">google-com</option>
                 <option value="agoda">agoda-com</option>
-                <!--
-                <option value="booking">booking-com</option>
-                <option value="tripadvisor">tripadvisor-com</option>
-                <option value="ctrip">ctrip-com</option>
-                <option value="expedia">expedia-com</option>
-                -->
+                <option disabled value="booking">booking-com</option>
+                <option disabled value="tripadvisor">tripadvisor-com</option>
+                <option disabled value="ctrip">ctrip-com</option>
+                <option disabled value="expedia">expedia-com</option>
               </select>
-            <button class="btn btn-lg btn-outline-secondary sub__this_form" type="button" id="proertyName29">Button</button>
+            <button class="btn btn-lg btn-outline-secondary sub__this_form" type="button" id="proertyName29">Submit</button>
           </div>
     
           <div class="input-group mb3 my_inputs">
@@ -1438,8 +1436,6 @@ export const PLUGINS = {
         PLUGINS.runSpinner(true)
         return
       }
-    } finally {
-      PLUGINS.runSpinner(true)
     }
   },
   generateReviewCard: async function (
@@ -1646,11 +1642,11 @@ export const PLUGINS = {
         return PLUGINS.displayLabel([
           'review_main_wrapper',
           'alert-secondary',
-          `No review data available. \nCreate a profile for ${slug} by submiting a url in the input above and we will take care of the rest for you.`
+          `No review data available. \nCreate a ${slug} profile by submiting a property url in the input above and I'll take care of the rest for you.`
         ])
       }
     } finally {
-      await PLUGINS.runSpinner(true)
+      PLUGINS.runSpinner(true)
     }
   },
   PaginateData: async function (slug) {
