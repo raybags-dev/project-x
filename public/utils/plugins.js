@@ -1438,8 +1438,6 @@ export const PLUGINS = {
         PLUGINS.runSpinner(true)
         return
       }
-    } finally {
-      PLUGINS.runSpinner(true)
     }
   },
   generateReviewCard: async function (
@@ -1650,7 +1648,7 @@ export const PLUGINS = {
         ])
       }
     } finally {
-      await PLUGINS.runSpinner(true)
+      PLUGINS.runSpinner(true)
     }
   },
   PaginateData: async function (slug) {
