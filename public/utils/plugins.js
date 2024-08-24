@@ -126,7 +126,7 @@ export const PLUGINS = {
       })
     }
   },
-  runSpinner: async function (isDone, message = 'loading') {
+  runSpinner: async function (isDone, message = '') {
     const loader = document.querySelector('#main-page-loader')
     if (!isDone) {
       if (!loader) {
@@ -720,60 +720,44 @@ export const PLUGINS = {
           <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content bg-transparent text-light" style="backdrop-filter:blur(20px);border:2px solid #13283b80;">
               <div class="modal-header text-white border-0 bg-dark">
-                <h5 class="modal-title text-muted" id="exampleModalLabel">Welcome to REVIEWER, \nYour One-Stop Solution for Guest Feedback Management!</h5>
-                <hr>
-              </div>
+                <h5 class="modal-title text-secondary shadow-sm" id="exampleModalLabel">Welcome to REVIEW-WIZARD, \nYour One-Stop Solution for managing your guests' Management</h5>
+                </div>
               <div class="modal-body text-light bg-dark">
                 <ul class="text-muted">
                 <p class="lead">Step 1: Sign Up</p>
                   <li>
-                  Visit Reviewer and click on the "Sign Up" button.
+                  On the login page, click the "Signup" button in the top right corner.
                   Fill in the required details to create your account.
-                  Verify your email to activate your account.
                   </li>
                   <br>
                   <p class="lead">Step 2: Create Your Review Profile</p>
                   <li>
-                  After logging in, navigate to your dashboard.
-                  Click on "Create Review Profile."
-                  Provide the URL of your hotel or restaurant to fetch reviews from a site you wish to collect reviews from.
+                  Navigate to Account > CREATE REVIEW ACCOUNT.
+                  Provide the URL of your hotel or restaurant to (1) create a review profile.
                   </li>
                   <br>
                   <p class="lead">Step 3: Fetch Review Data</p>
                  <li>
-                 Once your review profile is set up, our system will automatically fetch reviews from various travel sites.
+                 Once your review profile is set up, the system will automatically fetch reviews for that particular account.
                  You can view and manage all guest feedback in one place, saving you time from visiting multiple websites.
                  </li>
-                 <br>
-                 <p class="lead">Step 4: Respond to Guest Feedback</p>
-                  <li>
-                  Engage with your guests by responding to their reviews.
-                  Click on the respective review, type your response, and hit "Submit."
-                  Building positive relationships with your guests is just a click away!
-                  </li>
                   <br>
-                  <p class="lead">Step 5: Deleting Reviews</p>
+                  <p class="lead">Step 4: Deleting Reviews</p>
                  <li>
                  In case you need to remove a review, click on the "Delete" option next to the specific review.
                  Confirm the deletion to maintain the quality of your review profile.
                  </li>
                   <br>
-                  <p class="lead">Step 6: Stay Connected with Guests</p>
+                  <p class="lead">Step 5: Save Time, Improve Service</p>
                  <li>
-                 Utilize the "Contact Guests" feature to send messages or offers directly to your guests.
-                 Strengthen your connection with guests and keep them coming back!
-                 </li>
-                  <br>
-                  <p class="lead">Step 7: Save Time, Improve Service</p>
-                 <li>
-                  By centralizing all guest feedback, you save time that can be used to enhance your services and address specific guest needs.
+                  By centralizing this tool, you'll be able to save time that can be used to enhance your services and address specific guest needs on your property.
                   Focus on what matters most to your business.
                  </li>
                   <br>
                   <p class="lead">Thats it, You are all setup.</p>
                  <li>
                  Congratulations! You're now ready to streamline your guest feedback management and elevate your guest experience.
-                 If you have any questions or need assistance, feel free to reach out to our support team.
+                 If you have any questions or need assistance, feel free to reach out to me directly.
                  </li>
                   <br>
                   <h5 class="text-center">Happy managing and improving!</h5>
@@ -1451,8 +1435,11 @@ export const PLUGINS = {
           'alert-danger',
           `Service unavailable, please try again later ${e.message}`
         ])
+        PLUGINS.runSpinner(true)
         return
       }
+    } finally {
+      PLUGINS.runSpinner(true)
     }
   },
   generateReviewCard: async function (
@@ -1663,7 +1650,7 @@ export const PLUGINS = {
         ])
       }
     } finally {
-      PLUGINS.runSpinner(true)
+      await PLUGINS.runSpinner(true)
     }
   },
   PaginateData: async function (slug) {

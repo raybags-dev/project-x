@@ -181,8 +181,11 @@ function extractAuthorExternalId (element) {
 function extractNumericRating (ariaLabel) {
   const ratingRegex = /Rated\s+(\d[\d,]*)\s+out/
   const ratingMatch = ariaLabel.match(ratingRegex)
-  return ratingMatch ? parseFloat(ratingMatch[1].replace(',', '.')) : null
+  return ratingMatch
+    ? parseFloat(ratingMatch[1].replace(',', '.'))
+    : parseFloat('1.0') // adding constant for missing rating
 }
+
 function parseReviewDate (relativeDate) {
   if (relativeDate) {
     const processedRelativeDate = relativeDate.replace(/^an?\s+/i, '1 ')
