@@ -2,48 +2,52 @@
 
 ## Overview
 
-Project X is a Node.js application designed for web scraping and reviewing purposes. It integrates various services, such as MongoDB, Redis, AWS, axios and cherrio among others, to perform tasks related to web data extraction and review management.
+Project X is a Node.js/Express API server designed on to process data on ETL and ELT principles. On a higher level, it does the following below:
+-  **Web crawling and mining**
+-  **Process and extract scrapped data from DOM elements**
+-  **Cleans, models and schemarize data**
+-  **Enriches and saves data to storages (mongoDB and AWS)**
+-  **Ensures high throughput through use of in-memory storage with redis**
 
 ## Features
-
 - **Web Scraping**: Uses Puppeteer, axios and Cheerio to scrape data from  OTAs websites, use mongoose model achitecture with custom schemas to build review objects, stores them in mongodb and aws s3 storage, and impliments redis for caching.
 - **Authentication and Authorization**: User authentication and profile-based access to review data.
 - **Data Storage**: Connects to MongoDB for storing and retrieving review data.
 - **Proxy Handling**: Supports proxy usage for web requests.
 - **Logging**: Utilizes Winston for logging application events.
-- **Testing**: Includes Mocha and Chai for unit and integration testing.
-- **Environment Configuration**: Managed through environment variables for flexibility.
 
-## Getting Started
 
 ### Prerequisites
 
 - Node.js (v14 or later)
 - npm (v6 or later)
-- Docker (optional for containerization)
 
 ### Installation
 
 1. **Clone the repository**:
 
-   ```bash
-   git clone https://github.com/raybags-dev/project-x.git
-   cd project-x
-
+```bash
+git clone https://github.com/raybags-dev/project-x.git
+cd project-x
+```
 
 2. **Install dependencies**:
-   ```bash
-    npm install
+```bash
+npm install
+```
     
 3. **Create a .env file in the root directory and add your environment variables**:
-   ```bash
-      PROXY_ENDPOINT='http://your-proxy-endpoint'
-      MONGO_URI='mongodb://your-mongo-uri'
-      REDIS_HOST='localhost'
-      REDIS_PORT=6379
-   ```
+```bash
+MONGO_URI='mongodb+xyz://your_endpoint.net:'
+ACCESS_TOKEN=test_access123456789_token
+AWS_ACCESS_KEY_ID=123456789qwe
+AWS_SECRET_ACCESS_KEY=123456789qwe
+AWS_BUCKET_NAME='your_storage_bucket'
+AWS_REGION='central-eastern-5'
+EMAIL_PROVIDER='your_email_provider'
+```
 
-4. **Run the application in different modes:**:
+1. **Run the application in different modes:**:
     In production
    ```bash
        npm run dev
@@ -56,17 +60,6 @@ Project X is a Node.js application designed for web scraping and reviewing purpo
    ```bash
        npm test
    ```
- ## Docker
- To build and run the application in a Docker container:
-
-1. Build the Docker image:
-    ```bash
-         docker build -t project-x .
-    ```
-2. Run the Docker container:
-    ```bash
-        docker run -p 3001:3001 --env-file .env project-x
-    ```
 
 ## Security Overview
 
@@ -76,7 +69,7 @@ Project X is a Node.js application designed for web scraping and reviewing purpo
 
 #### JWT Authentication
 
-- **Token Generation**: We use JSON Web Tokens (JWT) for user authentication. Tokens are generated upon successful login and include user details such as email, user ID, and roles.
+- **Token Generation**: I use JSON Web Tokens (JWT) for user authentication. Tokens are generated upon successful login and include user details such as email, user ID, and roles.
 - **Token Expiration**: Tokens have a set expiration time (e.g., 1 minute). This limits the window of exposure in case a token is compromised.
 - **Token Verification**: Tokens are verified on each request using a secret key stored in environment variables. This ensures that the token has not been tampered with.
 
@@ -96,7 +89,7 @@ Project X is a Node.js application designed for web scraping and reviewing purpo
 
 - **Token-Based Authorization**: Time-based authorization tokens are stored securely on the client side, facilitating quick login and ensuring smooth access while maintaining a high level of security.
 
-- **Subscription-Based Access**: Access to all features and data is controlled through a subscription model - a trial period can allow you to run test data collection for only agoda.com and google.com for only 10 pages worth of data. This ensures that users have access to the resources and functionalities according to their subscription level.
+- **Subscription-Based Access**: Access to all features and data is controlled through a subscription model - a trial period can allow you to run test data collection for only agoda.com and google.com for only 10 pages worth of data (test phase). This ensures that users have access to the resources and functionalities according to their subscription level.
 
 #### User Management and Data Integrity
 
@@ -104,7 +97,7 @@ Project X is a Node.js application designed for web scraping and reviewing purpo
 
 
 ### License:
-- This project is licensed under the MIT License.
+- This is a passion project and not intended for profit making, so feel free to pull the source-code and use it as you see fit.
 
 - **Contact**:
 For any inquiries, please reachout to be directly at:  `baguma.github@gmail.com`.
