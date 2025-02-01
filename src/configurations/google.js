@@ -71,13 +71,12 @@ export async function parseReviewHtml (html, urlAgent, req, propertyProfileUrl) 
         .trim()
       // ********************
       const mainAnchor = $(element)
-      const originalReviewText = mainAnchor
-        .find(
-          'div[style="display:none;vertical-align:top"] div.Jtu6Td span span span span.review-full-text'
-        )
-        .first()
-        .text()
-        .trim()
+      const reviewTextAnchor = [
+        'div[style="display:none;vertical-align:top"] div.Jtu6Td span span span span.review-full-text',
+        'div[style="vertical-align:top"] div.Jtu6Td span span span[data-expandable-section]'
+      ]
+
+      const originalReviewText = getReviewText(mainAnchor, reviewTextAnchor)
       // ********************
       const reviewText = parseReviewText(
         $(element).find('span[data-expandable-section]')
@@ -157,6 +156,18 @@ export async function parseReviewHtml (html, urlAgent, req, propertyProfileUrl) 
     logger(`${e}: from <parseReviewHtml> function`, 'error')
   }
 }
+
+function getReviewText (element, anchors) {
+  for (const selector of anchors) {
+    let text = element.find(selector).first().text().trim()
+    if (text) {
+      text = text.replace(/\b(Service|Location|Rooms): \d\/\d\b/g, '').trim()
+      text = text.replace(/\s*\|\s*/g, ' ')
+      return text
+    }
+  }
+  return ''
+}
 function extractAuthorExternalId (element) {
   const $ = cheerio.load(element)
 
@@ -185,7 +196,6 @@ function extractNumericRating (ariaLabel) {
     ? parseFloat(ratingMatch[1].replace(',', '.'))
     : parseFloat('1.0') // adding constant for missing rating
 }
-
 function parseReviewDate (relativeDate) {
   if (relativeDate) {
     const processedRelativeDate = relativeDate.replace(/^an?\s+/i, '1 ')

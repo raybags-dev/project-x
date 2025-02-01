@@ -1,8 +1,10 @@
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import { HEADERS } from '../_data_/headers/headers.js'
-import { getAgodaCreds, callAgodaEndpoint } from '../configurations/agoda.js'
+import { getAgodaCreds } from '../configurations/agoda.js'
 import { logger } from '../utils/logger.js'
+
+import axiosInstance from '../../src/utils/proxy.js'
 
 export async function generateAgodaProfile (req, res) {
   try {
@@ -114,8 +116,16 @@ export async function generateAgodaProfile (req, res) {
     res.status(500).json('Internal server error')
   }
 }
+async function callAgodaEndpoint (url, requestBody, headers) {
+  try {
+    const response = await axiosInstance.post(url, requestBody, { headers })
+    return response.data
+  } catch (error) {
+    logger(`Error calling Agoda API: ${error.message}`, 'error')
+  }
+}
 export async function findTotalIndexById (providerList, id) {
-  if (!providerList.length) return
+  if (!providerList.length) return logger(`Total count not found`, 'error')
   for (const provider of providerList) {
     if (provider.id === id) {
       return provider.totalIndex
