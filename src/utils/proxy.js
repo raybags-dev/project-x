@@ -1,10 +1,7 @@
-import dotenv from 'dotenv'
+import 'dotenv/config'
 import url from 'url'
 import axios from 'axios'
 import { logger } from './logger.js'
-
-// Load .env configuration
-dotenv.config()
 
 function getProxyConfig () {
   const proxyEndpoint = process.env.PROXY_ENDPOINT

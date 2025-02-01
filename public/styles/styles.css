@@ -6,7 +6,7 @@
   --standard-transition: linear 0.4s;
   --animate-card: all ease-in .34;
   --red: red;
-  --main-theme-light: #3e3e3e;
+  --main-theme-light: #666565;
   --black: black;
   --scrollbarBG: hsla(5, 100%, 33%, 0.05);
   --thumb-bg: hsla(180, 1%, 16%, 0.5);
@@ -73,7 +73,7 @@ body::after {
   overflow-y: auto;
   height: 92vh;
   max-width: 80vw;
-  margin-top: .5rem;
+  margin-top: .4rem;
   transition: var(--animate-card);
 }
 
@@ -116,9 +116,9 @@ body::after {
 }
 
 .review-incoming {
-  transition: all .3s;
-  -webkit-animation: bring-inn 1 forwards ease-in .3s;
-  animation: bring-inn 1 forwards ease-in .3s;
+  transition: all .05s;
+  -webkit-animation: bring-inn 1 forwards ease-in .05s;
+  animation: bring-inn 1 forwards ease-in .05s;
 }
 
 @-webkit-keyframes bring-inn {

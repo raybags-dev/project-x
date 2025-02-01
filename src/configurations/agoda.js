@@ -40,14 +40,6 @@ export async function getAgodaCreds (req, res) {
     logger(`Error, 'hotelId could not be fetched: ${error.message}`, 'error')
   }
 }
-export async function callAgodaEndpoint (url, requestBody, headers) {
-  try {
-    const response = await axiosInstance.post(url, requestBody, { headers })
-    return response.data
-  } catch (error) {
-    logger(`Error calling Agoda API: ${error.message}`, 'error')
-  }
-}
 export async function fetchAgodaReviews (
   depth = 1,
   propertyExternalId,
@@ -90,6 +82,12 @@ async function fetchPageData (endpointUrl, requestBody, headers) {
     const response = await axiosInstance.post(endpointUrl, requestBody, {
       headers
     })
+
+    if (!response.data?.comments || response.data?.comments?.length === 0) {
+      console.warn('⚠️ No more comments available. Exiting...')
+      return null
+    }
+
     return response.data
   } catch (error) {
     throw error
@@ -111,25 +109,23 @@ async function fetchPage (
     propertyExternalId,
     page,
     pageSize,
-    isReviewPage
+    (isReviewPage = false)
   )
 
-  if (reviewPageUrl) {
-    requestBody.isReviewPage = true
-  }
-
+  // if (reviewPageUrl) {
+  //   requestBody.isReviewPage = true
+  // }
   try {
-    const { comments, providerList } = await fetchPageData(
-      endpointUrl,
-      requestBody,
-      headers
-    )
+    const responseData = await fetchPageData(endpointUrl, requestBody, headers)
+    const comments = responseData?.comments
+    const providerList = responseData?.providerList
+
     const totalReviewsCount = await findTotalIndexById(providerList, 332)
 
     allReviews.push(...comments)
 
     logger(
-      `Done fetching page: ${page}. Total reviews collected: ${allReviews.length}/${totalReviewsCount}`,
+      `Total reviews collected: ${allReviews.length}/${totalReviewsCount}`,
       'info'
     )
 
@@ -143,10 +139,15 @@ async function fetchPage (
     ) {
       logger('TOO_MANY_REQUEST detected. Try again later.', 'info')
       return true
-    } else {
-      logger(`Error fetching page: ${error}`, 'error')
-      throw error
     }
+
+    if (error.message.includes('length')) {
+      logger('No reviews found!', 'info')
+      throw new Error('No reviews found!')
+    }
+
+    logger(`Error fetching page: ${error}`, 'error')
+    throw error
   }
 }
 async function fetchAgodaReviewsPerPage (
@@ -188,7 +189,6 @@ async function fetchAgodaReviewsPerPage (
     await Promise.all(pagePromises)
 
     if (errorEncountered) {
-      logger('Aborting due to error. Try again later.', 'warn')
       break
     }
 
