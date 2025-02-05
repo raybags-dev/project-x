@@ -47,18 +47,12 @@ axiosInstance.interceptors.response.use(
 
       if (config.__retryCount < 3) {
         config.__retryCount += 1
-        logger(
-          `Retrying request with proxy... Attempt ${config.__retryCount}`,
-          'warn'
-        )
+        logger(`Retrying with proxy... Attempt ${config.__retryCount}`, 'warn')
 
         // Retry the request with the proxy
         return axiosInstance(config)
       } else {
-        logger(
-          'Proxy request failed 3 times. Switching to normal network.',
-          'error'
-        )
+        logger('Proxy failed 3 times. Switching to local network.', 'error')
 
         // After 3 failed attempts, remove the proxy and retry without it
         config.proxy = false
@@ -66,10 +60,7 @@ axiosInstance.interceptors.response.use(
         try {
           return await axios.request(config)
         } catch (retryError) {
-          logger(
-            `Request failed even without proxy: ${retryError.message}`,
-            'error'
-          )
+          logger(`Request failed: ${retryError.message}`, 'error')
           throw retryError
         }
       }
