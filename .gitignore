@@ -8,3 +8,17 @@ terraform.tfvars
 logs/*
 *.log
 logs/
+.env.local
+.env.development
+.env.production
+package-lock.json
+yarn.lock
+npm-debug.log*
+.DS_Store
+Thumbs.db
+dist/
+build/
+.vscode/
+.idea/
+.docker/
+docker-compose.override.yml

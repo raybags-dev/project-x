@@ -13,6 +13,7 @@ export default async app => {
     for (const file of files) {
       if (file.endsWith('Router.js')) {
         try {
+          console.log(file)
           const routerModule = await import(path.join(routesPath, file))
           const router = routerModule.default
           app.use(router)
