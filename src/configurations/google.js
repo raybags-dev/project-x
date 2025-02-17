@@ -73,7 +73,8 @@ export async function parseReviewHtml (html, urlAgent, req, propertyProfileUrl) 
       const mainAnchor = $(element)
       const reviewTextAnchor = [
         'div[style="display:none;vertical-align:top"] div.Jtu6Td span span span span.review-full-text',
-        'div[style="vertical-align:top"] div.Jtu6Td span span span[data-expandable-section]'
+        'div[style="vertical-align:top"] div.Jtu6Td span span span[data-expandable-section]',
+        'span.review-full-text'
       ]
 
       const originalReviewText = getReviewText(mainAnchor, reviewTextAnchor)

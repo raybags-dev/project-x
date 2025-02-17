@@ -42,6 +42,7 @@ export async function generateGoogleReviews (req, res) {
         message: 'URL is required to complete this task'
       })
     }
+    console.log(userProfile.uuid)
 
     const {
       url: baseUrl,
@@ -129,7 +130,7 @@ export async function generateGoogleReviews (req, res) {
         // Update previousPageToken for the next iteration
         previousPageToken = nextPageToken
       } catch (error) {
-        logger(`Error fetching reviews: ${error.message}`, 'info')
+        logger(`Error fetching reviews: ${error}`, 'info')
       }
     }
 
@@ -169,7 +170,6 @@ export async function generateGoogleReviews (req, res) {
     res.status(500).json({ error: 'Server error' })
   }
 }
-
 export async function updateReview (req, res) {
   try {
     const { email, isAdmin, userId } = await req.locals.user
@@ -191,10 +191,11 @@ export async function updateReview (req, res) {
     if (!user) return res.status(404).json('User not found!')
 
     const profile = await PROFILE_MODEL.findOne({ userId })
+
     if (!profile)
       return res.status(404).json('Profile not found or has been deleted!')
 
-    const { internalId, uuid, computedUrl, name, originalUrl } = profile
+    const { computedUrl, name, originalUrl } = profile
 
     try {
       if (reviewSiteSlug === 'google-com') {
@@ -214,6 +215,7 @@ export async function updateReview (req, res) {
           requestTimestamp: new Date()
         })
       }
+      // ********* AGODA UPDATE REVIEWS LOGIC ***********
       if (reviewSiteSlug === 'agoda-com') {
         logger('review update for this site not yet implimented', 'warn')
         return res.status(501).json({
