@@ -48,6 +48,9 @@ export async function MAIN_PAGE () {
                           <li><a class="dropdown-item dropdown-item-dark btn btn-outline-success text-light text-uppercase  booking-com" href="#">booking-com</a></li>
                           <li><a class="dropdown-item dropdown-item-dark btn btn-outline-success text-light text-uppercase  tripadvisor-com" href="#">tripadvisor-com</a></li>
                           <li><a class="dropdown-item dropdown-item-dark text-light text-uppercase  expedia-com" href="#">expedia-com</a></li>
+                          <li><a class="dropdown-item dropdown-item-dark text-light text-uppercase  ctrip-com" href="#">ctrip-com</a></li>
+                          <li><a class="dropdown-item dropdown-item-dark text-light text-uppercase  hotels-com" href="#">hotels-com</a></li>
+                          <li><a class="dropdown-item dropdown-item-dark text-light text-uppercase  trip-com" href="#">trip-com</a></li>
                         </ul>
                     </li>
               </ul>
