@@ -41,9 +41,9 @@ export async function logger (message, level = 'info') {
     let logMessage = `[${timestamp}] [${level.toUpperCase()}]: `
 
     if (Array.isArray(message)) {
-      console.table(message)
+      console.log(message)
     } else if (typeof message === 'object') {
-      console.table([message])
+      console.info([message])
     } else {
       logMessage += message
     }

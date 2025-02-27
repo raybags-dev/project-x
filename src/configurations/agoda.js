@@ -40,6 +40,7 @@ export async function getAgodaCreds (req, res) {
     logger(`Error, 'hotelId could not be fetched: ${error.message}`, 'error')
   }
 }
+
 export async function fetchAgodaReviews (
   depth = 1,
   propertyExternalId,

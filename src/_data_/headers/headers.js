@@ -74,5 +74,18 @@ export const HEADERS = {
     'x-requested-with': 'XMLHttpRequest',
     'user-agent':
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36'
+  },
+  bookingHeadersGenProfile: {
+    authority: 'www.booking.com',
+    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+    'accept-encoding': 'gzip, deflate, br',
+    'upgrade-insecure-requests': '1',
+    accept:
+      'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    connection: 'keep-alive',
+    cookie:
+      'bkng=11UmFuZG9tSVYkc2RlIyh9YZN305pdDMb%2Bl5xE4mJnqUc%2FRa8osQsncbi7v7z0p1aTvV7AvZssbpgF3fqphTCVXbixLNOCOuw%2F3gO1Y3q7ZIvlj30bizrmRJgaaxR9voCHlsvN2bCGD1cZJxztf1hmeQO83VHG5spgVC1IJ8NhPh4mwkXI2iGKdlAJ0mT8RAVzdzZAWu%2FCtUq%2Fk5V2oAjA%2Bw%3D%3D; bkng_sso_auth=CAIQsOnuTRpo/S7Uwmm4BTHdE8D/PNPk67BipXJ49NgKxu35WpQWJxyMXaDJelw7M5Syw2tcd239jVA9jLS+O9ea5Z0kxZDVKhiackSIS3+lXJzONXTsDMKu+2hWIEbGmOBJK4TXZkinkfKLE1LxqKk=; pcm_consent=analytical%3Dfalse%26countryCode%3DNL%26consentId%3Dd4ae4e1f-924e-475a-b2f1-879b4caf8594%26consentedAt%3D2025-02-04T14%3A25%3A00.015Z%26expiresAt%3D2025-08-03T14%3A25%3A00.015Z%26implicit%3Dtrue%26marketing%3Dfalse%26regionCode%3DFL%26regulation%3Dgdpr%26legacyRegulation%3Dgdpr; pcm_personalization_disabled=0',
+    'user-agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'
   }
 }

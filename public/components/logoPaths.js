@@ -6,5 +6,9 @@ export const siteLogos = {
   agoda_logo: {
     slug: 'agoda-com',
     logopath: '../images/agoda-logo.png'
+  },
+  booking_logo: {
+    slug: 'booking-com',
+    logopath: '../images/booking_logo.png'
   }
 }

@@ -1,6 +1,7 @@
 import { LOGIN_HTML } from '../components/login.js'
 import { SIGNUP_HTML } from '../components/signup.js'
 import { siteLogos } from '../components/logoPaths.js'
+
 export const PLUGINS = {
   API_CLIENT: async function () {
     const apiClient = axios.create({
@@ -1062,13 +1063,18 @@ export const PLUGINS = {
     return null
   },
   getSiteLogoPath: async function (reviewSiteSlug, uuid) {
+    const defaultPath = '../images/fallback.png'
     const siteLogo = Object.values(siteLogos).find(
       logo => logo.slug === reviewSiteSlug
     )
     if (siteLogo) {
       const cardLogo = await document.querySelector(uuid)
       if (cardLogo) {
-        cardLogo.src = siteLogo.logopath
+        cardLogo.src = siteLogo.logopath || defaultPath
+      }
+      cardLogo.onerror = function () {
+        this.src = defaultPath
+        this.onerror = null
       }
     }
   },
@@ -1133,10 +1139,12 @@ export const PLUGINS = {
                 <option selected>Choose site</option>
                 <option value="google">google-com</option>
                 <option value="agoda">agoda-com</option>
-                <option disabled value="booking">booking-com</option>
+                <option value="booking">booking-com</option>
                 <option disabled value="tripadvisor">tripadvisor-com</option>
                 <option disabled value="ctrip">ctrip-com</option>
                 <option disabled value="expedia">expedia-com</option>
+                <option disabled value="hotels-com">hotels-com</option>
+                <option disabled value="trip-com">trip-com</option>
               </select>
             <button class="btn btn-lg btn-outline-secondary sub__this_form" type="button" id="proertyName29">Submit</button>
           </div>
@@ -1191,10 +1199,7 @@ export const PLUGINS = {
     const validFormats = [`https://www.${slug}`, `https://${slug}`]
 
     for (const format of validFormats) {
-      if (url.startsWith(format)) {
-        console.log('is valid...')
-        return true
-      }
+      if (url.startsWith(format)) return true
     }
 
     const errorMessage = `The provided URL does not match the selected site name (${slug}).`
@@ -1249,7 +1254,7 @@ export const PLUGINS = {
           PLUGINS.displayLabel([
             'review_main_wrapper',
             'alert-danger',
-            'Invalid URL format. Please provide a valid URL starting with http:// or https://'
+            'Invalid URL format. Please provide a valid URL starting!'
           ])
           return
         }
@@ -1271,7 +1276,7 @@ export const PLUGINS = {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
-
+        // ************* =============== ************* //
         const res = await apiClient.post(baseUrl, formData, { headers })
         PLUGINS.runSpinner(true)
 
@@ -1486,7 +1491,7 @@ export const PLUGINS = {
       <div id="${_id}" class="row review-container shadow review-incoming __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
             <div class="card text-bg-dark dark-gray-bg my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
                 <div class="card-header shadow-none card_header">
-                <img src="" style="width:30%;max-width:75px !important;min-width:57px !important" class="img-thumbnail review-logo-${uuid}-${internalId} bg-transparent" alt="...">
+                <img src="" style="width:30%;max-width:75px !important;min-width:57px !important;max-height:54px !important;border-radius:5px" class="img-thumbnail review-logo-${uuid}-${internalId} bg-transparent" alt="...">
                 </div>
                 <div class="card-body d-flex flex-column left__body" data-subratings="${authorExternalId}">
                   <span class="text" data-guest-rating="rating-${authorExternalId}" data-rating="${rating}"></span>
@@ -1825,7 +1830,7 @@ export const PLUGINS = {
             <button type="button" class="btn btn-outline-success w-50 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
               Actions
             </button>
-            <ul class="dropdown-menu bg-dark text-dark shadow">
+            <ul class="dropdown-menu bg-dark text-dark shadow" style="z-index:1000 !important">
               <li class="d-flex justify-content-between align-content-center" style="width: 100% !important;height:50%;z-index:50 !important">
                   <a class="dropdown-item text-light text-decoration-underline" href="#">Run Crawler</a>
                   <div class="container">
@@ -2092,7 +2097,7 @@ export const PLUGINS = {
           const userAccountModal = `
       <div class="modal fade" id="userAccount" tabindex="-1" data-bs-backdrop="static" aria-labelledby="userAccountLabel" aria-hidden="true" style="backdrop-filter:blur(3px);">
         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered bg-transparent">
-          <div class="modal-content bg-transparent text-light border-4 custome-color3" style="backdrop-filter:blur(30px);border-radius:.8rem;">
+          <div class="modal-content bg-transparent text-light border-4 custome-color3" style="backdrop-filter:blur(30px);border-radius:.8rem;max-height:95%;overflow-y:auto;">
                 <div class="card bg-light-custom custome-color2 h-100 w-100">
                   <div class="card-body bg-light-custom  border-transparent">
                     <h3 class="card-title">Account name: ${propertyName}</h3>
