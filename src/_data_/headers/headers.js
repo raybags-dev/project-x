@@ -87,5 +87,41 @@ export const HEADERS = {
       'bkng=11UmFuZG9tSVYkc2RlIyh9YZN305pdDMb%2Bl5xE4mJnqUc%2FRa8osQsncbi7v7z0p1aTvV7AvZssbpgF3fqphTCVXbixLNOCOuw%2F3gO1Y3q7ZIvlj30bizrmRJgaaxR9voCHlsvN2bCGD1cZJxztf1hmeQO83VHG5spgVC1IJ8NhPh4mwkXI2iGKdlAJ0mT8RAVzdzZAWu%2FCtUq%2Fk5V2oAjA%2Bw%3D%3D; bkng_sso_auth=CAIQsOnuTRpo/S7Uwmm4BTHdE8D/PNPk67BipXJ49NgKxu35WpQWJxyMXaDJelw7M5Syw2tcd239jVA9jLS+O9ea5Z0kxZDVKhiackSIS3+lXJzONXTsDMKu+2hWIEbGmOBJK4TXZkinkfKLE1LxqKk=; pcm_consent=analytical%3Dfalse%26countryCode%3DNL%26consentId%3Dd4ae4e1f-924e-475a-b2f1-879b4caf8594%26consentedAt%3D2025-02-04T14%3A25%3A00.015Z%26expiresAt%3D2025-08-03T14%3A25%3A00.015Z%26implicit%3Dtrue%26marketing%3Dfalse%26regionCode%3DFL%26regulation%3Dgdpr%26legacyRegulation%3Dgdpr; pcm_personalization_disabled=0',
     'user-agent':
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'
+  },
+  bookingHeadersGenReviews: {
+    accept: '*/*',
+    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+    'apollographql-client-name': 'b-property-web-property-page_node',
+    'apollographql-client-version': 'EQMGDECL',
+    'content-type': 'application/json',
+    origin: 'https://www.booking.com',
+    priority: 'u=1, i',
+    referer:
+      'https://www.booking.com/hotel/id/swiss-belresort-pecatu.id.html?label=gen173nr-1FCAsoaEIWc3dpc3MtYmVscmVzb3J0LXBlY2F0dUgSWARoqQGIAQGYARK4AQfIAQzYAQHoAQH4AQKIAgGoAgO4Atb07r0GwAIB0gIkYjgyYTBiNGItNTdhZS00MDhlLTk2OTItMmMzMjQyZTczNzRi2AIF4AIB&sid=5cf0621a444f0a79009e49aa4a650ae2&breadcrumb=hotel&',
+    'sec-ch-ua':
+      '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"macOS"',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin',
+    'user-agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
+    'x-apollo-operation-name': 'ReviewList',
+    'x-booking-context-action': 'hotel',
+    'x-booking-context-action-name': 'hotel',
+    'x-booking-context-aid': '304142',
+    'x-booking-csrf-token':
+      'eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJjb250ZXh0LWVucmljaG1lbnQtYXBpIiwic3ViIjoiY3NyZi10b2tlbiIsImlhdCI6MTc0MDM1NjQwNCwiZXhwIjoxNzQwNDQyODA0fQ.tc293yHFvnA2zmQ4OY5_DruTHGMqPZp7KhTk5V2vkstz8s7IQWGZref7Mp7oIJmnG-c03qxmnhtoWZYH9DWnSA',
+    'x-booking-dml-cluster': 'node',
+    'x-booking-et-serialized-state':
+      'EStynLzM2shYQawYZoVi7Yoxu8-DMBhlPpshm8Jawtwbdc6_WGuXuzFSfB6QdLCGldc8DZfam7_eQpkUecDWrWqTZzV8H9Zvv',
+    'x-booking-pageview-id': 'b4b9025a3d9c03f6',
+    'x-booking-site-type-id': '1',
+    'x-booking-timeout-ms': '4000',
+    'x-booking-topic': 'capla_browser_b-property-web-property-page',
+    'x-envoy-upstream-rq-timeout-ms': '4000',
+    Cookie:
+      'bkng=11UmFuZG9tSVYkc2RlIyh9YZN305pdDMb%2Bl5xE4mJnqUcYrY73ySqUWgsWegWm4mMgCOQU6Xel1o5vKo%2Fb83aNRFFIJlsCIt76uxO556KDOHjotTUwu5ahnwHCcZK7dwyo%2BD2EtiqOP9XblhfwjOexFSEN5SNcmTM1mXgeMBcgqnDF%2FAVMZ4sBPUec5y4urOQvrSAbP0LVvNznem23DyshdQ%3D%3D; bkng_sso_auth=CAIQ0+WGHxpoTte2eojnJURiXWfVmE45np1ZgnLn0WrTDOaGmNIX0Ie269Sj4OrGbEaLCmiTPbvOsvVqSvwVTaM1lDATf73jPOY5DcROrhTgFWAeJY8t8Vt2fAc2NRaIatXUtCJTwCfhJqKQOweCPlA=; pcm_consent=analytical%3Dfalse%26countryCode%3DNL%26consentId%3Dd4ae4e1f-924e-475a-b2f1-879b4caf8594%26consentedAt%3D2025-02-04T14%3A25%3A00.015Z%26expiresAt%3D2025-08-03T14%3A25%3A00.015Z%26implicit%3Dtrue%26marketing%3Dfalse%26regionCode%3DFL%26regulation%3Dgdpr%26legacyRegulation%3Dgdpr; pcm_personalization_disabled=0'
   }
 }

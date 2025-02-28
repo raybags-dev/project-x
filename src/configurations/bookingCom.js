@@ -1,164 +1,172 @@
-import * as cheerio from 'cheerio'
-
-import { USER_MODEL } from '../models/user.js'
-import { PROFILE_MODEL } from '../models/profileModel.js'
+import { HEADERS } from '../_data_/headers/headers.js'
 import { logger } from '../utils/logger.js'
+import axiosInstance from '../utils/proxy.js'
 
-export async function parseBookingReviewHtml (
-  html,
-  urlAgent,
-  req,
-  propertyProfileUrl
+export async function fetchBookingReviews (
+  depth = 1,
+  propertyExternalId,
+  userProfile
 ) {
+  const pageSize = 10
   try {
-    const $ = cheerio.load(html)
-    const reviews = []
-    const userId = await req.locals.user.userId
-    const { name: propertyName, reviewSiteSlug } = await PROFILE_MODEL.findOne({
-      userId
+    const { url, reviewPageUrl, metadata } = await userProfile
+    const endpointUrl = reviewPageUrl || url
+    const headers = { ...HEADERS.bookingHeadersGenReviews, method: 'POST' }
+
+    logger(`Fetching reviews with a depth of ${depth}...`, 'info')
+
+    const allReviews = await fetchPerPage(
+      propertyExternalId,
+      endpointUrl,
+      headers,
+      depth,
+      pageSize,
+      metadata
+    )
+    logger(`Fetched ${allReviews.length} reviews successfully.`, 'info')
+    return allReviews
+  } catch (error) {
+    logger(`Error fetching reviews: ${error.message}`, 'error')
+    return []
+  }
+}
+
+async function fetchPageData (endpointUrl, requestBody, headers) {
+  try {
+    const response = await axiosInstance.post(endpointUrl, requestBody, {
+      headers
     })
-    const userIDD = await USER_MODEL.findOne({ userId })
+    const isResponseSuccess =
+      response.status == 200 && response.statusText == 'OK'
 
-    function parseSubratings (element, processedCategories) {
-      const subratings = []
-      element
-        .find('.k8MTF span:not([aria-hidden="true"])')
-        .each((index, subratingElement) => {
-          const subratingText = $(subratingElement).first().text().trim()
-          const [category, rating] = subratingText
-            .split(':')
-            .map(part => part.trim())
-
-          if (category && rating && !processedCategories.has(category)) {
-            const numericRating = parseInt(rating, 10)
-            subratings.push({ key: category, value: String(numericRating) })
-            processedCategories.add(category)
-          }
-        })
-      return subratings
+    if (isResponseSuccess) {
+      const reviewsObj = await response.data.data?.reviewListFrontend
+      return reviewsObj
     }
-    function parseReviewText (expandedSection) {
-      const originalText = expandedSection.find('.k8MTF').prev().text().trim()
-      const translatedText = expandedSection.find('div.d6SCIc').text().trim()
+    return null
+  } catch (error) {
+    logger(`Error fetching page: ${error.message}`, 'error')
+    return null
+  }
+}
 
-      if (originalText && originalText.includes('(Original)')) {
-        const startIndex =
-          originalText.indexOf('(Original)') + '(Original)'.length
-        return originalText.substring(startIndex).trim()
-      } else if (
-        translatedText &&
-        translatedText.includes('(Translated by Google)')
-      ) {
-        const startIndex =
-          translatedText.indexOf('(Translated by Google)') +
-          '(Translated by Google)'.length
-        return translatedText.substring(startIndex).trim()
-      } else {
-        return expandedSection.text().trim()
-      }
-    }
+async function fetchPerPage (
+  propertyExternalId,
+  endpointUrl,
+  headers,
+  depth,
+  pageSize,
+  metadata
+) {
+  let skip = 0
+  const allReviews = []
 
-    $(
-      '.gws-localreviews__unified-review, .gws-localreviews__google-review'
-    ).each((index, element) => {
-      const username = $(element).find('.TSUbDb a').text().trim()
-      const siteSlug = 'google-com'
-
-      const authorProfileUrl = $(element).find('.TSUbDb a').attr('href')
-
-      let originalanchor1 = $(element).find(
-        'div[style="display:none;vertical-align:top"]'
+  while (skip < depth * pageSize) {
+    const requests = Array.from({ length: Math.min(2, depth) }, (_, i) => {
+      const currentSkip = skip + i * pageSize
+      return fetchPage(
+        propertyExternalId,
+        endpointUrl,
+        headers,
+        currentSkip,
+        pageSize,
+        metadata,
+        allReviews
       )
-      let originaText1 = originalanchor1
-        .find('span[data-expandable-section][tabindex="-1"]')
-        .first()
-        .text()
-        .trim()
-      // ********************
-      const mainAnchor = $(element)
-      const reviewTextAnchor = [
-        'div[style="display:none;vertical-align:top"] div.Jtu6Td span span span span.review-full-text',
-        'div[style="vertical-align:top"] div.Jtu6Td span span span[data-expandable-section]',
-        'span.review-full-text'
-      ]
+    })
 
-      const originalReviewText = getReviewText(mainAnchor, reviewTextAnchor)
-      // ********************
-      const reviewText = parseReviewText(
-        $(element).find('span[data-expandable-section]')
-      )
+    const results = await Promise.allSettled(requests)
+    if (results.some(res => res.status === 'rejected')) break
 
-      let rowMainReviewBody = originalReviewText || originaText1 || reviewText
-      const mainReviewBodyRegex =
-        /^(.*?)\s*(Rooms: \d\/\d\s*\|\s*Service: \d\/\d\s*\|\s*Location: \d\/\d)/s
-      const mainReviewBodyMatch = rowMainReviewBody.match(mainReviewBodyRegex)
-      const mainReviewBody = mainReviewBodyMatch
-        ? mainReviewBodyMatch[1]
-        : rowMainReviewBody
+    skip += 2 * pageSize
+  }
+  return allReviews
+}
 
-      const commonReviewProperties = {
-        author: username,
-        authorProfileUrl,
-        userId: userIDD.userId,
-        authorExternalId: extractAuthorExternalId(element),
-        reviewSiteSlug: siteSlug,
-        reviewBody: mainReviewBody,
-        propertyProfileUrl,
-        reviewDate: parseReviewDate(
-          $(element).find('.Qhbkge').last().text().trim() ||
-            $(element).find('.dehysf.lTi8oc').last().text().trim()
-        ),
-        urlAgent,
-        propertyName,
-        propertyResponse: {
-          body: parsePropertyResponse(element),
-          responseDate: processResponseDate(element)
+async function fetchPage (
+  propertyExternalId,
+  endpointUrl,
+  headers,
+  skip,
+  pageSize,
+  metadata,
+  allReviews
+) {
+  logger(`Fetching reviews from skip=${skip}...`, 'info')
+
+  const requestBody = createRequestBody(
+    propertyExternalId,
+    skip,
+    metadata.rating,
+    metadata.dest_ufi,
+    metadata.countryCode,
+    metadata.dest_type
+  )
+  const responseData = await fetchPageData(endpointUrl, requestBody, headers)
+
+  if (!responseData) return
+
+  allReviews.push(...responseData.reviewCard)
+  logger(`Collected ${allReviews.length} reviews`, 'info')
+}
+
+function createRequestBody (
+  hotelId,
+  skip,
+  rating,
+  destId,
+  country_code = '',
+  dest_type
+) {
+  return {
+    operationName: 'ReviewList',
+    variables: {
+      shouldShowReviewListPhotoAltText: false,
+      input: {
+        hotelId: parseInt(hotelId),
+        ufi: parseInt(`-${destId}`),
+        hotelCountryCode: country_code,
+        sorter: 'NEWEST_FIRST',
+        filters: { text: '' },
+        skip,
+        limit: 10,
+        hotelScore: parseInt(rating),
+        upsortReviewUrl: '',
+        searchFeatures: {
+          destId: parseInt(`-${destId}`),
+          destType: `${dest_type || 'CITY'}`
         }
       }
-
-      if ($(element).hasClass('gws-localreviews__unified-review')) {
-        // Hotel review specific properties
-        const rating = $(element).find('.pjemBf').text().replace('/5', '')
-        const tripType1 = $(element)
-          .find('.PV7e7 span:last-child')
-          .first()
-          .text()
-          .trim()
-        const tripType2 = $(element).find('.PV7e7 span').first().text().trim()
-        const tripType = tripType1 || tripType2
-
-        const subratingsHotel = parseSubratings($(element), new Set())
-        reviews.push({
-          ...commonReviewProperties,
-          rating,
-          tripType,
-          subratings: subratingsHotel
-        })
-      } else {
-        // Restaurant review specific properties
-        const restaurantRating = $(element)
-          .find('span.lTi8oc.z3HNkc')
-          .attr('aria-label')
-        const restaurant_rating = extractNumericRating(restaurantRating)
-
-        const restaurantTriptype = parseRestaurantTripType(
-          $(element).find('.PV7e7')
-        )
-
-        const subratingsRestaurant = parseSubratings($(element), new Set())
-        const userReviewCount = extractUserReviewCount($(element), $)
-
-        reviews.push({
-          ...commonReviewProperties,
-          rating: restaurant_rating,
-          tripType: restaurantTriptype,
-          subratings: subratingsRestaurant,
-          authorReviewCount: userReviewCount
-        })
+    },
+    extensions: {},
+    query: `query ReviewList($input: ReviewListFrontendInput!, $shouldShowReviewListPhotoAltText: Boolean = false) {
+      reviewListFrontend(input: $input) {
+        ... on ReviewListFrontendResult {
+          ratingScores {
+            name translation value
+            ufiScoresAverage { ufiScoreLowerBound ufiScoreHigherBound __typename }
+            __typename
+          }
+          topicFilters { id name isSelected translation { id name __typename } __typename }
+          reviewScoreFilter { name value count __typename }
+          languageFilter { name value count countryFlag __typename }
+          timeOfYearFilter { name value count __typename }
+          customerTypeFilter { count name value __typename }
+          reviewCard {
+            reviewUrl guestDetails { username avatarUrl countryCode countryName avatarColor showCountryFlag anonymous guestTypeTranslation __typename }
+            bookingDetails { customerType roomId roomType { id name __typename } checkoutDate checkinDate numNights stayStatus __typename }
+            reviewedDate isTranslatable helpfulVotesCount reviewScore
+            textDetails { title positiveText negativeText textTrivialFlag lang __typename }
+            isApproved partnerReply { reply __typename }
+            positiveHighlights { start end __typename }
+            negativeHighlights { start end __typename }
+            editUrl photos { id urls { size url __typename } kind mlTagHighestProbability @include(if: $shouldShowReviewListPhotoAltText) __typename }
+            __typename
+          }
+          reviewsCount sorters { name value __typename } __typename
+        }
+        ... on ReviewsFrontendError { statusCode message __typename } __typename
       }
-    })
-    return reviews
-  } catch (e) {
-    logger(`${e}: from <parseReviewHtml> function`, 'error')
+    }`
   }
 }

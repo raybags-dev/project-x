@@ -81,6 +81,10 @@ const ReviewModel = {
     type: Boolean,
     default: true
   },
+  isApproved: {
+    type: Boolean,
+    default: true
+  },
   language: {
     type: String,
     default: ''
@@ -131,6 +135,10 @@ const ReviewModel = {
     default: null
   },
   title: {
+    type: String,
+    default: null
+  },
+  stayStatus: {
     type: String,
     default: null
   },

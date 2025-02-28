@@ -7,7 +7,7 @@ import { asyncMiddleware } from '../../middleware/asyncErros.js'
 const router = express.Router()
 
 router.post(
-  '/raybags/v1/review-crawler/user/generate-agoda-reviews',
+  '/raybags/v1/review-crawler/user/generate-booking-reviews',
   authMiddleware,
   isAdmin,
   asyncMiddleware(generateBookingComReviews)

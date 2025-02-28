@@ -1,8 +1,7 @@
 import { SIGNUP_HTML } from './signup.js'
-import { passwordNotice, disableElement } from '../utils/update.js'
 import { MAIN_PAGE } from './main_container.js'
-
 import { PLUGINS } from '../utils/plugins.js'
+
 const { setAuthHandler, displayLabel, justForAMoment, runSpinner, loginUser } =
   PLUGINS
 
@@ -56,18 +55,6 @@ export async function LOGIN_HTML () {
     SIGNUP_HTML()
   })
 
-  const change__checkbox = document.getElementById('flexSwitchCheckDefault')
-  change__checkbox.addEventListener('change', async function () {
-    if (change__checkbox.checked) {
-      await disableElement(true, '.login_btn')
-      await disableElement(true, '#exampleInputPassword1')
-      setTimeout(async () => await passwordNotice(), 80)
-    } else {
-      await disableElement(false, '.login_btn')
-      await disableElement(false, '#exampleInputPassword1')
-    }
-  })
-
   const loginForm = document.querySelector('#login___form')
   loginForm?.addEventListener('submit', async event => {
     justForAMoment()
@@ -101,17 +88,17 @@ export async function LOGIN_HTML () {
             return await MAIN_PAGE()
           }, 800)
         }
+      } else {
+        displayLabel([
+          'review_main_wrapper',
+          'alert-danger',
+          'Invalid email or password'
+        ])
       }
     } catch (error) {
       runSpinner(false, 'Failed!')
       const errorMessage = error?.response?.data?.error || 'An error occurred.'
       displayLabel(['review_main_wrapper', 'alert-danger', `${errorMessage}`])
-      if (errorMessage.includes('Unauthorized')) {
-        document.querySelector('#checker').classList.add('hide_2')
-      }
-      if (errorMessage.trim() === 'Invalid email or password') {
-        document.querySelector('#checker').classList.remove('hide_2')
-      }
       setTimeout(() => runSpinner(true), 3000)
     }
   })
