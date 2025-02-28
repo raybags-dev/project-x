@@ -96,16 +96,8 @@ export async function DeleteOneDocumentController (req, res) {
 }
 export async function AllUserDocsController (req, res) {
   try {
-    const { userId } = req.locals.user
-
-    const profile = await PROFILE_MODEL.findOne({ userId })
-    if (!profile) {
-      return res.status(404).json('Profile not found or has been deleted!')
-    }
-
-    const { reviewSiteSlug, internalId, uuid, computedUrl, name, originalUrl } =
-      profile
-
+    const localUser = req.locals.user
+    const userId = localUser.userId
     const requestedSlug = (req.query.slug || '').toLowerCase()
 
     let query, count
@@ -114,7 +106,7 @@ export async function AllUserDocsController (req, res) {
     const perPage = 20
     const skip = (page - 1) * perPage
 
-    if (!requestedSlug || requestedSlug == undefined) {
+    if (!requestedSlug) {
       query = REVIEW.find({ userId })
         .sort({ reviewDate: -1, createdAt: 1 })
         .skip(skip)
@@ -122,6 +114,14 @@ export async function AllUserDocsController (req, res) {
 
       count = await REVIEW.countDocuments({ userId })
     } else {
+      const profile = await PROFILE_MODEL.findOne({
+        userId,
+        reviewSiteSlug: requestedSlug
+      })
+      if (!profile) {
+        return res.status(404).json('Profile not found or has been deleted!')
+      }
+
       query = REVIEW.find({ userId, reviewSiteSlug: requestedSlug })
         .sort({ reviewDate: -1, createdAt: 1 })
         .skip(skip)
@@ -141,19 +141,28 @@ export async function AllUserDocsController (req, res) {
     const previousPage = page > 1 ? page - 1 : null
     const nextPage = page < totalPageCount ? page + 1 : null
 
-    res.status(200).json({
-      uuid,
-      reviewSiteSlug,
-      url: computedUrl || originalUrl,
+    const responseObject = {
       documentCountTotal: count,
       totalPageCount,
       currentPage,
       previousPage,
       nextPage,
       data: response,
-      propertyName: name,
+      propertyName: localUser.name,
       requestTimestamp: new Date()
-    })
+    }
+
+    if (requestedSlug) {
+      const profile = await PROFILE_MODEL.findOne({
+        userId,
+        reviewSiteSlug: requestedSlug
+      })
+      responseObject.uuid = profile.uuid
+      responseObject.reviewSiteSlug = profile.reviewSiteSlug
+      responseObject.url = profile.computedUrl || profile.originalUrl
+    }
+
+    res.status(200).json(responseObject)
   } catch (error) {
     logger(`Error in AllUserDocsRouter: ${error}`, 'error')
     res.status(500).json({ error: 'Internal Server Error' })

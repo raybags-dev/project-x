@@ -40,7 +40,7 @@ export async function generateBookingComProfile (req, res) {
       const bookingCrawlerUrl = extractSidValue(mainUrl)
 
       const hotelName1 = $('h2.pp-header__title').text().trim()
-      const hotelName2 = extractDataFromScript($, /"name"\s*:\s*"([^"]+)"/)
+      const hotelName2 = getScriptData($, /"name"\s*:\s*"([^"]+)"/)
       const hotelName3 = $('meta[name="twitter:title"]').attr('content')
       const hotelName_extract = $(
         'a.bui_breadcrumb__link_masked[itemprop="item"]'
@@ -60,10 +60,31 @@ export async function generateBookingComProfile (req, res) {
       const property_type = extractData(hotelName_extract, /\(([^)]+)\)/)
       property_type?.toLowerCase()
 
-      const reviewCount = extractDataFromScript(
-        $,
-        /"reviewCount"\s*:\s*([\d]+),/
-      )
+      const review_count = getScriptData($, /"reviewCount"\s*:\s*([\d]+),/)
+      const reviewCount = review_count || null
+
+      const metadata = {}
+
+      const dest_ufi1 = getScriptData($, /dest_ufi:\s*['"]?-?(\d+)['"]?,/)
+      const ufi_extract = $('input[name="dest_id"]').attr('value')
+      const dest_ufi2 = ufi_extract ? ufi_extract.replace(/\D/g, '') : null
+      const dest_ufi = dest_ufi1 || dest_ufi2 || null
+
+      const code_default = extractData(mainUrl, /\/hotel\/([^/]+)\//)
+
+      const rating1 = getScriptData($, /"ratingValue"\s*:\s*(\d+(\.\d+)?)/)
+      const rating2 = getScriptData($, /utrs:\s*'([\d.]+)'/)
+      const rating = rating1 || rating2 || null
+
+      const dest_type =
+        $('input[name="dest_type"]').attr('value')?.toUpperCase() || 'CITY'
+
+      metadata.dest_ufi = dest_ufi
+      metadata.countryCode = code_default
+      metadata.rating = rating
+      metadata.dest_type = dest_type
+      metadata.review_total = reviewCount
+      metadata.property_type = property_type || null
 
       const existingProfile = await PROFILE_MODEL.findOne(
         {
@@ -80,18 +101,44 @@ export async function generateBookingComProfile (req, res) {
       )
 
       if (existingProfile) {
+        const hasChanges =
+          existingProfile.propertyReviewCount !== reviewCount ||
+          existingProfile.propertyExternalId !== hotelId ||
+          existingProfile.name !== hotelName
+
+        if (hasChanges) {
+          existingProfile.propertyReviewCount = reviewCount
+          existingProfile.propertyExternalId = hotelId
+          existingProfile.name = hotelName
+          existingProfile.metadata = metadata
+          existingProfile.originalUrl = updatedFrontfacingUrl
+          existingProfile.url = bookingCrawlerUrl
+          existingProfile.propertyEndpoints = allEndpoints
+          existingProfile.propertyType = property_type || 'HOTEL'
+          existingProfile.computedUrl = updatedFrontfacingUrl
+          existingProfile.reviewPageUrl = bookingCrawlerUrl
+
+          await existingProfile.save()
+
+          await USER_MODEL.setSubStatus(user, true)
+          return res.status(200).json(existingProfile)
+        }
+
         return res.status(400).json({
           status: 'failed',
-          message: 'Account already has a booking-com profile!',
+          message:
+            'Account already has a booking-com profile with the same values!',
           profile: existingProfile
         })
       }
 
+      // Create new profile if no existing document
       const siteProfileData = await PROFILE_MODEL.create({
         reviewSiteSlug: 'booking-com',
         originalUrl: updatedFrontfacingUrl,
         url: bookingCrawlerUrl,
         userId: user.userId,
+        metadata: metadata,
         propertyReviewCount: reviewCount,
         propertyExternalId: hotelId,
         propertyEndpoints: allEndpoints,
@@ -121,7 +168,7 @@ function extractSidValue (url) {
   const match = url.match(regex)
 
   if (match) {
-    return `https://www.booking.com/dml/graphql?${match[1]}&dist=0&keep_landing=1&sb_price_type=total&tab=4&type=total&lang=en-gb`
+    return `https://www.booking.com/dml/graphql${match[1]}&dist=0&keep_landing=1&sb_price_type=total&tab=4&type=total&lang=en-gb`
   } else {
     return null
   }
@@ -130,7 +177,7 @@ function extractData (str, regex) {
   const match = str.match(regex)
   return match ? match[1] : null
 }
-function extractDataFromScript ($, regex) {
+function getScriptData ($, regex) {
   const scriptContent = $('script')
     .toArray()
     .map(el => $(el).text())

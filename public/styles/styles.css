@@ -92,20 +92,6 @@ body::after {
   opacity: 0;
 }
 
-.review-container {
-  transition: all 0.2s ease-in-out;
-}
-.review-wrapper:hover .review-container {
-  transform: scale(0.98);
-}
-
-.review-container:hover {
-  border-color: rgb(95, 94, 94, .5);
-  transform: scale(1.009) !important;
-  transition: .2s;
-  z-index: 2;
-}
-
 .review-container .card-header {
   background-color: transparent;
 }

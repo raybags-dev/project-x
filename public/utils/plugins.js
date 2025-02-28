@@ -470,7 +470,20 @@ export const PLUGINS = {
       ])
     } catch (error) {
       PLUGINS.runSpinner(false, 'Failed!')
-      console.error('Login error:', error)
+
+      const isNotUser = error.response?.statusText.includes('Unauthorized')
+      const isUnauthorized = error.response.status === 401 && isNotUser
+
+      if (isUnauthorized) {
+        PLUGINS.displayLabel([
+          'review_main_wrapper',
+          'alert-danger',
+          'Your account could not be found!. PLease register to use this service.'
+        ])
+        setTimeout(async () => {
+          return await SIGNUP_HTML()
+        }, 3000)
+      }
       PLUGINS.displayLabel([
         'review_main_wrapper',
         'alert-danger',
@@ -1031,6 +1044,13 @@ export const PLUGINS = {
     }
     return null
   },
+  normalizeTravelType: function (input) {
+    if (!input) return
+    return input
+      .replace(/[_-]/g, ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, char => char.toUpperCase())
+  },
   getSiteSlug: function (reviewID) {
     const targetElement = document.getElementById(reviewID)
     if (targetElement) {
@@ -1079,6 +1099,7 @@ export const PLUGINS = {
     }
   },
   generateLeftContainerContent: async function (dataArray, authorExternalId) {
+    console.log(dataArray)
     const container = document.querySelector(
       `.left__body[data-subratings="${authorExternalId}"]`
     )
@@ -1207,6 +1228,8 @@ export const PLUGINS = {
     PLUGINS.justForAMoment('Aborting...')
     return false
   },
+  // ************* =====Create profile === ************* //
+
   sendCreateProfileRequest: async function () {
     let slug = ''
     const user = PLUGINS.getAuthHandler()
@@ -1276,7 +1299,6 @@ export const PLUGINS = {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
-        // ************* =============== ************* //
         const res = await apiClient.post(baseUrl, formData, { headers })
         PLUGINS.runSpinner(true)
 
@@ -1305,6 +1327,15 @@ export const PLUGINS = {
               await PLUGINS.runCrawlerHandler(slug)
             }
           }
+        } else {
+          setTimeout(() => {
+            PLUGINS.runSpinner(true, 'Failed!')
+            PLUGINS.displayLabel([
+              'review_main_wrapper',
+              'alert-warn',
+              `Request could not be fulfilled! Please try again later.`
+            ])
+          }, 2000)
         }
       }
     } catch (error) {
@@ -1322,6 +1353,7 @@ export const PLUGINS = {
       }
     }
   },
+  // ************* =====Fetch review site profile === ************* //
   fetchReviewSiteProfile: async function (user_id, slug) {
     PLUGINS.runSpinner(false)
     if (!user_id) {
@@ -1386,12 +1418,14 @@ export const PLUGINS = {
       }
     })
   },
+  // ************* =====Run Crawler === ************* //
   runCrawlerHandler: async function (slug, depth = 20) {
     if (!slug) return
     PLUGINS.runSpinner(false, 'Crawling...')
 
     try {
       const user = PLUGINS.getAuthHandler()
+      console.log(user)
       if (user) {
         const apiClient = await PLUGINS.API_CLIENT()
 
@@ -1404,9 +1438,11 @@ export const PLUGINS = {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
+        console.log(headers)
 
         const url = `${baseUrl}${query}`
         const res = await apiClient.post(url, {}, { headers })
+        console.log('>>>>>>>>>', url)
 
         PLUGINS.removeElementFromDOM('#uploadForm')
 
@@ -1417,6 +1453,13 @@ export const PLUGINS = {
             `Review data has been collected successfully!`
           ])
           setTimeout(() => location.reload(), 2000)
+        } else if (res.status === 404) {
+          PLUGINS.runSpinner(true, 'Failed!')
+          PLUGINS.displayLabel([
+            'review_main_wrapper',
+            'alert-warning',
+            `Someting went wrong: ${slug} review collection process failed!`
+          ])
         } else {
           PLUGINS.displayLabel([
             'review_main_wrapper',
@@ -1426,7 +1469,6 @@ export const PLUGINS = {
         }
       }
     } catch (e) {
-      console.log(e.message)
       if (
         e &&
         e.response &&
@@ -1462,23 +1504,25 @@ export const PLUGINS = {
       propertyResponse = reviewsDataOject?.propertyResponse,
       brandCheck = reviewsDataOject?.brandCheck,
       language = reviewsDataOject?.language,
+      recommended = reviewsDataOject?.recommends,
       propertyProfileUrl = reviewsDataOject?.propertyProfileUrl,
       originalEndpoint = reviewsDataOject?.originalEndpoint,
       propertyName = reviewsDataOject?.propertyName,
       rating = reviewsDataOject.rating,
       replyUrl = reviewsDataOject?.replyUrl,
       stayDate = reviewsDataOject?.stayDate,
+      stayStatus = reviewsDataOject?.stayStatus,
       reviewDate = reviewsDataOject?.reviewDate,
       checkInDate = reviewsDataOject?.checkInDate,
       checkOutDate = reviewsDataOject?.checkOutDate,
       title = reviewsDataOject?.title,
       userId = reviewsDataOject?.userId,
-      tripType = reviewsDataOject?.tripType,
+      tripType = PLUGINS.normalizeTravelType(reviewsDataOject?.tripType),
       subratings = reviewsDataOject?.subratings,
       uuid = reviewsDataOject?.uuid,
       siteId = reviewsDataOject.siteId,
       internalId = reviewsDataOject?.internalId,
-      externallId = reviewsDataOject?.externallId,
+      externalId = reviewsDataOject?.externalId,
       country = reviewsDataOject?.country,
       createdAt = reviewsDataOject?.createdAt,
       updatedAt = reviewsDataOject?.updatedAt,
@@ -1491,7 +1535,7 @@ export const PLUGINS = {
       <div id="${_id}" class="row review-container shadow review-incoming __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
             <div class="card text-bg-dark dark-gray-bg my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
                 <div class="card-header shadow-none card_header">
-                <img src="" style="width:30%;max-width:75px !important;min-width:57px !important;max-height:54px !important;border-radius:5px" class="img-thumbnail review-logo-${uuid}-${internalId} bg-transparent" alt="...">
+                <img src="" style="width:30%;max-width:100px !important;min-width:57px !important;max-height:100px !important;border-radius:3px" class="img-thumbnail review-logo-${uuid}-${internalId} bg-transparent" alt="...">
                 </div>
                 <div class="card-body d-flex flex-column left__body" data-subratings="${authorExternalId}">
                   <span class="text" data-guest-rating="rating-${authorExternalId}" data-rating="${rating}"></span>
@@ -1503,18 +1547,25 @@ export const PLUGINS = {
                 <div class="card-body middle__body">
                   <div class="d-flex">
                       <a class="text-secondary text-decoration-underline" target="_blank" href="${authorProfileUrl}">
-                      <h5 class="card-title review-author">${
+                      <h4 class="card-title review-author">${
                         (author && author) || '..'
-                      }</h5>
+                      }</h4>
                       </a>
-                      <p class="card-text review-submitted-date"><small class="text-muted fst-italic">&nbsp;&nbsp;(${PLUGINS.formatDate(
-                        createdAt
-                      )})</small></p>
+                      </a>
                   </div>
-                  <p class="review-body">${reviewBody}</p>
-                  <p class="card-text review-submitted-date"><small class="text-muted fst-italic">Updated: ${PLUGINS.formatDate(
-                    updatedAt
-                  )}</small></p>
+                  <h5 class="card-title review-author d-inline m-1 text-left text-muted">
+                    ${title ? `<q>${title}</q>` : ''}
+                  </h5>
+                  <p class="review-body">${
+                    (reviewBody && reviewBody) ||
+                    'There are no comments available for this review'
+                  }</p>
+
+                    <span class="card-text review-submitted-date">
+                      <small class="text-muted">Created: ${PLUGINS.formatDate(
+                        createdAt
+                      )}</small>
+                    </span>              
                 </div>
             </div>
   
@@ -1534,7 +1585,7 @@ export const PLUGINS = {
                 <div class="d-grid gap-2 col-6 mx-auto m-auto action_buttons right__body" style="width:100%;">
                   <a class="btn btn-transparent btn-outline-secondary action_2" href="${
                     originalEndpoint || propertyProfileUrl
-                  }" target="_blank"  type="button">See review on ${reviewSiteSlug}</a>
+                  }" target="_blank"  type="button">Go to ${reviewSiteSlug}</a>
                   <button class="btn btn-transparent btn-outline-secondary action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
                   <button class="btn btn-transparent btn-outline-danger action_3" del-revie-data="${_id}"  type="button">Delete review</button>
                 </div>
@@ -1578,9 +1629,14 @@ export const PLUGINS = {
     PLUGINS.generateLeftContainerContent(
       [
         { key: 'Posted', value: reviewDate },
+        { key: 'Checkin', value: checkInDate },
+        { key: 'Checkout', value: checkOutDate },
+        { key: 'Guest stayed', value: `${(stayStatus && 'Yes') || ''}` },
+        { key: 'Recommended', value: `${(recommended && 'Yes') || ''}` },
         { key: 'Trip type', value: tripType },
         { key: 'Room type', value: roomTypeName },
         { key: 'Nights stayed', value: lengthOfStay },
+        { key: 'Country', value: country },
         { key: 'Professional Reviewer', value: isExpertReviewer }
       ],
       authorExternalId
@@ -2161,7 +2217,8 @@ export const PLUGINS = {
               _id: profileId,
               name: profileName,
               originalUrl,
-              propertyType
+              propertyType,
+              slug
             } = object
             const card = document.createElement('div')
             card.classList.add('w-100')
@@ -2173,6 +2230,7 @@ export const PLUGINS = {
               <div class="card-body bg-light-custom2">
                   <h5 class="card-title">${profileName}</h5>
                   <p>ID: ${profileId} </p>
+                  <p>Review site: (${slug}) </p>
                   <p>Property type: ${propertyType} </p>
                   <p class="card-text">${
                     object.description || 'No description available.'

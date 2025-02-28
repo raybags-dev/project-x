@@ -35,6 +35,10 @@ const reviewSiteProfileModel = {
     type: String,
     required: true
   },
+  metadata: {
+    type: Object,
+    default: {}
+  },
   createdTimestamp: {
     type: Date,
     default: Date.now,
