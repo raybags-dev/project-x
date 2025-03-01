@@ -6,8 +6,8 @@
   --standard-transition: linear 0.4s;
   --animate-card: all ease-in .34;
   --red: red;
-  --main-theme-light: #666565;
-  --black: black;
+  --main-theme-light: #ffffff;
+  --black: rgb(255, 255, 255);
   --scrollbarBG: hsla(5, 100%, 33%, 0.05);
   --thumb-bg: hsla(180, 1%, 16%, 0.5);
 }
@@ -32,7 +32,7 @@ body {
   scroll-behavior: smooth;
   -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
-  background-color: #2a2f34;
+  background-color: #ffffff;
 }
 
 body::after {
@@ -52,7 +52,7 @@ body::after {
 }
 
 .offcanvas-header {
-  background-color: #343a40;
+  background-color: #eaeaea;
   color: #afafaf !important;
 }
 
@@ -83,12 +83,11 @@ body::after {
 
 .review-container {
   flex: 1;
-  background-color: #2a2f34;
   margin-bottom: .5rem !important;
   box-sizing: border-box;
   border-radius: .3rem;
   overflow-y: auto;
-  border: 3px solid transparent;
+  border: 3px solid rgb(189, 189, 189, .5);
   opacity: 0;
 }
 
@@ -161,7 +160,7 @@ body::after {
 }
 
 .dark-gray-bg {
-  background-color: #2a2f34 !important;
+  background-color: #ebe8e866 !important;
   border-color: transparent !important;
 }
 
@@ -169,18 +168,8 @@ body::after {
   color: rgb(2, 214, 20) !important;
 }
 
-.my-font-color {
-  color: #bec1c4 !important;
-}
-
-.dark-gray-bg:active,
-.dark-gray-bg:focus,
-.dark-gray-bg:focus-within {
-  background-color: #2a2f34 !important;
-}
-
 .light-gray-bg {
-  color: #bec1c4;
+  color: #000000;
 }
 
 li > a,
@@ -224,16 +213,15 @@ a {
   transition: .5s;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  border: 5px solid rgba(109, 109, 109, 0.099);
+  border: 5px solid rgba(71, 70, 70, 0.1);
   border-radius: .2rem;
   -webkit-animation: animatepages 1 forwards ease-in .5s;
   animation: animatepages 1 forwards ease-in .5s;
-  background-color: rgba(34, 35, 36, 0.5);
 }
 
 .login_btn,
 .signup_btn {
-  border: 2px solid #646a70;
+  border: 1px solid #a4a4a4;
 }
 
 #login___form,
@@ -261,34 +249,12 @@ a {
   color: #a0a0a0 !important;
 }
 
-.custome-color2 {
-  color: #bebebe !important;
-}
-
 .custome-color3 {
   border-color: #2a2f34;
 }
 
 .custome-shadow {
   box-shadow: 0px 4px 9px 9px rgba(0, 0, 0, 0.1) !important;
-}
-
-.bg-light-custom {
-  background-color: rgba(11, 11, 11, 0.3);
-  -webkit-backdrop-filter: blur(30px);
-  backdrop-filter: blur(30px);
-}
-
-.bg-light-custom3 {
-  background-color: rgba(21, 21, 21, 0.7);
-  -webkit-backdrop-filter: blur(30px);
-  backdrop-filter: blur(30px);
-}
-
-.bg-light-custom2 {
-  background-color: rgba(48, 48, 48, 0.3);
-  -webkit-backdrop-filter: blur(30px);
-  backdrop-filter: blur(30px);
 }
 
 .back-to-top {
@@ -306,14 +272,14 @@ a {
   border-radius: 50%;
   background-color: transparent;
   border: 2px solid transparent;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(0, 0, 0, 0.9);
   font-size: 30px;
   -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
   text-decoration: none;
   cursor: pointer;
   transition: color 0.2s;
-  box-shadow: inset 0px 2px 4px rgba(187, 187, 187, 0.2);
+  box-shadow: inset 0px 2px 4px rgba(148, 148, 148, 0.2);
 }
 
 .show-to-top-btn {
@@ -334,7 +300,8 @@ a {
 }
 
 .back-to-top:hover {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(0, 0, 0, 0.6);
+  opacity: 1;
 }
 
 .main___alert {
@@ -417,20 +384,10 @@ a {
 }
 
 .dropdown-menu {
-  padding-left: .4rem;
-  border-color: rgb(94, 94, 94, .5) !important;
+  border-color: rgba(190, 190, 190, 0.5) !important;
   -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
-}
-
-.dropdown-menu li {
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-  padding-right: .3rem !important;
-}
-
-.dropdown-menu > li a {
-  opacity: .6;
+  margin-left: -50% !important;
 }
 
 .dropdown-menu > li:hover a {
@@ -509,11 +466,10 @@ a {
   -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
   z-index: 1000;
-  border: 7px solid #33373b;
   border-radius: .5rem;
+  background-color: rgb(215, 214, 214) !important;
   padding: .4rem;
   gap: 2px;
-  background-color: #2a2f34;
   max-height: 40% !important;
   overflow: hidden;
   display: flex;
@@ -560,15 +516,9 @@ a {
 
 .my_inputs .form-control,
 .my_inputs .form-select {
-  background-color: rgba(67, 66, 66, 0.5);
   display: flex;
   justify-content: baseline;
   align-items: center;
-  color: white;
-}
-
-.my_inputs .form-select {
-  border: unset;
 }
 
 .my_inputs .form-select:focus,
@@ -588,7 +538,7 @@ select:focus,
 
 .sub__this_form {
   border-radius: .2rem !important;
-  border: 2px solid #444c53;
+  border: 2px solid #e0e0e0;
 }
 
 input:focus,
@@ -616,28 +566,6 @@ textarea:focus {
   flex: 0 0 auto;
 }
 
-.admin-card {
-  opacity: 0;
-  transition: opacity .3s;
-  border: 4px solid rgba(54, 54, 54, 0.3) !important;
-  -webkit-animation: admin-animate-card 1 forwards ease-in .3s;
-  animation: admin-animate-card 1 forwards ease-in .3s;
-}
-
-@-webkit-keyframes admin-animate-card {
-  to {
-    opacity: 1;
-    transition: .3s;
-  }
-}
-
-@keyframes admin-animate-card {
-  to {
-    opacity: 1;
-    transition: .3s;
-  }
-}
-
 .review-body {
   padding-left: .3rem;
 }
@@ -657,7 +585,6 @@ textarea:focus {
   border-radius: 50%;
   position: absolute;
   inset: 0;
-  box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.3) inset;
 }
 
 .loader:after {
@@ -696,7 +623,6 @@ textarea:focus {
   border: 2px solid transparent;
   box-shadow: none;
   border-radius: .3rem;
-  color: #bababa;
   min-width: -webkit-fit-content;
   min-width: -moz-fit-content;
   min-width: fit-content;
@@ -727,21 +653,64 @@ textarea:focus {
 #search____input:focus-within,
 #canvas__Search_input:focus-within {
   background-color: #24292d;
-  border-color: #3d464e !important;
 }
 
 /** ===== Uncomment this css lines before commiting== */
-/* 
+
+#search____input::-webkit-input-placeholder, #canvas__Search_input::-webkit-input-placeholder {
+  -webkit-transition: letter-spacing 0.5s, opacity 0.5s;
+  transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input::-moz-placeholder, #canvas__Search_input::-moz-placeholder {
+  -moz-transition: letter-spacing 0.5s, opacity 0.5s;
+  transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input:-ms-input-placeholder, #canvas__Search_input:-ms-input-placeholder {
+  -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+  transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
+#search____input::-ms-input-placeholder, #canvas__Search_input::-ms-input-placeholder {
+  -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+  transition: letter-spacing 0.5s, opacity 0.5s;
+}
+
 #search____input::placeholder,
 #canvas__Search_input::placeholder {
-    transition: letter-spacing 0.5s, opacity 0.5s;
+  transition: letter-spacing 0.5s, opacity 0.5s;
+}
+#search____input:focus-within::-webkit-input-placeholder, #canvas__Search_input:focus-within::-webkit-input-placeholder {
+  letter-spacing: 2rem;
+  opacity: 0;
+  -webkit-transition: letter-spacing 0.5s, opacity 0.5s;
+  transition: letter-spacing 0.5s, opacity 0.5s;
+}
+#search____input:focus-within::-moz-placeholder, #canvas__Search_input:focus-within::-moz-placeholder {
+  letter-spacing: 2rem;
+  opacity: 0;
+  -moz-transition: letter-spacing 0.5s, opacity 0.5s;
+  transition: letter-spacing 0.5s, opacity 0.5s;
+}
+#search____input:focus-within:-ms-input-placeholder, #canvas__Search_input:focus-within:-ms-input-placeholder {
+  letter-spacing: 2rem;
+  opacity: 0;
+  -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+  transition: letter-spacing 0.5s, opacity 0.5s;
+}
+#search____input:focus-within::-ms-input-placeholder, #canvas__Search_input:focus-within::-ms-input-placeholder {
+  letter-spacing: 2rem;
+  opacity: 0;
+  -ms-transition: letter-spacing 0.5s, opacity 0.5s;
+  transition: letter-spacing 0.5s, opacity 0.5s;
 }
 #search____input:focus-within::placeholder,
 #canvas__Search_input:focus-within::placeholder {
-    letter-spacing: 2rem;
-    opacity: 0;
-    transition: letter-spacing 0.5s, opacity 0.5s;
-} */
+  letter-spacing: 2rem;
+  opacity: 0;
+  transition: letter-spacing 0.5s, opacity 0.5s;
+}
 /** ==== Uncomment this css lines before commiting=== */
 .big_spinnerr {
   background-color: transparent;
