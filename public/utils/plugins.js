@@ -99,7 +99,7 @@ export const PLUGINS = {
         spanElement.classList.add('text-warning')
 
         const smallElement = document.createElement('small')
-        smallElement.classList.add('text-light', 'text-muted')
+        smallElement.classList.add('text-dark', 'text-muted')
         smallElement.textContent = `${key}: `
 
         const starsElement = document.createElement('span')
@@ -174,11 +174,11 @@ export const PLUGINS = {
         if (reviewContainer) {
           const accordionElement = document.createElement('div')
           accordionElement.className =
-            'accordion accordion-flush bg-dark res_body shadow'
+            'accordion accordion-flush bg-light res_body shadow shadow-lg'
           accordionElement.id = _id
 
           const accordionItem = document.createElement('div')
-          accordionItem.className = 'accordion-item bg-dark'
+          accordionItem.className = 'accordion-item bg-light'
           accordionItem.dataset.parent = `#${_id}`
 
           const accordionHeader = document.createElement('h2')
@@ -187,7 +187,7 @@ export const PLUGINS = {
 
           const accordionButton = document.createElement('button')
           accordionButton.className =
-            'accordion-button dark-gray-bg text-light shadow-sm collapsed'
+            'accordion-button dark-gray-bg text-dark shadow-sm collapsed'
           accordionButton.type = 'button'
           accordionButton.setAttribute('data-bs-toggle', 'collapse')
           accordionButton.setAttribute(
@@ -207,14 +207,15 @@ export const PLUGINS = {
           accordionBody.setAttribute('aria-labelledby', `flush-heading-${_id}`)
 
           const accordionBodyContent = document.createElement('div')
-          accordionBodyContent.className = 'accordion-body light-gray-bg'
+          accordionBodyContent.className =
+            'accordion-body bg-light light-gray-bg'
           accordionBodyContent.innerHTML = responseBody
 
           const response_date = document.createElement('p')
-          response_date.className = 'container text-muted'
-          response_date.innerHTML = `${
-            (author && author) || 'Response posted on: '
-          }&nbsp;&nbsp; (${responseDate})`
+          response_date.className = 'container bg-light text-muted'
+          response_date.innerHTML = responseDate
+            ? `Response posted on: ${responseDate}`
+            : ''
 
           accordionBody.appendChild(accordionBodyContent)
           accordionBody.appendChild(response_date)
@@ -351,7 +352,7 @@ export const PLUGINS = {
 
         const accountsAdminTab = document.createElement('li')
         accountsAdminTab.innerHTML =
-          '<a class="dropdown-item dropdown-item-dark text-light accounts-admin-tab text-uppercase" href="#">user accounts</a>'
+          '<a class="dropdown-item dropdown-item-dark text-dark accounts-admin-tab text-uppercase" href="#">user accounts</a>'
 
         dropdownMenu.appendChild(accountsAdminTab)
         adminLi.appendChild(adminLink)
@@ -566,14 +567,14 @@ export const PLUGINS = {
       const modalHTML = `
         <div class="modal fade border-2 border-danger p-1" style="backdrop-filter: blur(15px) !important;" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
           <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-light-custom  text-light">
+            <div class="modal-content shadow shadow-lg rounded bg-light-custom  text-dark">
               <div class="container text-center d-flex justify-content-center align-content-center text-uppercase p-2">
                 <h1 class="modal-title fs-5 text-danger" id="exampleModalToggleLabel">Danger zone</h1>
               </div>
-              <div class="modal-body custome-color2">${message}</div>
-              <div class="container mb-2 d-flex justify-content-around align-content-center gap-2">
-                <button type="button" class="btn-lg bg-transparent btn-outline-danger w-50 proceed_delete overflow-hidden" data-bs-dismiss="modal">Proceed</button>
-                <button type="button" class="btn-lg bg-transparent btn-outline-success  w-50 cancel_delete overflow-hidden" data-bs-dismiss="modal">Cancel</button>
+              <div class="modal-body">${message}</div>
+              <div class="container bg-light mb-2 d-flex justify-content-around align-content-center gap-2">
+                <button type="button" class="btn-lg btn-outline-danger  shadow shadow-lg rounded w-50 proceed_delete overflow-hidden" data-bs-dismiss="modal">Proceed</button>
+                <button type="button" class="btn-lg btn-outline-success  shadow shadow-lg rounded  w-50 cancel_delete overflow-hidden" data-bs-dismiss="modal">Cancel</button>
               </div>
             </div>
           </div>
@@ -610,14 +611,14 @@ export const PLUGINS = {
 
       if (isCookiesAccepted === 'false' || isCookiesAccepted === null) {
         const modalHTML = `
-            <div class="modal fade text-dark bg-dark" id="cookieModal"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="cookieModalLabel" aria-hidden="true">
+            <div class="modal fade text-dark bg-light" id="cookieModal"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="cookieModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content bg-dark shadow">
+              <div class="modal-content bg-light shadow">
                 <div class="modal-header border-0" >
-                  <h1 class="modal-title fs-5 text-light m-auto text-uppercase text-muted" id="cookieModalLabel">Cookie Policy</h1>
+                  <h1 class="modal-title fs-5 text-dark m-auto text-uppercase text-muted" id="cookieModalLabel">Cookie Policy</h1>
                 </div>
                 <div class="modal-body">
-                  <p class="text-light lead text-muted">This website uses cookies to enhance the user experience. By accepting cookies, you agree to our <a href="#" class="text-primary">Terms of Service</a> and <a href="#" class="text-primary">Privacy Policy</a>.</p>
+                  <p class="text-dark lead text-muted">This website uses cookies to enhance the user experience. By accepting cookies, you agree to our <a href="#" class="text-primary">Terms of Service</a> and <a href="#" class="text-primary">Privacy Policy</a>.</p>
                 </div>
                 <div class="container border-0 d-flex justify-content-around align-content-center gap-2 p-2">
                   <button type="button" class="btn btn-lg btn-outline-secondary w-50" id="rejectCookies" data-bs-dismiss="modal">Reject</button>
@@ -732,11 +733,11 @@ export const PLUGINS = {
         </button>
         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content bg-transparent text-light" style="backdrop-filter:blur(20px);border:2px solid #13283b80;">
-              <div class="modal-header text-white border-0 bg-dark">
-                <h5 class="modal-title text-secondary shadow-sm" id="exampleModalLabel">Welcome to REVIEW-WIZARD, \nYour One-Stop Solution for managing your guests' Management</h5>
+            <div class="modal-content shadow shadow-lg text-dark" style="backdrop-filter:blur(20px);">
+              <div class="modal-header text-white border-0 bg-light">
+                <h5 class="modal-title text-secondary text-decoration-underline" id="exampleModalLabel">GET STARTED</h5>
                 </div>
-              <div class="modal-body text-light bg-dark">
+              <div class="modal-body text-dark bg-light">
                 <ul class="text-muted">
                 <p class="lead">Step 1: Sign Up</p>
                   <li>
@@ -777,8 +778,8 @@ export const PLUGINS = {
                   <h5 class="text-center">Happy managing and improving!</h5>
                   </ul>
               </div>
-              <div class="container modal-footer bg-dark d-flex border-0 justify-content-center">
-                <button type="button" class="btn container btn-outline-secondary m-auto btn-lg text-center" data-bs-dismiss="modal">Close me</button>
+              <div class="container modal-footer bg-light d-flex border-0 justify-content-center">
+                <button type="button" class="btn container btn-outline-secondary m-auto btn-lg text-center shadow shadow-lg" data-bs-dismiss="modal">Close me</button>
               </div>
             </div>
           </div>
@@ -810,7 +811,7 @@ export const PLUGINS = {
     return isClicked
   },
   setUpBackToTop: async function (mainContainerId) {
-    const buttonTopInnerHTML = `<a href="#" class="back-to-top bg-transparent" aria-label="Back to Top">&uarr;</a>`
+    const buttonTopInnerHTML = `<a href="#" class="back-to-top shadow shadow-lg" aria-label="Back to Top">&uarr;</a>`
 
     const mainContainer = document.getElementById(mainContainerId)
     mainContainer?.insertAdjacentHTML('beforeend', buttonTopInnerHTML)
@@ -1099,7 +1100,6 @@ export const PLUGINS = {
     }
   },
   generateLeftContainerContent: async function (dataArray, authorExternalId) {
-    console.log(dataArray)
     const container = document.querySelector(
       `.left__body[data-subratings="${authorExternalId}"]`
     )
@@ -1154,9 +1154,9 @@ export const PLUGINS = {
 
     if (!formIsPresent) {
       const uploadHTML = `
-          <form id="uploadForm" class="select-img-form text-danger profile_form">
+          <form id="uploadForm" class="select-img-form shadow shadow-lg bg-light text-danger profile_form">
           <div class="input-group mb3 input-group-lg my_inputs">
-              <select class="form-select border-transparent" id="inputGroupSiteOptions" aria-label="Example select with button addon">
+              <select class="form-select border-transparent bg-light" id="inputGroupSiteOptions" aria-label="Example select with button addon">
                 <option selected>Choose site</option>
                 <option value="google">google-com</option>
                 <option value="agoda">agoda-com</option>
@@ -1167,7 +1167,7 @@ export const PLUGINS = {
                 <option disabled value="hotels-com">hotels-com</option>
                 <option disabled value="trip-com">trip-com</option>
               </select>
-            <button class="btn btn-lg btn-outline-secondary sub__this_form" type="button" id="proertyName29">Submit</button>
+            <button class="btn btn-lg btn-outline-secondary shadow shadow-sm sub__this_form" type="button" id="proertyName29">Submit</button>
           </div>
     
           <div class="input-group mb3 my_inputs">
@@ -1532,8 +1532,8 @@ export const PLUGINS = {
       isExpertReviewer = miscellaneous?.isExpertReviewer
 
     const InnerReviewHTMLContent = `
-      <div id="${_id}" class="row review-container shadow review-incoming __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
-            <div class="card text-bg-dark dark-gray-bg my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
+      <div id="${_id}" class="row review-container shadow shadow-sm review-incoming __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
+            <div class="card text-bg-light dark-gray-bg my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
                 <div class="card-header shadow-none card_header">
                 <img src="" style="width:30%;max-width:100px !important;min-width:57px !important;max-height:100px !important;border-radius:3px" class="img-thumbnail review-logo-${uuid}-${internalId} bg-transparent" alt="...">
                 </div>
@@ -1543,7 +1543,7 @@ export const PLUGINS = {
                 </div>
             </div>
   
-            <div class="card card-${_id} text-bg-dark dark-gray-bg my-font-color card-middle" style="width:55%;">
+            <div class="card card-${_id} text-bg-light dark-gray-bg my-font-color card-middle" style="width:55%;">
                 <div class="card-body middle__body">
                   <div class="d-flex">
                       <a class="text-secondary text-decoration-underline" target="_blank" href="${authorProfileUrl}">
@@ -1571,23 +1571,21 @@ export const PLUGINS = {
   
             <div class="card text-bg-light dark-gray-bg card-right" style="width: 22%;">
                 <div class="card-header border-transparent shadow-none mt-1">
-                <!--===================-->
                     <div class="btn-group d-block text-center align-content-center">
-                        <button class="btn btn-lg text-muted  btn-outline-transparent dropdown-toggle btn-block" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                          Actions
-                        </button>
-                        <ul class="dropdown-menu  dark-gray-bg">
-                          <li><a class="dropdown-item text-light" href="#">Copye link</a></li>
-                        </ul>
-                    </div>
-                <!--===================-->
-                </div>
+                          <button title="not implimented!" class="btn btn-lg text-muted  btn-outline-transparent dropdown-toggle btn-block" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                            Actions
+                          </button>
+                          <!-- <ul class="dropdown-menu  dark-gray-bg">
+                            <li><a class="dropdown-item text-dark" href="#">Copye link</a></li>
+                          </ul> -->
+                      </div>
+                  </div>
                 <div class="d-grid gap-2 col-6 mx-auto m-auto action_buttons right__body" style="width:100%;">
                   <a class="btn btn-transparent btn-outline-secondary action_2" href="${
                     originalEndpoint || propertyProfileUrl
                   }" target="_blank"  type="button">Go to ${reviewSiteSlug}</a>
-                  <button class="btn btn-transparent btn-outline-secondary action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
-                  <button class="btn btn-transparent btn-outline-danger action_3" del-revie-data="${_id}"  type="button">Delete review</button>
+                  <button class="btn btn-transparent btn-outline-secondary shadow shadow-sm action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
+                  <button class="btn btn-transparent btn-outline-danger action_3 shadow shadow-sm" del-revie-data="${_id}"  type="button">Delete review</button>
                 </div>
           </div>
       </div>`
@@ -1837,13 +1835,12 @@ export const PLUGINS = {
     } = rest
 
     const profileCardHTML = `
-    <div id="${profile_id}" class="card admin-card bg-light-custom shadow user-${account_id}" style="min-width:250px; width:30%; max-width: 25rem;">
-    <div class="card-header deem-text d-flex justify-content-between align-content-center">
-        <h4 class="lead text-uppercase deem-text">${slug || ''}</h4>
+    <div id="${profile_id}" class="card admin-card bg-light-custom shadow  user-${account_id}" style="min-width:250px; width:30%; max-width: 25rem;">
+    <div class="card-header d-flex justify-content-between align-content-center">
+        <h4 class="lead text-uppercase">${slug || ''}</h4>
       </div>
-      <div class="card-body custome-color2 d-block justify-content-around align-content-center">
+      <div class="card-body shadow shadow-lg d-block justify-content-around align-content-center">
           <div class="container d-block">
-          <p class="card-title text-uppercase">Property:</p>
           <span class="text-success d-block text-uppercase">${propertyName}</span>
           </div>
           <hr>
@@ -1881,23 +1878,23 @@ export const PLUGINS = {
           }</span>
           </div>
     </div>
-    <div class="card-footer d-flex justify-content-between align-content-center">
+    <div class="card-footer d-flex justify-content-between align-content-center bg-light">
         <div class="btn-group" role="group">
             <button type="button" class="btn btn-outline-success w-50 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
               Actions
             </button>
-            <ul class="dropdown-menu bg-dark text-dark shadow" style="z-index:1000 !important">
-              <li class="d-flex justify-content-between align-content-center" style="width: 100% !important;height:50%;z-index:50 !important">
-                  <a class="dropdown-item text-light text-decoration-underline" href="#">Run Crawler</a>
+            <ul class="dropdown-menu bg-light text-dark" style="z-index:1000 !important">
+              <li>
+                  <a class="dropdown-item text-dark text-decoration-underline" href="#">Run Crawler</a>
                   <div class="container">
                     <div class="form-check text-muted crawl-${profile_id}">
                         <label class="form-check-label" for="gridCheck">full</label>
                         <input class="form-check-input text-dark" data-full="${profile_id}" type="checkbox" id="gridCheck">
                     </div>
                     <div class="form-group d-flex p-2 gap-2 justify-content-between align-content-center">
-                        <label for="pagesInput" class="text-light text-muted">Pages</label>
-                        <div class="text-light">
-                            <input type="number" data-page="${profile_id}" style="color:#000000; width:inherit;" class="form-control active bg-light-custom pagesInput  text-light" id="pagesInput" name="pages" value="1">
+                        <label for="pagesInput" class="text-dark text-muted">Pages</label>
+                        <div class="text-dark">
+                            <input type="number" data-page="${profile_id}" style="color:#000000; width:inherit;" class="form-control active bg-light-custom pagesInput  text-dark" id="pagesInput" name="pages" value="1">
                         </div>
                     </div>
                   </div>
@@ -1908,12 +1905,12 @@ export const PLUGINS = {
             <button type="button" class="btn btn-outline-danger w-50 dropdown-toggle shadow" data-bs-toggle="dropdown" aria-expanded="false">
               Danger zone
             </button>
-            <ul class="dropdown-menu bg-dark text-light">
-              <li class="d-flex justify-content-between align-content-center shadow">
+            <ul class="dropdown-menu bg-light shadow shadow-lg text-dark" style="z-index:1000 !important">
+              <li class="">
                 <a class="dropdown-item text-danger del_all_reviews" href="#">Delete profile & reviews</a>
                   
               </li>
-              <li><a class="dropdown-item text-danger del_entire_account" href="#">Delete entire account</a></li>
+              <li><a class="dropdown-item text-danger del_entire_account" href="#">Delete account</a></li>
             </ul>
         </div>
     </div>
@@ -2153,10 +2150,10 @@ export const PLUGINS = {
           const userAccountModal = `
       <div class="modal fade" id="userAccount" tabindex="-1" data-bs-backdrop="static" aria-labelledby="userAccountLabel" aria-hidden="true" style="backdrop-filter:blur(3px);">
         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered bg-transparent">
-          <div class="modal-content bg-transparent text-light border-4 custome-color3" style="backdrop-filter:blur(30px);border-radius:.8rem;max-height:95%;overflow-y:auto;">
-                <div class="card bg-light-custom custome-color2 h-100 w-100">
-                  <div class="card-body bg-light-custom  border-transparent">
-                    <h3 class="card-title">Account name: ${propertyName}</h3>
+          <div class="modal-content bg-transparent text-dark border-4 shadow shadow-lg" style="backdrop-filter:blur(30px);border-radius:.8rem;max-height:95%;overflow-y:auto;">
+                <div class="card shadow shadow-lg custome-color2 h-100 w-100">
+                  <div class="card-body  border-transparent">
+                    <h3 class="card-title text-decoration-underline">${propertyName}</h3>
                     <p class="card-text">Email: ${email}</p>
                     <p class="card-text">Admin: ${
                       (isAdmin && 'Yes') || 'No'
@@ -2164,11 +2161,11 @@ export const PLUGINS = {
                     <p class="card-text">Subscription:  ${
                       (isSubscribed && 'Active') || 'Inactive'
                     }</p>
-                    <div class="row profile__container bg-light-custom gap-3"></div>
+                    <div class="row profile__container gap-3"></div>
                   </div>
                   <div class="container d-flex justify-content-around align-content-center gap-2">
-                    <button type="button" class="btn  btn-outline-secondary m-auto border-1 btn-lg mt-1 mb-3 w-50" data-bs-dismiss="modal">Exit</button>
-                    <button type="button" class="btn  btn-outline-danger m-auto border-1 btn-lg mt-1 mb-3 w-50 del_account__btn">Delete account</button>
+                    <button type="button" class="btn  btn-outline-secondary m-auto border-1 btn-lg mt-1 shadow shadow-lg rounded mb-3 w-50" data-bs-dismiss="modal">Exit</button>
+                    <button type="button" class="btn  btn-outline-danger m-auto border-1 btn-lg mt-1 shadow shadow-lg rounded mb-3 w-50 del_account__btn">Delete account</button>
                   </div>
                 </div>
           </div>
@@ -2224,7 +2221,13 @@ export const PLUGINS = {
             card.classList.add('w-100')
 
             const cardBody = document.createElement('div')
-            cardBody.classList.add('card', 'bg-light-custom', 'custome-color3')
+            cardBody.classList.add(
+              'card',
+              'bg-light-custom',
+              'shadow',
+              'shadow-sm',
+              'rounded'
+            )
 
             const cardContent = `
               <div class="card-body bg-light-custom2">
@@ -2237,7 +2240,7 @@ export const PLUGINS = {
                   }</p>
                   <a href="${
                     originalUrl || '#'
-                  }" class="btn btn-outline-secondary" target="_blunk">Visit review Site</a>
+                  }" class="btn btn-secondary" target="_blunk">Visit review Site</a>
               </div>`
             cardBody.innerHTML = cardContent
             card.appendChild(cardBody)

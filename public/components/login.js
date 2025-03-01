@@ -7,42 +7,42 @@ const { setAuthHandler, displayLabel, justForAMoment, runSpinner, loginUser } =
 
 export async function LOGIN_HTML () {
   let pageContent = `
-    <nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-        <a class="navbar-brand p-2 mb-1" href="#">
-            <img src="../images/logo.png" alt="" width=40" height="40" style="border-radius: 50%;filter: gray(100%)"
-                class="d-inline-block align-text-top">
-        </a>
-  
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a id="to_sigup_p" class="nav-link active text-white" aria-current="page" href="#">SIGNUP</a>
-            </li>
-        </ul>
-    </div>
+  <nav class="navbar navbar-expand-lg shadow shadow-sm bg-light text-dark">
+      <div class="container-fluid">
+          <a class="navbar-brand p-2 mb-1" href="#">
+              <img src="../images/logo.png" alt="" width=40" height="40" style="border-radius: 50%;filter: gray(100%)"
+                  class="d-inline-block align-text-top">
+          </a>
+    
+          <ul class="navbar-nav">
+              <li class="nav-item">
+                  <a id="to_sigup_p" class="nav-link active text-dark" aria-current="page" href="#">SIGNUP</a>
+              </li>
+          </ul>
+      </div>
   </nav>
   <main id="review_main_wrapper" class="container container-fluid my-10">
-    <div class="container log___in container-fluid shadow">
-        <h3 class="p-2 text-white ">LOGIN</h3>
-        <form id="login___form" class=" p-3 rounded pt-2 text-white container-fluid">
-            <div class="mb-3">
+    <div class="container log___in container-fluid shadow shadow-lg bg-light">
+        <h3 class="p-2 text-dark ">LOGIN</h3>
+        <form id="login___form" class=" p-3 rounded pt-2 text-dark container-fluid">
+            <div class="mb-3 p-0">
                 <label for="exampleInputEmail1" class="form-label">Email address</label>
-                <input type="email" name="email" class="form-control" placeholder="Enter your email"
+                <input type="email" name="email" class="form-control shadow shadow-sm" placeholder="Enter your email"
                     id="exampleInputEmail1" aria-describedby="emailHelp" required>
                 <div class="invalid-feedback">Please enter a valid email address.</div>
             </div>
             <div class="mb-3">
                   <label for="exampleInputPassword1" class="form-label">Password</label>
-                  <input type="password" name="password" placeholder="Enter your password" class="form-control"
+                  <input type="password" name="password" placeholder="Enter your password" class="form-control shadow shadow-sm"
                       id="exampleInputPassword1" autocomplete="current-password webauthn"  required>
                   <div class="invalid-feedback">Please enter your password.</div>
             </div>
             <div id="checker" class="form-check form-switch mt-3 mb-3 hide_2">
-                      <input class="form-check-input"  type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                      <input class="form-check-input shadow shadow-sm"  type="checkbox" role="switch" id="flexSwitchCheckDefault">
                       <label class="form-check-label" for="flexSwitchCheckDefault">Forgot password</label>
             </div>
-            <div class="d-grid gap-2">
-                <button type="submit"  class="btn shadow login_btn text-white">SUBMIT</button>
+            <div class="container">
+                <button type="submit"  class="btn btn-lg shadow shadow-lg btn-outline-success login_btn">SUBMIT</button>
             </div>
         </form>
     </div>
