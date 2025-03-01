@@ -22,3 +22,4 @@ build/
 .idea/
 .docker/
 docker-compose.override.yml
+loaderV.mp4
