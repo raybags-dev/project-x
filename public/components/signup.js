@@ -1,11 +1,76 @@
 import { LOGIN_HTML } from './login.js'
 import { PLUGINS } from '../utils/plugins.js'
 import { MAIN_PAGE } from './main_container.js'
+import { runSpinner, justForAMoment } from '../utils/utilities.js'
+import { loginUser } from '../components/apiCallHandlers.js'
 
-const { justForAMoment, displayLabel, API_CLIENT, runSpinner, loginUser } =
-  PLUGINS
+import { API_CLIENT, displayLabel } from './apiCallHandlers.js'
 
 const apiClient = await API_CLIENT()
+
+async function handleSignupFormSubmit (event) {
+  event.preventDefault()
+  const formData = new FormData(event.target)
+
+  const user = {
+    name: formData.get('name'),
+    email: formData.get('email'),
+    password: formData.get('password')
+  }
+
+  try {
+    justForAMoment('Creating...')
+    const url = '/create-user'
+    const response = await apiClient.post(url, user, {
+      headers: { 'Content-Type': 'application/json' }
+    })
+
+    const { status } = await response
+
+    if (status === 201) {
+      justForAMoment('Almost done')
+
+      const userIsLoggedIn = await loginUser(user)
+
+      if (userIsLoggedIn && userIsLoggedIn.status === 200) {
+        displayLabel([
+          'review_main_wrapper',
+          'alert-success',
+          'Login successful 😀'
+        ])
+
+        setTimeout(async () => {
+          history.pushState(null, null, '/')
+          return await MAIN_PAGE()
+        }, 800)
+      } else {
+        displayLabel(['review_main_wrapper', 'alert-danger', 'Login failed 😀'])
+      }
+      return
+    }
+
+    displayLabel([
+      'review_main_wrapper',
+      'alert-danger',
+      'Oops. Something went wrong, try again later.'
+    ])
+    setTimeout(() => runSpinner(true), 3000)
+  } catch (error) {
+    console.error('Signup error:', error)
+  } finally {
+    runSpinner(true)
+  }
+}
+
+function setupEventListeners () {
+  const navbarBrand = document.querySelector('#to_login_p')
+  navbarBrand?.addEventListener('click', async () => {
+    LOGIN_HTML()
+  })
+
+  const signupForm = document.querySelector('#signup_form')
+  signupForm?.addEventListener('submit', handleSignupFormSubmit)
+}
 
 export async function SIGNUP_HTML () {
   let pageContent = `
@@ -52,68 +117,5 @@ export async function SIGNUP_HTML () {
   </main>
     `
   document.getElementById('innerBody').innerHTML = pageContent
-
-  const navbarBrand = document.querySelector('#to_login_p')
-  navbarBrand?.addEventListener('click', async () => {
-    LOGIN_HTML()
-  })
-
-  const signupForm = document.querySelector('#signup_form')
-  signupForm?.addEventListener('submit', async event => {
-    event.preventDefault()
-    const formData = new FormData(signupForm)
-
-    const user = {
-      name: formData.get('name'),
-      email: formData.get('email'),
-      password: formData.get('password')
-    }
-
-    try {
-      justForAMoment('Creating...')
-      const url = '/create-user'
-      const response = await apiClient.post(url, user, {
-        headers: { 'Content-Type': 'application/json' }
-      })
-
-      const { status } = await response
-
-      if (status === 201) {
-        justForAMoment('Almost done')
-
-        const userIsLoggedIn = await loginUser(user)
-
-        if (userIsLoggedIn && userIsLoggedIn.status === 200) {
-          displayLabel([
-            'review_main_wrapper',
-            'alert-success',
-            'Login successful 😀'
-          ])
-
-          setTimeout(async () => {
-            history.pushState(null, null, '/')
-            return await MAIN_PAGE()
-          }, 800)
-        } else {
-          displayLabel([
-            'review_main_wrapper',
-            'alert-danger',
-            'Login failed 😀'
-          ])
-        }
-        return
-      }
-
-      displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        'Oops. Something went wrong, try again later.'
-      ])
-      setTimeout(() => runSpinner(true), 3000)
-    } catch (error) {
-      console.error('Signup error:', error)
-    } finally {
-      runSpinner(true)
-    }
-  })
+  setupEventListeners()
 }

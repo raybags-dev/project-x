@@ -1,10 +1,67 @@
 import { SIGNUP_HTML } from './signup.js'
 import { MAIN_PAGE } from './main_container.js'
 import { PLUGINS } from '../utils/plugins.js'
+import { setAuthHandler } from '../components/auth.js'
+import { loginUser } from '../components/apiCallHandlers.js'
+import { runSpinner, justForAMoment } from '../utils/utilities.js'
 
-const { setAuthHandler, displayLabel, justForAMoment, runSpinner, loginUser } =
-  PLUGINS
+import { displayLabel } from './apiCallHandlers.js'
 
+async function handleLoginFormSubmit (event) {
+  event.preventDefault()
+  justForAMoment()
+
+  const formData = new FormData(event.target)
+  const email = formData.get('email')
+  const password = formData.get('password')
+
+  try {
+    const loginResponse = await loginUser({ email, password })
+
+    if (loginResponse.status === 200) {
+      justForAMoment('Almost done')
+      const { user } = loginResponse.data
+      const { headers } = loginResponse
+
+      const userCreds = await setAuthHandler(user, headers)
+      const { isAdmin } = userCreds
+
+      if (isAdmin) {
+        sessionStorage.setItem('redirected', true)
+        displayLabel([
+          'review_main_wrapper',
+          'alert-success',
+          'Login successful 😀'
+        ])
+        setTimeout(async () => {
+          runSpinner(true)
+          history.pushState(null, null, '/')
+          return await MAIN_PAGE()
+        }, 800)
+      }
+    } else {
+      displayLabel([
+        'review_main_wrapper',
+        'alert-danger',
+        'Invalid email or password'
+      ])
+    }
+  } catch (error) {
+    runSpinner(false, 'Failed!')
+    const errorMessage = error?.response?.data?.error || 'An error occurred.'
+    displayLabel(['review_main_wrapper', 'alert-danger', `${errorMessage}`])
+    setTimeout(() => runSpinner(true), 3000)
+  }
+}
+function setupEventListeners () {
+  const navbarBrand = document.querySelector('#to_sigup_p')
+  navbarBrand?.addEventListener('click', async () => {
+    SIGNUP_HTML()
+  })
+
+  const loginForm = document.querySelector('#login___form')
+  loginForm?.addEventListener('submit', handleLoginFormSubmit)
+}
 export async function LOGIN_HTML () {
   let pageContent = `
   <nav class="navbar navbar-expand-lg shadow shadow-sm bg-light text-dark">
@@ -49,57 +106,5 @@ export async function LOGIN_HTML () {
   </main>
       `
   document.getElementById('innerBody').innerHTML = pageContent
-
-  const navbarBrand = document.querySelector('#to_sigup_p')
-  navbarBrand?.addEventListener('click', async () => {
-    SIGNUP_HTML()
-  })
-
-  const loginForm = document.querySelector('#login___form')
-  loginForm?.addEventListener('submit', async event => {
-    justForAMoment()
-
-    event.preventDefault()
-    const formData = new FormData(loginForm)
-    const email = formData.get('email')
-    const password = formData.get('password')
-
-    try {
-      const loginResponse = await loginUser({ email, password })
-
-      if (loginResponse.status === 200) {
-        justForAMoment('Almost done')
-        const { user } = loginResponse.data
-        const { headers } = loginResponse
-
-        const userCreds = await setAuthHandler(user, headers)
-        const { isAdmin } = userCreds
-
-        if (isAdmin) {
-          sessionStorage.setItem('redirected', true)
-          displayLabel([
-            'review_main_wrapper',
-            'alert-success',
-            'Login successful 😀'
-          ])
-          setTimeout(async () => {
-            runSpinner(true)
-            history.pushState(null, null, '/')
-            return await MAIN_PAGE()
-          }, 800)
-        }
-      } else {
-        displayLabel([
-          'review_main_wrapper',
-          'alert-danger',
-          'Invalid email or password'
-        ])
-      }
-    } catch (error) {
-      runSpinner(false, 'Failed!')
-      const errorMessage = error?.response?.data?.error || 'An error occurred.'
-      displayLabel(['review_main_wrapper', 'alert-danger', `${errorMessage}`])
-      setTimeout(() => runSpinner(true), 3000)
-    }
-  })
+  setupEventListeners()
 }
