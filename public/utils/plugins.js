@@ -1,36 +1,21 @@
 import { LOGIN_HTML } from '../components/login.js'
 import { SIGNUP_HTML } from '../components/signup.js'
 import { siteLogos } from '../components/logoPaths.js'
+import {
+  API_CLIENT,
+  displayLabel,
+  sendCreateProfileRequest
+} from '../components/apiCallHandlers.js'
+import {
+  validateSuperAdmin,
+  getAuthHandler,
+  setAuthHandler,
+  fetchCurrentUserUpdateSeesionStorage
+} from '../components/auth.js'
+import { runSpinner, validateSlug, removeElementFromDOM } from './utilities.js'
 
 export const PLUGINS = {
-  API_CLIENT: async function () {
-    const apiClient = axios.create({
-      baseURL: '/raybags/v1/review-crawler',
-      timeout: 150000
-    })
-
-    apiClient.interceptors.response.use(
-      response => response,
-      error => {
-        if (error.response) {
-          const { status, data } = error.response
-          if (status === 401) {
-            sessionStorage.removeItem('user')
-            sessionStorage.removeItem('redirected')
-            PLUGINS.displayLabel([
-              'review_main_wrapper',
-              'alert-danger',
-              `Invalid login credentials. Please try again!`
-            ])
-          }
-        }
-        return Promise.reject(error)
-      }
-    )
-    return apiClient
-  },
   previousTextContent: null,
-
   simpleLoader: async function (anchor, isLoading) {
     if (!anchor && !isLoading) {
       const shouldBeRemoved = document.getElementById('spinner-container')
@@ -111,10 +96,10 @@ export const PLUGINS = {
 
           if (i <= value) {
             star.innerHTML = '&bigstar;'
-            star.style.color = '#FFCF81'
+            star.style.color = '#29cf00'
           } else {
             star.innerHTML = '&bigstar;'
-            star.style.color = '#fdffabb3'
+            star.style.color = '#29cf0080'
           }
 
           starsElement.appendChild(star)
@@ -125,30 +110,6 @@ export const PLUGINS = {
 
         cardBody?.appendChild(spanElement)
       })
-    }
-  },
-  runSpinner: async function (isDone, message = '') {
-    const loader = document.querySelector('#main-page-loader')
-    if (!isDone) {
-      if (!loader) {
-        const loaderHTML = `
-            <div id="main-page-loader" class="d-flex align-items-center text-white justify-content-center"
-              style="position:fixed; top:0; left:0; right:0; bottom:0;z-index:3000">
-              <div class="d-flex">
-                <p class="fs-4" id="my_text" style="position:absolute;top:50%;opacity:.8;left:50%;transform:translate(-50%, -50%);text-shadow:1px 1px 1px #000000;">
-                  ${message}
-                </p>
-                <span class="loader text-white" style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);"></span>
-              </div>
-            </div>
-          `
-        const wrapper = document.querySelector('body')
-        wrapper.insertAdjacentHTML('beforeend', loaderHTML)
-      }
-    } else {
-      if (loader) {
-        loader.remove()
-      }
     }
   },
   formatDate: function (timestamp) {
@@ -262,7 +223,7 @@ export const PLUGINS = {
 
         if (i <= ratingValue) {
           star.innerHTML = '&bigstar;'
-          star.style.color = '#65B741'
+          star.style.color = '#29cf00'
         } else {
           star.innerHTML = '&bigstar;'
           star.style.color = '#C1F2B0;'
@@ -278,49 +239,10 @@ export const PLUGINS = {
       smallElement.appendChild(containerElement)
     }
   },
-  validateSuperAdmin: async function () {
-    try {
-      PLUGINS.runSpinner(false, 'validating...')
-
-      const user = PLUGINS.getAuthHandler()
-      if (!user.superUserToken || !user.isSuperUser) return
-      if (user) {
-        const apiClient = await PLUGINS.API_CLIENT()
-
-        const baseUrl = '/user/validate'
-
-        const { 'auth-token': token, superUserToken } = user
-
-        const headers = {
-          Authorization: `Bearer ${token}`,
-          'admin-token': superUserToken,
-          'Content-Type': 'application/json'
-        }
-
-        const res = await apiClient.post(baseUrl, {}, { headers })
-        if (res.status === 200 && res.statusText && res.data.state) {
-          PLUGINS.runSpinner(true)
-          return true
-        }
-        return false
-      }
-    } catch (error) {
-      if (
-        error.response &&
-        error.response.status === 403 &&
-        error.response.data.status === 'UNAUTHORIZED'
-      ) {
-        PLUGINS.runSpinner(true)
-        return ''
-      } else {
-        console.warn('An error occurred:')
-      }
-    }
-  },
   addSuperAdminLinkToNavbar: async function () {
     const navUl = document.getElementById('__nav')
-    const userString = await PLUGINS.getAuthHandler()
-    const isSuperUser = await PLUGINS.validateSuperAdmin()
+    const userString = await getAuthHandler()
+    const isSuperUser = await validateSuperAdmin()
 
     if (userString && isSuperUser) {
       const { superUserToken, isSuperUser } = userString
@@ -394,30 +316,10 @@ export const PLUGINS = {
       }
     }
   },
-  setAuthHandler: function (userObject, headers) {
-    if (userObject && headers && headers.authorization) {
-      try {
-        const authToken = headers.authorization.split(' ')[1]
-
-        const userWithoutMeta = { ...userObject, 'auth-token': authToken }
-
-        sessionStorage.setItem('user', JSON.stringify(userWithoutMeta))
-
-        return userWithoutMeta
-      } catch (error) {
-        console.error('Error parsing authorization header:', error)
-      }
-    }
-    return null
-  },
   getAuthHandler: function () {
     const userString = sessionStorage.getItem('user')
     const user = userString ? JSON.parse(userString) : null
     return user
-  },
-  justForAMoment: function (message = 'Loading') {
-    PLUGINS.runSpinner(false, message)
-    setTimeout(() => PLUGINS.runSpinner(true), 2000)
   },
   clearStorage: function (storage) {
     if (!storage) return
@@ -433,66 +335,7 @@ export const PLUGINS = {
     }
     return false
   },
-  loginUser: async function (user) {
-    if (!user || !user.email || !user.password) {
-      PLUGINS.displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        'Invalid credentials.'
-      ])
-      console.error('Invalid user or credentials')
-      return null
-    }
-    const url = '/user/login'
-    try {
-      const apiClient = await PLUGINS.API_CLIENT()
-      const loginResponse = await apiClient.post(url, {
-        email: user.email,
-        password: user.password
-      })
-      const { user: userData } = loginResponse.data
-      const { headers, status } = loginResponse
 
-      if (status === 200) {
-        await PLUGINS.setAuthHandler(userData, headers)
-        sessionStorage.setItem('redirected', true)
-        PLUGINS.displayLabel([
-          'review_main_wrapper',
-          'alert-success',
-          'Login successful.'
-        ])
-        return loginResponse
-      }
-      console.log('Error in login!', loginResponse && loginResponse)
-      return PLUGINS.displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        'Login failed!'
-      ])
-    } catch (error) {
-      PLUGINS.runSpinner(false, 'Failed!')
-
-      const isNotUser = error.response?.statusText.includes('Unauthorized')
-      const isUnauthorized = error.response.status === 401 && isNotUser
-
-      if (isUnauthorized) {
-        PLUGINS.displayLabel([
-          'review_main_wrapper',
-          'alert-danger',
-          'Your account could not be found!. PLease register to use this service.'
-        ])
-        setTimeout(async () => {
-          return await SIGNUP_HTML()
-        }, 3000)
-      }
-      PLUGINS.displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        'Login failed. PLease try to login again!'
-      ])
-      return error?.response
-    }
-  },
   logOutUser: async function (selector) {
     const cookieRef = await PLUGINS.handleCookieAcceptance()
     if (!cookieRef) return
@@ -504,7 +347,7 @@ export const PLUGINS = {
         btn.addEventListener('click', async () => {
           const user = sessionStorage.getItem('user')
           if (user) {
-            PLUGINS.displayLabel([
+            displayLabel([
               'review_main_wrapper',
               'alert-secondary',
               'Logout successful!'
@@ -520,16 +363,7 @@ export const PLUGINS = {
       })
     }
   },
-  removeElementFromDOM: async function (elementAnchor) {
-    try {
-      const element = document.querySelector(elementAnchor)
-      if (element) {
-        element.remove()
-      }
-    } catch (e) {
-      console.log(e.message)
-    }
-  },
+
   formatEmail: function (email) {
     const atIndex = email.indexOf('@')
     if (atIndex !== -1) {
@@ -538,34 +372,12 @@ export const PLUGINS = {
     }
     return ''
   },
-  displayLabel: async function ([anchorId, labelClass, labelText]) {
-    const existingAlert = document.querySelector('.main___alert')
-    if (existingAlert) {
-      existingAlert.remove()
-    }
-    const label = document.createElement('div')
-    label.classList.add('alert', labelClass, 'text-center', 'main___alert')
-    label.textContent = labelText
-    label.style.zIndex = 5000
-
-    const anchor = document.getElementById(anchorId)
-    if (anchor) {
-      anchor.appendChild(label)
-      setTimeout(() => {
-        if (anchor.contains(label)) {
-          anchor.removeChild(label)
-        }
-      }, 6000)
-    } else {
-      console.log(`Anchor with ID '${anchorId}' could not be found`)
-    }
-  },
   confirmAction: async function (containerId, message) {
     if (message === undefined || null)
       message = `This action cannot be reversed. Are you sure you want to proceed ? `
     return new Promise(resolve => {
       const modalHTML = `
-        <div class="modal fade border-2 border-danger p-1" style="backdrop-filter: blur(15px) !important;" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+        <div class="modal fade border-2 border-danger p-1" style="backdrop-filter: blur(15px) !important;" id="exampleModalToggle" aria-hidden="false" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content shadow shadow-lg rounded bg-light-custom  text-dark">
               <div class="container text-center d-flex justify-content-center align-content-center text-uppercase p-2">
@@ -596,7 +408,7 @@ export const PLUGINS = {
 
       const abortBtn = document.querySelector('.cancel_delete')
       abortBtn?.addEventListener('click', async () => {
-        PLUGINS.displayLabel([
+        displayLabel([
           'review_main_wrapper',
           'alert-secondary',
           `This process has been aborted.`
@@ -648,7 +460,7 @@ export const PLUGINS = {
           .getElementById('rejectCookies')
           .addEventListener('click', () => {
             localStorage.setItem('isCookiesAccepted', 'false')
-            PLUGINS.displayLabel([
+            displayLabel([
               'body',
               'alert-danger',
               "Unfortunately, you can't use this application without consenting to the Terms of Service."
@@ -662,7 +474,7 @@ export const PLUGINS = {
           .querySelector('.c--iie-c-btn')
           .addEventListener('click', () => {
             localStorage.setItem('isCookiesAccepted', 'false')
-            PLUGINS.displayLabel([
+            displayLabel([
               'body',
               'alert-danger',
               "Unfortunately, you can't use this application without consenting to the Terms of Service."
@@ -842,9 +654,9 @@ export const PLUGINS = {
         throw new Error('Invalid document ID')
       }
 
-      PLUGINS.runSpinner(false, 'Deleting...')
+      runSpinner(false, 'Deleting...')
 
-      const auth = PLUGINS.getAuthHandler()
+      const auth = getAuthHandler()
       const { 'auth-token': authToken, isAdmin, isSubscribed } = auth
 
       if (isAdmin && isSubscribed) {
@@ -856,34 +668,34 @@ export const PLUGINS = {
         const baseUrl = '/document/delete-one'
         const url = `${baseUrl}/${documentId}`
 
-        const apiClient = await PLUGINS.API_CLIENT()
+        const apiClient = await API_CLIENT()
         const response = await apiClient.delete(url, { headers })
 
         if (response.status !== 200) {
           throw new Error(`Failed to delete review: ${response.data}`)
         }
 
-        PLUGINS.displayLabel([
+        displayLabel([
           'review_main_wrapper',
           'alert-success',
           `Review deleted successfully`
         ])
-        PLUGINS.runSpinner(true)
+        runSpinner(true)
         return true
       }
     } catch (error) {
       console.log('Error deleting document:', error.message)
-      PLUGINS.displayLabel([
+      displayLabel([
         'review_main_wrapper',
         'alert-danger',
         `An error occurred: ${error.message}`
       ])
     } finally {
-      PLUGINS.runSpinner(true)
+      runSpinner(true)
     }
   },
   getHeaders: function () {
-    const auth = PLUGINS.getAuthHandler()
+    const auth = getAuthHandler()
     const { 'auth-token': authToken, isAdmin, isSubscribed } = auth
 
     if (isAdmin && isSubscribed)
@@ -899,13 +711,13 @@ export const PLUGINS = {
         throw new Error('Invalid payload')
       }
 
-      PLUGINS.runSpinner(false)
+      runSpinner(false)
       const headers = PLUGINS.getHeaders()
 
       if (headers) {
         const baseUrl = '/update-review'
 
-        const apiClient = await PLUGINS.API_CLIENT()
+        const apiClient = await API_CLIENT()
         const response = await apiClient.post(
           baseUrl,
           { reviewId: documentId, authorExternalId, reviewSiteSlug },
@@ -914,12 +726,12 @@ export const PLUGINS = {
 
         if (response.status == 200) {
           let reviewObj = response.data.data[0]
-          PLUGINS.displayLabel([
+          displayLabel([
             'review_main_wrapper',
             'alert-success',
             `Review updated successfully`
           ])
-          PLUGINS.runSpinner(true)
+          runSpinner(true)
           return reviewObj
         }
         return false
@@ -932,21 +744,21 @@ export const PLUGINS = {
       ) {
         PLUGINS.simpleLoader(false)
 
-        return PLUGINS.displayLabel([
+        return displayLabel([
           'review_main_wrapper',
           'alert-secondary',
           `This feature has not yet been implimented: We are working in it! `
         ])
       }
 
-      PLUGINS.displayLabel([
+      displayLabel([
         'review_main_wrapper',
         'alert-danger',
         `An error occurred: ${error.message}`
       ])
       console.log(error.message)
     } finally {
-      PLUGINS.runSpinner(true)
+      runSpinner(true)
     }
   },
   handleReviewButtonsEvents: async function () {
@@ -1062,15 +874,6 @@ export const PLUGINS = {
       return null
     }
   },
-  clearProfileForm: function () {
-    const selectDropdown = document.getElementById('inputGroupSiteOptions')
-    const textareaInput = document.getElementById('propertUrlInputY')
-    if (selectDropdown && textareaInput) {
-      selectDropdown.selectedIndex = 0
-      textareaInput.value = ''
-    }
-    return
-  },
   getAuthorExternalIdId: function (buttonElement) {
     const reviewContainer = buttonElement.closest('.review-container')
     if (reviewContainer) {
@@ -1126,28 +929,7 @@ export const PLUGINS = {
       }
     })
   },
-  shakeAnimation: function (selector) {
-    return new Promise(resolve => {
-      try {
-        const element = document.querySelector(selector),
-          shakeClass = 'shake-animation'
 
-        if (element) {
-          element.classList.add(shakeClass)
-
-          setTimeout(() => {
-            element.classList.remove(shakeClass)
-            resolve()
-          }, 2000)
-        } else {
-          resolve()
-        }
-      } catch (e) {
-        console.error(e.message)
-        resolve()
-      }
-    })
-  },
   profileGenerator: async function () {
     let formIsPresent = document.querySelector('#uploadForm')
     formIsPresent && formIsPresent?.remove()
@@ -1161,13 +943,13 @@ export const PLUGINS = {
                 <option value="google">google-com</option>
                 <option value="agoda">agoda-com</option>
                 <option value="booking">booking-com</option>
-                <option disabled value="tripadvisor">tripadvisor-com</option>
-                <option disabled value="ctrip">ctrip-com</option>
+                <option value="tripadvisor">tripadvisor-com</option>
                 <option disabled value="expedia">expedia-com</option>
-                <option disabled value="hotels-com">hotels-com</option>
-                <option disabled value="trip-com">trip-com</option>
+                <option disabled value="ctrip">ctrip-com</option>
+                <option disabled value="hotels">hotels-com</option>
+                <option disabled value="trip">trip-com</option>
               </select>
-            <button class="btn btn-lg btn-outline-secondary shadow shadow-sm sub__this_form" type="button" id="proertyName29">Submit</button>
+            <button class="btn btn-lg btn-outline-success rounded shadow shadow-sm sub__this_form" type="button" id="proertyName29">Submit</button>
           </div>
     
           <div class="input-group mb3 my_inputs">
@@ -1180,220 +962,23 @@ export const PLUGINS = {
 
       const submit____btn = document.querySelector('.sub__this_form')
       submit____btn?.addEventListener('click', async () => {
-        PLUGINS.sendCreateProfileRequest()
+        sendCreateProfileRequest()
       })
       document.addEventListener('keydown', async event => {
         if (event.key === 'Enter') {
           event.preventDefault()
           console.log('submitted')
-          PLUGINS.sendCreateProfileRequest()
+          sendCreateProfileRequest()
         }
       })
     } else {
       formIsPresent?.remove()
     }
   },
-  validateSlug: function (slug, url) {
-    let httpOccurrences = 0
-    let httpsOccurrences = 0
-
-    if (url.includes('http://')) {
-      httpOccurrences = (url.match(/http:\/\//g) || []).length
-    }
-
-    if (url.includes('https://')) {
-      httpsOccurrences = (url.match(/https:\/\//g) || []).length
-    }
-
-    if (httpOccurrences + httpsOccurrences > 1) {
-      const errorMessage =
-        'Invalid charactors detected in the provided url. Use a valid url!'
-      PLUGINS.displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        errorMessage
-      ])
-      PLUGINS.justForAMoment('Aborting...')
-      return false
-    }
-
-    const validFormats = [`https://www.${slug}`, `https://${slug}`]
-
-    for (const format of validFormats) {
-      if (url.startsWith(format)) return true
-    }
-
-    const errorMessage = `The provided URL does not match the selected site name (${slug}).`
-    PLUGINS.displayLabel(['review_main_wrapper', 'alert-danger', errorMessage])
-    PLUGINS.justForAMoment('Aborting...')
-    return false
-  },
   // ************* =====Create profile === ************* //
 
-  sendCreateProfileRequest: async function () {
-    let slug = ''
-    const user = PLUGINS.getAuthHandler()
-    if (!user) return
-    const { 'auth-token': token, isAdmin, _id } = user
-
-    try {
-      const formData = new FormData()
-
-      if (!isAdmin || !token) {
-        displayLabel(['main__wrapper', 'alert-danger', 'Unauthorized!'])
-        return
-      }
-
-      if (token && isAdmin) {
-        const apiClient = await PLUGINS.API_CLIENT()
-
-        const defaultValue = 'Choose site'
-        const siteOptions = document.getElementById('inputGroupSiteOptions')
-        const selectedOption = siteOptions.querySelector('option:checked')
-
-        if (selectedOption.value === defaultValue) {
-          PLUGINS.displayLabel([
-            'review_main_wrapper',
-            'alert-danger',
-            'You must select a site you wish to create an account for!'
-          ])
-          return
-        }
-
-        const siteUrl = document.querySelector('#propertUrlInputY').value.trim()
-
-        if (!siteUrl.length) {
-          PLUGINS.displayLabel([
-            'review_main_wrapper',
-            'alert-danger',
-            'Property URL is missing. URL is required for this operation!'
-          ])
-          return
-        }
-
-        // Validate URL format
-        const urlRegex = /^(https?:\/\/(www\.)?|www\.)\S*$/
-        if (!urlRegex.test(siteUrl)) {
-          PLUGINS.displayLabel([
-            'review_main_wrapper',
-            'alert-danger',
-            'Invalid URL format. Please provide a valid URL starting!'
-          ])
-          return
-        }
-
-        PLUGINS.runSpinner(false, 'Creating...')
-
-        formData.append('frontFacingUrl', siteUrl)
-        slug = selectedOption ? selectedOption.value : ''
-        const urlPart = slug ? `create-${slug}-review-profile` : ''
-        const baseUrl = `/user/${urlPart}`
-
-        const isValidRequest = PLUGINS.validateSlug(slug, siteUrl)
-        if (!isValidRequest) {
-          PLUGINS.shakeAnimation('#uploadForm')
-          return PLUGINS.clearProfileForm()
-        }
-
-        const headers = {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-        const res = await apiClient.post(baseUrl, formData, { headers })
-        PLUGINS.runSpinner(true)
-
-        if (res.status === 200) {
-          PLUGINS.removeElementFromDOM('#uploadForm')
-          PLUGINS.displayLabel([
-            'review_main_wrapper',
-            'alert-success',
-            `Account profile for ${slug} has been created successfully`
-          ])
-          setTimeout(() => {
-            PLUGINS.runSpinner(false)
-            PLUGINS.displayLabel([
-              'review_main_wrapper',
-              'alert-success',
-              `Collecting reviews for ${slug} in progress...`
-            ])
-          }, 2000)
-          const response = await PLUGINS.fetchReviewSiteProfile(_id, slug)
-
-          if (response.status === 200) {
-            //update localsession
-            await PLUGINS.fetchCurrentUserUpdateSeesionStorage()
-            const data = await response.data
-            if (data.length) {
-              await PLUGINS.runCrawlerHandler(slug)
-            }
-          }
-        } else {
-          setTimeout(() => {
-            PLUGINS.runSpinner(true, 'Failed!')
-            PLUGINS.displayLabel([
-              'review_main_wrapper',
-              'alert-warn',
-              `Request could not be fulfilled! Please try again later.`
-            ])
-          }, 2000)
-        }
-      }
-    } catch (error) {
-      if (error.response && error.response.status === 400) {
-        PLUGINS.removeElementFromDOM('#uploadForm')
-        PLUGINS.runSpinner(true)
-        PLUGINS.displayLabel([
-          'review_main_wrapper',
-          'alert-danger',
-          `This account already has a ${slug} profile!`
-        ])
-        PLUGINS.runSpinner('Running...')
-        await PLUGINS.runCrawlerHandler(slug)
-        PLUGINS.runSpinner(true)
-      }
-    }
-  },
   // ************* =====Fetch review site profile === ************* //
-  fetchReviewSiteProfile: async function (user_id, slug) {
-    PLUGINS.runSpinner(false)
-    if (!user_id) {
-      PLUGINS.runSpinner(true)
-      return PLUGINS.displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        `Invalid request!`
-      ])
-    }
 
-    try {
-      PLUGINS.runSpinner(false, 'Processing...')
-      const user = PLUGINS.getAuthHandler()
-      const { 'auth-token': token } = user
-
-      const baseUrl = `/user/get-profile/${user_id}?slug=${slug}-com`
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-
-      const apiClient = await PLUGINS.API_CLIENT()
-      const response = await apiClient.post(baseUrl, {}, { headers })
-
-      if (response.status === 200) {
-        PLUGINS.runSpinner(true)
-        const profile = await response
-        return profile
-      }
-      return null
-    } catch (e) {
-      console.log(e.message)
-      PLUGINS.displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        `Error collecting profile ${e.message} `
-      ])
-    }
-  },
   handleProfileGenerator: async function (selector = null, hasData = true) {
     const anchor = document.querySelector(selector)
     if (anchor) {
@@ -1418,73 +1003,7 @@ export const PLUGINS = {
       }
     })
   },
-  // ************* =====Run Crawler === ************* //
-  runCrawlerHandler: async function (slug, depth = 20) {
-    if (!slug) return
-    PLUGINS.runSpinner(false, 'Crawling...')
 
-    try {
-      const user = PLUGINS.getAuthHandler()
-      console.log(user)
-      if (user) {
-        const apiClient = await PLUGINS.API_CLIENT()
-
-        const baseUrl = `/user/generate-${slug}-reviews`
-        const query = `?depth=${depth}`
-
-        const { 'auth-token': token } = user
-
-        const headers = {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-        console.log(headers)
-
-        const url = `${baseUrl}${query}`
-        const res = await apiClient.post(url, {}, { headers })
-        console.log('>>>>>>>>>', url)
-
-        PLUGINS.removeElementFromDOM('#uploadForm')
-
-        if (res.status === 200) {
-          PLUGINS.displayLabel([
-            'review_main_wrapper',
-            'alert-success',
-            `Review data has been collected successfully!`
-          ])
-          setTimeout(() => location.reload(), 2000)
-        } else if (res.status === 404) {
-          PLUGINS.runSpinner(true, 'Failed!')
-          PLUGINS.displayLabel([
-            'review_main_wrapper',
-            'alert-warning',
-            `Someting went wrong: ${slug} review collection process failed!`
-          ])
-        } else {
-          PLUGINS.displayLabel([
-            'review_main_wrapper',
-            'alert-warning',
-            `Someting went wrong: Review data could not be collected!`
-          ])
-        }
-      }
-    } catch (e) {
-      if (
-        e &&
-        e.response &&
-        e.response.error &&
-        e.response.error.status === 503
-      ) {
-        PLUGINS.displayLabel([
-          'review_main_wrapper',
-          'alert-danger',
-          `Service unavailable, please try again later ${e.message}`
-        ])
-        PLUGINS.runSpinner(true)
-        return
-      }
-    }
-  },
   generateReviewCard: async function (
     reviewsDataOject = {},
     cardIsNew = false
@@ -1575,17 +1094,19 @@ export const PLUGINS = {
                           <button title="not implimented!" class="btn btn-lg text-muted  btn-outline-transparent dropdown-toggle btn-block" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                             Actions
                           </button>
-                          <!-- <ul class="dropdown-menu  dark-gray-bg">
-                            <li><a class="dropdown-item text-dark" href="#">Copye link</a></li>
-                          </ul> -->
+                          <ul class="dropdown-menu  bg-light">
+                            <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Copy review link</a></li>
+                            <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Contact customer service</a></li>
+                            <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Generate review analysis</a></li>
+                          </ul>
                       </div>
                   </div>
                 <div class="d-grid gap-2 col-6 mx-auto m-auto action_buttons right__body" style="width:100%;">
                   <a class="btn btn-transparent btn-outline-secondary action_2" href="${
                     originalEndpoint || propertyProfileUrl
                   }" target="_blank"  type="button">Go to ${reviewSiteSlug}</a>
-                  <button class="btn btn-transparent btn-outline-secondary shadow shadow-sm action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
-                  <button class="btn btn-transparent btn-outline-danger action_3 shadow shadow-sm" del-revie-data="${_id}"  type="button">Delete review</button>
+                  <button disabled class="btn btn-transparent btn-outline-secondary shadow shadow-lg action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
+                  <button class="btn btn-transparent btn-outline-danger action_3 shadow shadow-lg" del-revie-data="${_id}"  type="button">Delete review</button>
                 </div>
           </div>
       </div>`
@@ -1642,11 +1163,11 @@ export const PLUGINS = {
   },
   fetchData: async function (page = 1, slug = '') {
     try {
-      PLUGINS.runSpinner(false, 'loading...')
+      runSpinner(false, 'loading...')
 
-      const user = PLUGINS.getAuthHandler()
+      const user = getAuthHandler()
       if (user) {
-        const apiClient = await PLUGINS.API_CLIENT()
+        const apiClient = await API_CLIENT()
 
         const baseUrl = '/get-user-account-review-docs'
         const perPage = 20
@@ -1662,11 +1183,11 @@ export const PLUGINS = {
         const res = await apiClient.post(url, {}, { headers })
 
         if (res.statusText === 'OK') {
-          setTimeout(() => PLUGINS.runSpinner(true), 500)
+          setTimeout(() => runSpinner(true), 500)
           const data = res.data.data || []
 
           if (data.length < perPage) {
-            PLUGINS.displayLabel([
+            displayLabel([
               'review_main_wrapper',
               'alert-success',
               `This is the last page: ${page}`
@@ -1674,7 +1195,7 @@ export const PLUGINS = {
             return data
           }
           if (slug === '') {
-            PLUGINS.displayLabel([
+            displayLabel([
               'review_main_wrapper',
               'alert-success',
               `Page: ${page}`
@@ -1683,14 +1204,14 @@ export const PLUGINS = {
           return data
         }
       }
-      return PLUGINS.displayLabel([
+      return displayLabel([
         'review_main_wrapper',
         'alert-danger',
         `An error occurred while processing your request. Please try again later`
       ])
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        return PLUGINS.displayLabel([
+        return displayLabel([
           'review_main_wrapper',
           'alert-warning',
           `Nothing found.`
@@ -1698,24 +1219,24 @@ export const PLUGINS = {
       }
       if (error.response && error.response.status === 404) {
         PLUGINS.handleProfileGenerator(null, false)
-        return PLUGINS.displayLabel([
+        return displayLabel([
           'review_main_wrapper',
           'alert-secondary',
           `No review data available. \nCreate a ${slug} profile by submiting a property url in the input above and I'll take care of the rest for you.`
         ])
       }
     } finally {
-      PLUGINS.runSpinner(true)
+      runSpinner(true)
     }
   },
   PaginateData: async function (slug) {
-    PLUGINS.runSpinner(false)
+    runSpinner(false)
     PLUGINS.removeAdminContainer()
     let page = 1
     const container = document.getElementById('review_main_wrapper')
 
     if (!container) return
-    const user = PLUGINS.getAuthHandler()
+    const user = getAuthHandler()
     if (!user) return
 
     try {
@@ -1765,7 +1286,7 @@ export const PLUGINS = {
       }
     } catch (error) {
       if (error instanceof TypeError) {
-        PLUGINS.displayLabel([
+        displayLabel([
           'review_main_wrapper',
           'alert-danger',
           `Sorry, an error occurred while processing your request.`
@@ -1774,7 +1295,7 @@ export const PLUGINS = {
       }
       console.warn(error)
     } finally {
-      PLUGINS.runSpinner(true)
+      runSpinner(true)
     }
   },
   removeAdminContainer: function () {
@@ -1947,15 +1468,15 @@ export const PLUGINS = {
             const deletedProfile =
               await PLUGINS.deletProfileAndAssociatedReviews(slug, cardId)
             if (deletedProfile) {
-              await PLUGINS.fetchCurrentUserUpdateSeesionStorage()
+              await fetchCurrentUserUpdateSeesionStorage()
               const deletedProfileCard = document.getElementById(`${cardId}`)
               deletedProfileCard.remove()
-              PLUGINS.runSpinner(true)
+              runSpinner(true)
             }
           }
         } catch (e) {
           console.log(e.message)
-          PLUGINS.displayLabel([
+          displayLabel([
             'review_main_wrapper',
             'alert-danger',
             `Something went wrong please try again later`
@@ -1973,20 +1494,20 @@ export const PLUGINS = {
           if (confirmation === 'confirmed!') {
             const accountIsDeleted = await PLUGINS.deletEntireAccount()
             if (accountIsDeleted) {
-              PLUGINS.displayLabel([
+              displayLabel([
                 'review_main_wrapper',
                 'alert-secondary',
                 `Sad to see you go. If you wish to use our service, you can always signup`
               ])
               setTimeout(async () => {
                 await SIGNUP_HTML()
-                PLUGINS.runSpinner(true)
+                runSpinner(true)
               }, 3000)
             }
           }
         } catch (e) {
           console.log(e.message)
-          PLUGINS.displayLabel([
+          displayLabel([
             'review_main_wrapper',
             'alert-danger',
             `Something went wrong please try again later`
@@ -1998,9 +1519,9 @@ export const PLUGINS = {
   deletProfileAndAssociatedReviews: async function (slug, profile_Id) {
     try {
       if (!slug) return
-      PLUGINS.runSpinner(false, 'Deleting...')
+      runSpinner(false, 'Deleting...')
 
-      const user = PLUGINS.getAuthHandler()
+      const user = getAuthHandler()
       const { 'auth-token': token } = user
 
       const baseUrl = `/user/delete-own-profile-and-documents/${profile_Id}?slug=${slug}`
@@ -2008,20 +1529,20 @@ export const PLUGINS = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
-      const apiClient = await PLUGINS.API_CLIENT()
+      const apiClient = await API_CLIENT()
       const response = await apiClient.delete(baseUrl, { headers })
       if (response.status === 200) {
-        PLUGINS.runSpinner(true)
+        runSpinner(true)
 
-        PLUGINS.displayLabel([
+        displayLabel([
           'review_main_wrapper',
           'alert-success',
           `Profile and all reviews associated with it have been deleted successfully`
         ])
-        await PLUGINS.fetchCurrentUserUpdateSeesionStorage()
+        await fetchCurrentUserUpdateSeesionStorage()
         return true
       } else {
-        PLUGINS.displayLabel([
+        displayLabel([
           'review_main_wrapper',
           'alert-danger',
           `Something went wrong! Profile could not be deleted. `
@@ -2030,20 +1551,20 @@ export const PLUGINS = {
       }
     } catch (e) {
       console.log(e)
-      PLUGINS.displayLabel([
+      displayLabel([
         'review_main_wrapper',
         'alert-danger',
         `Something went wrong! Profile could not be deleted. `
       ])
     } finally {
-      PLUGINS.runSpinner(true)
+      runSpinner(true)
     }
   },
   deletEntireAccount: async function () {
     try {
-      PLUGINS.runSpinner(false, 'Deleting...')
+      runSpinner(false, 'Deleting...')
 
-      const user = PLUGINS.getAuthHandler()
+      const user = getAuthHandler()
       const { 'auth-token': token } = user
 
       const baseUrl = '/user/purge-own-user-account'
@@ -2051,12 +1572,12 @@ export const PLUGINS = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
-      const apiClient = await PLUGINS.API_CLIENT()
+      const apiClient = await API_CLIENT()
       const response = await apiClient.delete(baseUrl, { headers })
       if (response.status === 200) {
-        PLUGINS.runSpinner(true)
+        runSpinner(true)
 
-        PLUGINS.displayLabel([
+        displayLabel([
           'review_main_wrapper',
           'alert-success',
           `Your account has been deleted.`
@@ -2065,7 +1586,7 @@ export const PLUGINS = {
         PLUGINS.clearStorage('localStorage')
         return true
       } else {
-        PLUGINS.displayLabel([
+        displayLabel([
           'review_main_wrapper',
           'alert-danger',
           `Something went wrong! Profile could not be deleted. `
@@ -2074,19 +1595,19 @@ export const PLUGINS = {
       }
     } catch (e) {
       console.log(e)
-      PLUGINS.displayLabel([
+      displayLabel([
         'review_main_wrapper',
         'alert-danger',
         `Something went wrong! account could not be deleted.`
       ])
     } finally {
-      PLUGINS.runSpinner(true)
+      runSpinner(true)
     }
   },
   createAdminPage: async function () {
     const pageAlreadyExists = document.querySelector('#admin_page')
     if (pageAlreadyExists)
-      return PLUGINS.displayLabel([
+      return displayLabel([
         'review_main_wrapper',
         'alert-success',
         `You are already on the admin page.`
@@ -2109,11 +1630,11 @@ export const PLUGINS = {
       }
     })
     // up[date profile storage
-    await PLUGINS.fetchCurrentUserUpdateSeesionStorage()
-    const { profiles, ...rest } = await PLUGINS.getAuthHandler()
+    await fetchCurrentUserUpdateSeesionStorage()
+    const { profiles, ...rest } = await getAuthHandler()
 
     if (!profiles.length)
-      return PLUGINS.displayLabel([
+      return displayLabel([
         'review_main_wrapper',
         'alert-warning',
         `No profiles could be found. You can create profiles for review sites through the menu tab`
@@ -2131,8 +1652,8 @@ export const PLUGINS = {
     if (isContainerInDOM) isContainerInDOM.remove()
     try {
       let user = {}
-      const userLocalStorage = await PLUGINS.getAuthHandler()
-      const userDB = await PLUGINS.fetchCurrentUserUpdateSeesionStorage()
+      const userLocalStorage = await getAuthHandler()
+      const userDB = await fetchCurrentUserUpdateSeesionStorage()
 
       userDB ? (user = userDB) : (user = userLocalStorage)
 
@@ -2177,14 +1698,14 @@ export const PLUGINS = {
           const modal = new bootstrap.Modal(
             document.getElementById('userAccount')
           )
-          PLUGINS.runSpinner(false, 'Fetching...')
+          runSpinner(false, 'Fetching...')
           setTimeout(() => {
             modal.show()
-            PLUGINS.runSpinner(true)
-            PLUGINS.runSpinner(false, 'Finishing...')
+            runSpinner(true)
+            runSpinner(false, 'Finishing...')
             setTimeout(() => {
-              PLUGINS.runSpinner(true)
-              PLUGINS.displayLabel([
+              runSpinner(true)
+              displayLabel([
                 'review_main_wrapper',
                 'alert-success',
                 `Success. These are the profiles available in your account`
@@ -2205,7 +1726,7 @@ export const PLUGINS = {
 
           function createCard (object) {
             if (!object)
-              return PLUGINS.displayLabel([
+              return displayLabel([
                 'review_main_wrapper',
                 'alert-danger',
                 `You dont have any profiles sofur!`
@@ -2259,14 +1780,14 @@ export const PLUGINS = {
                 if (isDeleted) {
                   document.querySelector('.modal-backdrop')?.remove()
                   document.querySelector('#userAccount')?.remove()
-                  PLUGINS.displayLabel([
+                  displayLabel([
                     'review_main_wrapper',
                     'alert-secondary',
                     `Sad to see you go. If you wish to use our service, you can always signup`
                   ])
                   setTimeout(async () => {
                     await SIGNUP_HTML()
-                    PLUGINS.runSpinner(true)
+                    runSpinner(true)
                   }, 3000)
                 }
               }
@@ -2274,38 +1795,13 @@ export const PLUGINS = {
         })
       }
 
-      PLUGINS.displayLabel([
+      displayLabel([
         'review_main_wrapper',
         'alert-danger',
         `You dont see to have any profiles currently. `
       ])
     } catch (e) {
       console.log(e)
-    }
-  },
-  fetchCurrentUserUpdateSeesionStorage: async function () {
-    try {
-      PLUGINS.runSpinner(false, 'Processing...')
-      const user = PLUGINS.getAuthHandler()
-      const { 'auth-token': token } = user
-
-      const baseUrl = `/get-user`
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-      const apiClient = await PLUGINS.API_CLIENT()
-      const response = await apiClient.post(baseUrl, {}, { headers })
-
-      if (response.status === 200) {
-        const authToken = headers.Authorization.split(' ')[1]
-        const userWithoutMeta = { ...response.data, 'auth-token': authToken }
-        sessionStorage.setItem('user', JSON.stringify(userWithoutMeta))
-        PLUGINS.runSpinner(true)
-        return response.data
-      }
-    } catch (e) {
-      console.log(e.message)
     }
   }
 }

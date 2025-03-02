@@ -43,8 +43,8 @@ body::after {
   bottom: 0;
   right: 0;
   z-index: -1;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .review-author {
@@ -384,10 +384,11 @@ a {
 }
 
 .dropdown-menu {
-  border-color: rgba(190, 190, 190, 0.5) !important;
+  border-color: transparent !important;
   -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
-  margin-left: -50% !important;
+  padding-left: .3rem;
+  /* margin-left: -50% !important; */
 }
 
 .dropdown-menu > li:hover a {
@@ -538,7 +539,7 @@ select:focus,
 
 .sub__this_form {
   border-radius: .2rem !important;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #e0e0e0 !important;
 }
 
 input:focus,
@@ -576,7 +577,6 @@ textarea:focus {
   height: 150px;
   padding: 1rem;
   border-radius: 50%;
-  text-shadow: 1px 1px black;
 }
 
 .loader:before,
@@ -588,7 +588,7 @@ textarea:focus {
 }
 
 .loader:after {
-  box-shadow: 0 2px 0 #cdcccc inset;
+  box-shadow: 0 2px 0 #151515 inset;
   -webkit-animation: rotate 1.5s linear infinite;
   animation: rotate 1.5s linear infinite;
 }
@@ -650,68 +650,6 @@ textarea:focus {
   transition: .5s;
 }
 
-#search____input:focus-within,
-#canvas__Search_input:focus-within {
-  background-color: #24292d;
-}
-
-/** ===== Uncomment this css lines before commiting== */
-
-#search____input::-webkit-input-placeholder, #canvas__Search_input::-webkit-input-placeholder {
-  -webkit-transition: letter-spacing 0.5s, opacity 0.5s;
-  transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input::-moz-placeholder, #canvas__Search_input::-moz-placeholder {
-  -moz-transition: letter-spacing 0.5s, opacity 0.5s;
-  transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input:-ms-input-placeholder, #canvas__Search_input:-ms-input-placeholder {
-  -ms-transition: letter-spacing 0.5s, opacity 0.5s;
-  transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input::-ms-input-placeholder, #canvas__Search_input::-ms-input-placeholder {
-  -ms-transition: letter-spacing 0.5s, opacity 0.5s;
-  transition: letter-spacing 0.5s, opacity 0.5s;
-}
-
-#search____input::placeholder,
-#canvas__Search_input::placeholder {
-  transition: letter-spacing 0.5s, opacity 0.5s;
-}
-#search____input:focus-within::-webkit-input-placeholder, #canvas__Search_input:focus-within::-webkit-input-placeholder {
-  letter-spacing: 2rem;
-  opacity: 0;
-  -webkit-transition: letter-spacing 0.5s, opacity 0.5s;
-  transition: letter-spacing 0.5s, opacity 0.5s;
-}
-#search____input:focus-within::-moz-placeholder, #canvas__Search_input:focus-within::-moz-placeholder {
-  letter-spacing: 2rem;
-  opacity: 0;
-  -moz-transition: letter-spacing 0.5s, opacity 0.5s;
-  transition: letter-spacing 0.5s, opacity 0.5s;
-}
-#search____input:focus-within:-ms-input-placeholder, #canvas__Search_input:focus-within:-ms-input-placeholder {
-  letter-spacing: 2rem;
-  opacity: 0;
-  -ms-transition: letter-spacing 0.5s, opacity 0.5s;
-  transition: letter-spacing 0.5s, opacity 0.5s;
-}
-#search____input:focus-within::-ms-input-placeholder, #canvas__Search_input:focus-within::-ms-input-placeholder {
-  letter-spacing: 2rem;
-  opacity: 0;
-  -ms-transition: letter-spacing 0.5s, opacity 0.5s;
-  transition: letter-spacing 0.5s, opacity 0.5s;
-}
-#search____input:focus-within::placeholder,
-#canvas__Search_input:focus-within::placeholder {
-  letter-spacing: 2rem;
-  opacity: 0;
-  transition: letter-spacing 0.5s, opacity 0.5s;
-}
-/** ==== Uncomment this css lines before commiting=== */
 .big_spinnerr {
   background-color: transparent;
   border: transparent;

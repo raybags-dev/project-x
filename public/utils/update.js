@@ -1,7 +1,8 @@
 import { MAIN_PAGE } from '../components/main_container.js'
 import { LOGIN_HTML } from '../components/login.js'
 import { PLUGINS } from './plugins.js'
-const { displayLabel, API_CLIENT, runSpinner } = PLUGINS
+const { runSpinner } = PLUGINS
+import { API_CLIENT, displayLabel } from '../components/apiCallHandlers.js'
 
 export async function UPDATE_PASSWORD_HTML () {
   let pageContent = `
