@@ -11,7 +11,7 @@
         "start": "node index.js"
     },
     "engines": {
-        "node": ">=20.17.0 <21",
+        "node": "18.x",
         "npm": ">=6.0.0"
     },
     "husky": {
