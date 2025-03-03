@@ -2,15 +2,12 @@ import { REVIEW } from '../models/documentModel.js'
 import { checkAndUpdateDocumentUrls } from '../../middleware/bd_worker.js'
 
 export async function SearchUserDocsController (req, res) {
-const { searchQuery } = req.body
-const { _id: userId, isAdmin } = req.user
-
+  const { searchQuery } = req.body
+  const { _id: userId, isAdmin } = req.user
 
   let query, count
 
-  if (!searchQuery) {
-    return res.status(400).json('Search query is required.')
-  }
+  if (!searchQuery) return res.status(400).json('Search query is required.')
 
   if (isAdmin) {
     query = REVIEW.find({ $text: { $search: searchQuery } }, { token: 0 }).sort(

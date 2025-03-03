@@ -1,6 +1,5 @@
 import { SIGNUP_HTML } from './signup.js'
 import { MAIN_PAGE } from './main_container.js'
-import { PLUGINS } from '../utils/plugins.js'
 import { setAuthHandler } from '../components/auth.js'
 import { loginUser } from '../components/apiCallHandlers.js'
 import { runSpinner, justForAMoment } from '../utils/utilities.js'
