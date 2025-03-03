@@ -1,9 +1,8 @@
 import connectDB from '../DB/connect.js'
 import { devLogger } from '../utils/devLogger.js'
 import { clearDevPort } from '../utils/cleanUp.js'
+import 'dotenv/config'
 
-import { config } from 'dotenv'
-config()
 const { MONGO_URI } = process.env
 
 async function starterLogger (port) {

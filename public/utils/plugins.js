@@ -135,7 +135,7 @@ export const PLUGINS = {
         if (reviewContainer) {
           const accordionElement = document.createElement('div')
           accordionElement.className =
-            'accordion accordion-flush bg-light res_body shadow shadow-lg'
+            'accordion accordion-flush bg-light  res_body shadow shadow-sm'
           accordionElement.id = _id
 
           const accordionItem = document.createElement('div')
@@ -148,7 +148,7 @@ export const PLUGINS = {
 
           const accordionButton = document.createElement('button')
           accordionButton.className =
-            'accordion-button dark-gray-bg text-dark shadow-sm collapsed'
+            'accordion-button  text-dark shadow-sm collapsed'
           accordionButton.type = 'button'
           accordionButton.setAttribute('data-bs-toggle', 'collapse')
           accordionButton.setAttribute(
@@ -623,7 +623,7 @@ export const PLUGINS = {
     return isClicked
   },
   setUpBackToTop: async function (mainContainerId) {
-    const buttonTopInnerHTML = `<a href="#" class="back-to-top shadow shadow-lg" aria-label="Back to Top">&uarr;</a>`
+    const buttonTopInnerHTML = `<a href="#" class="back-to-top shadow shadow-sm border-secondary" aria-label="Back to Top">&uarr;</a>`
 
     const mainContainer = document.getElementById(mainContainerId)
     mainContainer?.insertAdjacentHTML('beforeend', buttonTopInnerHTML)
@@ -1052,7 +1052,7 @@ export const PLUGINS = {
 
     const InnerReviewHTMLContent = `
       <div id="${_id}" class="row review-container shadow shadow-sm review-incoming __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
-            <div class="card text-bg-light dark-gray-bg my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
+            <div class="card text-bg-light my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
                 <div class="card-header shadow-none card_header">
                 <img src="" style="width:30%;max-width:100px !important;min-width:57px !important;max-height:100px !important;border-radius:3px" class="img-thumbnail review-logo-${uuid}-${internalId} bg-transparent" alt="...">
                 </div>
@@ -1062,7 +1062,7 @@ export const PLUGINS = {
                 </div>
             </div>
   
-            <div class="card card-${_id} text-bg-light dark-gray-bg my-font-color card-middle" style="width:55%;">
+            <div class="card card-${_id} text-bg-light my-font-color card-middle" style="width:55%;">
                 <div class="card-body middle__body">
                   <div class="d-flex">
                       <a class="text-secondary text-decoration-underline" target="_blank" href="${authorProfileUrl}">
@@ -1088,7 +1088,7 @@ export const PLUGINS = {
                 </div>
             </div>
   
-            <div class="card text-bg-light dark-gray-bg card-right" style="width: 22%;">
+            <div class="card text-bg-light card-right" style="width: 22%;">
                 <div class="card-header border-transparent shadow-none mt-1">
                     <div class="btn-group d-block text-center align-content-center">
                           <button title="not implimented!" class="btn btn-lg text-muted  btn-outline-transparent dropdown-toggle btn-block" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
@@ -1105,8 +1105,8 @@ export const PLUGINS = {
                   <a class="btn btn-transparent btn-outline-secondary action_2" href="${
                     originalEndpoint || propertyProfileUrl
                   }" target="_blank"  type="button">Go to ${reviewSiteSlug}</a>
-                  <button disabled class="btn btn-transparent btn-outline-secondary shadow shadow-lg action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
-                  <button class="btn btn-transparent btn-outline-danger action_3 shadow shadow-lg" del-revie-data="${_id}"  type="button">Delete review</button>
+                  <button disabled class="btn btn-transparent btn-outline-secondary shadow shadow-sm action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
+                  <button class="btn btn-transparent btn-outline-danger action_3 shadow shadow-sm" del-revie-data="${_id}"  type="button">Delete review</button>
                 </div>
           </div>
       </div>`
