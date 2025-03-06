@@ -441,7 +441,7 @@ a {
   margin: .1rem;
   border-radius: .2rem;
   background-color: transparent !important;
-  border: 2px solid #4847474d;
+  border: 2px solid transparent;
 }
 
 .pagesInput {

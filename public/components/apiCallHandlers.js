@@ -179,7 +179,6 @@ export async function sendCreateProfileRequest () {
       slug = selectedOption ? selectedOption.value : ''
       const urlPart = slug ? `create-${slug}-review-profile` : ''
       const baseUrl = `/user/${urlPart}`
-      console.log('debugger ')
 
       const isValidRequest = validateSlug(slug, siteUrl)
 
@@ -200,14 +199,14 @@ export async function sendCreateProfileRequest () {
         displayLabel([
           'review_main_wrapper',
           'alert-success',
-          `Account profile for ${slug} has been created successfully`
+          `${slug} profile created successfully ✅`
         ])
         setTimeout(() => {
           runSpinner(false)
           displayLabel([
             'review_main_wrapper',
             'alert-success',
-            `Collecting reviews for ${slug} in progress...`
+            `${slug} review collection in progress...`
           ])
         }, 2000)
         const response = await fetchReviewSiteProfile(_id, slug)
@@ -286,13 +285,12 @@ export async function fetchReviewSiteProfile (user_id, slug) {
     ])
   }
 }
-export async function runCrawlerHandler (slug, depth = 20) {
+export async function runCrawlerHandler (slug, depth = 10) {
   if (!slug) return
   runSpinner(false, 'Crawling...')
 
   try {
     const user = getAuthHandler()
-    console.log(user)
     if (user) {
       const apiClient = await API_CLIENT()
 
@@ -305,11 +303,10 @@ export async function runCrawlerHandler (slug, depth = 20) {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
-      console.log(headers)
-
       const url = `${baseUrl}${query}`
       const res = await apiClient.post(url, {}, { headers })
-      console.log('>>>>>>>>>', url)
+
+      console.log(res)
 
       removeElementFromDOM('#uploadForm')
 
@@ -333,6 +330,7 @@ export async function runCrawlerHandler (slug, depth = 20) {
           'alert-warning',
           `Someting went wrong: Review data could not be collected!`
         ])
+        setTimeout(() => location.reload(), 2000)
       }
     }
   } catch (e) {
@@ -350,5 +348,75 @@ export async function runCrawlerHandler (slug, depth = 20) {
       runSpinner(true)
       return
     }
+  } finally {
+    setTimeout(() => location.reload(), 2000)
+  }
+}
+export async function handleProfileGenerator (selector = null, hasData = true) {
+  const anchor = document.querySelector(selector)
+  if (anchor) {
+    anchor.addEventListener('click', async () => {
+      return await profileGenerator()
+    })
+  }
+  if (!hasData) {
+    return await profileGenerator()
+  }
+  document.addEventListener('click', e => {
+    const target = e.target
+    const form = document.getElementById('uploadForm')
+    const profileLink = document.querySelector('.create_profile')
+
+    if (
+      form &&
+      !form.contains(target) &&
+      !(profileLink && profileLink.contains(target))
+    ) {
+      form.remove()
+    }
+  })
+}
+export async function profileGenerator () {
+  let formIsPresent = document.querySelector('#uploadForm')
+  formIsPresent && formIsPresent?.remove()
+
+  if (!formIsPresent) {
+    const uploadHTML = `
+        <form id="uploadForm" class="select-img-form shadow shadow-lg bg-light text-danger profile_form">
+        <div class="input-group mb3 input-group-lg my_inputs">
+            <select class="form-select border-transparent bg-light" id="inputGroupSiteOptions" aria-label="Example select with button addon">
+              <option selected>Choose site</option>
+              <option value="google">google-com</option>
+              <option value="agoda">agoda-com</option>
+              <option value="booking">booking-com</option>
+              <option value="expedia">expedia-com</option>
+              <option disabled value="ctrip">ctrip-com</option>
+              <option disabled value="hotels">hotels-com</option>
+              <option disabled value="trip">trip-com</option>
+            </select>
+          <button class="btn btn-lg btn-outline-success rounded shadow shadow-sm sub__this_form" type="button" id="proertyName29">Submit</button>
+        </div>
+  
+        <div class="input-group mb3 my_inputs">
+          <textarea type="text" name="propertyurl" id="propertUrlInputY" placeholder="Paste your property review page link here... " rows="10" class="form-control" aria-label="propertyUrl"></textarea>
+        </div>
+      </form>`
+
+    const container = document.querySelector('#review_main_wrapper')
+    container?.insertAdjacentHTML('afterbegin', uploadHTML)
+
+    const submit____btn = document.querySelector('.sub__this_form')
+    submit____btn?.addEventListener('click', async () => {
+      await sendCreateProfileRequest()
+    })
+    document.addEventListener('keydown', async event => {
+      if (event.key === 'Enter') {
+        event.preventDefault()
+        console.log('submitted')
+        await sendCreateProfileRequest()
+      }
+    })
+  } else {
+    formIsPresent?.remove()
   }
 }

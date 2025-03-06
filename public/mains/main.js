@@ -12,6 +12,6 @@ import { getAuthHandler } from '../components/auth.js'
     if (user?.isAdmin) return await MAIN_PAGE()
     LOGIN_HTML()
   } catch (error) {
-    console.log(error)
+    console.log((error.message && error.message) || error)
   }
 })()

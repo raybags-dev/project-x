@@ -97,7 +97,7 @@ export async function LOGIN_HTML () {
                       <input class="form-check-input shadow shadow-sm"  type="checkbox" role="switch" id="flexSwitchCheckDefault">
                       <label class="form-check-label" for="flexSwitchCheckDefault">Forgot password</label>
             </div>
-            <div class="container">
+            <div>
                 <button type="submit"  class="btn btn-lg shadow shadow-lg btn-outline-success login_btn">SUBMIT</button>
             </div>
         </form>

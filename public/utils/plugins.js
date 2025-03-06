@@ -4,7 +4,7 @@ import { siteLogos } from '../components/logoPaths.js'
 import {
   API_CLIENT,
   displayLabel,
-  sendCreateProfileRequest
+  handleProfileGenerator
 } from '../components/apiCallHandlers.js'
 import {
   validateSuperAdmin,
@@ -169,7 +169,7 @@ export const PLUGINS = {
 
           const accordionBodyContent = document.createElement('div')
           accordionBodyContent.className =
-            'accordion-body bg-light light-gray-bg'
+            'accordion-body bg-light light-gray-bg shadow'
           accordionBodyContent.innerHTML = responseBody
 
           const response_date = document.createElement('p')
@@ -771,6 +771,7 @@ export const PLUGINS = {
       const clickedButton = event.target.closest('button')
       if (clickedButton) {
         // ************
+        // action buttons
         // ************
         if (clickedButton.classList.contains('action_3')) {
           const reviewId = PLUGINS.getOutermostReviewId(clickedButton)
@@ -930,79 +931,9 @@ export const PLUGINS = {
     })
   },
 
-  profileGenerator: async function () {
-    let formIsPresent = document.querySelector('#uploadForm')
-    formIsPresent && formIsPresent?.remove()
-
-    if (!formIsPresent) {
-      const uploadHTML = `
-          <form id="uploadForm" class="select-img-form shadow shadow-lg bg-light text-danger profile_form">
-          <div class="input-group mb3 input-group-lg my_inputs">
-              <select class="form-select border-transparent bg-light" id="inputGroupSiteOptions" aria-label="Example select with button addon">
-                <option selected>Choose site</option>
-                <option value="google">google-com</option>
-                <option value="agoda">agoda-com</option>
-                <option value="booking">booking-com</option>
-                <option value="tripadvisor">tripadvisor-com</option>
-                <option disabled value="expedia">expedia-com</option>
-                <option disabled value="ctrip">ctrip-com</option>
-                <option disabled value="hotels">hotels-com</option>
-                <option disabled value="trip">trip-com</option>
-              </select>
-            <button class="btn btn-lg btn-outline-success rounded shadow shadow-sm sub__this_form" type="button" id="proertyName29">Submit</button>
-          </div>
-    
-          <div class="input-group mb3 my_inputs">
-            <textarea type="text" name="propertyurl" id="propertUrlInputY" placeholder="Paste your site property review page link here... " rows="10" class="form-control" aria-label="propertyUrl"></textarea>
-          </div>
-        </form>`
-
-      const container = document.querySelector('#review_main_wrapper')
-      container?.insertAdjacentHTML('afterbegin', uploadHTML)
-
-      const submit____btn = document.querySelector('.sub__this_form')
-      submit____btn?.addEventListener('click', async () => {
-        sendCreateProfileRequest()
-      })
-      document.addEventListener('keydown', async event => {
-        if (event.key === 'Enter') {
-          event.preventDefault()
-          console.log('submitted')
-          sendCreateProfileRequest()
-        }
-      })
-    } else {
-      formIsPresent?.remove()
-    }
-  },
   // ************* =====Create profile === ************* //
 
   // ************* =====Fetch review site profile === ************* //
-
-  handleProfileGenerator: async function (selector = null, hasData = true) {
-    const anchor = document.querySelector(selector)
-    if (anchor) {
-      anchor.addEventListener('click', () => {
-        return PLUGINS.profileGenerator()
-      })
-    }
-    if (!hasData) {
-      return await PLUGINS.profileGenerator()
-    }
-    document.addEventListener('click', e => {
-      const target = e.target
-      const form = document.getElementById('uploadForm')
-      const profileLink = document.querySelector('.create_profile')
-
-      if (
-        form &&
-        !form.contains(target) &&
-        !(profileLink && profileLink.contains(target))
-      ) {
-        form.remove()
-      }
-    })
-  },
 
   generateReviewCard: async function (
     reviewsDataOject = {},
@@ -1014,7 +945,7 @@ export const PLUGINS = {
       reviewPageId = reviewsDataOject?.reviewPageId,
       urlAgent = reviewsDataOject?.urlAgent,
       author = reviewsDataOject?.author,
-      authorExternalId = reviewsDataOject?.authorExternalId,
+      authorExternalId = reviewsDataOject?._id,
       authorLocation = reviewsDataOject?.authorLocation,
       authorReviewCount = reviewsDataOject?.authorReviewCount,
       authorProfileUrl = reviewsDataOject?.authorProfileUrl,
@@ -1022,7 +953,7 @@ export const PLUGINS = {
       hasPropertyResponse = reviewsDataOject?.hasPropertyResponse,
       propertyResponse = reviewsDataOject?.propertyResponse,
       brandCheck = reviewsDataOject?.brandCheck,
-      language = reviewsDataOject?.language,
+      language1 = reviewsDataOject?.language,
       recommended = reviewsDataOject?.recommends,
       propertyProfileUrl = reviewsDataOject?.propertyProfileUrl,
       originalEndpoint = reviewsDataOject?.originalEndpoint,
@@ -1048,13 +979,15 @@ export const PLUGINS = {
       miscellaneous = reviewsDataOject?.miscellaneous,
       roomTypeName = miscellaneous?.roomTypeName,
       lengthOfStay = miscellaneous?.lengthOfStay,
+      language2 = miscellaneous?.languageDetails?.fullLanguage,
+      language = (language1 && language1) || language2,
       isExpertReviewer = miscellaneous?.isExpertReviewer
 
     const InnerReviewHTMLContent = `
       <div id="${_id}" class="row review-container shadow shadow-sm review-incoming __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
             <div class="card text-bg-light my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
                 <div class="card-header shadow-none card_header">
-                <img src="" style="width:30%;max-width:100px !important;min-width:57px !important;max-height:100px !important;border-radius:3px" class="img-thumbnail review-logo-${uuid}-${internalId} bg-transparent" alt="...">
+                <img src="" style="width:30%;max-width:100px !important;min-width:65px !important;max-height:100px !important;border-radius:3px" class="img-thumbnail shadow review-logo-${uuid}-${internalId} bg-transparent" alt="...">
                 </div>
                 <div class="card-body d-flex flex-column left__body" data-subratings="${authorExternalId}">
                   <span class="text" data-guest-rating="rating-${authorExternalId}" data-rating="${rating}"></span>
@@ -1156,6 +1089,7 @@ export const PLUGINS = {
         { key: 'Room type', value: roomTypeName },
         { key: 'Nights stayed', value: lengthOfStay },
         { key: 'Country', value: country },
+        { key: 'Language', value: language },
         { key: 'Professional Reviewer', value: isExpertReviewer }
       ],
       authorExternalId
@@ -1218,7 +1152,7 @@ export const PLUGINS = {
         ])
       }
       if (error.response && error.response.status === 404) {
-        PLUGINS.handleProfileGenerator(null, false)
+        handleProfileGenerator(null, false)
         return displayLabel([
           'review_main_wrapper',
           'alert-secondary',
@@ -1307,6 +1241,7 @@ export const PLUGINS = {
       PLUGINS.removeAdminContainer()
       const textContent = event.target.textContent
       try {
+        runSpinner(false, 'Fetching...')
         const reviews = document.querySelectorAll('.review-container')
         if (reviews.length) {
           reviews.forEach(reviewContainer => reviewContainer.remove())
@@ -1314,6 +1249,7 @@ export const PLUGINS = {
           return
         }
         await PLUGINS.PaginateData(textContent)
+        runSpinner(true, 'Done')
       } catch (e) {
         console.log(e.message)
       }
@@ -1337,10 +1273,9 @@ export const PLUGINS = {
   },
   createAdminProfileCard: async function (userObject, rest) {
     if (!userObject) return
-
     const {
       name: propertyName,
-      slug,
+      reviewSiteSlug,
       originalUrl,
       propertyType,
       _id: profile_id
@@ -1356,47 +1291,49 @@ export const PLUGINS = {
     } = rest
 
     const profileCardHTML = `
-    <div id="${profile_id}" class="card admin-card bg-light-custom shadow  user-${account_id}" style="min-width:250px; width:30%; max-width: 25rem;">
-    <div class="card-header d-flex justify-content-between align-content-center">
-        <h4 class="lead text-uppercase">${slug || ''}</h4>
+    <div id="${profile_id}" class="card admin-card bg-light-custom shadow  user-${account_id}" style="width:60vw; height:40vh">
+    <div class="card-header d-grid justify-content align-content-center">
+        <h4 class="lead text-uppercase">${reviewSiteSlug || ''}</h4>
       </div>
-      <div class="card-body shadow shadow-lg d-block justify-content-around align-content-center">
-          <div class="container d-block">
-          <span class="text-success d-block text-uppercase">${propertyName}</span>
+      <div class="card-body shadow overflow-auto shadow-lg d-block justify-content-around align-content-center">
+          <div class="container d-flex justify-content-between align-content-between">
+              <span class="text-success d-block text-uppercase">Name:</span>
+              <span class="text-secondary d-block text-uppercase">${propertyName}</span>
           </div>
           <hr>
-          <div class="container d-block">
-          <p class="card-text text-uppercase ">Account email:</p>
-          <span class="text-success d-block">${email}</span>
+          <div class="container d-flex justify-content-between align-content-between">
+              <span class="text-success d-block text-uppercase">Account email</span>
+              <span class="text-secondary d-block text-uppercase">${email}</span>
           </div>
           <hr>
-          <div class="container d-block">
-          <p class="card-text text-uppercase">Account name:</p>
-          <span class="text-success d-block text-uppercase">${accountName}</span>
+          <div class="container d-flex justify-content-between align-content-between">
+              <span class="text-success d-block text-uppercase">Account name:</span>
+              <span class="text-secondary d-block text-uppercase">${accountName}</span>
           </div>
           <hr>
-          <div class="container d-flex justify-content-between align-content-center">
-          <p class="card-text text-uppercase">Property type: </p>
-          <span class="text-success d-block text-uppercase ">${propertyType}</span>
+          <div class="container d-flex justify-content-between align-content-between">
+            <span class="text-success d-block text-uppercase ">Property type:</span>
+            <span class="text-secondary d-block text-uppercase ">${propertyType}</span>
           </div>
           <hr>
-          <div class="container d-flex justify-content-between align-content-center">
-          <p class="card-text text-uppercase">Property Page:</p>
-          <a class="text-decoration-underline text-uppercase fa-1x text-success d-block" style="font-size:15px" href="${originalUrl}" target="_blank">visit page</a>
+          <div class="container d-flex justify-content-between align-content-between">
+              <span class="text-success d-block text-uppercase ">Property Page:</span>
+              <a class="text-decoration-underline text-uppercase fa-1x text-secondary d-block" style="font-size:15px" href="${originalUrl}" target="_blank">visit page</a>
           </div>
           <hr>
-          <div class="container d-flex justify-content-between align-content-center">
-          <p class="card-text text-uppercase">Administrator:</p>
-          <span class="text-uppercase text-success">${
-            (isAdmin && 'Yes') || 'No'
-          }</span>
+          <div class="container d-flex justify-content-between align-content-between">
+              <span class="text-success d-block text-uppercase ">Administrator:</span>
+                <span class="text-uppercase text-secondary">${
+                  (isAdmin && 'Yes') || 'No'
+                }
+                </span>
           </div>
           <hr>
-          <div class="container d-flex justify-content-between align-content-center">
-          <p class="card-text text-uppercase">Subscription active:</p>
-          <span class="text-uppercase text-success _subscription">${
-            (isSubscribed && 'Yes') || 'No'
-          }</span>
+          <div class="container d-flex justify-content-between align-content-between">
+              <span class="text-success d-block text-uppercase ">Subscription active:</span>
+              <span class="text-uppercase text-secondary _subscription">${
+                (isSubscribed && 'Yes') || 'No'
+              }</span>
           </div>
     </div>
     <div class="card-footer d-flex justify-content-between align-content-center bg-light">
@@ -1630,17 +1567,18 @@ export const PLUGINS = {
       }
     })
     // up[date profile storage
+    // response.data?.userProfiles
     await fetchCurrentUserUpdateSeesionStorage()
-    const { profiles, ...rest } = await getAuthHandler()
+    const { userProfiles, ...rest } = await getAuthHandler()
 
-    if (!profiles.length)
+    if (!userProfiles.length)
       return displayLabel([
         'review_main_wrapper',
         'alert-warning',
-        `No profiles could be found. You can create profiles for review sites through the menu tab`
+        `No review site profiles could be found. You can create a site profile  via the menu tab`
       ])
-    for (let i = 0; i < profiles.length; i++) {
-      const userObject = profiles[i]
+    for (let i = 0; i < userProfiles.length; i++) {
+      const userObject = userProfiles[i]
       const delay = i * 100
 
       await new Promise(resolve => setTimeout(resolve, delay))

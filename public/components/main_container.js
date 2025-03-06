@@ -5,13 +5,14 @@ const {
   roadRunners,
   userGuideModel,
   setupDropdownHover,
-  handleProfileGenerator,
   superManHandle,
   createAdminPage,
   createAccountPage,
   handleReviewButtonsEvents,
   handlePaginatedDataAllAccounts
 } = PLUGINS
+
+import { handleProfileGenerator } from './apiCallHandlers.js'
 
 function setupEventListeners () {
   logOutUser('.logoutuser_link')
@@ -61,7 +62,6 @@ export async function MAIN_PAGE () {
                           <li class="shadow shadow-sm"><a class="dropdown-item  btn btn-outline-success text-dark text-uppercase  google-com" href="#">google-com</a></li>
                           <li class="shadow shadow-sm"><a class="dropdown-item  btn btn-outline-success text-dark text-uppercase  agoda-com" href="#">agoda-com</a></li>
                           <li class="shadow shadow-sm"><a class="dropdown-item  btn btn-outline-success text-dark text-uppercase  booking-com" href="#">booking-com</a></li>
-                          <li class="shadow shadow-sm"><a class="dropdown-item  btn btn-outline-success text-dark text-uppercase  tripadvisor-com" href="#">tripadvisor-com</a></li>
                           <li class="shadow shadow-sm"><a class="dropdown-item  text-dark text-uppercase  expedia-com" href="#">expedia-com</a></li>
                           <li class="shadow shadow-sm"><a class="dropdown-item  text-dark text-uppercase  ctrip-com" href="#">ctrip-com</a></li>
                           <li class="shadow shadow-sm"><a class="dropdown-item  text-dark text-uppercase  hotels-com" href="#">hotels-com</a></li>
