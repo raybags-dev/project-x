@@ -87,9 +87,14 @@ export async function parseReviewHtml (html, urlAgent, req, propertyProfileUrl) 
       const mainReviewBodyRegex =
         /^(.*?)\s*(Rooms: \d\/\d\s*\|\s*Service: \d\/\d\s*\|\s*Location: \d\/\d)/s
       const mainReviewBodyMatch = rowMainReviewBody.match(mainReviewBodyRegex)
-      const mainReviewBody = mainReviewBodyMatch
+      const main_review_body = mainReviewBodyMatch
         ? mainReviewBodyMatch[1]
         : rowMainReviewBody
+
+      const mainReviewBody = main_review_body.replace(
+        /\s*(Location|Service|Rooms): \d\/\d/g,
+        ''
+      )
 
       const commonReviewProperties = {
         author: username,

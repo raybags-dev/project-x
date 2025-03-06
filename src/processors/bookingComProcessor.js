@@ -139,7 +139,6 @@ export async function generateBookingComReviews (req, res) {
     res.status(500).json({ error: 'Server error' })
   }
 }
-
 function formatReviewString (reviewNegatives = '', reviewPositives = '') {
   let formattedString = ''
   if (reviewNegatives) {
@@ -150,7 +149,6 @@ function formatReviewString (reviewNegatives = '', reviewPositives = '') {
   }
   return formattedString.trim()
 }
-
 function formatFromUnix (timestamp) {
   const date = new Date(timestamp * 1000)
   const year = date.getFullYear()
@@ -158,7 +156,6 @@ function formatFromUnix (timestamp) {
   const day = String(date.getDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
 }
-
 function to_base_rating (rating) {
   const numericRating = typeof rating === 'string' ? parseFloat(rating) : rating
   if (isNaN(numericRating)) return null

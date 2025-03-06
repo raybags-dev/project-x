@@ -140,7 +140,7 @@ const ReviewModel = {
   },
   stayStatus: {
     type: String,
-    default: null
+    default: 'stayed'
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,

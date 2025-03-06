@@ -23,10 +23,13 @@ export function asyncMiddleware (handler) {
   }
 }
 
-export async function handleStandardErrors (asyncFunction) {
-  try {
-    await asyncFunction()
-  } catch (error) {
-    console.error('Error:', error.message || error)
+export function handleStandardErrors (fn) {
+  return async function (...args) {
+    try {
+      return await fn(...args)
+    } catch (error) {
+      console(`Error in function ${fn.name}: ${error.message}`)
+      return null
+    }
   }
 }

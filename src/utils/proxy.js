@@ -1,11 +1,11 @@
+import { logger } from './logger.js'
 import 'dotenv/config'
 import url from 'url'
 import axios from 'axios'
-import { logger } from './logger.js'
+
+const proxyEndpoint = process.env.PROXY_ENDPOINT
 
 function getProxyConfig () {
-  const proxyEndpoint = process.env.PROXY_ENDPOINT
-
   if (!proxyEndpoint) {
     throw new Error(
       'Proxy endpoint missing! Not found in environment variables.'
@@ -14,17 +14,15 @@ function getProxyConfig () {
 
   // Parse the proxy URL
   const parsedUrl = new url.URL(proxyEndpoint)
-
   const proxyConfig = {
     protocol: parsedUrl.protocol.replace(':', ''),
     host: parsedUrl.hostname,
-    port: parsedUrl.port,
+    port: parsedUrl.port || 80,
     auth: {
       username: decodeURIComponent(parsedUrl.username),
       password: decodeURIComponent(parsedUrl.password)
     }
   }
-
   return proxyConfig
 }
 
@@ -45,23 +43,24 @@ axiosInstance.interceptors.response.use(
     if (config && config.proxy && error.code) {
       config.__retryCount = config.__retryCount || 0
 
-      if (config.__retryCount < 3) {
+      if (config.__retryCount < 2) {
         config.__retryCount += 1
         logger(`Retrying with proxy... Attempt ${config.__retryCount}`, 'warn')
 
-        // Retry the request with the proxy
         return axiosInstance(config)
       } else {
-        logger('Proxy failed 3 times. Switching to local network.', 'error')
+        logger('Proxy server down. Switching to local network...', 'warn')
 
-        // After 3 failed attempts, remove the proxy and retry without it
         config.proxy = false
 
         try {
           return await axios.request(config)
         } catch (retryError) {
-          logger(`Request failed: ${retryError.message}`, 'error')
-          throw retryError
+          logger(`from <axiosInstance>: ${retryError}`, 'error')
+          if (error.code && error.code == 429) {
+            logger('Too many requests. Please try again later.', 'warn')
+            return null
+          }
         }
       }
     }

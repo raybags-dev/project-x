@@ -25,9 +25,6 @@ export async function runSpinner (isDone, message = '') {
   }
 }
 export function validateSlug (slug, url) {
-  console.log('slug:', slug)
-  console.log('url:', url)
-
   let httpOccurrences = 0
   let httpsOccurrences = 0
 
