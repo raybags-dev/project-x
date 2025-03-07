@@ -398,7 +398,6 @@ a {
   -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
   padding-left: .3rem;
-  /* margin-left: -50% !important; */
 }
 
 .dropdown-menu > li:hover a {
@@ -434,6 +433,24 @@ a {
   transform-origin: left center;
   transition: transform 0.3s, width 0.3s;
   opacity: 0;
+}
+
+.navbar_btn:active,
+.navbar_btn:focus,
+.navbar_btn:focus-within,
+.navbar-toggler-icon:active,
+.navbar-toggler-icon:focus,
+.navbar-toggler-icon:focus-within {
+  border-color: transparent !important;
+  outline: transparent !important;
+  box-shadow: unset !important;
+}
+
+.subb_head_ing a:hover {
+  background-color: transparent;
+  text-decoration: underline;
+  color: black;
+  outline: #545454;
 }
 
 .img-thumbnail {

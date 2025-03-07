@@ -9,10 +9,9 @@ import {
 import {
   validateSuperAdmin,
   getAuthHandler,
-  setAuthHandler,
   fetchCurrentUserUpdateSeesionStorage
 } from '../components/auth.js'
-import { runSpinner, validateSlug, removeElementFromDOM } from './utilities.js'
+import { runSpinner } from './utilities.js'
 
 export const PLUGINS = {
   previousTextContent: null,
@@ -335,7 +334,6 @@ export const PLUGINS = {
     }
     return false
   },
-
   logOutUser: async function (selector) {
     const cookieRef = await PLUGINS.handleCookieAcceptance()
     if (!cookieRef) return
@@ -363,7 +361,6 @@ export const PLUGINS = {
       })
     }
   },
-
   formatEmail: function (email) {
     const atIndex = email.indexOf('@')
     if (atIndex !== -1) {
@@ -499,28 +496,198 @@ export const PLUGINS = {
   },
   setupDropdownHover: async function () {
     const dropdownItems = document.querySelectorAll('li.nav-item.dropdown')
-    dropdownItems &&
-      dropdownItems.forEach(
-        PLUGINS.handleAsyncErrors(dropdownItem => {
-          dropdownItem &&
-            dropdownItem.addEventListener('mouseenter', () => {
-              const navLink = dropdownItem?.querySelector('a.nav-link')
-              navLink && navLink.setAttribute('aria-expanded', 'true')
-              const dropdownMenu =
-                dropdownItem.querySelector('ul.dropdown-menu')
-              dropdownMenu && dropdownMenu.classList?.add('show')
-            })
 
-          dropdownItem &&
-            dropdownItem.addEventListener('mouseleave', () => {
-              const navLink = dropdownItem.querySelector('a.nav-link')
-              navLink && navLink.setAttribute('aria-expanded', 'false')
-              const dropdownMenu =
-                dropdownItem.querySelector('ul.dropdown-menu')
-              dropdownMenu && dropdownMenu.classList?.remove('show')
+    if (!dropdownItems.length) return
+    const eventListeners = new Map()
+
+    const showDropdown = dropdownItem => {
+      const navLink = dropdownItem.querySelector('a.nav-link')
+      const dropdownMenu = dropdownItem.querySelector('ul.dropdown-menu')
+
+      if (navLink && dropdownMenu) {
+        navLink.setAttribute('aria-expanded', 'true')
+        dropdownMenu.classList.add('show')
+      }
+    }
+    const hideDropdown = dropdownItem => {
+      const navLink = dropdownItem.querySelector('a.nav-link')
+      const dropdownMenu = dropdownItem.querySelector('ul.dropdown-menu')
+
+      if (navLink && dropdownMenu) {
+        navLink.setAttribute('aria-expanded', 'false')
+        dropdownMenu.classList.remove('show')
+      }
+    }
+
+    const clickNavbarToggle = () => {
+      const navbarToggle = document.querySelector('.navbar_btn')
+      if (navbarToggle && window.innerWidth <= 991) {
+        navbarToggle.click()
+      }
+    }
+    const fixUserAccountModal = () => {
+      const userAccountModal = document.getElementById('userAccount')
+      if (
+        userAccountModal &&
+        userAccountModal.getAttribute('aria-hidden') === 'true'
+      ) {
+        const hasFocus = userAccountModal.contains(document.activeElement)
+
+        if (hasFocus) {
+          userAccountModal.removeAttribute('aria-hidden')
+          const observer = new MutationObserver(mutations => {
+            mutations.forEach(mutation => {
+              if (
+                mutation.type === 'attributes' &&
+                mutation.attributeName === 'aria-hidden' &&
+                userAccountModal.contains(document.activeElement)
+              ) {
+                userAccountModal.removeAttribute('aria-hidden')
+              }
             })
+          })
+          observer.observe(userAccountModal, { attributes: true })
+
+          userAccountModal.dataset.ariaObserver = true
+          userAccountModal.addEventListener(
+            'hidden.bs.modal',
+            () => {
+              if (userAccountModal.dataset.ariaObserver) {
+                observer.disconnect()
+                delete userAccountModal.dataset.ariaObserver
+              }
+            },
+            { once: true }
+          )
+        }
+      }
+    }
+    const fixAllModals = () => {
+      const modals = document.querySelectorAll('.modal[aria-hidden="true"]')
+      modals.forEach(modal => {
+        if (modal.contains(document.activeElement)) {
+          modal.removeAttribute('aria-hidden')
+        }
+      })
+    }
+    document.addEventListener('click', fixAllModals)
+    document.addEventListener('focus', fixAllModals, true)
+    const modalFixOnInteraction = () => {
+      fixUserAccountModal()
+      fixAllModals()
+    }
+
+    const applyDropdownBehavior = screenWidth => {
+      const isSmallScreen = screenWidth <= 991
+
+      dropdownItems.forEach(dropdownItem => {
+        if (!(dropdownItem instanceof HTMLElement)) return
+
+        const navLink = dropdownItem.querySelector('a.nav-link')
+        const dropdownMenu = dropdownItem.querySelector('ul.dropdown-menu')
+
+        if (!navLink || !dropdownMenu) return
+        if (eventListeners.has(dropdownItem)) {
+          const listeners = eventListeners.get(dropdownItem)
+          if (listeners.mouseenter) {
+            dropdownItem.removeEventListener('mouseenter', listeners.mouseenter)
+          }
+          if (listeners.mouseleave) {
+            dropdownItem.removeEventListener('mouseleave', listeners.mouseleave)
+          }
+          if (listeners.clickListeners && listeners.clickListeners.length) {
+            listeners.clickListeners.forEach(({ element, listener }) => {
+              element.removeEventListener('click', listener)
+            })
+          }
+        }
+        const newListeners = {
+          mouseenter: null,
+          mouseleave: null,
+          clickListeners: []
+        }
+
+        if (isSmallScreen) {
+          navLink.setAttribute('aria-expanded', 'true')
+          dropdownMenu.classList.add('show')
+          const dropdownLinks = dropdownMenu.querySelectorAll('a.dropdown-item')
+          dropdownLinks.forEach(link => {
+            const clickHandler = () => {
+              setTimeout(() => {
+                clickNavbarToggle()
+                modalFixOnInteraction()
+              }, 50)
+            }
+            link.addEventListener('click', clickHandler)
+            newListeners.clickListeners.push({
+              element: link,
+              listener: clickHandler
+            })
+          })
+        } else {
+          navLink.setAttribute('aria-expanded', 'false')
+          dropdownMenu.classList.remove('show')
+
+          const mouseenterHandler = () => {
+            showDropdown(dropdownItem)
+            modalFixOnInteraction()
+          }
+          dropdownItem.addEventListener('mouseenter', mouseenterHandler)
+          newListeners.mouseenter = mouseenterHandler
+          const mouseleaveHandler = () => {
+            hideDropdown(dropdownItem)
+            modalFixOnInteraction()
+          }
+          dropdownItem.addEventListener('mouseleave', mouseleaveHandler)
+          newListeners.mouseleave = mouseleaveHandler
+          const dropdownLinks = dropdownMenu.querySelectorAll('a.dropdown-item')
+          dropdownLinks.forEach(link => {
+            const clickHandler = () => {
+              hideDropdown(dropdownItem)
+              modalFixOnInteraction()
+            }
+            link.addEventListener('click', clickHandler)
+            newListeners.clickListeners.push({
+              element: link,
+              listener: clickHandler
+            })
+          })
+        }
+        eventListeners.set(dropdownItem, newListeners)
+      })
+    }
+    const initModalFix = () => {
+      fixUserAccountModal()
+      const userAccountModal = document.getElementById('userAccount')
+      if (userAccountModal) {
+        userAccountModal.addEventListener('show.bs.modal', fixUserAccountModal)
+        userAccountModal.addEventListener('shown.bs.modal', fixUserAccountModal)
+
+        const modalButtons = userAccountModal.querySelectorAll('button')
+        modalButtons.forEach(button => {
+          button.addEventListener('focus', () => {
+            fixUserAccountModal()
+          })
+          button.addEventListener('click', () => {
+            fixUserAccountModal()
+          })
         })
-      )
+      }
+    }
+    initModalFix()
+    const savedScreenWidth = await PLUGINS.fetchFromLocalStorage('screenWidth')
+    const initialScreenWidth =
+      savedScreenWidth !== null ? parseInt(savedScreenWidth) : window.innerWidth
+
+    applyDropdownBehavior(initialScreenWidth)
+    window.addEventListener('resize', async () => {
+      const currentScreenWidth = window.innerWidth
+      await PLUGINS.saveToLocalStorage('screenWidth', currentScreenWidth)
+      applyDropdownBehavior(currentScreenWidth)
+
+      fixUserAccountModal()
+      fixAllModals()
+    })
   },
   fetchFromLocalStorage: async function (key) {
     try {
@@ -770,9 +937,6 @@ export const PLUGINS = {
     reviewContainer.addEventListener('click', async event => {
       const clickedButton = event.target.closest('button')
       if (clickedButton) {
-        // ************
-        // action buttons
-        // ************
         if (clickedButton.classList.contains('action_3')) {
           const reviewId = PLUGINS.getOutermostReviewId(clickedButton)
           if (reviewId) {
@@ -795,8 +959,6 @@ export const PLUGINS = {
           }
           return
         }
-        // ************
-        // ************
         if (clickedButton.classList.contains('action_4')) {
           const reviewId = PLUGINS.getOutermostReviewId(clickedButton)
           const authorExternalId = PLUGINS.getAuthorExternalIdId(clickedButton)
@@ -840,8 +1002,6 @@ export const PLUGINS = {
           }
           return
         }
-        // ************
-        // ************
       }
     })
   },
@@ -930,11 +1090,6 @@ export const PLUGINS = {
       }
     })
   },
-
-  // ************* =====Create profile === ************* //
-
-  // ************* =====Fetch review site profile === ************* //
-
   generateReviewCard: async function (
     reviewsDataOject = {},
     cardIsNew = false
@@ -1566,16 +1721,15 @@ export const PLUGINS = {
         location.reload()
       }
     })
-    // up[date profile storage
-    // response.data?.userProfiles
+
     await fetchCurrentUserUpdateSeesionStorage()
-    const { userProfiles, ...rest } = await getAuthHandler()
+    const { userProfiles, ...rest } = (await getAuthHandler()) || {}
 
     if (!userProfiles.length)
       return displayLabel([
         'review_main_wrapper',
         'alert-warning',
-        `No review site profiles could be found. You can create a site profile  via the menu tab`
+        `No profiles could be found. You can create a site profile  via the menu tab`
       ])
     for (let i = 0; i < userProfiles.length; i++) {
       const userObject = userProfiles[i]
@@ -1607,17 +1761,15 @@ export const PLUGINS = {
 
         return new Promise(resolve => {
           const userAccountModal = `
-      <div class="modal fade" id="userAccount" tabindex="-1" data-bs-backdrop="static" aria-labelledby="userAccountLabel" aria-hidden="true" style="backdrop-filter:blur(3px);">
+      <div class="modal fade" id="userAccount" tabindex="-1" data-bs-backdrop="static" aria-labelledby="userAccountLabel" aria-hidden="true" style="backdrop-filter:blur(2px);">
         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered bg-transparent">
           <div class="modal-content bg-transparent text-dark border-4 shadow shadow-lg" style="backdrop-filter:blur(30px);border-radius:.8rem;max-height:95%;overflow-y:auto;">
                 <div class="card shadow shadow-lg custome-color2 h-100 w-100">
                   <div class="card-body  border-transparent">
                     <h3 class="card-title text-decoration-underline">${propertyName}</h3>
-                    <p class="card-text">Email: ${email}</p>
-                    <p class="card-text">Admin: ${
-                      (isAdmin && 'Yes') || 'No'
-                    }</p>
-                    <p class="card-text">Subscription:  ${
+                    <p>Account Email: ${email}</p>
+                    <p>User Is Admin: ${(isAdmin && 'Yes') || 'No'}</p>
+                    <p>Subscription State:  ${
                       (isSubscribed && 'Active') || 'Inactive'
                     }</p>
                     <div class="row profile__container gap-3"></div>
@@ -1646,7 +1798,7 @@ export const PLUGINS = {
               displayLabel([
                 'review_main_wrapper',
                 'alert-success',
-                `Success. These are the profiles available in your account`
+                `These are the profiles available in your account`
               ])
             }, 1000)
           }, 1000)
@@ -1680,26 +1832,17 @@ export const PLUGINS = {
             card.classList.add('w-100')
 
             const cardBody = document.createElement('div')
-            cardBody.classList.add(
-              'card',
-              'bg-light-custom',
-              'shadow',
-              'shadow-sm',
-              'rounded'
-            )
+            cardBody.classList.add('bg-light-custom', 'rounded')
 
             const cardContent = `
-              <div class="card-body bg-light-custom2">
-                  <h5 class="card-title">${profileName}</h5>
-                  <p>ID: ${profileId} </p>
-                  <p>Review site: (${slug}) </p>
-                  <p>Property type: ${propertyType} </p>
-                  <p class="card-text">${
-                    object.description || 'No description available.'
+              <div class="bg-light-custom2">
+                  <p>Property Name: ${profileName}</p>
+                  <!-- <p>ID: ${profileId} </p> -->
+                  <p>Review Site: (${slug}) </p>
+                  <p>Property Type: ${propertyType} </p>
+                  <p class="card-text">Description: ${
+                    object.description || 'Not Available.'
                   }</p>
-                  <a href="${
-                    originalUrl || '#'
-                  }" class="btn btn-secondary" target="_blunk">Visit review Site</a>
               </div>`
             cardBody.innerHTML = cardContent
             card.appendChild(cardBody)

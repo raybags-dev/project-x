@@ -35,7 +35,10 @@ async function handleLoginFormSubmit (event) {
         setTimeout(async () => {
           runSpinner(true)
           history.pushState(null, null, '/')
-          return await MAIN_PAGE()
+
+          const isDOMReady = await MAIN_PAGE()
+          if (!isDOMReady) return false
+          return true
         }, 800)
       }
     } else {
@@ -57,7 +60,6 @@ function setupEventListeners () {
   navbarBrand?.addEventListener('click', async () => {
     SIGNUP_HTML()
   })
-
   const loginForm = document.querySelector('#login___form')
   loginForm?.addEventListener('submit', handleLoginFormSubmit)
 }
