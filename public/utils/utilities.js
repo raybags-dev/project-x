@@ -100,3 +100,17 @@ export async function removeElementFromDOM (elementAnchor) {
     console.log(e.message)
   }
 }
+export async function finishSetup () {
+  try {
+    const userString = sessionStorage.getItem('user')
+    const user = userString ? JSON.parse(userString) : null
+
+    let propertyName = user?.name?.replace(/_/g, ' ') || ''
+    propertyName = propertyName.split('@')[0]
+    const headingElement = document.querySelector('.subb_head_ing a')
+
+    if (headingElement) headingElement.textContent = propertyName
+  } catch (error) {
+    console.error('Error in finishSetup:', error)
+  }
+}

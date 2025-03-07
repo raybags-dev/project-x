@@ -1,5 +1,5 @@
 import { API_CLIENT } from './apiCallHandlers.js'
-import { runSpinner } from '../utils/utilities.js'
+import { runSpinner, justForAMoment } from '../utils/utilities.js'
 
 export async function validateSuperAdmin () {
   try {
@@ -84,5 +84,6 @@ export async function fetchCurrentUserUpdateSeesionStorage () {
     }
   } catch (e) {
     console.log(e.message)
+    if (e?.message?.includes('401')) return justForAMoment('Aborting...')
   }
 }

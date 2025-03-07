@@ -6,6 +6,7 @@ import {
   clearProfileForm,
   removeElementFromDOM
 } from '../utils/utilities.js'
+import { LOGIN_HTML } from './login.js'
 import {
   setAuthHandler,
   getAuthHandler,
@@ -30,8 +31,10 @@ export async function API_CLIENT () {
           displayLabel([
             'review_main_wrapper',
             'alert-danger',
-            `Invalid login credentials. Please try again!`
+            `Invalid login credentials. Logging in should fix this issue!`
           ])
+          runSpinner(false, 'Abboting...')
+          setTimeout(() => LOGIN_HTML(), 3000)
         }
       }
       return Promise.reject(error)
@@ -116,7 +119,7 @@ export async function displayLabel ([anchorId, labelClass, labelText]) {
       if (anchor.contains(label)) {
         anchor.removeChild(label)
       }
-    }, 6000)
+    }, 10000)
   } else {
     console.log(`Anchor with ID '${anchorId}' could not be found`)
   }

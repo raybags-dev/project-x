@@ -7,9 +7,8 @@ import { REVIEW } from '../src/models/documentModel.js'
 import { logger } from '../src/utils/logger.js'
 
 export const generateToken = payload => {
-  const expiresIn = 60000
   return new Promise((resolve, reject) => {
-    jwt.sign(payload, MY_SECRET, { expiresIn }, (err, token) => {
+    jwt.sign(payload, MY_SECRET, { expiresIn: '24h' }, (err, token) => {
       if (err) reject(err)
       resolve(token)
     })
