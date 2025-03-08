@@ -25,29 +25,30 @@ export async function runSpinner (isDone, message = '') {
   }
 }
 export function validateSlug (slug, url) {
-  let httpOccurrences = 0
-  let httpsOccurrences = 0
-
-  if (url.includes('http://')) {
-    httpOccurrences = (url.match(/http:\/\//g) || []).length
-  }
-
-  if (url.includes('https://')) {
-    httpsOccurrences = (url.match(/https:\/\//g) || []).length
-  }
+  let httpOccurrences = (url.match(/http:\/\//g) || []).length
+  let httpsOccurrences = (url.match(/https:\/\//g) || []).length
 
   if (httpOccurrences + httpsOccurrences > 1) {
     const errorMessage =
-      'Invalid charactors detected in the provided url. Use a valid url!'
+      'Invalid characters detected in the provided URL. Use a valid URL!'
     displayLabel(['review_main_wrapper', 'alert-danger', errorMessage])
     justForAMoment('Aborting...')
     return false
   }
 
-  const validFormats = [`https://www.${slug}`, `https://${slug}`]
+  const normalizedSlug = slug.trim().replace('-', '.')
 
-  for (const format of validFormats) {
-    if (url.startsWith(format)) return true
+  const urlHostMatch = url.match(/https?:\/\/(?:www\.)?([^\/.]+)\./)
+  if (!urlHostMatch) {
+    displayLabel(['review_main_wrapper', 'alert-danger', 'Invalid URL format!'])
+    justForAMoment('Aborting...')
+    return false
+  }
+
+  const extractedHost = urlHostMatch[1].trim()
+
+  if (extractedHost === normalizedSlug.split('.')[0]) {
+    return true
   }
 
   const errorMessage = `URL does not match the selected site name (${slug}).`

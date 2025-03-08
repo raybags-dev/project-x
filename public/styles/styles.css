@@ -522,7 +522,6 @@ a {
   backdrop-filter: blur(5px);
   z-index: 1000;
   border-radius: .5rem;
-  background-color: rgb(215, 214, 214) !important;
   padding: .4rem;
   gap: 2px;
   max-height: 40% !important;
@@ -828,6 +827,18 @@ textarea:focus {
   .sign___up,
   .update___password {
     background-image: unset;
+  }
+  @-webkit-keyframes notice-wrapper {
+    100% {
+      bottom: 20%;
+      opacity: 0;
+    }
+  }
+  @keyframes notice-wrapper {
+    100% {
+      bottom: 30%;
+      opacity: 0;
+    }
   }
 }
 
