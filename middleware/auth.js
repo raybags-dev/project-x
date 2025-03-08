@@ -152,7 +152,7 @@ export const authMiddleware = async (req, res, next) => {
     next()
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: 'Token expired' })
+      return res.status(401).json({ error: 'This session has expired' })
     }
 
     logger(`Authentication error: ${error}`, 'error')
@@ -169,7 +169,7 @@ export const extractTokenMiddleware = (req, res, next) => {
 }
 export const checkDocumentAccess = async (req, res, next) => {
   try {
-    const { user } = req.locals // retrieve user object from req.locals
+    const { user } = req.locals
     const document = await REVIEW.findById(req.params.id)
 
     if (!document) {
