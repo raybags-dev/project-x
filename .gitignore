@@ -23,3 +23,6 @@ build/
 .docker/
 docker-compose.override.yml
 loaderV.mp4
+
+# scripts
+rename-files.sh

@@ -6,6 +6,8 @@ import bodyParser from 'body-parser'
 import startUp from './src/workers/startup.js'
 import routesHandler from './src/workers/routesHandler.js'
 import profileGeneratorHandler from './src/workers/profileGeneratorRoutesHandler.js'
+import { wakeupService, dynoActivator } from './middleware/ping_service.js'
+
 const app = express()
 
 app.use(cors())
@@ -14,8 +16,11 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
 app.use(express.json())
 app.use(morgan('tiny'))
+app.use(wakeupService)
+
 miscellaneous(app)
 profileGeneratorHandler(app)
 routesHandler(app)
 handleNotSupported(app)
 startUp(app)
+dynoActivator()

@@ -2,13 +2,21 @@ import winston from 'winston'
 import fs from 'fs'
 import path from 'path'
 
+import 'dotenv/config'
+
+const { NODE_ENV } = process.env
+
 const { existsSync, mkdirSync } = fs
 
 export async function logger (message, level = 'info') {
   const logsDirectory = 'logs'
 
-  if (!existsSync(logsDirectory)) {
-    mkdirSync(logsDirectory)
+  const isDevelopment = NODE_ENV === 'development'
+
+  if (isDevelopment && !existsSync(logsDirectory)) {
+    console.log(`Logs directory does not exist, creating: ${logsDirectory}`)
+    mkdirSync(logsDirectory, { recursive: true })
+    console.log(`Logs directory created at: ${logsDirectory}`)
   }
 
   const infoLogFilePath = path.join(logsDirectory, 'info.log')

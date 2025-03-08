@@ -100,10 +100,10 @@ body::after {
   left: 0;
   z-index: -1;
   border-radius: .3rem;
-  background-color: transparent;
+  background-color: #ffffffcc;
   box-shadow: var(--deep-shadow);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 .review-container .card-header {
