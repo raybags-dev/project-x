@@ -41,6 +41,15 @@ async function handleLoginFormSubmit (event) {
           return true
         }, 800)
       }
+    } else if (
+      loginResponse.status === 429 &&
+      loginResponse.statusText == 'Too Many Requests'
+    ) {
+      displayLabel([
+        'review_main_wrapper',
+        'alert-danger',
+        `Failed: ${loginResponse.data?.error}`
+      ])
     } else {
       displayLabel([
         'review_main_wrapper',
