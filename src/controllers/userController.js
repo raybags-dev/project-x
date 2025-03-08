@@ -38,7 +38,7 @@ export async function CreateUserController (req, res) {
     const userId = newUserId._id
 
     let user
-    const isSubscribed = true
+    const isSubscribed = false
 
     if (isAdminUser || isSuperUser) {
       user = new USER_MODEL({

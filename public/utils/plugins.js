@@ -1142,7 +1142,7 @@ export const PLUGINS = {
       <div id="${_id}" class="row review-container shadow shadow-sm review-incoming __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
             <div class="card text-bg-light my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
                 <div class="card-header shadow-none card_header">
-                <img src="" style="width:30%;max-width:100px !important;min-width:65px !important;max-height:100px !important;border-radius:3px" class="img-thumbnail shadow review-logo-${uuid}-${internalId} bg-transparent" alt="...">
+                <img src="" style="width:30%;max-width:100px !important;min-width:65px !important;max-height:100px !important;border-radius:3px" class="img-thumbnail review-logo-${uuid}-${internalId} bg-transparent" alt="...">
                 </div>
                 <div class="card-body d-flex flex-column left__body" data-subratings="${authorExternalId}">
                   <span class="text" data-guest-rating="rating-${authorExternalId}" data-rating="${rating}"></span>
@@ -1310,8 +1310,8 @@ export const PLUGINS = {
         handleProfileGenerator(null, false)
         return displayLabel([
           'review_main_wrapper',
-          'alert-secondary',
-          `No review data available. \nCreate a ${slug} profile by submiting a property url in the input above and I'll take care of the rest for you.`
+          'alert-warning',
+          `No profile associated with the selected option found. \nYou need to create a ${slug} review profile first!`
         ])
       }
     } finally {

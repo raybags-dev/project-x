@@ -171,7 +171,7 @@ export async function sendCreateProfileRequest () {
         displayLabel([
           'review_main_wrapper',
           'alert-danger',
-          'Invalid URL format. Please provide a valid URL starting!'
+          'Invalid URL format. Please provide a valid URL!'
         ])
         return
       }
@@ -239,7 +239,7 @@ export async function sendCreateProfileRequest () {
       runSpinner(true)
       displayLabel([
         'review_main_wrapper',
-        'alert-danger',
+        'alert-warn',
         `This account already has a ${slug} profile!`
       ])
       runSpinner('Running...')
@@ -300,7 +300,17 @@ export async function runCrawlerHandler (slug, depth = 10) {
       const baseUrl = `/user/generate-${slug}-reviews`
       const query = `?depth=${depth}`
 
-      const { 'auth-token': token } = user
+      const { 'auth-token': token, isSubscribed } = user
+
+      if (!isSubscribed) {
+        displayLabel([
+          'review_main_wrapper',
+          'alert-danger',
+          `Trial period expired - Please contact admin to renew your subscription!`
+        ])
+        await profileGenerator()
+        return false
+      }
 
       const headers = {
         Authorization: `Bearer ${token}`,
@@ -351,8 +361,15 @@ export async function runCrawlerHandler (slug, depth = 10) {
       runSpinner(true)
       return
     }
-  } finally {
-    setTimeout(() => location.reload(), 2000)
+    const isNotSubscribed =
+      e?.response?.status === 403 &&
+      e?.response?.data?.message == 'trial period expired'
+    const message =
+      'Trial period expired - Please contact admin to renew your subscription!'
+    if (isNotSubscribed) {
+      runSpinner(false, 'Failed')
+      await displayLabel(['review_main_wrapper', 'alert-danger', message])
+    }
   }
 }
 export async function handleProfileGenerator (selector = null, hasData = true) {
@@ -385,21 +402,21 @@ export async function profileGenerator () {
 
   if (!formIsPresent) {
     const uploadHTML = `
-        <form id="uploadForm" class="select-img-form shadow shadow-lg bg-light text-danger profile_form">
+      <form id="uploadForm" class="select-img-form shadow shadow-lg bg-light text-danger profile_form">
         <div class="input-group mb3 input-group-lg my_inputs">
-            <select class="form-select border-transparent bg-light" id="inputGroupSiteOptions" aria-label="Example select with button addon">
+          <select class="form-select border-transparent bg-light" id="inputGroupSiteOptions" aria-label="Example select with button addon">
               <option selected>Choose site</option>
-              <option value="google">google-com</option>
-              <option value="agoda">agoda-com</option>
-              <option value="booking">booking-com</option>
-              <option value="expedia">expedia-com</option>
-              <option disabled value="ctrip">ctrip-com</option>
-              <option disabled value="hotels">hotels-com</option>
-              <option disabled value="trip">trip-com</option>
-            </select>
+            <option value="google">google-com</option>
+            <option value="agoda">agoda-com</option>
+            <option value="booking">booking-com</option>
+            <option value="expedia">expedia-com</option>
+            <option disabled value="ctrip">ctrip-com</option>
+            <option disabled value="hotels">hotels-com</option>
+            <option disabled value="trip">trip-com</option>
+          </select>
           <button class="btn btn-lg btn-outline-success rounded shadow shadow-sm sub__this_form" type="button" id="proertyName29">Submit</button>
         </div>
-  
+
         <div class="input-group mb3 my_inputs">
           <textarea type="text" name="propertyurl" id="propertUrlInputY" placeholder="Paste your property review page link here... " rows="10" class="form-control" aria-label="propertyUrl"></textarea>
         </div>
@@ -415,7 +432,6 @@ export async function profileGenerator () {
     document.addEventListener('keydown', async event => {
       if (event.key === 'Enter') {
         event.preventDefault()
-        console.log('submitted')
         await sendCreateProfileRequest()
       }
     })
