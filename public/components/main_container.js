@@ -10,6 +10,7 @@ const {
   createAdminPage,
   createAccountPage,
   handleReviewButtonsEvents,
+  handleContainerScrollEffect,
   handlePaginatedDataAllAccounts
 } = PLUGINS
 
@@ -18,6 +19,7 @@ import { handleProfileGenerator } from './apiCallHandlers.js'
 function setupEventListeners () {
   logOutUser('.logoutuser_link')
   setUpBackToTop('review_main_wrapper')
+  handleContainerScrollEffect('review_main_wrapper')
   document.querySelector('.how_to_link')?.addEventListener('click', () => {
     localStorage.setItem('userGuideShown', false)
     userGuideModel()

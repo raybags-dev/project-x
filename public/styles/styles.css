@@ -80,12 +80,15 @@ body::after {
 .action_buttons {
   padding-bottom: .7rem;
 }
+.review-container .card-header {
+  background-color: transparent;
+}
 
 .review-container {
   position: relative;
   flex: 1;
-  background-color: unset !important;
   margin-bottom: .5rem !important;
+  background-color: unset !important;
   box-sizing: border-box;
   border-radius: .3rem;
   overflow-y: auto;
@@ -106,17 +109,6 @@ body::after {
   backdrop-filter: blur(10px);
 }
 
-.review-container .card-header {
-  background-color: transparent;
-}
-
-.review-container .card {
-  margin-left: auto;
-  margin-right: auto;
-  border-color: transparent;
-  background-color: rgb(255, 255, 255, .3) !important;
-}
-
 .card_header {
   background-color: transparent;
   border-bottom: unset;
@@ -127,9 +119,16 @@ body::after {
 }
 
 .review-incoming {
-  transition: all .05s;
-  -webkit-animation: bring-inn 1 forwards ease-in .05s;
-  animation: bring-inn 1 forwards ease-in .05s;
+  transition: all .2s;
+  -webkit-animation: bring-inn 1 forwards ease-in .18s;
+  animation: bring-inn 1 forwards ease-in .18s;
+}
+
+.review-container .card {
+  margin-left: auto;
+  margin-right: auto;
+  border-color: transparent;
+  background-color: rgb(255, 255, 255, .3) !important;
 }
 
 @-webkit-keyframes bring-inn {
@@ -143,9 +142,8 @@ body::after {
     opacity: 1;
   }
 }
-
 .delete_ite {
-  transition: margin-right .2s;
+  transition: all .2s;
   -webkit-animation: delete-review-effect 1 forwards ease-in .2s;
   animation: delete-review-effect 1 forwards ease-in .2s;
 }
@@ -521,15 +519,6 @@ a {
   -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
   z-index: 1000;
-  border-radius: .5rem;
-  padding: .4rem;
-  gap: 2px;
-  max-height: 40% !important;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 .shake-animation {

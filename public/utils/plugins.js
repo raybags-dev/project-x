@@ -807,12 +807,105 @@ export const PLUGINS = {
     backToTopButton?.addEventListener('click', function (e) {
       e.preventDefault()
       if (mainContainer) {
-        mainContainer.scrollTo({ top: 0, behavior: 'smooth' })
+        mainContainer.scrollTo({ top: 0, behavior: 'auto' })
       }
     })
 
     if (mainContainer && mainContainer.innerHTML.trim() === '') {
       backToTopButton?.classList.remove('show-to-top-btn')
+    }
+  },
+  handleContainerScrollEffect: mainContainerId => {
+    try {
+      const parentReviewContainer = document.getElementById(mainContainerId)
+      if (!parentReviewContainer) return
+
+      const isInViewport = (el, buffer = 0) => {
+        const rect = el.getBoundingClientRect()
+        return (
+          rect.top < window.innerHeight + buffer &&
+          rect.bottom > -buffer &&
+          rect.left < window.innerWidth + buffer &&
+          rect.right > -buffer
+        )
+      }
+
+      const observer = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            const { target, intersectionRatio, isIntersecting } = entry
+            if (isIntersecting && intersectionRatio > 0.1) {
+              target.classList.add('review-incoming')
+            } else if (!isIntersecting || intersectionRatio < 0.05) {
+              target.classList.remove('review-incoming')
+            }
+          })
+        },
+        {
+          threshold: [0.05, 0.1, 0.2],
+          rootMargin: '200px 0px'
+        }
+      )
+
+      const setupInitialVisibility = () => {
+        const reviewContainers =
+          parentReviewContainer.querySelectorAll('.review-container')
+        reviewContainers.forEach(container => {
+          // Check if element is already in viewport with a generous buffer
+          if (isInViewport(container, 300)) {
+            container.classList.add('review-incoming')
+          } else {
+            container.classList.remove('review-incoming')
+          }
+          observer.observe(container)
+        })
+      }
+
+      const observeNewElements = () => {
+        const reviewContainers = parentReviewContainer.querySelectorAll(
+          '.review-container:not([data-observed])'
+        )
+        reviewContainers.forEach(container => {
+          container.setAttribute('data-observed', 'true')
+          if (isInViewport(container, 300)) {
+            container.classList.add('review-incoming')
+          }
+          observer.observe(container)
+        })
+      }
+
+      if (
+        document.readyState === 'complete' ||
+        document.readyState === 'interactive'
+      ) {
+        setupInitialVisibility()
+      } else {
+        document.addEventListener('DOMContentLoaded', setupInitialVisibility)
+      }
+
+      window.addEventListener('load', setupInitialVisibility)
+
+      setTimeout(setupInitialVisibility, 100)
+
+      const mutationObserver = new MutationObserver(() => {
+        observeNewElements()
+      })
+      mutationObserver.observe(parentReviewContainer, {
+        childList: true,
+        subtree: true
+      })
+
+      window.addEventListener('resize', () => {
+        setupInitialVisibility()
+      })
+
+      // Return cleanup function for potential component unmounting
+      return () => {
+        observer.disconnect()
+        mutationObserver.disconnect()
+      }
+    } catch (e) {
+      console.error('Error in handleContainerScrollEffect:', e)
     }
   },
   deleteReviewDocument: async function (documentId) {
@@ -1139,7 +1232,7 @@ export const PLUGINS = {
       isExpertReviewer = miscellaneous?.isExpertReviewer
 
     const InnerReviewHTMLContent = `
-      <div id="${_id}" class="row review-container shadow shadow-sm review-incoming __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
+      <div id="${_id}" class="row review-container shadow shadow-sm  __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
             <div class="card text-bg-light my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
                 <div class="card-header shadow-none card_header">
                 <img src="" style="width:30%;max-width:100px !important;min-width:65px !important;max-height:100px !important;border-radius:3px" class="img-thumbnail review-logo-${uuid}-${internalId} bg-transparent" alt="...">
@@ -1244,7 +1337,6 @@ export const PLUGINS = {
         { key: 'Room type', value: roomTypeName },
         { key: 'Nights stayed', value: lengthOfStay },
         { key: 'Country', value: country },
-        { key: 'Language', value: language },
         { key: 'Professional Reviewer', value: isExpertReviewer }
       ],
       authorExternalId
@@ -1423,6 +1515,89 @@ export const PLUGINS = {
       link.addEventListener('click', PLUGINS.handlePaginatedDataClick)
     })
   },
+  //**************** IMPLIMENT CUSTOM CRAWLING ********* */
+  handleCustomCrawlers: async function (e) {
+    try {
+      e.preventDefault()
+
+      const parentLi = e.target.closest('li')
+      if (!parentLi) return
+
+      const fullCrawlCheckbox = parentLi.querySelector('.form-check-input')
+      const pagesInput = parentLi.querySelector('.pagesInput')
+
+      const isFullCrawlChecked = fullCrawlCheckbox?.checked || false
+      const pagesValue = pagesInput?.value.trim() || null
+
+      const depth = isFullCrawlChecked ? 'full' : pagesValue
+
+      let { slug } = await PLUGINS.getSlugForProfile(e)
+      if (!slug) return false
+
+      console.log(`Depth: ${depth}`)
+      console.log(`isFullCrawlChecked: ${isFullCrawlChecked}`)
+      console.log(`pagesValue: ${pagesValue}`)
+
+      if (!depth || depth === '0' || (!isFullCrawlChecked && depth === '0')) {
+        runSpinner(false, 'Invalid')
+        displayLabel([
+          'review_main_wrapper',
+          'alert-error',
+          `Invalid input - depth cannot be 0`
+        ])
+        setTimeout(() => runSpinner(true), 4000)
+        return
+      }
+      //====================
+      // make call to crawl
+      //====================
+    } catch (e) {
+      console.error(e)
+    }
+  },
+  //**************** IMPLIMENT CUSTOM CRAWLING ********* */
+
+  getSlugForProfile: async function (e) {
+    try {
+      if (!e || !e.target) {
+        console.error('getSlugForProfile requires an event parameter')
+        return null
+      }
+
+      const clickedElement = e.target
+
+      const adminCard = clickedElement.closest('.admin-card')
+      if (!adminCard) {
+        console.error('Could not find parent admin-card element')
+        return null
+      }
+
+      const profileId = adminCard.id
+      if (!profileId) {
+        console.error('Admin card does not have an ID attribute')
+        return null
+      }
+
+      // Get user data and find the matching profile
+      const user = getAuthHandler()
+      if (user && user.userProfiles) {
+        const profile = user.userProfiles.find(p => p._id === profileId)
+        return profile
+          ? {
+              slug: profile.reviewSiteSlug,
+              userProfiles: user.userProfiles,
+              profileId,
+              total: profile.propertyReviewCount
+            }
+          : null
+      }
+
+      return null
+    } catch (error) {
+      console.error('Error getting slug for profile:', error)
+      return null
+    }
+  },
   roadRunners: async function () {
     await PLUGINS.PaginateData()
   },
@@ -1498,7 +1673,7 @@ export const PLUGINS = {
             </button>
             <ul class="dropdown-menu bg-light text-dark" style="z-index:1000 !important">
               <li>
-                  <a class="dropdown-item text-dark text-decoration-underline" href="#">Run Crawler</a>
+                  <a class="dropdown-item _run_crawlerr_ text-dark text-decoration-underline" href="#">Run Crawler</a>
                   <div class="container">
                     <div class="form-check text-muted crawl-${profile_id}">
                         <label class="form-check-label" for="gridCheck">full</label>
@@ -1738,6 +1913,12 @@ export const PLUGINS = {
       await new Promise(resolve => setTimeout(resolve, delay))
       await PLUGINS.createAdminProfileCard(userObject, rest)
     }
+
+    document.querySelectorAll('._run_crawlerr_').forEach(element => {
+      element?.addEventListener('click', e => {
+        PLUGINS.handleCustomCrawlers(e)
+      })
+    })
   },
   createAccountPage: async function () {
     const isContainerInDOM = document.querySelector('#userAccount')
