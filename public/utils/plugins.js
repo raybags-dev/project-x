@@ -1517,6 +1517,7 @@ export const PLUGINS = {
   },
   //**************** IMPLIMENT CUSTOM CRAWLING ********* */
   handleCustomCrawlers: async function (e) {
+    runSpinner(false, 'Crawling...')
     try {
       e.preventDefault()
 
@@ -1531,22 +1532,61 @@ export const PLUGINS = {
 
       const depth = isFullCrawlChecked ? 'full' : pagesValue
 
-      let { slug } = await PLUGINS.getSlugForProfile(e)
+      let { slug, user } = await PLUGINS.getSlugForProfile(e)
       if (!slug) return false
+      slug = slug.replace(/-.*/, '').trim()
 
       console.log(`Depth: ${depth}`)
       console.log(`isFullCrawlChecked: ${isFullCrawlChecked}`)
       console.log(`pagesValue: ${pagesValue}`)
+      console.log(`slug: ${slug}`)
 
       if (!depth || depth === '0' || (!isFullCrawlChecked && depth === '0')) {
         runSpinner(false, 'Invalid')
         displayLabel([
           'review_main_wrapper',
-          'alert-error',
-          `Invalid input - depth cannot be 0`
+          'alert-danger',
+          `Invalid input - depth cannot be <0>`
         ])
         setTimeout(() => runSpinner(true), 4000)
         return
+      }
+
+      //====================
+      // make call to crawl
+      //====================
+      const { 'auth-token': token, isSubscribed } = user
+
+      const apiClient = await API_CLIENT()
+
+      const baseUrl = `/user/generate-${slug}-reviews`
+      const query = `?depth=${depth}`
+
+      if (!isSubscribed) {
+        displayLabel([
+          'review_main_wrapper',
+          'alert-danger',
+          `Trial period expired - Please contact admin to renew your subscription!`
+        ])
+        setTimeout(() => location.reload(), 5000)
+        return false
+      }
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+      const url = `${baseUrl}${query}`
+      const res = await apiClient.post(url, {}, { headers })
+      console.log(res.data)
+      if (res.data.state.includes('success')) {
+        runSpinner(false, 'Refreshing...')
+        displayLabel([
+          'review_main_wrapper',
+          'alert-success',
+          `Extraction completed, fetching updated data...`
+        ])
+        setTimeout(() => location.reload(), 5000)
       }
       //====================
       // make call to crawl
@@ -1587,7 +1627,7 @@ export const PLUGINS = {
               slug: profile.reviewSiteSlug,
               userProfiles: user.userProfiles,
               profileId,
-              total: profile.propertyReviewCount
+              user
             }
           : null
       }
