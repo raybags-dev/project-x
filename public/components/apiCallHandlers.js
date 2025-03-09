@@ -1,7 +1,6 @@
 import {
   runSpinner,
   validateSlug,
-  justForAMoment,
   shakeAnimation,
   clearProfileForm,
   removeElementFromDOM
@@ -108,7 +107,13 @@ export async function displayLabel ([anchorId, labelClass, labelText]) {
     existingAlert.remove()
   }
   const label = document.createElement('div')
-  label.classList.add('alert', labelClass, 'text-center', 'main___alert')
+  label.classList.add(
+    'alert',
+    labelClass,
+    'text-center',
+    'd-block',
+    'main___alert'
+  )
   label.textContent = labelText
   label.style.zIndex = 5000
 
@@ -297,10 +302,16 @@ export async function runCrawlerHandler (slug, depth = 10) {
     if (user) {
       const apiClient = await API_CLIENT()
 
+      const { 'auth-token': token, isSubscribed, userProfiles } = user
+
+      userProfiles &&
+        userProfiles.forEach(profile => {
+          if (depth == 'full' && profile?.reviewSiteSlug == slug)
+            depth = profile.propertyReviewCount
+        })
+
       const baseUrl = `/user/generate-${slug}-reviews`
       const query = `?depth=${depth}`
-
-      const { 'auth-token': token, isSubscribed } = user
 
       if (!isSubscribed) {
         displayLabel([
