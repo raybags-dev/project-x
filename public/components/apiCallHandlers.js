@@ -107,13 +107,7 @@ export async function displayLabel ([anchorId, labelClass, labelText]) {
     existingAlert.remove()
   }
   const label = document.createElement('div')
-  label.classList.add(
-    'alert',
-    labelClass,
-    'text-center',
-    'd-block',
-    'main___alert'
-  )
+  label.classList.add('alert', labelClass, 'text-center', 'main___alert')
   label.textContent = labelText
   label.style.zIndex = 5000
 
@@ -329,8 +323,6 @@ export async function runCrawlerHandler (slug, depth = 10) {
       }
       const url = `${baseUrl}${query}`
       const res = await apiClient.post(url, {}, { headers })
-
-      console.log(res)
 
       removeElementFromDOM('#uploadForm')
 
