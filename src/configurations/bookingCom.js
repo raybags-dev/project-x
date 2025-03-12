@@ -1,5 +1,5 @@
 import { HEADERS } from '../_data_/headers/headers.js'
-import { logger } from '../utils/logger.js'
+import { logger } from '../loggers/logger.js'
 import axiosInstance from '../utils/proxy.js'
 
 export async function fetchBookingReviews (

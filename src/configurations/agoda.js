@@ -1,5 +1,5 @@
 import { HEADERS } from '../_data_/headers/headers.js'
-import { logger } from '../utils/logger.js'
+import { logger } from '../loggers/logger.js'
 import { findTotalIndexById } from '../profileGeneratorsControllers/agodaProfileGeneratorController.js'
 import axiosInstance from '../utils/proxy.js'
 

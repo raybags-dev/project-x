@@ -1,11 +1,10 @@
+import 'dotenv/config'
 import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
 import { generateToken } from '../../middleware/auth.js'
 import { randomBytes } from 'crypto'
-import { config } from 'dotenv'
-import { logger } from '../../src/utils/logger.js'
+import { logger } from '../loggers/logger.js'
 
-config()
 const { SUPER_USER_TOKEN } = process.env
 const userIdSchema = new mongoose.Schema({}, { timestamps: true })
 
@@ -151,12 +150,18 @@ userSchema.statics.isOwner = async function (userId, targetId) {
   const user = await this.findById(userId)
   return user && user.userId.toString() === targetId.toString()
 }
-userSchema.pre('save', function (next) {
+userSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
     this.password = bcrypt.hashSync(this.password, 8)
   }
   if (this.isModified('password') || this.isNew) {
     this.version = this.version + 1
+  }
+  if (this.superUserToken) {
+    const isSuperUser = await USER_MODEL.isSuperUser(this.superUserToken)
+    if (isSuperUser) {
+      this.isSubscribed = true
+    }
   }
   next()
 })

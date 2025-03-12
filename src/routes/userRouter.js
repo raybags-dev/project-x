@@ -39,7 +39,7 @@ router.post(
   asyncMiddleware(GetUserController)
 )
 router.put(
-  '/raybags/v1/review-crawler/user/:userId/subscription',
+  '/raybags/v1/review-crawler/user/update-subscription/:userId',
   authMiddleware,
   isAdmin,
   authRateLimiter,

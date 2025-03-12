@@ -1,6 +1,6 @@
 import { USER_MODEL } from '../models/user.js'
 import { sendEmail } from '../../middleware/emailer.js'
-import { logger } from '../utils/logger.js'
+import { logger } from '../loggers/logger.js'
 
 export async function ForgotPasswordController (req, res) {
   const email = req.body.email

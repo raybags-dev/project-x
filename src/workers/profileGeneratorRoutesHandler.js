@@ -1,6 +1,6 @@
 import fs from 'fs/promises'
 import path from 'path'
-import { logger } from '../utils/logger.js'
+import { logger } from '../loggers/logger.js'
 
 const __dirname = path.resolve()
 

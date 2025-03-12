@@ -3,7 +3,7 @@ import { REVIEW } from '../models/documentModel.js'
 import { ObjectId } from 'mongodb'
 import { USER_MODEL, USER_ID_MODEL } from '../models/user.js'
 import { validateSuperUserToken } from '../../middleware/auth.js'
-import { logger } from '../utils/logger.js'
+import { logger } from '../loggers/logger.js'
 
 export async function deleteAccountProfile (req, res) {
   try {
@@ -62,44 +62,55 @@ export async function pargeUserPublic (req, res) {
 }
 export async function pargeUserPrivate (req, res) {
   try {
-    const superUserToken = await req.locals.user.superUserToken
+    const superUserToken = req.locals.user.superUserToken
     const userIsSuperUser = USER_MODEL.isSuperUser(superUserToken)
 
-    if (!userIsSuperUser) return res.status(403).json({ error: 'FORBIDDE' })
+    if (!userIsSuperUser) {
+      return res.status(403).json({ error: 'FORBIDDEN' })
+    }
 
     const user_Id = req.params._id
+    if (req.locals.user._id === user_Id) {
+      return res
+        .status(403)
+        .json({ error: 'Superusers cannot delete themselves!' })
+    }
+
     const targetUser = await USER_MODEL.findOne({ _id: user_Id })
-    if (!targetUser)
-      return res.status(200).json({ message: 'user could not be found!' })
+    if (!targetUser) {
+      return res.status(404).json({ message: 'User not found!' })
+    }
+
     const userId = targetUser.userId
 
-    const review = await REVIEW.deleteMany({ userId })
-    const profile = await PROFILE_MODEL.deleteOne({ userId })
-    const user = await USER_MODEL.deleteOne({ user_Id })
-    await USER_ID_MODEL.deleteOne({ _id: userId })
+    // Delete related records
+    const [review, profiles, user, userIdDeletion] = await Promise.all([
+      REVIEW.deleteMany({ userId }),
+      PROFILE_MODEL.deleteMany({ userId }),
+      USER_MODEL.deleteOne({ _id: user_Id }),
+      USER_ID_MODEL.deleteOne({ _id: userId })
+    ])
 
     return res.status(200).json({
-      message: 'User, profile purged successfully!',
+      message: 'User and related data purged successfully!',
       details: {
-        reviews: {
-          isreviewsDeleted: review.acknowledged && review.acknowledged,
-          count: review.deletedCount && review.deletedCount
+        reviews: { isDeleted: review.acknowledged, count: review.deletedCount },
+        profiles: {
+          isDeleted: profiles.acknowledged,
+          count: profiles.deletedCount
         },
-        profile: {
-          isDeleted: profile.acknowledged && profile.acknowledged,
-          count: profile.deletedCount && profile.deletedCount
-        },
-        user: {
-          isDeleted: user.acknowledged && user.acknowledged,
-          count: user.deletedCount && user.deletedCount
-        }
+        user: { isDeleted: user.acknowledged, count: user.deletedCount }
       }
     })
   } catch (error) {
     logger(`Error in pargeUserPrivate: ${error}`, 'error')
-    return res.status(500).json({ error: 'Internal Server Error' })
+    return res.status(500).json({
+      error: 'Internal Server Error',
+      message: error.message
+    })
   }
 }
+
 export async function getAccountProfile (req, res) {
   try {
     const { userId } = req.locals.user

@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { promisify } from 'util'
 import { Readable } from 'stream'
 import { sendEmail } from './emailer.js'
@@ -9,10 +10,9 @@ import {
   CreateBucketCommand
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import 'dotenv/config'
 
 import { REVIEW } from '../src/models/documentModel.js'
-import { logger } from '../src/utils/logger.js'
+import { logger } from '../src/loggers//logger.js'
 
 const {
   AWS_ACCESS_KEY_ID,

@@ -1,11 +1,10 @@
+import 'dotenv/config'
 import { USER_MODEL, USER_ID_MODEL } from '../models/user.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { sendEmail } from '../../middleware/emailer.js'
 import { REVIEW } from '../models/documentModel.js'
-import { logger } from '../utils/logger.js'
-
-import { config } from 'dotenv'
-config()
+import { logger } from '../loggers/logger.js'
+import { calculateObjectSize } from 'bson'
 
 const {
   RECIPIENT_EMAIL,
@@ -200,16 +199,32 @@ export async function GetAllUsersController (req, res) {
       }
     ])
 
-    // Fetch user profiles
     const userIds = users.map(user => user.userId)
     const userProfiles = await PROFILE_MODEL.find({ userId: { $in: userIds } })
 
-    // Merge user profiles with user data
+    const formatSize = bytes => {
+      if (bytes < 1024) {
+        return `${bytes} B`
+      } else if (bytes < 1024 * 1024) {
+        return `${(bytes / 1024).toFixed(2)} KB`
+      } else if (bytes < 1024 * 1024 * 1024) {
+        return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+      } else {
+        return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`
+      }
+    }
+
     users.forEach(user => {
       const userProfile = userProfiles.find(profile =>
         profile.userId.equals(user.userId)
       )
+
       user.property_profile = userProfile
+
+      // Calculate data size using BSON serialization
+      const userData = { ...user, property_profile: userProfile }
+      const sizeInBytes = calculateObjectSize(userData)
+      user.data_size = formatSize(sizeInBytes)
     })
 
     const totalUserCount = await USER_MODEL.countDocuments({
@@ -249,27 +264,26 @@ export async function GetAllUsersController (req, res) {
 }
 export async function UpdateSubscriptionController (req, res) {
   try {
-    const isSuperUser = await USER_MODEL.isSuperUser(
-      req.locals.user.superUserToken
-    )
+    const super_user_token = req.locals.user.superUserToken
+    const isSuperUser = await USER_MODEL.isSuperUser(super_user_token)
 
     if (!isSuperUser) {
       return res.status(401).json({ error: 'Unauthorized - Action forbidden!' })
     }
 
     const userIdToUpdate = req.params.userId
-    const user = await USER_MODEL.findOne({ userId: userIdToUpdate })
+    const user = await USER_MODEL.findOne({ _id: userIdToUpdate })
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' })
     }
-    user.isSubscribed = !user.isSubscribed
-    await user.save()
+
+    const result = await USER_MODEL.setSubStatus(user, !user.isSubscribed)
 
     res.status(200).json({
       state: 'Success',
       message: 'Subscription status updated!',
-      isSubscribed: user.isSubscribed
+      isSubscribed: result.success ? !user.isSubscribed : user.isSubscribed
     })
   } catch (error) {
     logger(`Error updating subscription status: ${error}`, 'error')

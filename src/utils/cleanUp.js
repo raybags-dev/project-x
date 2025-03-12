@@ -1,6 +1,6 @@
 import { exec } from 'child_process'
 import { promisify } from 'util'
-import { devLogger } from '../utils/devLogger.js'
+import { devLogger } from '../loggers/devLogger.js'
 
 const execPromise = promisify(exec)
 

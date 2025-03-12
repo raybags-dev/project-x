@@ -2,153 +2,10 @@ import { USER_MODEL } from '../models/user.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { REVIEW } from '../models/documentModel.js'
 import { fetchExpediaReviews } from '../configurations/expediaCom.js'
-import { logger } from '../utils/logger.js'
+import { generateMessage } from '../utils/utilities.js'
+import { logger } from '../loggers/logger.js'
 import parseLocale from '../utils/localizer.js'
 
-// export async function generateExpediaReviews (req, res) {
-//   try {
-//     logger('Starting expedia review extraction...', 'info')
-//     const { email, isAdmin, userId } = await req.locals.user
-//     const isSubscribed = await USER_MODEL.getSubscriptionStatus(userId)
-//     let depth = req.query.depth
-
-//     if (!isSubscribed) {
-//       logger('User subscription expired', 'info')
-//       return res.status(403).json({
-//         status: 'failed',
-//         message: 'trial period expired'
-//       })
-//     }
-
-//     if (!isAdmin) {
-//       logger('User is not an admin', 'info')
-//       return res.status(401).json({
-//         error: 'Something went wrong',
-//         message: 'Process failed in  <generateExpediaReviews>'
-//       })
-//     }
-//     const savedReviews = []
-//     const user = await USER_MODEL.findOne({ email })
-
-//     if (!user) {
-//       logger('User not found', 'info')
-//       return res.status(404).json('User not found!')
-//     }
-
-//     const userProfile = await PROFILE_MODEL.findOne({
-//       userId: user.userId,
-//       reviewSiteSlug: 'expedia-com'
-//     })
-
-//     if (!userProfile || !userProfile.url) {
-//       logger('User profile or URL not found', 'info')
-//       return res.status(400).json({
-//         status: 'failed',
-//         message: 'URL is required to complete this task'
-//       })
-//     }
-
-//     const {
-//       url: baseUrl,
-//       propertyExternalId,
-//       name: property_name,
-//       internalId,
-//       originalUrl,
-//       _id: profile_id,
-//       reviewSiteSlug,
-//       propertyReviewCount
-//     } = userProfile
-
-//     if (depth === 'full') {
-//       depth = (propertyReviewCount && propertyReviewCount) || Infinity
-//     }
-
-//     logger('Fetching expedia reviews', 'info')
-//     const reviewData = await fetchExpediaReviews(
-//       depth,
-//       propertyExternalId,
-//       userProfile
-//     )
-
-//     for (const review of reviewData) {
-//       const existingReview = await REVIEW.findOne({
-//         authorExternalId: review.id,
-//         author: extractAuthName(review)
-//       })
-
-//       if (!existingReview) {
-//         const local = review.locale || null
-//         const rating = to_base_rating(review)
-//         const local_language = parseLocale(local)?.fullLanguage
-//         const review_data = formatFromUnix(review)
-//         const formatedReviewBody = formatReviewString([
-//           review.text,
-//           review?.themes[0]?.label
-//         ])
-//         const property_response = {
-//           body: review.managementResponses[0]?.response,
-//           responseDate: extractHotelResponseDate(
-//             review.managementResponses[0]?.header?.text
-//           )
-//         }
-
-//         const miscellaneous = {
-//           lengthOfStay: extractNumberOfStays(review),
-//           languageDetails: parseLocale(review.locale || null)
-//         }
-
-//         const recomend = getRecommends(review)
-//         const title = review?.title || review?.superlative
-//         const propertyUrl = originalUrl || baseUrl
-//         const review_check = review.brandType
-
-//         const savedReview = await REVIEW.create({
-//           author: extractAuthName(review),
-//           userId: userId,
-//           brandCheck: review_check,
-//           recommends: recomend,
-//           uuid: profile_id,
-//           siteId: internalId,
-//           language: local_language,
-//           authorExternalId: review.id,
-//           authorProfileUrl: originalUrl,
-//           externallId: propertyExternalId,
-//           reviewSiteSlug: reviewSiteSlug,
-//           reviewBody: formatedReviewBody,
-//           title: title,
-//           propertyProfileUrl: propertyUrl,
-//           originalEndpoint: originalUrl,
-//           reviewDate: review_data,
-//           stayDate: review_data,
-//           urlAgent: baseUrl,
-//           propertyName: property_name,
-//           propertyResponse: property_response,
-//           miscellaneous: miscellaneous,
-//           rating: rating
-//         })
-//         savedReviews.push(savedReview)
-//       }
-//     }
-
-//     logger('All pages fetched. Process completed.', 'info')
-//     let ownershipId = userId || req.locals.user.userId
-//     const totalCount = await REVIEW.countDocuments({ userId: ownershipId })
-
-//     res.status(200).json({
-//       state: 'success',
-//       reviewSiteName: reviewSiteSlug,
-//       reviewDocumentCount: totalCount,
-//       accountName: property_name,
-//       endpoint: originalUrl,
-//       siteId: internalId,
-//       reviewPage: baseUrl,
-//       new_reviews: savedReviews,
-//       message: 'Expedia reviews have been collected!'
-//     })
-//   } catch (error) {
-//     logger(`Error generating Expedia reviews: ${error}`, 'warn')
-//   }
-// }
 export async function generateExpediaReviews (req, res) {
   try {
     logger('Starting expedia review extraction...', 'info')
@@ -303,14 +160,15 @@ export async function generateExpediaReviews (req, res) {
 
     res.status(200).json({
       state: 'success',
+      isCompleted: res.statusCode >= 200 && res.statusCode < 300,
       reviewSiteName: reviewSiteSlug,
       reviewDocumentCount: totalCount,
       accountName: property_name,
+      profile_id: profile_id,
       endpoint: originalUrl,
       siteId: internalId,
       reviewPage: baseUrl,
-      new_reviews: savedReviews,
-      message: 'Expedia reviews have been collected!'
+      message: generateMessage(savedReviews, reviewData)
     })
   } catch (error) {
     logger(`Error generating Expedia reviews: ${error}`, 'warn')

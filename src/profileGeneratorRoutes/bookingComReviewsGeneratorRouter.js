@@ -1,5 +1,5 @@
 import express from 'express'
-import { generateBookingComReviews } from '../processors/bookingComProcessor.js'
+import { generateBookingComReviews } from '../spiders/bookingComProcessor.js'
 
 import { authMiddleware, isAdmin } from '../../middleware/auth.js'
 import { asyncMiddleware } from '../../middleware/asyncErros.js'

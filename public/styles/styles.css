@@ -794,6 +794,10 @@ textarea:focus {
     margin-top: 1rem;
     width: 100%;
   }
+  .user_accountcard {
+    flex-grow: 1;
+    min-width: 100% !important;
+  }
 }
 
 @media screen and (max-width: 482px) {

@@ -1,5 +1,5 @@
 import express from 'express'
-import { generateAgodaReviews } from '../processors/agodaProcessor.js'
+import { generateAgodaReviews } from '../spiders/agodaProcessor.js'
 
 import { authMiddleware, isAdmin } from '../../middleware/auth.js'
 import { asyncMiddleware } from '../../middleware/asyncErros.js'

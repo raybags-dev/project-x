@@ -1,5 +1,5 @@
-import { logger } from './logger.js'
 import 'dotenv/config'
+import { logger } from '../loggers/logger.js'
 import url from 'url'
 import axios from 'axios'
 

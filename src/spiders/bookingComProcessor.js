@@ -2,7 +2,8 @@ import { USER_MODEL } from '../models/user.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { REVIEW } from '../models/documentModel.js'
 import { fetchBookingReviews } from '../configurations/bookingCom.js'
-import { logger } from '../utils/logger.js'
+import { generateMessage } from '../utils/utilities.js'
+import { logger } from '../loggers/logger.js'
 
 export async function generateBookingComReviews (req, res) {
   try {
@@ -23,7 +24,7 @@ export async function generateBookingComReviews (req, res) {
       logger('User is not an admin', 'info')
       return res.status(401).json({
         error: 'Something went wrong',
-        message: 'Process failed in  <generateAgodaReviews>'
+        message: 'Process failed in  <generateBookingComReviews>'
       })
     }
     const savedReviews = []
@@ -125,14 +126,15 @@ export async function generateBookingComReviews (req, res) {
 
     res.status(200).json({
       state: 'success',
+      isCompleted: res.statusCode >= 200 && res.statusCode < 300,
       reviewSiteName: reviewSiteSlug,
       reviewDocumentCount: totalCount,
       accountName: property_name,
+      profile_id: profile_id,
       endpoint: originalUrl,
       siteId: internalId,
       reviewPage: baseUrl,
-      review_data: savedReviews,
-      message: 'Booking reviews have been collected!'
+      message: generateMessage(savedReviews, reviewData)
     })
   } catch (error) {
     logger(`Error generating Booking reviews: ${error.message}`, 'error')
