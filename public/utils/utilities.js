@@ -310,10 +310,6 @@ async function toggleUserSubscription (
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     }
-
-    console.log('headers: ', headers)
-    console.log('url: ', url)
-
     const response = await apiClient.put(url, {}, { headers })
 
     if (response.status === 200) {
