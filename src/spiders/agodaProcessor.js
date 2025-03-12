@@ -2,7 +2,8 @@ import { USER_MODEL } from '../models/user.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { REVIEW } from '../models/documentModel.js'
 import { fetchAgodaReviews } from '../configurations/agoda.js'
-import { logger } from '../utils/logger.js'
+import { generateMessage } from '../utils/utilities.js'
+import { logger } from '../loggers/logger.js'
 
 export async function generateAgodaReviews (req, res) {
   try {
@@ -141,16 +142,18 @@ export async function generateAgodaReviews (req, res) {
 
     res.status(200).json({
       state: 'success',
+      isCompleted: res.statusCode >= 200 && res.statusCode < 300,
       reviewSiteName: reviewSiteSlug,
       reviewDocumentCount: totalCount,
       accountName: property_name,
+      profile_id: profile_id,
       endpoint: originalUrl,
       siteId: internalId,
       reviewPage: `${
         (reviewPageUrl && 'https://www.agoda.com/en-gb' + reviewPageUrl) ||
         originalUrl
       }`,
-      message: 'Agoda reviews have been collected!'
+      message: generateMessage(savedReviews, reviewData)
     })
   } catch (error) {
     logger(`Error generating Agoda reviews: ${error.message}`, 'error')

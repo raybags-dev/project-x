@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import { generateUniqueId } from '../../middleware/uuidGenerator.js'
 import { PROFILE_MODEL } from './profileModel.js'
-import { logger } from '../../src/utils/logger.js'
+import { logger } from '../loggers/logger.js'
 
 const ReviewModel = {
   uuid: { type: String, default: null, index: true },

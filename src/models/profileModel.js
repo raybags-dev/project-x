@@ -4,7 +4,7 @@ import {
   generateUUID,
   generateUniqueId
 } from '../../middleware/uuidGenerator.js'
-import { logger } from '../../src/utils/logger.js'
+import { logger } from '../loggers/logger.js'
 
 const reviewSiteProfileModel = {
   uuid: {

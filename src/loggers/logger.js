@@ -1,8 +1,7 @@
+import 'dotenv/config'
 import winston from 'winston'
 import fs from 'fs'
 import path from 'path'
-
-import 'dotenv/config'
 
 const { NODE_ENV } = process.env
 

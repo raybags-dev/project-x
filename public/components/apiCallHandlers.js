@@ -311,7 +311,7 @@ export async function runCrawlerHandler (slug, depth = 10) {
         displayLabel([
           'review_main_wrapper',
           'alert-danger',
-          `Trial period expired - Please contact admin to renew your subscription!`
+          `Yoru account is innactive. - Contact admin to activate your subscription!`
         ])
         await profileGenerator()
         return false
@@ -405,7 +405,7 @@ export async function profileGenerator () {
 
   if (!formIsPresent) {
     const uploadHTML = `
-      <form id="uploadForm" class="select-img-form shadow shadow-lg bg-light text-danger profile_form">
+      <form id="uploadForm" class="select-img-form shadow shadow-lg  rounded bg-light text-danger profile_form">
         <div class="input-group mb3 input-group-lg my_inputs">
           <select class="form-select border-transparent bg-light" id="inputGroupSiteOptions" aria-label="Example select with button addon">
               <option selected>Choose site</option>

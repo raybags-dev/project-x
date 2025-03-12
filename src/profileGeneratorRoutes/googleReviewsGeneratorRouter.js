@@ -1,8 +1,6 @@
 import express from 'express'
-import {
-  generateGoogleReviews,
-  updateReview
-} from '../processors/googleProcessor.js'
+import { generateGoogleReviews } from '../spiders/googleProcessor.js'
+import { updateReview } from '../utils/utilities.js'
 
 import { authMiddleware, isAdmin } from '../../middleware/auth.js'
 import { asyncMiddleware } from '../../middleware/asyncErros.js'
@@ -21,8 +19,8 @@ router.post(
   authMiddleware,
   isAdmin,
   customRateLimiter({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // Max 5 review generation requests per user in 15 minutes
+    windowMs: 15 * 60 * 1000,
+    max: 5,
     message: 'Too many review generation requests. Please try again later.'
   }),
   asyncMiddleware(updateReview)

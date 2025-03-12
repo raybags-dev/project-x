@@ -3,7 +3,7 @@ import { HEADERS } from '../_data_/headers/headers.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { REVIEW } from '../models/documentModel.js'
 import { parseReviewHtml } from '../configurations/google.js'
-import { logger } from './logger.js'
+import { logger } from '../loggers/logger.js'
 import axiosInstance from '../utils/proxy.js'
 
 export async function googleReviewUpdateHandler (req, res) {

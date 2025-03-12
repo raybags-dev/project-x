@@ -1,10 +1,9 @@
+import 'dotenv/config'
 import jwt from 'jsonwebtoken'
-import { config } from 'dotenv'
-config()
 const { MY_SECRET } = process.env
 import { USER_MODEL } from '../src/models/user.js'
 import { REVIEW } from '../src/models/documentModel.js'
-import { logger } from '../src/utils/logger.js'
+import { logger } from '../src/loggers/logger.js'
 
 export const generateToken = payload => {
   return new Promise((resolve, reject) => {

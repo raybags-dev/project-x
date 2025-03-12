@@ -2,7 +2,7 @@ import * as cheerio from 'cheerio'
 
 import { USER_MODEL } from '../models/user.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
-import { logger } from '../utils/logger.js'
+import { logger } from '../loggers/logger.js'
 
 export async function parseReviewHtml (html, urlAgent, req, propertyProfileUrl) {
   try {

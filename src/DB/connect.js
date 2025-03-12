@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { devLogger } from '../utils/devLogger.js'
+import { devLogger } from '../loggers/devLogger.js'
 
 export default async function connectToDB (
   url,

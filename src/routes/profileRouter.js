@@ -20,46 +20,43 @@ router.delete(
   isAdmin,
   customRateLimiter({
     windowMs: 60 * 60 * 1000,
-    max: 5,
+    max: 10,
     message: 'Too many deletion attempts'
   }),
   asyncMiddleware(deleteAccountProfile)
 )
 
-// Delete Profile + Documents - Very Strict (Max 3 per 2 hours)
 router.delete(
   '/raybags/v1/review-crawler/user/delete-own-profile-and-documents/:_id',
   authMiddleware,
   isAdmin,
   customRateLimiter({
     windowMs: 2 * 60 * 60 * 1000,
-    max: 3,
+    max: 10,
     message: 'Too many delete-all attempts'
   }),
   asyncMiddleware(deleteAccountProfileAndAllDocuments)
 )
 
-// Purge Private User Data - Very Strict (Max 3 per 2 hours)
 router.delete(
   '/raybags/v1/review-crawler/user/purge-user/:_id',
   authMiddleware,
   isAdmin,
   customRateLimiter({
     windowMs: 2 * 60 * 60 * 1000,
-    max: 3,
+    max: 10,
     message: 'Too many purge attempts'
   }),
   asyncMiddleware(pargeUserPrivate)
 )
 
-// Purge Public User Data - Moderate Limit (Max 5 per 2 hours)
 router.delete(
   '/raybags/v1/review-crawler/user/purge-own-user-account',
   authMiddleware,
   isAdmin,
   customRateLimiter({
     windowMs: 2 * 60 * 60 * 1000,
-    max: 5,
+    max: 10,
     message: 'Too many public purge attempts'
   }),
   asyncMiddleware(pargeUserPublic)
@@ -78,7 +75,6 @@ router.post(
   asyncMiddleware(validateCaller)
 )
 
-// Get Profile - More Relaxed (Max 100 per hour)
 router.post(
   '/raybags/v1/review-crawler/user/get-profile/:_id',
   authMiddleware,

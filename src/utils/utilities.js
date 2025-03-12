@@ -1,0 +1,96 @@
+import { googleReviewUpdateHandler } from './updateGoogle.js'
+import { agodaReviewUpdateHandler } from './updateAgoda.js'
+
+export function generateMessage (savedReviews, reviewsData) {
+  if (!savedReviews || !reviewsData) return
+  return savedReviews.length && reviewsData.length
+    ? `${savedReviews.length} new objects were saved, out of ${reviewsData.length} total collected.`
+    : savedReviews.length
+    ? `${savedReviews.length} new objects were saved.`
+    : reviewsData.length
+    ? `${reviewsData.length} objects were collected - nothing new saved.`
+    : `No objects were collected.`
+}
+
+export async function updateReview (req, res) {
+  try {
+    const { email, isAdmin, userId } = await req.locals.user
+    const { reviewSiteSlug } = req.body
+    const isSubscribed = await USER_MODEL.getSubscriptionStatus(userId)
+
+    if (!isSubscribed)
+      return res
+        .status(403)
+        .json({ status: 'failed', message: 'trial period expired' })
+
+    if (!isAdmin)
+      return res.status(401).json({
+        error: 'Something went wrong',
+        message: 'Reviews could not be generated from generateGoogleReviews'
+      })
+
+    const user = await USER_MODEL.findOne({ email })
+    if (!user) return res.status(404).json('User not found!')
+
+    const profile = await PROFILE_MODEL.findOne({ userId })
+
+    if (!profile)
+      return res.status(404).json('Profile not found or has been deleted!')
+
+    const { computedUrl, name, originalUrl } = profile
+
+    try {
+      // ********* GOOGLE UPDATE REVIEWS LOGIC ***********
+
+      if (reviewSiteSlug === 'google-com') {
+        const reviewObject = await googleReviewUpdateHandler(req, res)
+        if (reviewObject?.status === 'failed')
+          return res.status(500).json({
+            message:
+              reviewObject.message || 'Something went wrong, update failed.'
+          })
+        return res.status(200).json({
+          message: 'Review updated success',
+          uuid: reviewObject.uuid,
+          reviewSiteSlug,
+          url: computedUrl || originalUrl,
+          data: [reviewObject],
+          propertyName: name,
+          requestTimestamp: new Date()
+        })
+      }
+      // ********* AGODA UPDATE REVIEWS LOGIC ***********
+      if (reviewSiteSlug === 'agoda-com') {
+        logger('review update for this site not yet implimented', 'warn')
+        return res.status(501).json({
+          error: 'Not completed',
+          message: 'Endpoint not yet implimented!'
+        })
+        const reviewObject = await agodaReviewUpdateHandler(req, res)
+        if (reviewObject?.status === 'failed')
+          return res.status(500).json({
+            message:
+              reviewObject.message || 'Something went wrong, update failed.'
+          })
+        return res.status(200).json({
+          message: 'Review updated success',
+          uuid: reviewObject.uuid,
+          reviewSiteSlug,
+          url: computedUrl || originalUrl,
+          data: [reviewObject],
+          propertyName: name,
+          requestTimestamp: new Date()
+        })
+      }
+      return res.status(404).json({
+        message: 'Process failed, No updates occured!'
+      })
+    } catch (error) {
+      logger(`Error fetching reviews: ${error}`, 'error')
+      return res.status(500).json({ error: 'Server error', message: error })
+    }
+  } catch (error) {
+    logger(`Error fetching reviews: ${error}`, 'error')
+    return res.status(500).json({ error: 'Server error' })
+  }
+}

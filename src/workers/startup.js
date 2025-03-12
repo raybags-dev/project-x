@@ -1,7 +1,7 @@
-import connectDB from '../DB/connect.js'
-import { devLogger } from '../utils/devLogger.js'
-import { clearDevPort } from '../utils/cleanUp.js'
 import 'dotenv/config'
+import connectDB from '../DB/connect.js'
+import { devLogger } from '../loggers/devLogger.js'
+import { clearDevPort } from '../utils/cleanUp.js'
 
 const { MONGO_URI } = process.env
 

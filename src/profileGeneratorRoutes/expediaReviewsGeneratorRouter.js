@@ -1,5 +1,5 @@
 import express from 'express'
-import { generateExpediaReviews } from '../processors/expediaComProcessor.js'
+import { generateExpediaReviews } from '../spiders/expediaComProcessor.js'
 
 import { authMiddleware, isAdmin } from '../../middleware/auth.js'
 import { asyncMiddleware } from '../../middleware/asyncErros.js'

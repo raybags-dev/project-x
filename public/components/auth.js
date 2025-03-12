@@ -6,13 +6,14 @@ export async function validateSuperAdmin () {
     runSpinner(false, 'validating...')
 
     const user = getAuthHandler()
-    if (!user.superUserToken || !user.isSuperUser) return
+    const { 'auth-token': token, isAdmin, superUserToken, isSuperUser } = user
+
+    if (!token || !isSuperUser || !isAdmin) return false
+
     if (user) {
       const apiClient = await API_CLIENT()
 
       const baseUrl = '/user/validate'
-
-      const { 'auth-token': token, superUserToken } = user
 
       const headers = {
         Authorization: `Bearer ${token}`,
@@ -36,14 +37,18 @@ export async function validateSuperAdmin () {
       PLUGINS.runSpinner(true)
       return ''
     } else {
-      console.warn('An error occurred:')
+      console.warn('An error occurred:', error)
     }
   }
 }
 export function getAuthHandler () {
-  const userString = sessionStorage.getItem('user')
-  const user = userString ? JSON.parse(userString) : null
-  return user
+  try {
+    const userString = sessionStorage.getItem('user')
+    const user = userString ? JSON.parse(userString) : null
+    return user
+  } catch (e) {
+    console.error('Session storage access error:', error)
+  }
 }
 export function setAuthHandler (userObject, headers) {
   if (userObject && headers && headers.authorization) {

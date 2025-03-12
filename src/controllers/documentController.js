@@ -5,7 +5,7 @@ import { ObjectId } from 'mongodb'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { sendEmail } from '../../middleware/emailer.js'
 import { REVIEW } from '../models/documentModel.js'
-import { logger } from '../utils/logger.js'
+import { logger } from '../loggers/logger.js'
 
 export async function FindOneDocController (req, res) {
   try {

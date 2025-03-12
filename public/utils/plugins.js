@@ -11,7 +11,11 @@ import {
   getAuthHandler,
   fetchCurrentUserUpdateSeesionStorage
 } from '../components/auth.js'
-import { runSpinner } from './utilities.js'
+import {
+  runSpinner,
+  confirmAction,
+  mountAdminPageHandler
+} from './utilities.js'
 
 export const PLUGINS = {
   previousTextContent: null,
@@ -255,7 +259,7 @@ export const PLUGINS = {
           'nav-link',
           'dropdown-toggle',
           'text-uppercase',
-          'text-white'
+          'text-dark'
         )
         adminLink.href = '#'
         adminLink.setAttribute('role', 'button')
@@ -266,8 +270,9 @@ export const PLUGINS = {
         const dropdownMenu = document.createElement('ul')
         dropdownMenu.classList.add(
           'dropdown-menu',
-          'dark-gray-bg',
           'border-3',
+          'rounded',
+          'shadow',
           'border-secondary'
         )
 
@@ -287,8 +292,88 @@ export const PLUGINS = {
   superManHandle: async function () {
     try {
       const linkTabAvailable = await PLUGINS.addSuperAdminLinkToNavbar()
+      if (linkTabAvailable) {
+        document
+          .querySelector('.accounts-admin-tab')
+          .addEventListener('click', async e => {
+            e.preventDefault()
+            runSpinner(false, 'Fetching...')
+
+            const user = getAuthHandler()
+            if (!user) return
+            const { 'auth-token': token, isSuperUser, isAdmin } = user
+
+            const apiClient = await API_CLIENT()
+
+            const baseUrl = `/get-users`
+            const query = `?page=1`
+
+            if (!isSuperUser && !isAdmin) {
+              displayLabel([
+                'review_main_wrapper',
+                'alert-danger',
+                `Unauthorized action!`
+              ])
+              setTimeout(() => location.reload(), 5000)
+              return false
+            }
+
+            const headers = {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+            const url = `${baseUrl}${query}`
+
+            try {
+              const response = await apiClient.post(url, {}, { headers })
+
+              // Ensure response is valid before proceeding
+              if (response.status === 200 && response.statusText === 'OK') {
+                const data = response.data?.user_profiles || []
+                mountAdminPageHandler('#review_main_wrapper', data)
+                runSpinner(true)
+                return true
+              }
+            } catch (error) {
+              if (error.response) {
+                // Handle 404 error
+                if (error.response.status === 404) {
+                  displayLabel([
+                    'review_main_wrapper',
+                    'alert-warning',
+                    `Nothing found - There are no accounts in the database!`
+                  ])
+                  runSpinner(true)
+                  return
+                }
+
+                // Handle other errors
+                displayLabel([
+                  'review_main_wrapper',
+                  'alert-warning',
+                  `Request could not be fulfilled. Please try again later`
+                ])
+              } else {
+                console.error('Unexpected error:', error)
+                displayLabel([
+                  'review_main_wrapper',
+                  'alert-danger',
+                  `An unexpected error occurred.`
+                ])
+              }
+            }
+
+            runSpinner(true)
+          })
+      }
     } catch (e) {
-      console.log('done')
+      console.error(e)
+      displayLabel([
+        'review_main_wrapper',
+        'alert-danger',
+        `An unexpected error occurred.`
+      ])
+      runSpinner(true)
     }
   },
   reviewCount: async function (countTotal, selector) {
@@ -368,51 +453,6 @@ export const PLUGINS = {
       return `@${username}`
     }
     return ''
-  },
-  confirmAction: async function (containerId, message) {
-    if (message === undefined || null)
-      message = `This action cannot be reversed. Are you sure you want to proceed ? `
-    return new Promise(resolve => {
-      const modalHTML = `
-        <div class="modal fade border-2 border-danger p-1" style="backdrop-filter: blur(15px) !important;" id="exampleModalToggle" aria-hidden="false" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content shadow shadow-lg rounded bg-light-custom  text-dark">
-              <div class="container text-center d-flex justify-content-center align-content-center text-uppercase p-2">
-                <h1 class="modal-title fs-5 text-danger" id="exampleModalToggleLabel">Danger zone</h1>
-              </div>
-              <div class="modal-body">${message}</div>
-              <div class="container bg-light mb-2 d-flex justify-content-around align-content-center gap-2">
-                <button type="button" class="btn-lg btn-outline-danger  shadow shadow-lg rounded w-50 proceed_delete overflow-hidden" data-bs-dismiss="modal">Proceed</button>
-                <button type="button" class="btn-lg btn-outline-success  shadow shadow-lg rounded  w-50 cancel_delete overflow-hidden" data-bs-dismiss="modal">Cancel</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <a class="btn btn-transparent" id="modalToggleButton" data-bs-toggle="modal" href="#exampleModalToggle" role="button" style="display:none;"></a>`
-
-      const container = document.querySelector(containerId)
-      container?.insertAdjacentHTML('beforeend', modalHTML)
-
-      const modal = new bootstrap.Modal(
-        document.getElementById('exampleModalToggle')
-      )
-      modal.show()
-
-      const confirmBtn = document.querySelector('.proceed_delete')
-      confirmBtn?.addEventListener('click', async () => {
-        resolve('confirmed!')
-      })
-
-      const abortBtn = document.querySelector('.cancel_delete')
-      abortBtn?.addEventListener('click', async () => {
-        displayLabel([
-          'review_main_wrapper',
-          'alert-secondary',
-          `This process has been aborted.`
-        ])
-        resolve('Aborted.')
-      })
-    })
   },
   handleCookieAcceptance: async function () {
     try {
@@ -1515,7 +1555,6 @@ export const PLUGINS = {
       link.addEventListener('click', PLUGINS.handlePaginatedDataClick)
     })
   },
-  //**************** IMPLIMENT CUSTOM CRAWLING ********* */
   handleCustomCrawlers: async function (e) {
     runSpinner(false, 'Crawling...')
     try {
@@ -1535,11 +1574,6 @@ export const PLUGINS = {
       let { slug, user } = await PLUGINS.getSlugForProfile(e)
       if (!slug) return false
       slug = slug.replace(/-.*/, '').trim()
-
-      console.log(`Depth: ${depth}`)
-      console.log(`isFullCrawlChecked: ${isFullCrawlChecked}`)
-      console.log(`pagesValue: ${pagesValue}`)
-      console.log(`slug: ${slug}`)
 
       if (!depth || depth === '0' || (!isFullCrawlChecked && depth === '0')) {
         runSpinner(false, 'Invalid')
@@ -1578,8 +1612,8 @@ export const PLUGINS = {
       }
       const url = `${baseUrl}${query}`
       const res = await apiClient.post(url, {}, { headers })
-      console.log(res.data)
-      if (res.data.state.includes('success')) {
+
+      if (res.data?.statusText == 'OK') {
         runSpinner(false, 'Refreshing...')
         displayLabel([
           'review_main_wrapper',
@@ -1593,9 +1627,10 @@ export const PLUGINS = {
       //====================
     } catch (e) {
       console.error(e)
+    } finally {
+      runSpinner(true)
     }
   },
-  //**************** IMPLIMENT CUSTOM CRAWLING ********* */
 
   getSlugForProfile: async function (e) {
     try {
@@ -1620,6 +1655,8 @@ export const PLUGINS = {
 
       // Get user data and find the matching profile
       const user = getAuthHandler()
+      const { 'auth-token': token } = user
+
       if (user && user.userProfiles) {
         const profile = user.userProfiles.find(p => p._id === profileId)
         return profile
@@ -1767,7 +1804,7 @@ export const PLUGINS = {
           const slug = (h4 && h4.innerText).toLowerCase()
           const cardId = card && card.getAttribute('id')
 
-          const confirmation = await PLUGINS.confirmAction(
+          const confirmation = await confirmAction(
             '#body',
             `Caution: You are about to delete your account. By confirming account deletion with button 'Proceed', you acknowledge that all your account details, including account data, profiles and associated reviews, will be permanently erased. This irreversible action is not recoverable. Once confirmed, you will lose access to your account, and all data will be unrecoverable. Are you certain you want to proceed with the deletion?`
           )
@@ -1794,7 +1831,7 @@ export const PLUGINS = {
     del_account.forEach(btn => {
       btn.addEventListener('click', async e => {
         try {
-          const confirmation = await PLUGINS.confirmAction(
+          const confirmation = await confirmAction(
             '#body',
             `Caution: You are about to delete your account. By confirming account deletion with button 'Proceed', you acknowledge that all your account details, including account data, profiles and associated reviews, will be permanently erased. This irreversible action is not recoverable. Once confirmed, you will lose access to your account, and all data will be unrecoverable. Are you certain you want to proceed with the deletion?`
           )
@@ -1968,7 +2005,7 @@ export const PLUGINS = {
       const userLocalStorage = await getAuthHandler()
       const userDB = await fetchCurrentUserUpdateSeesionStorage()
 
-      userDB ? (user = userDB) : (user = userLocalStorage)
+      userLocalStorage ? (user = userLocalStorage) : (user = userDB)
 
       if (user && Object.keys(user).length > 0) {
         const {
@@ -1977,32 +2014,35 @@ export const PLUGINS = {
           email,
           isAdmin,
           isSubscribed,
-          profiles
+          userProfiles: profiles
         } = user
 
         return new Promise(resolve => {
           const userAccountModal = `
-      <div class="modal fade" id="userAccount" tabindex="-1" data-bs-backdrop="static" aria-labelledby="userAccountLabel" aria-hidden="true" style="backdrop-filter:blur(2px);">
-        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered bg-transparent">
-          <div class="modal-content bg-transparent text-dark border-4 shadow shadow-lg" style="backdrop-filter:blur(30px);border-radius:.8rem;max-height:95%;overflow-y:auto;">
-                <div class="card shadow shadow-lg custome-color2 h-100 w-100">
-                  <div class="card-body  border-transparent">
-                    <h3 class="card-title text-decoration-underline">${propertyName}</h3>
-                    <p>Account Email: ${email}</p>
-                    <p>User Is Admin: ${(isAdmin && 'Yes') || 'No'}</p>
-                    <p>Subscription State:  ${
-                      (isSubscribed && 'Active') || 'Inactive'
-                    }</p>
-                    <div class="row profile__container gap-3"></div>
+        <div class="modal fade" id="userAccount" tabindex="-1" data-bs-backdrop="static" aria-labelledby="userAccountLabel" aria-hidden="true" style="backdrop-filter:blur(2px);">
+          <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered bg-transparent">
+            <div class="modal-content bg-transparent text-dark border-4 shadow shadow-lg" style="backdrop-filter:blur(30px);border-radius:.8rem;max-height:95%;overflow-y:auto;">
+                  <div class="card shadow shadow-lg h-100 w-100">
+                    <h3 class="card-header text-center">${propertyName}</h3>
+                    <div class="card-body  border-transparent">
+                      <p class="card-title">ID: ${_id}</p>
+                      <p class="card-title">Email Address: ${email}</p>
+                      <p class="card-title">Is Administrator: ${
+                        (isAdmin && 'Yes') || 'No'
+                      }</p>
+                      <p class="card-text">Subscription status:  ${
+                        (isSubscribed && 'Active') || 'Innactive'
+                      }</p>
+                      <div class="row profile__container gap-3"></div>
+                    </div>
+                    <div class="container d-flex justify-content-around align-content-center gap-2">
+                      <button type="button" class="btn  btn-outline-secondary m-auto border-1 btn-lg mt-1 shadow shadow-lg rounded mb-3 w-50" data-bs-dismiss="modal">Exit</button>
+                      <button type="button" class="btn  btn-outline-danger m-auto border-1 btn-lg mt-1 shadow shadow-lg rounded mb-3 w-50 del_account__btn">Delete account</button>
+                    </div>
                   </div>
-                  <div class="container d-flex justify-content-around align-content-center gap-2">
-                    <button type="button" class="btn  btn-outline-secondary m-auto border-1 btn-lg mt-1 shadow shadow-lg rounded mb-3 w-50" data-bs-dismiss="modal">Exit</button>
-                    <button type="button" class="btn  btn-outline-danger m-auto border-1 btn-lg mt-1 shadow shadow-lg rounded mb-3 w-50 del_account__btn">Delete account</button>
-                  </div>
-                </div>
+            </div>
           </div>
-        </div>
-      </div>`
+        </div>`
           const container = document.querySelector('body')
           container?.insertAdjacentHTML('beforeend', userAccountModal)
 
@@ -2045,26 +2085,34 @@ export const PLUGINS = {
             const {
               _id: profileId,
               name: profileName,
-              originalUrl,
               propertyType,
-              slug
+              metadata,
+              reviewSiteSlug
             } = object
+
             const card = document.createElement('div')
-            card.classList.add('w-100')
+            card.classList.add('card', 'w-100', 'shadow')
 
             const cardBody = document.createElement('div')
-            cardBody.classList.add('bg-light-custom', 'rounded')
+            cardBody.classList.add('bg-light', 'rounded')
 
             const cardContent = `
-              <div class="bg-light-custom2">
-                  <p>Property Name: ${profileName}</p>
-                  <!-- <p>ID: ${profileId} </p> -->
-                  <p>Review Site: (${slug}) </p>
-                  <p>Property Type: ${propertyType} </p>
-                  <p class="card-text">Description: ${
-                    object.description || 'Not Available.'
-                  }</p>
-              </div>`
+                <div class="card-body bg-light-custom2">
+                    <p class="card-title text-decoration-underline">${
+                      profileName || 'Unknown'
+                    }</p>
+                    <p class="card-text">Review Site: (${reviewSiteSlug}) </p>
+                    <p class="card-text">Star Rating: (${
+                      metadata?.starRating || 'Not Available.'
+                    }) </p>
+                    <p class="card-text">Property Type: ${propertyType} </p>
+                    <p class="card-text">Address: ${
+                      metadata?.propertyAddress || 'Not Available.'
+                    } </p>
+                    <p class="card-text">Description: ${
+                      metadata?.propertyDescription || 'Not Available.'
+                    }</p>
+                </div>`
             cardBody.innerHTML = cardContent
             card.appendChild(cardBody)
             return card
@@ -2073,7 +2121,7 @@ export const PLUGINS = {
           const profDelbtn = document.querySelector('.del_account__btn')
           profDelbtn &&
             profDelbtn.addEventListener('click', async e => {
-              const confirmation = await PLUGINS.confirmAction(
+              const confirmation = await confirmAction(
                 '#body',
                 `Caution: You are about to delete your account. By confirming account deletion with button 'Proceed', you acknowledge that all your account details, including account data, profiles and associated reviews, will be permanently erased. This irreversible action is not recoverable. Once confirmed, you will lose access to your account, and all data will be unrecoverable. Are you certain you want to proceed with the deletion?`
               )

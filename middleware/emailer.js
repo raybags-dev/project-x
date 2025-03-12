@@ -1,9 +1,7 @@
+import 'dotenv/config'
 import nodemailer from 'nodemailer'
-import { config } from 'dotenv'
 import { generatePasswordResetToken } from '../src/models/user.js'
-import { logger } from '../src/utils/logger.js'
-
-config()
+import { logger } from '../src/loggers//logger.js'
 
 const { EMAIL_PROVIDER, EMAIL_FOR_NOTIFICATION, EMAIL__APP_PASS } = process.env
 const transporter = nodemailer.createTransport({
