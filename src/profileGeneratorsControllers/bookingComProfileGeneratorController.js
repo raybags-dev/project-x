@@ -3,6 +3,7 @@ import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import { HEADERS } from '../_data_/headers/headers.js'
 import { logger } from '../loggers/logger.js'
+import { validateEndpointDomain } from '../utils/validateBaseUrl.js'
 import axiosInstance from '../utils/proxy.js'
 
 export async function generateBookingComProfile (req, res) {
@@ -10,10 +11,23 @@ export async function generateBookingComProfile (req, res) {
     const frontFacingUrl = req.body.frontFacingUrl
     if (!frontFacingUrl) return res.status(400).json('bad request')
 
+    const isValid = validateEndpointDomain(frontFacingUrl, req)
+    if (!isValid)
+      return res.status(400).json('Error: Bad request - Invalid baseUrl!')
+
     const { email, isAdmin, userId } = await req.locals.user
+
     if (isAdmin) {
       const user = await USER_MODEL.findOne({ email })
       if (!user) return res.status(404).json('User not found!')
+
+      const isSubscribed = await USER_MODEL.getSubscriptionStatus(userId)
+      if (!isSubscribed)
+        return res.status(400).json({
+          status: 'failed',
+          message:
+            'user is unsubscribed - review profile creation requires active subscription'
+        })
 
       const headers = HEADERS.bookingHeadersGenProfile
       const response = await axiosInstance.get(frontFacingUrl, { headers })

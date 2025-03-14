@@ -152,6 +152,24 @@ export async function GetUserController (req, res) {
     logger(e, 'error')
   }
 }
+export async function GetUserControllerPrivate (req, res) {
+  try {
+    const userId = req.params.id
+    const isSuperUser = await USER_MODEL.isSuperUser(
+      req.locals.user.superUserToken
+    )
+    if (!isSuperUser)
+      return res.status(401).json({ error: 'Unauthorized - Not a super user' })
+
+    const user = await USER_MODEL.findOne({ _id: userId })
+    if (!user) return res.status(404).json('User not found!')
+
+    res.status(200).json(user)
+  } catch (error) {
+    logger(`Error getting all users: ${error}`, 'error')
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
 export async function GetAllUsersController (req, res) {
   try {
     const isSuperUser = await USER_MODEL.isSuperUser(

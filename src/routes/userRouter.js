@@ -3,6 +3,7 @@ import {
   LoginController,
   CreateUserController,
   GetUserController,
+  GetUserControllerPrivate,
   GetAllUsersController,
   UpdateSubscriptionController
 } from '../controllers/userController.js'
@@ -31,6 +32,13 @@ router.post(
   isAdmin,
   authRateLimiter,
   asyncMiddleware(GetAllUsersController)
+)
+router.post(
+  '/raybags/v1/review-crawler/user/get-guest-user/:id',
+  authMiddleware,
+  isAdmin,
+  authRateLimiter,
+  asyncMiddleware(GetUserControllerPrivate)
 )
 router.post(
   '/raybags/v1/review-crawler/get-user',

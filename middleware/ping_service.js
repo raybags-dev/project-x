@@ -6,7 +6,6 @@ async function wakeupService (req, res, next) {
     await axiosInstance.get(
       'https://ray-project-x-5b3928eb0bca.herokuapp.com/#'
     )
-    console.log('waking server......')
     next()
   } catch (error) {
     console.error('Error pinging server: ', error)
@@ -24,7 +23,7 @@ function dynoActivator () {
       .then(response => {
         console.log(
           response.status === 200
-            ? `isServerAwake: ${response.status === 200}`
+            ? `> is_dyno_awake: ${response.status === 200}`
             : 'false'
         )
       })

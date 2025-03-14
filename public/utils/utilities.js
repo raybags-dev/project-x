@@ -1,4 +1,8 @@
-import { displayLabel, API_CLIENT } from '../components/apiCallHandlers.js'
+import {
+  displayLabel,
+  API_CLIENT,
+  refreshUser
+} from '../components/apiCallHandlers.js'
 import { getAuthHandler } from '../components/auth.js'
 
 export async function runSpinner (isDone, message = '') {
@@ -27,7 +31,7 @@ export async function runSpinner (isDone, message = '') {
 }
 export async function confirmAction (containerId, message) {
   if (message === undefined || null)
-    message = `This action cannot be reversed. Are you sure you want to proceed ?`
+    message = `This action cannot be reversed. Are you sure you want to proceed?`
   return new Promise(resolve => {
     const modalHTML = `
       <div class="modal fade border-2 border-danger p-1" style="backdrop-filter: blur(15px) !important;" id="exampleModalToggle" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
@@ -52,7 +56,6 @@ export async function confirmAction (containerId, message) {
     const modalElement = document.getElementById('exampleModalToggle')
     const modal = new bootstrap.Modal(modalElement)
 
-    // Remove the data-bs-dismiss from the buttons
     const confirmBtn = document.querySelector('.proceed_delete')
     const abortBtn = document.querySelector('.cancel_delete')
 
@@ -78,6 +81,7 @@ export async function confirmAction (containerId, message) {
     })
 
     modal.show()
+
     setTimeout(() => {
       abortBtn?.focus()
     }, 150)
@@ -257,23 +261,21 @@ export function mountAdminPageHandler (parentSelector, data) {
                   <button type="button" class="btn btn-outline-secondary border-secondary shadow w-100 subscription-btn" data-user-id="${id}">${
       isSubscribed ? 'Deactivate subscription' : 'Activate subscription'
     }</button>
-                  <button type="button" class="btn btn-outline-danger border-danger shadow w-100 delete-btn" data-user-id="${id}">Delete account</button>
+                  <button type="button" class="btn btn-danger border-danger shadow w-100 delete-btn" data-user-id="${id}">Delete account</button>
               </div>`
 
     container.appendChild(card)
   })
-
-  // Add event listeners for subscription buttons
   const subscriptionButtons = container.querySelectorAll('.subscription-btn')
   subscriptionButtons.forEach(button => {
     button.addEventListener('click', function (e) {
       const userId = e.target.getAttribute('data-user-id')
-      const isCurrentlyActive = this.textContent === 'Deactivate subscription'
+      const isCurrentlyActive =
+        e.target.textContent === 'Deactivate subscription'
 
       toggleUserSubscription(userId, isCurrentlyActive, e.target)
     })
   })
-
   const deleteButtons = container.querySelectorAll('.delete-btn')
   deleteButtons.forEach(button => {
     button.addEventListener('click', function (e) {
@@ -288,16 +290,6 @@ async function toggleUserSubscription (
   buttonElement
 ) {
   try {
-    const confirmation = await confirmAction(
-      '#body',
-      `Are you sure you want to update this account subscription status?`
-    )
-
-    if (confirmation !== 'confirmed!') {
-      console.log('Account subscription update aborted.')
-      return
-    }
-
     runSpinner(false, 'Processing...')
 
     const user = getAuthHandler()
@@ -321,25 +313,34 @@ async function toggleUserSubscription (
         return
       }
 
-      // Determine new subscription status
-      const newStatus = response.data.isSubscribed
-        ? 'Deactivate subscription'
-        : 'Activate subscription'
+      const newSubState = response.data.isSubscribed
+      // Update button text
+      buttonElement.textContent = newSubState
+        ? 'Deactivate Subscription'
+        : 'Activate Subscription'
 
-      buttonElement.textContent = newStatus
-
+      // Update the subscription status text
       const subscriptionStatusElement = parentCard.querySelector(
-        `.list-group-item[data-sub="${userId}"]`
+        `[data-sub="${userId}"]`
       )
+
       if (subscriptionStatusElement) {
-        subscriptionStatusElement.textContent = `Subscription Active: ${response.data.isSubscribed}`
+        subscriptionStatusElement.textContent = `Subscription Active: ${newSubState}`
+      } else {
+        console.error(
+          `Subscription status element for user ${userId} not found.`
+        )
       }
 
+      // Display success message
       displayLabel([
         'review_main_wrapper',
         'alert-success',
-        'User account subscription updated successfully'
+        newSubState
+          ? 'Account subscription activated successfully'
+          : 'Account subscription deactivated successfully'
       ])
+
       return true
     } else {
       displayLabel([
@@ -357,6 +358,7 @@ async function toggleUserSubscription (
     return false
   } catch (error) {
     console.error('Error updating subscription:', error)
+    runSpinner(true)
   }
 }
 async function deleteUserAccount (userId, e) {
