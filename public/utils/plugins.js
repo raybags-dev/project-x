@@ -400,11 +400,6 @@ export const PLUGINS = {
       }
     }
   },
-  getAuthHandler: function () {
-    const userString = sessionStorage.getItem('user')
-    const user = userString ? JSON.parse(userString) : null
-    return user
-  },
   clearStorage: function (storage) {
     if (!storage) return
 
@@ -509,7 +504,7 @@ export const PLUGINS = {
 
         document
           .querySelector('.c--iie-c-btn')
-          .addEventListener('click', () => {
+          ?.addEventListener('click', () => {
             localStorage.setItem('isCookiesAccepted', 'false')
             displayLabel([
               'body',
@@ -522,7 +517,7 @@ export const PLUGINS = {
       }
       return localStorage.getItem('isCookiesAccepted') === 'true'
     } catch (e) {
-      console.log(e.message)
+      console.log(e)
     }
   },
   handleAsyncErrors: function (callback) {
@@ -1631,7 +1626,6 @@ export const PLUGINS = {
       runSpinner(true)
     }
   },
-
   getSlugForProfile: async function (e) {
     try {
       if (!e || !e.target) {
@@ -1698,88 +1692,88 @@ export const PLUGINS = {
     } = rest
 
     const profileCardHTML = `
-    <div id="${profile_id}" class="card admin-card bg-light-custom shadow  user-${account_id}" style="width:60vw; height:40vh">
-    <div class="card-header d-grid justify-content align-content-center">
-        <h4 class="lead text-uppercase">${reviewSiteSlug || ''}</h4>
-      </div>
-      <div class="card-body shadow overflow-auto shadow-lg d-block justify-content-around align-content-center">
-          <div class="container d-flex justify-content-between align-content-between">
-              <span class="text-success d-block text-uppercase">Name:</span>
-              <span class="text-secondary d-block text-uppercase">${propertyName}</span>
+        <div id="${profile_id}" class="card admin-card bg-light-custom shadow  user-${account_id}" style="width:60vw; height:40vh">
+        <div class="card-header d-grid justify-content align-content-center">
+            <h4 class="lead text-uppercase">${reviewSiteSlug || ''}</h4>
           </div>
-          <hr>
-          <div class="container d-flex justify-content-between align-content-between">
-              <span class="text-success d-block text-uppercase">Account email</span>
-              <span class="text-secondary d-block text-uppercase">${email}</span>
-          </div>
-          <hr>
-          <div class="container d-flex justify-content-between align-content-between">
-              <span class="text-success d-block text-uppercase">Account name:</span>
-              <span class="text-secondary d-block text-uppercase">${accountName}</span>
-          </div>
-          <hr>
-          <div class="container d-flex justify-content-between align-content-between">
-            <span class="text-success d-block text-uppercase ">Property type:</span>
-            <span class="text-secondary d-block text-uppercase ">${propertyType}</span>
-          </div>
-          <hr>
-          <div class="container d-flex justify-content-between align-content-between">
-              <span class="text-success d-block text-uppercase ">Property Page:</span>
-              <a class="text-decoration-underline text-uppercase fa-1x text-secondary d-block" style="font-size:15px" href="${originalUrl}" target="_blank">visit page</a>
-          </div>
-          <hr>
-          <div class="container d-flex justify-content-between align-content-between">
-              <span class="text-success d-block text-uppercase ">Administrator:</span>
-                <span class="text-uppercase text-secondary">${
-                  (isAdmin && 'Yes') || 'No'
-                }
-                </span>
-          </div>
-          <hr>
-          <div class="container d-flex justify-content-between align-content-between">
-              <span class="text-success d-block text-uppercase ">Subscription active:</span>
-              <span class="text-uppercase text-secondary _subscription">${
-                (isSubscribed && 'Yes') || 'No'
-              }</span>
-          </div>
-    </div>
-    <div class="card-footer d-flex justify-content-between align-content-center bg-light">
-        <div class="btn-group" role="group">
-            <button type="button" class="btn btn-outline-success w-50 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-              Actions
-            </button>
-            <ul class="dropdown-menu bg-light text-dark" style="z-index:1000 !important">
-              <li>
-                  <a class="dropdown-item _run_crawlerr_ text-dark text-decoration-underline" href="#">Run Crawler</a>
-                  <div class="container">
-                    <div class="form-check text-muted crawl-${profile_id}">
-                        <label class="form-check-label" for="gridCheck">full</label>
-                        <input class="form-check-input text-dark" data-full="${profile_id}" type="checkbox" id="gridCheck">
-                    </div>
-                    <div class="form-group d-flex p-2 gap-2 justify-content-between align-content-center">
-                        <label for="pagesInput" class="text-dark text-muted">Pages</label>
-                        <div class="text-dark">
-                            <input type="number" data-page="${profile_id}" style="color:#000000; width:inherit;" class="form-control active bg-light-custom pagesInput  text-dark" id="pagesInput" name="pages" value="1">
+          <div class="card-body shadow overflow-auto shadow-lg d-block justify-content-around align-content-center">
+              <div class="container d-flex justify-content-between align-content-between">
+                  <span class="text-success d-block text-uppercase">Name:</span>
+                  <span class="text-secondary d-block text-uppercase">${propertyName}</span>
+              </div>
+              <hr>
+              <div class="container d-flex justify-content-between align-content-between">
+                  <span class="text-success d-block text-uppercase">Account email</span>
+                  <span class="text-secondary d-block text-uppercase">${email}</span>
+              </div>
+              <hr>
+              <div class="container d-flex justify-content-between align-content-between">
+                  <span class="text-success d-block text-uppercase">Account name:</span>
+                  <span class="text-secondary d-block text-uppercase">${accountName}</span>
+              </div>
+              <hr>
+              <div class="container d-flex justify-content-between align-content-between">
+                <span class="text-success d-block text-uppercase ">Property type:</span>
+                <span class="text-secondary d-block text-uppercase ">${propertyType}</span>
+              </div>
+              <hr>
+              <div class="container d-flex justify-content-between align-content-between">
+                  <span class="text-success d-block text-uppercase ">Property Page:</span>
+                  <a class="text-decoration-underline text-uppercase fa-1x text-secondary d-block" style="font-size:15px" href="${originalUrl}" target="_blank">visit page</a>
+              </div>
+              <hr>
+              <div class="container d-flex justify-content-between align-content-between">
+                  <span class="text-success d-block text-uppercase ">Administrator:</span>
+                    <span class="text-uppercase text-secondary">${
+                      (isAdmin && 'Yes') || 'No'
+                    }
+                    </span>
+              </div>
+              <hr>
+              <div class="container d-flex justify-content-between align-content-between">
+                  <span class="text-success d-block text-uppercase ">Subscription active:</span>
+                  <span class="text-uppercase text-secondary _subscription">${
+                    (isSubscribed && 'Yes') || 'No'
+                  }</span>
+              </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-content-center bg-light">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-success w-50 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Actions
+                </button>
+                <ul class="dropdown-menu bg-light text-dark" style="z-index:1000 !important">
+                  <li>
+                      <a class="dropdown-item _run_crawlerr_ text-dark text-decoration-underline" href="#">Run Crawler</a>
+                      <div class="container">
+                        <div class="form-check text-muted crawl-${profile_id}">
+                            <label class="form-check-label" for="gridCheck">full</label>
+                            <input class="form-check-input text-dark" data-full="${profile_id}" type="checkbox" id="gridCheck">
                         </div>
-                    </div>
-                  </div>
-              </li>
-            </ul>
+                        <div class="form-group d-flex p-2 gap-2 justify-content-between align-content-center">
+                            <label for="pagesInput" class="text-dark text-muted">Pages</label>
+                            <div class="text-dark">
+                                <input type="number" data-page="${profile_id}" style="color:#000000; width:inherit;" class="form-control active bg-light-custom pagesInput  text-dark" id="pagesInput" name="pages" value="1">
+                            </div>
+                        </div>
+                      </div>
+                  </li>
+                </ul>
+            </div>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-danger w-50 dropdown-toggle shadow" data-bs-toggle="dropdown" aria-expanded="false">
+                  Danger zone
+                </button>
+                <ul class="dropdown-menu bg-light shadow shadow-lg text-dark" style="z-index:1000 !important">
+                  <li class="">
+                    <a class="dropdown-item text-danger del_all_reviews" href="#">Delete profile & reviews</a>
+                      
+                  </li>
+                  <li><a class="dropdown-item text-danger del_entire_account" href="#">Delete account</a></li>
+                </ul>
+            </div>
         </div>
-        <div class="btn-group" role="group">
-            <button type="button" class="btn btn-outline-danger w-50 dropdown-toggle shadow" data-bs-toggle="dropdown" aria-expanded="false">
-              Danger zone
-            </button>
-            <ul class="dropdown-menu bg-light shadow shadow-lg text-dark" style="z-index:1000 !important">
-              <li class="">
-                <a class="dropdown-item text-danger del_all_reviews" href="#">Delete profile & reviews</a>
-                  
-              </li>
-              <li><a class="dropdown-item text-danger del_entire_account" href="#">Delete account</a></li>
-            </ul>
-        </div>
-    </div>
-  </div>  
+      </div>  
     `
 
     const parent_wrapper = document.querySelector('#admin_page')

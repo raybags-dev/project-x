@@ -11,7 +11,6 @@ export function generateMessage (savedReviews, reviewsData) {
     ? `${reviewsData.length} objects were collected - nothing new saved.`
     : `No objects were collected.`
 }
-
 export async function updateReview (req, res) {
   try {
     const { email, isAdmin, userId } = await req.locals.user
@@ -92,5 +91,13 @@ export async function updateReview (req, res) {
   } catch (error) {
     logger(`Error fetching reviews: ${error}`, 'error')
     return res.status(500).json({ error: 'Server error' })
+  }
+}
+export async function isUserSubscribed (user) {
+  try {
+    return !!user?.isSubscribed
+  } catch (error) {
+    console.error('Error checking subscription:', error)
+    return false
   }
 }

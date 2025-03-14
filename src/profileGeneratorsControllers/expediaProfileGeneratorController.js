@@ -18,6 +18,14 @@ export async function generateExpediaProfile (req, res) {
       const user = await USER_MODEL.findOne({ email })
       if (!user) return res.status(404).json('User not found!')
 
+      const isSubscribed = await USER_MODEL.getSubscriptionStatus(userId)
+      if (!isSubscribed)
+        return res.status(400).json({
+          status: 'failed',
+          message:
+            'user is unsubscribed - review profile creation requires active subscription'
+        })
+
       const response = await axiosInstance.get(frontFacingUrl, {
         headers: HEADERS.expediaHeadersGenProfile
       })

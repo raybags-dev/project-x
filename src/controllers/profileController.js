@@ -110,7 +110,6 @@ export async function pargeUserPrivate (req, res) {
     })
   }
 }
-
 export async function getAccountProfile (req, res) {
   try {
     const { userId } = req.locals.user
@@ -140,7 +139,6 @@ export async function getAccountProfile (req, res) {
     logger(e.message, 'error')
   }
 }
-
 export async function validateCaller (req, res) {
   try {
     const requestToken = req.headers['admin-token'] || ''
@@ -160,7 +158,6 @@ export async function validateCaller (req, res) {
     res.status(500).json({ status: 'ERROR', message: 'Internal Server Error' })
   }
 }
-
 export async function deleteAccountProfileAndAllDocuments (req, res) {
   try {
     const slug = req.query.slug

@@ -32,8 +32,11 @@ export async function API_CLIENT () {
             'alert-danger',
             `Invalid login credentials. Logging in should fix this issue!`
           ])
-          runSpinner(false, 'Abboting...')
-          setTimeout(() => LOGIN_HTML(), 3000)
+          runSpinner(false, 'Aborting...')
+          setTimeout(() => {
+            LOGIN_HTML()
+            runSpinner(true)
+          }, 3000)
         }
       }
       return Promise.reject(error)
@@ -99,6 +102,33 @@ export async function loginUser (user) {
       'Login failed. PLease try to login again!'
     ])
     return error?.response
+  }
+}
+export async function logOutUser (selector) {
+  const cookieRef = await handleCookieAcceptance()
+  if (!cookieRef) return
+
+  const BTNs = Array.from(document.querySelectorAll(selector))
+
+  if (BTNs.length) {
+    BTNs.forEach(async btn => {
+      btn.addEventListener('click', async () => {
+        const user = sessionStorage.getItem('user')
+        if (user) {
+          displayLabel([
+            'review_main_wrapper',
+            'alert-secondary',
+            'Logout successful!'
+          ])
+
+          setTimeout(() => {
+            sessionStorage.removeItem('user')
+            sessionStorage.removeItem('redirected')
+          }, 500)
+        }
+        LOGIN_HTML()
+      })
+    })
   }
 }
 export async function displayLabel ([anchorId, labelClass, labelText]) {
@@ -441,4 +471,113 @@ export async function profileGenerator () {
   } else {
     formIsPresent?.remove()
   }
+}
+export async function handleCookieAcceptance () {
+  try {
+    const isCookiesAccepted = localStorage.getItem('isCookiesAccepted')
+
+    if (isCookiesAccepted === 'false' || isCookiesAccepted === null) {
+      const modalHTML = `
+          <div class="modal fade text-dark bg-light" id="cookieModal"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="cookieModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-light shadow">
+              <div class="modal-header border-0" >
+                <h1 class="modal-title fs-5 text-dark m-auto text-uppercase text-muted" id="cookieModalLabel">Cookie Policy</h1>
+              </div>
+              <div class="modal-body">
+                <p class="text-dark lead text-muted">This website uses cookies to enhance the user experience. By accepting cookies, you agree to our <a href="#" class="text-primary">Terms of Service</a> and <a href="#" class="text-primary">Privacy Policy</a>.</p>
+              </div>
+              <div class="container border-0 d-flex justify-content-around align-content-center gap-2 p-2">
+                <button type="button" class="btn btn-lg btn-outline-secondary w-50" id="rejectCookies" data-bs-dismiss="modal">Reject</button>
+                <button type="button" class="btn btn-lg btn-outline-success w-50" id="acceptCookies">Accept</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `
+
+      document.body.insertAdjacentHTML('beforeend', modalHTML)
+      const cookieModal = new bootstrap.Modal(
+        document.getElementById('cookieModal')
+      )
+      cookieModal.show()
+
+      document.getElementById('acceptCookies').addEventListener('click', () => {
+        localStorage.setItem('isCookiesAccepted', 'true')
+        localStorage.setItem('userGuideShown', 'false')
+        cookieModal.hide()
+        window.location.reload()
+      })
+
+      document.getElementById('rejectCookies').addEventListener('click', () => {
+        localStorage.setItem('isCookiesAccepted', 'false')
+        displayLabel([
+          'body',
+          'alert-danger',
+          "Unfortunately, you can't use this application without consenting to the Terms of Service."
+        ])
+
+        cookieModal.hide()
+        setTimeout(() => window.location.reload(), 5000)
+      })
+
+      document.querySelector('.c--iie-c-btn')?.addEventListener('click', () => {
+        localStorage.setItem('isCookiesAccepted', 'false')
+        displayLabel([
+          'body',
+          'alert-danger',
+          "Unfortunately, you can't use this application without consenting to the Terms of Service."
+        ])
+        cookieModal.hide()
+        setTimeout(() => window.location.reload(), 5000)
+      })
+    }
+    return localStorage.getItem('isCookiesAccepted') === 'true'
+  } catch (e) {
+    console.log(e)
+  }
+}
+export async function refreshUser (userId) {
+  if (!userId) {
+    return showError('Could not refresh user - userId required.')
+  }
+
+  try {
+    const user = getAuthHandler()
+    if (!user) return showError('Authentication failed. Please log in again.')
+
+    const { 'auth-token': token, isSuperUser, isAdmin } = user
+    if (!isSuperUser && !isAdmin) {
+      showError('Unauthorized action!')
+      setTimeout(() => location.reload(), 5000)
+      return null
+    }
+
+    const apiClient = await API_CLIENT()
+    const response = await apiClient.post(
+      `/user/get-guest-user/${userId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+
+    if (response.status === 200) {
+      runSpinner(true)
+      return response.data
+    }
+
+    return showError('Refreshing user failed.')
+  } catch (error) {
+    runSpinner(false, 'Failed!')
+    return showError('Login failed. Please try logging in again.')
+  }
+}
+
+function showError (message) {
+  displayLabel(['review_main_wrapper', 'alert-danger', message])
+  return null
 }
