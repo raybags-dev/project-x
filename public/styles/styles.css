@@ -710,6 +710,25 @@ textarea:focus {
   background: transparent;
 }
 
+.admin-card {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d2d2d2 #f0f0f0;
+}
+
+.admin-card::-webkit-scrollbar {
+  width: 2px;
+}
+
+.admin-card::-webkit-scrollbar-thumb {
+  background-color: #c0d6f1;
+  border-radius: 3px;
+}
+
+.admin-card::-webkit-scrollbar-track {
+  background-color: #f0f0f0;
+}
+
 @media screen and (max-width: 1213px) {
   @-webkit-keyframes bring-in-form {
     to {
@@ -798,6 +817,9 @@ textarea:focus {
     flex-grow: 1;
     min-width: 100% !important;
   }
+  .admin-card {
+    min-width: 100%;
+  }
 }
 
 @media screen and (max-width: 482px) {
@@ -850,5 +872,8 @@ textarea:focus {
 @media screen and (max-width: 351px) {
   .heading {
     font-size: 15px;
+  }
+  .admin-card {
+    max-width: 396px !important;
   }
 }

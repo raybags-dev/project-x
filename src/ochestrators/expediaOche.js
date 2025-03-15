@@ -1,10 +1,10 @@
-import { USER_MODEL } from '../models/user.js'
-import { PROFILE_MODEL } from '../models/profileModel.js'
-import { REVIEW } from '../models/documentModel.js'
-import { fetchExpediaReviews } from '../configurations/expediaCom.js'
-import { generateMessage } from '../utils/utilities.js'
 import { logger } from '../loggers/logger.js'
+import { REVIEW } from '../models/documentModel.js'
+import { PROFILE_MODEL } from '../models/profileModel.js'
+import { USER_MODEL } from '../models/user.js'
+import { fetchExpediaReviews } from '../spiders/expediaSpider.js'
 import parseLocale from '../utils/localizer.js'
+import { generateMessage } from '../utils/utilities.js'
 
 export async function generateExpediaReviews (req, res) {
   try {

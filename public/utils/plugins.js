@@ -1,20 +1,20 @@
-import { LOGIN_HTML } from '../components/login.js'
-import { SIGNUP_HTML } from '../components/signup.js'
-import { siteLogos } from '../components/logoPaths.js'
 import {
   API_CLIENT,
   displayLabel,
   handleProfileGenerator
 } from '../components/apiCallHandlers.js'
 import {
-  validateSuperAdmin,
+  fetchCurrentUserUpdateSeesionStorage,
   getAuthHandler,
-  fetchCurrentUserUpdateSeesionStorage
+  validateSuperAdmin
 } from '../components/auth.js'
+import { LOGIN_HTML } from '../components/login.js'
+import { siteLogos } from '../components/logoPaths.js'
+import { SIGNUP_HTML } from '../components/signup.js'
 import {
-  runSpinner,
   confirmAction,
-  mountAdminPageHandler
+  mountAdminPageHandler,
+  runSpinner
 } from './utilities.js'
 
 export const PLUGINS = {
@@ -1933,7 +1933,9 @@ export const PLUGINS = {
             return
           }
 
-          throw new Error('Unexpected response from server.')
+          console.log(
+            'Redandant outcome. Unexpected server behaviour - see logs.'
+          )
         } catch (error) {
           console.error('Delete Reviews Error:', error.message)
           console.log(error.response)

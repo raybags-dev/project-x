@@ -1,8 +1,8 @@
 import { ObjectId } from 'mongodb'
-import { PROFILE_MODEL } from '../models/profileModel.js'
-import { REVIEW } from '../models/documentModel.js'
-import { fetchAgodaReviews } from '../configurations/agoda.js'
 import { logger } from '../loggers/logger.js'
+import { REVIEW } from '../models/documentModel.js'
+import { PROFILE_MODEL } from '../models/profileModel.js'
+import { fetchAgodaReviews } from '../spiders/agodaSpider.js'
 
 export async function agodaReviewUpdateHandler (req, res) {
   try {

@@ -1,8 +1,8 @@
-import { USER_MODEL } from '../models/user.js'
-import { PROFILE_MODEL } from '../models/profileModel.js'
-import { REVIEW } from '../models/documentModel.js'
 import { HEADERS } from '../_data_/headers/headers.js'
-import { parseReviewHtml } from '../configurations/google.js'
+import { REVIEW } from '../models/documentModel.js'
+import { PROFILE_MODEL } from '../models/profileModel.js'
+import { USER_MODEL } from '../models/user.js'
+import { parseReviewHtml } from '../ochestrators/googleOche.js'
 
 import { logger } from '../loggers/logger.js'
 import axiosInstance from '../utils/proxy.js'

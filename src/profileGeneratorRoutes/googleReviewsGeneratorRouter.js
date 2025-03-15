@@ -1,9 +1,9 @@
 import express from 'express'
-import { generateGoogleReviews } from '../spiders/googleProcessor.js'
+import { generateGoogleReviews } from '../spiders/googleSpider.js'
 import { updateReview } from '../utils/utilities.js'
 
-import { authMiddleware, isAdmin } from '../../middleware/auth.js'
 import { asyncMiddleware } from '../../middleware/asyncErros.js'
+import { authMiddleware, isAdmin } from '../../middleware/auth.js'
 import { customRateLimiter } from '../../middleware/limiters.js'
 
 const router = express.Router()
