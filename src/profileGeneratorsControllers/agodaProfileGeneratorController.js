@@ -1,9 +1,9 @@
+import { HEADERS } from '../_data_/headers/headers.js'
+import { logger } from '../loggers/logger.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
-import { HEADERS } from '../_data_/headers/headers.js'
-import { getAgodaCreds } from '../configurations/agoda.js'
+import { getAgodaCreds } from '../spiders/agodaSpider.js'
 import { validateEndpointDomain } from '../utils/validateBaseUrl.js'
-import { logger } from '../loggers/logger.js'
 
 import axiosInstance from '../../src/utils/proxy.js'
 
