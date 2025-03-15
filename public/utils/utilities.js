@@ -1,8 +1,4 @@
-import {
-  displayLabel,
-  API_CLIENT,
-  refreshUser
-} from '../components/apiCallHandlers.js'
+import { displayLabel, API_CLIENT } from '../components/apiCallHandlers.js'
 import { getAuthHandler } from '../components/auth.js'
 
 export async function runSpinner (isDone, message = '') {
@@ -258,7 +254,9 @@ export function mountAdminPageHandler (parentSelector, data) {
                   </ul>
               </div>
               <div class="container bg-transparent d-flex flex-column gap-2 pb-2">
-                  <button type="button" class="btn btn-outline-secondary border-secondary shadow w-100 subscription-btn" data-user-id="${id}">${
+                  <button type="button" class="btn ${
+                    isSubscribed ? 'btn-success' : 'btn-secondary'
+                  } shadow w-100 subscription-btn" data-user-id="${id}">${
       isSubscribed ? 'Deactivate subscription' : 'Activate subscription'
     }</button>
                   <button type="button" class="btn btn-danger border-danger shadow w-100 delete-btn" data-user-id="${id}">Delete account</button>
@@ -267,6 +265,7 @@ export function mountAdminPageHandler (parentSelector, data) {
     container.appendChild(card)
   })
   const subscriptionButtons = container.querySelectorAll('.subscription-btn')
+
   subscriptionButtons.forEach(button => {
     button.addEventListener('click', function (e) {
       const userId = e.target.getAttribute('data-user-id')
@@ -276,6 +275,7 @@ export function mountAdminPageHandler (parentSelector, data) {
       toggleUserSubscription(userId, isCurrentlyActive, e.target)
     })
   })
+
   const deleteButtons = container.querySelectorAll('.delete-btn')
   deleteButtons.forEach(button => {
     button.addEventListener('click', function (e) {
@@ -284,6 +284,7 @@ export function mountAdminPageHandler (parentSelector, data) {
     })
   })
 }
+
 async function toggleUserSubscription (
   userId,
   isCurrentlyActive,
@@ -302,6 +303,7 @@ async function toggleUserSubscription (
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     }
+
     const response = await apiClient.put(url, {}, { headers })
 
     if (response.status === 200) {
@@ -314,16 +316,16 @@ async function toggleUserSubscription (
       }
 
       const newSubState = response.data.isSubscribed
-      // Update button text
+
       buttonElement.textContent = newSubState
         ? 'Deactivate Subscription'
         : 'Activate Subscription'
+      buttonElement.classList.remove('btn-success', 'btn-secondary')
+      buttonElement.classList.add(newSubState ? 'btn-success' : 'btn-secondary')
 
-      // Update the subscription status text
       const subscriptionStatusElement = parentCard.querySelector(
         `[data-sub="${userId}"]`
       )
-
       if (subscriptionStatusElement) {
         subscriptionStatusElement.textContent = `Subscription Active: ${newSubState}`
       } else {
@@ -332,7 +334,6 @@ async function toggleUserSubscription (
         )
       }
 
-      // Display success message
       displayLabel([
         'review_main_wrapper',
         'alert-success',

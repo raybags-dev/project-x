@@ -55,7 +55,7 @@ async function handleSignupFormSubmit (event) {
     ])
     setTimeout(() => runSpinner(true), 3000)
   } catch (error) {
-    console.error('Signup error:', error)
+    console.warn('Signup error:', error)
   } finally {
     runSpinner(true)
   }

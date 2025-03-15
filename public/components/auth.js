@@ -47,7 +47,7 @@ export function getAuthHandler () {
     const user = userString ? JSON.parse(userString) : null
     return user
   } catch (e) {
-    console.error('Session storage access error:', error)
+    console.warn('Session storage access error:', error)
   }
 }
 export function setAuthHandler (userObject, headers) {

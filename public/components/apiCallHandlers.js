@@ -537,45 +537,6 @@ export async function handleCookieAcceptance () {
     console.log(e)
   }
 }
-export async function refreshUser (userId) {
-  if (!userId) {
-    return showError('Could not refresh user - userId required.')
-  }
-
-  try {
-    const user = getAuthHandler()
-    if (!user) return showError('Authentication failed. Please log in again.')
-
-    const { 'auth-token': token, isSuperUser, isAdmin } = user
-    if (!isSuperUser && !isAdmin) {
-      showError('Unauthorized action!')
-      setTimeout(() => location.reload(), 5000)
-      return null
-    }
-
-    const apiClient = await API_CLIENT()
-    const response = await apiClient.post(
-      `/user/get-guest-user/${userId}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    )
-
-    if (response.status === 200) {
-      runSpinner(true)
-      return response.data
-    }
-
-    return showError('Refreshing user failed.')
-  } catch (error) {
-    runSpinner(false, 'Failed!')
-    return showError('Login failed. Please try logging in again.')
-  }
-}
 
 function showError (message) {
   displayLabel(['review_main_wrapper', 'alert-danger', message])
