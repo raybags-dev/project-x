@@ -1,20 +1,53 @@
-# Project X - Reviewer Application
+# Project X - Reviewer API
 
 ## Overview
 
-Project X is a Node.js/Express API server designed on to process data on ETL and ELT principles. On a higher level, it does the following below:
--  **Web crawling and mining**
--  **Process and extract scrapped data from DOM elements**
--  **Cleans, models and schemarize data**
--  **Enriches and saves data to storages (mongoDB and AWS)**
--  **Ensures high throughput through use of in-memory storage with redis**
+Project X is a multi-platform Node/Express API server designed to extract guest feedback from any OTA. It offers full automation of data extraction, user account management, and CRUD operations for managing stored data. On a higher level, it does the following below:
 
-## Features
-- **Web Scraping**: Uses Puppeteer, axios and Cheerio to scrape data from  OTAs websites, use mongoose model achitecture with custom schemas to build review objects, stores them in mongodb and aws s3 storage, and impliments redis for caching.
-- **Authentication and Authorization**: User authentication and profile-based access to review data.
-- **Data Storage**: Connects to MongoDB for storing and retrieving review data.
-- **Proxy Handling**: Supports proxy usage for web requests.
-- **Logging**: Utilizes Winston for logging application events.
+### Key Components
+-  **Extracts reviews, ratings, and metadata from multiple OTA sites.**
+-  **Supports pagination handling to collect all available reviews**
+-  **Uses dynamic headers, user-agents, and proxy rotation to avoid detection**
+-  **Leverages Puppeteer Stealth Plugin to bypass anti-scraping mechanisms**
+-  **Enriches and saves data to storages (mongoDB and AWS)**
+  
+### User Management & Authentication
+-  **Facilitates user registration & account creation.**
+-  **Supports login & password updates.**
+-  **Uses secure authentication tokens (JWT) for user sessions.**
+-  **Provides role-based access control for different operations.**
+### Review Site Profile Management
+-  **Allows users to create and manage profiles of businesses or individuals.**
+-  **Supports automated profile generation based on scraped data.**
+-  **Enables linking of multiple review site profiles under a single entity.**
+### Review Data Automation
+-  **Periodically fetches new reviews for stored profiles.**
+-  **Detects changes & updates stored data dynamically.**
+-  **Uses scheduled crawls to keep information up to date.**
+### API & Database (Node.js + MongoDB)
+-  **Provides RESTful API endpoints for accessing review data.**
+-  **Supports CRUD operations for:**
+   -  **USER_MODEL → Handles users & authentication.**
+   -  **PROFILE_MODEL → Manages business/reviewer profiles.**
+   -  **REVIEW_MODEL → Stores scraped reviews & metadata.**
+   -  **Additional models as required (e.g., logs, audit records).**
+
+-  **Uses Winston logging for debugging & error tracking.**
+### Frontend UI & Control Panel (VanillaJS)
+  - **V±anilla JS** 
+### Automation & Deployment (Docker + Github CI/CD + Heroku)
+- **Runs inside Docker containers for portability.**
+- **Uses GitLab CI/CD for automated deployments & testing.**
+- **Supports environment-specific configurations (dev/prod).**
+
+
+## Key Features & Functionalities
+- **Multi-OTA Support – Extracts data from different review platforms.**
+- **Account & Profile Management – Users can register, log in, and update details, delete own accounts, customize scraping frequency, perform profile-based CRUD on their own resources**
+- **Automated Review Crawling – Fetches and updates review data on schedule.**
+- **CRUD Operations on All Models – Full flexibility to manage stored data.**
+- **Scalability & Anti-Bot Measures – Uses proxies, user-agents, and stealth techniques.**
+- **Real-Time Status & Logs – Tracks all operations with detailed logging.**
 
 
 ### Prerequisites
@@ -39,7 +72,7 @@ npm install
 3. **Create a .env file in the root directory and add your environment variables**:
 ```bash
 MONGO_URI='mongodb+xyz://your_endpoint.net:'
-ACCESS_TOKEN=test_access123456789_token
+ACCESS_TOKEN=test_access123456789_token # I'll give you this.
 AWS_ACCESS_KEY_ID=123456789qwe
 AWS_SECRET_ACCESS_KEY=123456789qwe
 AWS_BUCKET_NAME='your_storage_bucket'
