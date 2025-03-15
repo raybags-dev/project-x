@@ -94,6 +94,73 @@ export async function DeleteOneDocumentController (req, res) {
     res.status(500).json({ error: 'Server error', message: error.message })
   }
 }
+export async function DeleteAllUserProfileDocumentsController (req, res) {
+  try {
+    const { userId: requestUserId } = req.params
+    const reviewSiteSlug = (req.query.slug || '').toLowerCase()
+
+    if (!requestUserId || !reviewSiteSlug) {
+      return res.status(400).json({
+        status: 'failed',
+        message: 'Missing required parameters: userId or slug'
+      })
+    }
+
+    const localUser = req.locals.user
+
+    if (requestUserId !== localUser.userId.toString()) {
+      return res.status(403).json({
+        status: 'FORBIDDEN',
+        message: 'You are not authorized'
+      })
+    }
+
+    const userProfile = await PROFILE_MODEL.findOne({
+      userId: new mongoose.Types.ObjectId(requestUserId),
+      reviewSiteSlug
+    }).lean()
+
+    if (!userProfile) {
+      return res.status(404).json({
+        status: 'failed',
+        message: 'No matching user profile found for the provided slug'
+      })
+    }
+
+    const deleteResult = await REVIEW.deleteMany({
+      userId: new mongoose.Types.ObjectId(userProfile.userId),
+      reviewSiteSlug
+    })
+
+    if (deleteResult.deletedCount === 0) {
+      return res.status(404).json({
+        status: 'failed',
+        message: 'No matching documents found to delete'
+      })
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      count: deleteResult.deletedCount,
+      message: `Successfully deleted ${deleteResult.deletedCount} documents`
+    })
+  } catch (error) {
+    switch (error.name) {
+      case 'CastError':
+      case 'ObjectId':
+        return res.status(400).json({
+          status: 'mongo-error',
+          message: 'Invalid userId format'
+        })
+      default:
+        console.error('Error deleting documents:', error)
+        return res.status(500).json({
+          status: 'server-error',
+          message: 'An internal server error occurred'
+        })
+    }
+  }
+}
 export async function AllUserDocsController (req, res) {
   try {
     const localUser = req.locals.user

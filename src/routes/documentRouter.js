@@ -3,7 +3,8 @@ import {
   FindOneDocController,
   DeleteOneDocumentController,
   AllUserDocsController,
-  SearchDocumentsController
+  SearchDocumentsController,
+  DeleteAllUserProfileDocumentsController
 } from '../controllers/documentController.js'
 
 import { authMiddleware } from '../../middleware/auth.js'
@@ -32,6 +33,16 @@ router.delete(
     message: 'Too many deletions'
   }),
   asyncMiddleware(DeleteOneDocumentController)
+)
+router.delete(
+  '/raybags/v1/review-crawler/document/delete-profile-documents/:userId',
+  authMiddleware,
+  customRateLimiter({
+    windowMs: 30 * 60 * 1000,
+    max: 10,
+    message: 'Too many deletions'
+  }),
+  asyncMiddleware(DeleteAllUserProfileDocumentsController)
 )
 router.post(
   '/raybags/v1/review-crawler/get-user-account-review-docs',

@@ -934,13 +934,12 @@ export const PLUGINS = {
         setupInitialVisibility()
       })
 
-      // Return cleanup function for potential component unmounting
       return () => {
         observer.disconnect()
         mutationObserver.disconnect()
       }
     } catch (e) {
-      console.error('Error in handleContainerScrollEffect:', e)
+      console.warn('Error in handleContainerScrollEffect:', e)
     }
   },
   deleteReviewDocument: async function (documentId) {
@@ -1310,7 +1309,7 @@ export const PLUGINS = {
                           <button title="not implimented!" class="btn btn-lg text-muted  btn-outline-transparent dropdown-toggle btn-block" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
                             Actions
                           </button>
-                          <ul class="dropdown-menu  bg-light">
+                          <ul class="dropdown-menu shadow rounded bg-light">
                             <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Copy review link</a></li>
                             <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Contact customer service</a></li>
                             <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Generate review analysis</a></li>
@@ -1580,10 +1579,6 @@ export const PLUGINS = {
         setTimeout(() => runSpinner(true), 4000)
         return
       }
-
-      //====================
-      // make call to crawl
-      //====================
       const { 'auth-token': token, isSubscribed } = user
 
       const apiClient = await API_CLIENT()
@@ -1617,11 +1612,8 @@ export const PLUGINS = {
         ])
         setTimeout(() => location.reload(), 5000)
       }
-      //====================
-      // make call to crawl
-      //====================
     } catch (e) {
-      console.error(e)
+      console.warn(e)
     } finally {
       runSpinner(true)
     }
@@ -1629,7 +1621,7 @@ export const PLUGINS = {
   getSlugForProfile: async function (e) {
     try {
       if (!e || !e.target) {
-        console.error('getSlugForProfile requires an event parameter')
+        console.warn('getSlugForProfile requires an event parameter')
         return null
       }
 
@@ -1637,13 +1629,13 @@ export const PLUGINS = {
 
       const adminCard = clickedElement.closest('.admin-card')
       if (!adminCard) {
-        console.error('Could not find parent admin-card element')
+        console.warn('Could not find parent admin-card element')
         return null
       }
 
       const profileId = adminCard.id
       if (!profileId) {
-        console.error('Admin card does not have an ID attribute')
+        console.warn('Admin card does not have an ID attribute')
         return null
       }
 
@@ -1681,6 +1673,7 @@ export const PLUGINS = {
       propertyType,
       _id: profile_id
     } = userObject
+
     const {
       email,
       isAdmin,
@@ -1692,7 +1685,7 @@ export const PLUGINS = {
     } = rest
 
     const profileCardHTML = `
-        <div id="${profile_id}" class="card admin-card bg-light-custom shadow  user-${account_id}" style="width:60vw; height:40vh">
+        <div id="${profile_id}" data-profileid="${userId}" class="card admin-card bg-light-custom shadow  user-${account_id}" style="width:60vw; height:40vh">
         <div class="card-header d-grid justify-content align-content-center">
             <h4 class="lead text-uppercase">${reviewSiteSlug || ''}</h4>
           </div>
@@ -1739,21 +1732,21 @@ export const PLUGINS = {
         </div>
         <div class="card-footer d-flex justify-content-between align-content-center bg-light">
             <div class="btn-group" role="group">
-                <button type="button" class="btn btn-outline-success w-50 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <button type="button" class="btn btn-outline-success shadow w-50 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                   Actions
                 </button>
-                <ul class="dropdown-menu bg-light text-dark" style="z-index:1000 !important">
+                <ul class="dropdown-menu bg-light shadow shadow-lg rounded text-dark" style="z-index:1000 !important">
                   <li>
-                      <a class="dropdown-item _run_crawlerr_ text-dark text-decoration-underline" href="#">Run Crawler</a>
+                      <a class="dropdown-item _run_crawlerr_ text-dark text-center text-uppercase text-decoration-underline" data-clink="${profile_id}" href="#">Run Crawler</a>
                       <div class="container">
                         <div class="form-check text-muted crawl-${profile_id}">
                             <label class="form-check-label" for="gridCheck">full</label>
-                            <input class="form-check-input text-dark" data-full="${profile_id}" type="checkbox" id="gridCheck">
+                            <input class="form-check-input shadow text-dark" data-full="${profile_id}" type="checkbox" id="gridCheck">
                         </div>
                         <div class="form-group d-flex p-2 gap-2 justify-content-between align-content-center">
                             <label for="pagesInput" class="text-dark text-muted">Pages</label>
                             <div class="text-dark">
-                                <input type="number" data-page="${profile_id}" style="color:#000000; width:inherit;" class="form-control active bg-light-custom pagesInput  text-dark" id="pagesInput" name="pages" value="1">
+                                <input type="number" data-page="${profile_id}" style="color:#000000; width:inherit;" class="form-control shadow active bg-light-custom pagesInput  text-dark" id="pagesInput" name="pages" value="1">
                             </div>
                         </div>
                       </div>
@@ -1766,10 +1759,12 @@ export const PLUGINS = {
                 </button>
                 <ul class="dropdown-menu bg-light shadow shadow-lg text-dark" style="z-index:1000 !important">
                   <li class="">
-                    <a class="dropdown-item text-danger del_all_reviews" href="#">Delete profile & reviews</a>
-                      
+                    <a class="dropdown-item text-danger only_reviews" href="#">Delete profile reviews</a>                      
                   </li>
-                  <li><a class="dropdown-item text-danger del_entire_account" href="#">Delete account</a></li>
+                  <li class="">
+                    <a class="dropdown-item text-danger del_all_reviews" href="#">Delete profile & reviews</a>                      
+                  </li>
+                  <li><a class="dropdown-item text-danger del_entire_account" href="#">Delete entire account</a></li>
                 </ul>
             </div>
         </div>
@@ -1781,15 +1776,50 @@ export const PLUGINS = {
 
     const checkbox = document.querySelector(`[data-full="${profile_id}"]`)
     const numberInput = document.querySelector(`[data-page="${profile_id}"]`)
+    const runner_link = document.querySelector(`[data-clink="${profile_id}"]`)
 
-    if (checkbox && numberInput) {
-      checkbox.addEventListener('change', async function () {
-        numberInput.disabled = !numberInput.disabled
-        numberInput.value = 0
+    // page input && run crawler controls
+    if (checkbox && numberInput && runner_link) {
+      checkbox.addEventListener('change', function () {
+        if (checkbox.checked) {
+          numberInput.disabled = true
+          numberInput.value = 0
+        } else {
+          numberInput.disabled = false
+        }
+        toggleRunnerLink()
       })
+
+      numberInput.addEventListener('input', function () {
+        let pageCount = parseInt(numberInput.value, 10) || 0
+
+        if (pageCount > 0) {
+          checkbox.checked = false
+        }
+
+        checkbox.disabled = pageCount > 0
+        numberInput.disabled = checkbox.checked
+
+        toggleRunnerLink()
+      })
+
+      function toggleRunnerLink () {
+        const pageCount = parseInt(numberInput.value, 10) || 0
+        const isCheckboxChecked = checkbox.checked
+        const isValidPageCount = pageCount > 0
+
+        const shouldEnableLink = isCheckboxChecked || isValidPageCount
+
+        runner_link.style.pointerEvents = shouldEnableLink ? 'auto' : 'none'
+        runner_link.style.opacity = shouldEnableLink ? '1' : '0.5'
+      }
+      toggleRunnerLink()
     }
+
+    const del_only_reviews_btns = document.querySelectorAll('.only_reviews')
     const del_review_btns = document.querySelectorAll('.del_all_reviews')
     const del_account = document.querySelectorAll('.del_entire_account')
+
     del_review_btns.forEach(btn => {
       btn.addEventListener('click', async e => {
         try {
@@ -1853,8 +1883,72 @@ export const PLUGINS = {
         }
       })
     })
+    del_only_reviews_btns.forEach(btn => {
+      btn.addEventListener('click', async e => {
+        try {
+          const card = e.target.closest('.admin-card')
+          const h4 = card.querySelector('.card-header h4')
+          const slug = (h4 && h4.innerText).toLowerCase()
+          const cardId = card && card.getAttribute('data-profileid')
+          const confirmation = await confirmAction(
+            '#body',
+            `Caution: You are about to delete All reviews associated with this account. Once confirmed, Are you certain you want to proceed with the deletion?`
+          )
+          if (confirmation !== 'confirmed!') return
+          runSpinner(false, 'Deleting...')
+
+          const response = await PLUGINS.deleteOnlyReviews(slug, cardId)
+
+          if (!response) {
+            return displayLabel([
+              'review_main_wrapper',
+              'alert-warning',
+              `Request could not be completed at the moment - try again later`
+            ])
+            runSpinner(true)
+          }
+
+          if (response.status === 200) {
+            runSpinner(false, '200')
+            const res = response.data
+
+            displayLabel([
+              'review_main_wrapper',
+              'alert-success',
+              `Total of (${res.count}) reviews from ${slug} have been deleted successfully.`
+            ])
+            await fetchCurrentUserUpdateSeesionStorage()
+            setTimeout(() => runSpinner(true), 4000)
+            return
+          }
+
+          if (response.status === 404) {
+            runSpinner(false, '404')
+            displayLabel([
+              'review_main_wrapper',
+              'alert-warning',
+              `Acknowledged: No reviews found for ${slug}.`
+            ])
+            setTimeout(() => runSpinner(true), 4000)
+            return
+          }
+
+          throw new Error('Unexpected response from server.')
+        } catch (error) {
+          console.error('Delete Reviews Error:', error.message)
+          console.log(error.response)
+
+          displayLabel([
+            'review_main_wrapper',
+            'alert-danger',
+            `Something went wrong! Please try again later.`
+          ])
+        }
+      })
+    })
   },
   deletProfileAndAssociatedReviews: async function (slug, profile_Id) {
+    console.log(slug, profile_Id)
     try {
       if (!slug) return
       runSpinner(false, 'Deleting...')
@@ -1863,12 +1957,14 @@ export const PLUGINS = {
       const { 'auth-token': token } = user
 
       const baseUrl = `/user/delete-own-profile-and-documents/${profile_Id}?slug=${slug}`
+
       const headers = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
       const apiClient = await API_CLIENT()
       const response = await apiClient.delete(baseUrl, { headers })
+
       if (response.status === 200) {
         runSpinner(true)
 
@@ -1942,6 +2038,52 @@ export const PLUGINS = {
       runSpinner(true)
     }
   },
+  deleteOnlyReviews: async function (slug, profile_Id) {
+    try {
+      runSpinner(false, 'Deleting...')
+
+      const user = getAuthHandler()
+      if (!user || !user['auth-token']) {
+        throw new Error('Authentication token missing. Please log in again.')
+      }
+
+      const token = user['auth-token']
+      const baseUrl = `/document/delete-profile-documents/${profile_Id}?slug=${slug}`
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+
+      const apiClient = await API_CLIENT()
+      const response = await apiClient.delete(baseUrl, { headers })
+
+      if (response.status === 200) {
+        console.log(`Success: Reviews for ${slug} deleted successfully.`)
+        return response
+      }
+
+      console.warn(`Unexpected response:`, response)
+      return null
+    } catch (error) {
+      runSpinner(true)
+
+      if (error.response) {
+        if (error.response.status === 404) {
+          displayLabel([
+            'review_main_wrapper',
+            'alert-warning',
+            `Acknowledged: No reviews found for ${slug}.`
+          ])
+          return error.response
+        }
+      }
+      if (error.request) return error
+      console.error('Error in <deleteOnlyReviews>:', error.message)
+
+      return error
+    }
+  },
   createAdminPage: async function () {
     const pageAlreadyExists = document.querySelector('#admin_page')
     if (pageAlreadyExists)
@@ -1959,14 +2101,14 @@ export const PLUGINS = {
       parent_wrapper.innerHTML = adminHTMLContent
     }
 
-    document.body.addEventListener('click', async e => {
-      const clickedOutsideProfileCard =
-        !e.target.closest('.admin-card') &&
-        !e.target.closest('.profile_details')
-      if (clickedOutsideProfileCard) {
-        location.reload()
-      }
-    })
+    // document.body.addEventListener('click', async e => {
+    //   const clickedOutsideProfileCard =
+    //     !e.target.closest('.admin-card') &&
+    //     !e.target.closest('.profile_details')
+    //   if (clickedOutsideProfileCard) {
+    //     location.reload()
+    //   }
+    // })
 
     await fetchCurrentUserUpdateSeesionStorage()
     const { userProfiles, ...rest } = (await getAuthHandler()) || {}

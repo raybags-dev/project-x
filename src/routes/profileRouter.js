@@ -32,7 +32,7 @@ router.delete(
   isAdmin,
   customRateLimiter({
     windowMs: 2 * 60 * 60 * 1000,
-    max: 10,
+    max: 20,
     message: 'Too many delete-all attempts'
   }),
   asyncMiddleware(deleteAccountProfileAndAllDocuments)
