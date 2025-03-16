@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import { generateUniqueId } from '../../middleware/uuidGenerator.js'
-import { PROFILE_MODEL } from './profileModel.js'
 import { logger } from '../loggers/logger.js'
+import { PROFILE_MODEL } from './profileModel.js'
 
 const ReviewModel = {
   uuid: { type: String, default: null, index: true },
@@ -25,6 +25,7 @@ const ReviewModel = {
   },
   hasPropertyResponse: { type: Boolean, default: false },
   brandCheck: { type: String, default: null },
+  brandType: { type: String, default: null },
   isFullRun: { type: Boolean, default: false },
   isInitialRun: { type: Boolean, default: true },
   isApproved: { type: Boolean, default: true },
@@ -72,6 +73,7 @@ REVIEW_MODEL.index(
     stayDate: 1,
     checkInDate: 1,
     tripType: 1,
+    brandCheck: 1,
     country: 1,
     reviewBody: 1,
     reviewSiteSlug: 1,

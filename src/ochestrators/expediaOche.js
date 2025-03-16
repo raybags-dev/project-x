@@ -132,6 +132,7 @@ export async function generateExpediaReviews (req, res) {
             reviewSiteSlug: reviewSiteSlug,
             reviewBody: formattedReviewBody || null,
             title: title,
+            brandCheck: review_check,
             propertyProfileUrl: propertyUrl,
             originalEndpoint: originalUrl,
             reviewDate: review_data,

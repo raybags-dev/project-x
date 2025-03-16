@@ -100,6 +100,8 @@ export async function generateAgodaProfile (req, res) {
         ? propertyName.replace(/-/g, ' ')
         : null
 
+      if (!responseData || responseData == undefined) return null
+
       const { hotelID, providerList, reviewPageUrl } = responseData
 
       const totalreviewCount = providerList

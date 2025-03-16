@@ -20,7 +20,7 @@ router.post(
   isAdmin,
   customRateLimiter({
     windowMs: 15 * 60 * 1000,
-    max: 5,
+    max: 50,
     message: 'Too many review generation requests. Please try again later.'
   }),
   asyncMiddleware(updateReview)

@@ -1,5 +1,5 @@
-import { finishSetup } from '../utils/utilities.js'
 import { PLUGINS } from '../utils/plugins.js'
+import { finishSetup } from '../utils/utilities.js'
 const {
   logOutUser,
   setUpBackToTop,
@@ -74,7 +74,7 @@ export async function MAIN_PAGE () {
                       </li>
                 </ul>
                 <div class="container subb_head_ing d-flex justify-content-center align-content-center">
-                <a class="lead btn btn-outline-secondary btn-lg text-uppercase" disabled href="#" style="border-color: transparent !important;"></a>
+                <a class="lead btn btn-outline-secondary btn-lg text-uppercase" href="/" style="border-color: transparent !important;"></a>
                 </div>
         
             </div>

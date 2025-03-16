@@ -1,10 +1,10 @@
 import * as cheerio from 'cheerio'
-import { PROFILE_MODEL } from '../models/profileModel.js'
-import { USER_MODEL } from '../models/user.js'
 import { HEADERS } from '../_data_/headers/headers.js'
 import { logger } from '../loggers/logger.js'
-import { validateEndpointDomain } from '../utils/validateBaseUrl.js'
+import { PROFILE_MODEL } from '../models/profileModel.js'
+import { USER_MODEL } from '../models/user.js'
 import axiosInstance from '../utils/proxy.js'
+import { validateEndpointDomain } from '../utils/validateBaseUrl.js'
 
 export async function generateExpediaProfile (req, res) {
   try {
@@ -199,7 +199,6 @@ export async function generateExpediaProfile (req, res) {
     res.status(500).json({ status: 'failed', message: 'Internal server error' })
   }
 }
-
 function extractData (str, regex) {
   const match = str && str.match(regex)
   return match ? match[1].replace(/_/g, ' ') : null
