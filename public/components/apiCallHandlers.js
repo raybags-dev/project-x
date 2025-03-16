@@ -1,16 +1,16 @@
 import {
-  runSpinner,
-  validateSlug,
-  shakeAnimation,
   clearProfileForm,
-  removeElementFromDOM
+  removeElementFromDOM,
+  runSpinner,
+  shakeAnimation,
+  validateSlug
 } from '../utils/utilities.js'
-import { LOGIN_HTML } from './login.js'
 import {
-  setAuthHandler,
+  fetchCurrentUserUpdateSeesionStorage,
   getAuthHandler,
-  fetchCurrentUserUpdateSeesionStorage
+  setAuthHandler
 } from './auth.js'
+import { LOGIN_HTML } from './login.js'
 import { SIGNUP_HTML } from './signup.js'
 
 export async function API_CLIENT () {
@@ -443,9 +443,7 @@ export async function profileGenerator () {
             <option value="agoda">agoda-com</option>
             <option value="booking">booking-com</option>
             <option value="expedia">expedia-com</option>
-            <option disabled value="ctrip">ctrip-com</option>
-            <option disabled value="hotels">hotels-com</option>
-            <option disabled value="trip">trip-com</option>
+            <option value="trip">trip-com</option>
           </select>
           <button class="btn btn-lg btn-outline-success rounded shadow shadow-sm sub__this_form" type="button" id="proertyName29">Submit</button>
         </div>
@@ -536,9 +534,4 @@ export async function handleCookieAcceptance () {
   } catch (e) {
     console.log(e)
   }
-}
-
-function showError (message) {
-  displayLabel(['review_main_wrapper', 'alert-danger', message])
-  return null
 }

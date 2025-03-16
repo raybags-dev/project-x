@@ -1,11 +1,9 @@
-import { USER_MODEL } from '../models/user.js'
-import mongoose from 'mongoose'
 import dateFns from 'date-fns'
-import { ObjectId } from 'mongodb'
-import { PROFILE_MODEL } from '../models/profileModel.js'
-import { sendEmail } from '../../middleware/emailer.js'
-import { REVIEW } from '../models/documentModel.js'
+import mongoose from 'mongoose'
 import { logger } from '../loggers/logger.js'
+import { REVIEW } from '../models/documentModel.js'
+import { PROFILE_MODEL } from '../models/profileModel.js'
+import { USER_MODEL } from '../models/user.js'
 
 export async function FindOneDocController (req, res) {
   try {
@@ -166,6 +164,7 @@ export async function AllUserDocsController (req, res) {
     const localUser = req.locals.user
     const userId = localUser.userId
     const requestedSlug = (req.query.slug || '').toLowerCase()
+    const brandtype = req.query.brandtype
 
     let query, count
 
@@ -173,13 +172,23 @@ export async function AllUserDocsController (req, res) {
     const perPage = 20
     const skip = (page - 1) * perPage
 
+    const queryConditions = { userId }
+
+    if (brandtype) {
+      queryConditions.brandCheck = brandtype
+    }
+
+    if (requestedSlug) {
+      queryConditions.reviewSiteSlug = requestedSlug
+    }
+
     if (!requestedSlug) {
-      query = REVIEW.find({ userId })
+      query = REVIEW.find(queryConditions)
         .sort({ reviewDate: -1, createdAt: 1 })
         .skip(skip)
         .limit(perPage)
 
-      count = await REVIEW.countDocuments({ userId })
+      count = await REVIEW.countDocuments(queryConditions)
     } else {
       const profile = await PROFILE_MODEL.findOne({
         userId,
@@ -189,15 +198,12 @@ export async function AllUserDocsController (req, res) {
         return res.status(404).json('Profile not found or has been deleted!')
       }
 
-      query = REVIEW.find({ userId, reviewSiteSlug: requestedSlug })
+      query = REVIEW.find(queryConditions)
         .sort({ reviewDate: -1, createdAt: 1 })
         .skip(skip)
         .limit(perPage)
 
-      count = await REVIEW.countDocuments({
-        userId,
-        reviewSiteSlug: requestedSlug
-      })
+      count = await REVIEW.countDocuments(queryConditions)
     }
 
     const response = await query

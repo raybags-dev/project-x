@@ -62,14 +62,19 @@ export async function MAIN_PAGE () {
                           <a class="nav-link dropdown-toggle text-dark text-uppercase" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             sites
                           </a>
-                          <ul class="dropdown-menu bg-light  _inner_dropdown_canvas  shadow shadow-lg">
+                          <ul class="dropdown-menu bg-light overflow-auto  _inner_dropdown_canvas  shadow shadow-lg" style="max-height: 350px;">
                             <li><a class="dropdown-item  btn btn-outline-success text-dark text-uppercase  google-com" href="#">google-com</a></li>
                             <li><a class="dropdown-item  btn btn-outline-success text-dark text-uppercase  agoda-com" href="#">agoda-com</a></li>
                             <li><a class="dropdown-item  btn btn-outline-success text-dark text-uppercase  booking-com" href="#">booking-com</a></li>
                             <li><a class="dropdown-item  text-dark text-uppercase  expedia-com" href="#">expedia-com</a></li>
-                            <li><a class="dropdown-item  text-dark text-uppercase  ctrip-com" href="#">ctrip-com</a></li>
-                            <li><a class="dropdown-item  text-dark text-uppercase  hotels-com" href="#">hotels-com</a></li>
-                            <li><a class="dropdown-item  text-dark text-uppercase  trip-com" href="#">trip-com</a></li>
+                            <li><a class="dropdown-item text-dark text-uppercase trip-com" href="#">trip-com</a></li>
+                            <li><a class="dropdown-item text-dark text-uppercase ctrip-com" href="#">ctrip-com</a></li>
+                            <li><a class="dropdown-item  text-dark text-uppercase hotels-com" href="#">hotels-com</a></li>
+                            <li><a class="dropdown-item text-dark text-uppercase  travelocity-com" href="#">travelocity-com</a></li>
+                            <li><a class="dropdown-item text-dark text-uppercase trivago-com" href="#">trivago-com</a></li>
+                            <li><a class="dropdown-item text-dark text-uppercase  cheaptickets-com" href="#">cheaptickets-com</a></li>
+                            <li><a class="dropdown-item text-dark text-uppercase orbitz-com" href="#">orbitz-com</a></li>
+                            <li><a class="dropdown-item text-dark text-uppercase wotif-com" href="#">wotif-com</a></li>
                           </ul>
                       </li>
                 </ul>
