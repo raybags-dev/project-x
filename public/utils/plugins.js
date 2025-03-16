@@ -749,7 +749,7 @@ export const PLUGINS = {
           <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content shadow shadow-lg text-dark" style="backdrop-filter:blur(20px);">
               <div class="modal-header text-white border-0 bg-light">
-                <h5 class="modal-title text-secondary text-decoration-underline" id="exampleModalLabel">GET STARTED</h5>
+                <h5 class="modal-title text-info text-decoration-underline" id="exampleModalLabel">HOW TO GET STARTED</h5>
                 </div>
               <div class="modal-body text-dark bg-light">
                 <ul class="text-muted">
@@ -769,7 +769,32 @@ export const PLUGINS = {
                  <li>
                  Once your review profile is set up, the system will automatically fetch reviews for that particular account.
                  You can view and manage all guest feedback in one place, saving you time from visiting multiple websites.
+                 <hr>
+                    <div>
+                        <strong>Important Notes:</strong> <br>
+                        <ul>
+                          <li>Automatic review collection will only work if your <strong>subscription is active</strong>.</li>
+                          <li>To activate your subscription, email:  
+                            <a target="_blank" href="mailto:request.access.raybags@gmail.com">request.access.raybags@gmail.com</a>
+                          </li>
+                          <li>New reviews sync within <strong>24-48 hours</strong>.</li>
+                        </ul>
+                    </div>
                  </li>
+
+                  <p class="lead">Step 4: Custom Crawls & Advanced Actions</p>
+                  <li>You can customize crawls and collect review data based on desired page depth through  
+                    <strong>Account > Profile Details</strong>.</li>
+                  <li>Here, you will have access to more actions via the <strong>"Actions"</strong> and <strong>"Danger Zone"</strong> tabs.</li>
+                  <li>In dropdown menus, you can:</li>
+                  <ul>
+                      <li>Set the number of pages to crawl.</li>
+                      <li>Run a full crawl.</li>
+                      <li>Delete profile reviews only.</li>
+                      <li>Delete profile and reviews.</li>
+                      <li>Delete the entire account.</li>
+                  </ul>
+
                   <br>
                   <p class="lead">Step 4: Deleting Reviews</p>
                  <li>
@@ -777,7 +802,11 @@ export const PLUGINS = {
                  Confirm the deletion to maintain the quality of your review profile.
                  </li>
                   <br>
-                  <p class="lead">Step 5: Save Time, Improve Service</p>
+                  <p class="lead">Step 5: Update Reviews</p>
+                  <li>Click the "Update review" button next to a review to delete it and pull in an updated version.</li>
+                  <br>
+                  
+                  <p class="lead">Step 6: Save Time, Improve Service</p>
                  <li>
                   By centralizing this tool, you'll be able to save time that can be used to enhance your services and address specific guest needs on your property.
                   Focus on what matters most to your business.
@@ -785,8 +814,7 @@ export const PLUGINS = {
                   <br>
                   <p class="lead">Thats it, You are all setup.</p>
                  <li>
-                 Congratulations! You're now ready to streamline your guest feedback management and elevate your guest experience.
-                 If you have any questions or need assistance, feel free to reach out to me directly.
+                   Congratulations! You’re now ready to manage guest feedback and enhance your services. If you need assistance, feel free to reach out.
                  </li>
                   <br>
                   <h5 class="text-center">Happy managing and improving!</h5>
@@ -1174,22 +1202,32 @@ export const PLUGINS = {
     }
     return null
   },
-  getSiteLogoPath: async function (reviewSiteSlug, uuid) {
+
+  getSiteLogoPath: async function (reviewSiteSlug, brandCheck, uuid) {
     const defaultPath = '../images/fallback.png'
+    const extractBaseDomain = slug => (slug ? slug.split('-')[0] : null)
+
+    const baseDomain = brandCheck
+      ? extractBaseDomain(brandCheck.toLowerCase())
+      : extractBaseDomain(reviewSiteSlug)
+
     const siteLogo = Object.values(siteLogos).find(
-      logo => logo.slug === reviewSiteSlug
+      logo => extractBaseDomain(logo.slug) === baseDomain
     )
+
     if (siteLogo) {
       const cardLogo = await document.querySelector(uuid)
       if (cardLogo) {
         cardLogo.src = siteLogo.logopath || defaultPath
-      }
-      cardLogo.onerror = function () {
-        this.src = defaultPath
-        this.onerror = null
+
+        cardLogo.onerror = function () {
+          this.src = defaultPath
+          this.onerror = null
+        }
       }
     }
   },
+
   generateLeftContainerContent: async function (dataArray, authorExternalId) {
     const container = document.querySelector(
       `.left__body[data-subratings="${authorExternalId}"]`
@@ -1310,9 +1348,10 @@ export const PLUGINS = {
                             Actions
                           </button>
                           <ul class="dropdown-menu shadow rounded bg-light">
-                            <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Copy review link</a></li>
+                            <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Expand review Object</a></li>
                             <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Contact customer service</a></li>
-                            <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Generate review analysis</a></li>
+                            <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Weekly review analysis</a></li>
+                            <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Generate monthly report</a></li>
                           </ul>
                       </div>
                   </div>
@@ -1358,6 +1397,7 @@ export const PLUGINS = {
     )
     PLUGINS.getSiteLogoPath(
       reviewSiteSlug,
+      brandCheck,
       `.review-logo-${uuid}-${internalId}`
     )
     PLUGINS.generateLeftContainerContent(
@@ -2102,16 +2142,6 @@ export const PLUGINS = {
     if (parent_wrapper) {
       parent_wrapper.innerHTML = adminHTMLContent
     }
-
-    // document.body.addEventListener('click', async e => {
-    //   const clickedOutsideProfileCard =
-    //     !e.target.closest('.admin-card') &&
-    //     !e.target.closest('.profile_details')
-    //   if (clickedOutsideProfileCard) {
-    //     location.reload()
-    //   }
-    // })
-
     await fetchCurrentUserUpdateSeesionStorage()
     const { userProfiles, ...rest } = (await getAuthHandler()) || {}
 
