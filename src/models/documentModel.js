@@ -64,7 +64,6 @@ const ReviewModel = {
 }
 
 const REVIEW_MODEL = new mongoose.Schema(ReviewModel, { timestamps: true })
-
 REVIEW_MODEL.index(
   {
     author: 1,
@@ -81,7 +80,6 @@ REVIEW_MODEL.index(
   },
   { sparse: true }
 )
-
 REVIEW_MODEL.statics.validateDocumentOwnership = async function (
   req,
   res,
@@ -110,8 +108,7 @@ REVIEW_MODEL.statics.validateDocumentOwnership = async function (
     return res.status(500).json({ error: 'Server error' })
   }
 }
-
-// 🔹 Check if user owns the document
+// Check if user owns the document
 REVIEW_MODEL.statics.isDocumentOwner = async function (req) {
   try {
     const userId = req.locals.user.userId
@@ -124,7 +121,6 @@ REVIEW_MODEL.statics.isDocumentOwner = async function (req) {
     return false
   }
 }
-
 REVIEW_MODEL.pre('save', async function (next) {
   const rating = parseFloat(this.rating)
   if (!isNaN(rating) && rating > 5) {
@@ -142,7 +138,6 @@ REVIEW_MODEL.pre('save', async function (next) {
 
   next()
 })
-
 REVIEW_MODEL.statics.convertReviewDateToTimestamp = function (reviewDate) {
   const dateObject = new Date(reviewDate)
   if (isNaN(dateObject.getTime())) {
@@ -150,6 +145,5 @@ REVIEW_MODEL.statics.convertReviewDateToTimestamp = function (reviewDate) {
   }
   return dateObject.getTime()
 }
-
 const REVIEW = mongoose.model('review-objects', REVIEW_MODEL)
 export { REVIEW }

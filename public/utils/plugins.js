@@ -1202,7 +1202,6 @@ export const PLUGINS = {
     }
     return null
   },
-
   getSiteLogoPath: async function (reviewSiteSlug, brandCheck, uuid) {
     const defaultPath = '../images/fallback.png'
     const extractBaseDomain = slug => (slug ? slug.split('-')[0] : null)
@@ -1227,7 +1226,6 @@ export const PLUGINS = {
       }
     }
   },
-
   generateLeftContainerContent: async function (dataArray, authorExternalId) {
     const container = document.querySelector(
       `.left__body[data-subratings="${authorExternalId}"]`
@@ -1416,74 +1414,131 @@ export const PLUGINS = {
       authorExternalId
     )
   },
+  // ******* brandtype 👇🏾👇🏾👇🏾👇🏾👇🏾 ********
   fetchData: async function (page = 1, slug = '') {
     try {
       runSpinner(false, 'loading...')
 
       const user = getAuthHandler()
-      if (user) {
-        const apiClient = await API_CLIENT()
+      if (!user) {
+        return displayLabel([
+          'review_main_wrapper',
+          'alert-danger',
+          `An error occurred while processing your request. Please try again later`
+        ])
+      }
 
-        const baseUrl = '/get-user-account-review-docs'
-        const perPage = 20
+      const apiClient = await API_CLIENT()
+      const baseUrl = '/get-user-account-review-docs'
+      const perPage = 20
+      const { 'auth-token': token } = user
 
-        const { 'auth-token': token } = user
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
 
-        const headers = {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const knownSubbrands = {
+        expedia: [
+          'Hotels',
+          'Waltz',
+          'Travelocity',
+          'Expedia',
+          'Cheaptickets',
+          'Trivago'
+        ],
+        trip: ['Trip', 'Ctrip']
+      }
+
+      const lookupMap = {}
+      for (const [mainBrand, subbrands] of Object.entries(knownSubbrands)) {
+        subbrands.forEach(subbrand => {
+          lookupMap[subbrand.toLowerCase()] = {
+            mainBrand,
+            originalSubbrand: subbrand
+          }
+        })
+      }
+
+      let brandtype = ''
+      let modifiedSlug = slug
+
+      if (modifiedSlug) {
+        const slugParts = modifiedSlug.split('-')
+        const firstPart = slugParts[0]
+        const firstPartLower = firstPart.toLowerCase()
+
+        if (Object.keys(knownSubbrands).includes(firstPartLower)) {
+          if (slugParts.length > 1) {
+            brandtype = slugParts[1] === 'com' ? '' : slugParts[1]
+          }
+        } else if (lookupMap[firstPartLower]) {
+          const { mainBrand, originalSubbrand } = lookupMap[firstPartLower]
+          modifiedSlug = `${mainBrand}-com`
+          brandtype = originalSubbrand
         }
+      }
 
-        const url = `${baseUrl}?slug=${slug}&page=${page}`
-        const res = await apiClient.post(url, {}, { headers })
+      const params = { page, slug: modifiedSlug }
+      if (brandtype) {
+        params.brandtype = brandtype
+      }
+      const res = await apiClient.post(
+        baseUrl,
+        {},
+        {
+          headers,
+          params
+        }
+      )
 
-        if (res.statusText === 'OK') {
-          setTimeout(() => runSpinner(true), 500)
-          const data = res.data.data || []
+      if (res.statusText === 'OK') {
+        setTimeout(() => runSpinner(true), 500)
+        const data = res.data.data || []
 
-          if (data.length < perPage) {
-            displayLabel([
-              'review_main_wrapper',
-              'alert-success',
-              `This is the last page: ${page}`
-            ])
-            return data
-          }
-          if (slug === '') {
-            displayLabel([
-              'review_main_wrapper',
-              'alert-success',
-              `Page: ${page}`
-            ])
-          }
+        if (data.length < perPage) {
+          displayLabel([
+            'review_main_wrapper',
+            'alert-success',
+            `This is the last page: ${page}`
+          ])
           return data
         }
+
+        if (slug === '') {
+          displayLabel([
+            'review_main_wrapper',
+            'alert-success',
+            `Page: ${page}`
+          ])
+        }
+        return data
       }
-      return displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        `An error occurred while processing your request. Please try again later`
-      ])
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        return displayLabel([
-          'review_main_wrapper',
-          'alert-warning',
-          `Nothing found.`
-        ])
+      if (error.response) {
+        if (error.response.status === 400) {
+          return displayLabel([
+            'review_main_wrapper',
+            'alert-warning',
+            `Nothing found.`
+          ])
+        }
+        if (error.response.status === 404) {
+          handleProfileGenerator(null, false)
+          return displayLabel([
+            'review_main_wrapper',
+            'alert-warning',
+            `No profile associated with the selected option found. \nYou need to create a ${slug} review profile first!`
+          ])
+        }
       }
-      if (error.response && error.response.status === 404) {
-        handleProfileGenerator(null, false)
-        return displayLabel([
-          'review_main_wrapper',
-          'alert-warning',
-          `No profile associated with the selected option found. \nYou need to create a ${slug} review profile first!`
-        ])
-      }
+      console.warn('Error fetching data:', error)
     } finally {
       runSpinner(true)
     }
   },
+
+  // ******* ☝🏾☝🏾☝🏾☝🏾☝🏾☝🏾 ********
   PaginateData: async function (slug) {
     runSpinner(false)
     PLUGINS.removeAdminContainer()
