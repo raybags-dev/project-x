@@ -31,6 +31,7 @@ export async function fetchExpediaReviews (
     return []
   }
 }
+
 async function fetchPerPage (
   propertyExternalId,
   endpointUrl,
@@ -43,7 +44,7 @@ async function fetchPerPage (
   const allReviews = []
 
   while (skip < depth * pageSize) {
-    const requests = Array.from({ length: Math.min(2, depth) }, (_, i) => {
+    const requests = Array.from({ length: Math.min(5, depth) }, (_, i) => {
       const currentSkip = skip + i * pageSize
       return fetchPage(
         propertyExternalId,
@@ -53,16 +54,22 @@ async function fetchPerPage (
         pageSize,
         metadata,
         allReviews
-      )
+      ).catch(error => {
+        logger(
+          `Error fetching page at skip=${currentSkip}: ${error.message}`,
+          'error'
+        )
+      })
     })
 
     const results = await Promise.allSettled(requests)
     if (results.some(res => res.status === 'rejected')) break
 
-    skip += 2 * pageSize
+    skip += 5 * pageSize
   }
   return allReviews
 }
+
 async function fetchPageData (endpointUrl, requestBody, headers) {
   try {
     const response = await axiosInstance.post(endpointUrl, requestBody, {
@@ -81,6 +88,7 @@ async function fetchPageData (endpointUrl, requestBody, headers) {
     return null
   }
 }
+
 async function fetchPage (
   propertyExternalId,
   endpointUrl,
@@ -100,9 +108,9 @@ async function fetchPage (
   allReviews.push(...responseData.reviews)
   logger(`Collected ${allReviews.length} reviews`, 'info')
 }
+
 function createRequestBody (hotelId, skip, metadata) {
   const { regionalId, locale, duaid } = metadata
-  console.log(`metadata in <createRequestBody> : ${metadata}`)
   return [
     {
       operationName: 'PropertyFilteredReviewsQuery',

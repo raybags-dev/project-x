@@ -41,7 +41,7 @@ async function fetchPerPage (
 ) {
   let skip = 1
   const allReviews = []
-  const maxConcurrency = 4
+  const maxConcurrency = 5
   const requestQueue = []
 
   while (skip <= depth) {
@@ -50,7 +50,12 @@ async function fetchPerPage (
         endpointUrl,
         createRequestBody(propertyExternalId, skip, metadata),
         headers
-      )
+      ).catch(error => {
+        logger(
+          `Error fetching page at skip=${currentSkip}: ${error.message}`,
+          'error'
+        )
+      })
     )
 
     if (requestQueue.length >= maxConcurrency || skip === depth) {
@@ -67,7 +72,6 @@ async function fetchPerPage (
   }
   return allReviews
 }
-
 async function fetchPageData (endpointUrl, requestBody, headers) {
   try {
     const response = await axiosInstance.post(endpointUrl, requestBody, {

@@ -30,7 +30,6 @@ export async function fetchBookingReviews (
     return []
   }
 }
-
 async function fetchPageData (endpointUrl, requestBody, headers) {
   try {
     const response = await axiosInstance.post(endpointUrl, requestBody, {
@@ -49,7 +48,6 @@ async function fetchPageData (endpointUrl, requestBody, headers) {
     return null
   }
 }
-
 async function fetchPerPage (
   propertyExternalId,
   endpointUrl,
@@ -62,7 +60,7 @@ async function fetchPerPage (
   const allReviews = []
 
   while (skip < depth * pageSize) {
-    const requests = Array.from({ length: Math.min(2, depth) }, (_, i) => {
+    const requests = Array.from({ length: Math.min(5, depth) }, (_, i) => {
       const currentSkip = skip + i * pageSize
       return fetchPage(
         propertyExternalId,
@@ -72,17 +70,21 @@ async function fetchPerPage (
         pageSize,
         metadata,
         allReviews
-      )
+      ).catch(error => {
+        logger(
+          `Error fetching page at skip=${currentSkip}: ${error.message}`,
+          'error'
+        )
+      })
     })
 
     const results = await Promise.allSettled(requests)
     if (results.some(res => res.status === 'rejected')) break
 
-    skip += 2 * pageSize
+    skip += 5 * pageSize
   }
   return allReviews
 }
-
 async function fetchPage (
   propertyExternalId,
   endpointUrl,
@@ -109,7 +111,6 @@ async function fetchPage (
   allReviews.push(...responseData.reviewCard)
   logger(`Collected ${allReviews.length} reviews`, 'info')
 }
-
 function createRequestBody (
   hotelId,
   skip,
