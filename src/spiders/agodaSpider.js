@@ -57,7 +57,7 @@ export async function fetchAgodaReviews (
       'https://www.agoda.com/api/cronos/property/review/ReviewComments'
     const headers = { ...HEADERS.agodaApiHeaders, method: 'POST' }
 
-    const parallelCalls = Math.max(2, Math.min(depth, 2))
+    const parallelCalls = Math.max(2, Math.min(depth, 5))
     logger(`Running with ${parallelCalls} parallel calls...`, 'info')
 
     const allReviews = await fetchAgodaReviewsPerPage(
@@ -76,6 +76,7 @@ export async function fetchAgodaReviews (
     return allReviews
   } catch (error) {
     logger(`Error calling Agoda API: ${error.message}`, 'error')
+    return []
   }
 }
 async function fetchPageData (endpointUrl, requestBody, headers) {
@@ -85,7 +86,7 @@ async function fetchPageData (endpointUrl, requestBody, headers) {
     })
 
     if (!response.data?.comments || response.data?.comments?.length === 0) {
-      console.warn('⚠️ No more comments available. Exiting...')
+      logger('⚠️ No more comments available. Exiting...', 'info')
       return null
     }
 
@@ -113,9 +114,6 @@ async function fetchPage (
     (isReviewPage = false)
   )
 
-  // if (reviewPageUrl) {
-  //   requestBody.isReviewPage = true
-  // }
   try {
     const responseData = await fetchPageData(endpointUrl, requestBody, headers)
     const comments = responseData?.comments
@@ -187,7 +185,7 @@ async function fetchAgodaReviewsPerPage (
       }
     }
 
-    await Promise.all(pagePromises)
+    await Promise.allSettled(pagePromises)
 
     if (errorEncountered) {
       break

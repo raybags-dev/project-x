@@ -1,10 +1,9 @@
-import 'dotenv/config'
-import { logger } from '../loggers/logger.js'
-import url from 'url'
 import axios from 'axios'
+import 'dotenv/config'
+import url from 'url'
+import { logger } from '../loggers/logger.js'
 
 const proxyEndpoint = process.env.PROXY_ENDPOINT
-
 function getProxyConfig () {
   if (!proxyEndpoint) {
     throw new Error(
@@ -12,9 +11,8 @@ function getProxyConfig () {
     )
   }
 
-  // Parse the proxy URL
   const parsedUrl = new url.URL(proxyEndpoint)
-  const proxyConfig = {
+  return {
     protocol: parsedUrl.protocol.replace(':', ''),
     host: parsedUrl.hostname,
     port: parsedUrl.port || 80,
@@ -23,7 +21,6 @@ function getProxyConfig () {
       password: decodeURIComponent(parsedUrl.password)
     }
   }
-  return proxyConfig
 }
 
 const proxyConfig = getProxyConfig()
@@ -32,32 +29,41 @@ const axiosInstance = axios.create({
   proxy: proxyConfig
 })
 
+axiosInstance.interceptors.request.use(config => {
+  logger(`Request URL: ${config.url}`, 'info')
+  if (config.data) {
+    logger(`payload: ${JSON.stringify(config.data)}`, 'info')
+  }
+  return config
+})
+
 axiosInstance.interceptors.response.use(
-  response => {
-    return response
-  },
+  response => response,
   async error => {
     const config = error.config
 
-    // handle the retry logic
+    logger(`Error with request to ${config.url}: ${error.message}`, 'error')
+    if (config.data) {
+      logger(`Request Body: ${JSON.stringify(config.data)}`, 'error')
+    }
+
+    // Handle retry logic
     if (config && config.proxy && error.code) {
       config.__retryCount = config.__retryCount || 0
 
       if (config.__retryCount < 2) {
         config.__retryCount += 1
-        logger(`Retrying with proxy... Attempt ${config.__retryCount}`, 'warn')
-
+        logger(`Retrying request... Attempt ${config.__retryCount}`, 'warn')
         return axiosInstance(config)
       } else {
         logger('Proxy server down. Switching to local network...', 'warn')
-
         config.proxy = false
 
         try {
           return await axios.request(config)
         } catch (retryError) {
           logger(`from <axiosInstance>: ${retryError}`, 'error')
-          if (error.code && error.code == 429) {
+          if (error.code && error.code === 429) {
             logger('Too many requests. Please try again later.', 'warn')
             return null
           }
@@ -68,5 +74,4 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error)
   }
 )
-
 export default axiosInstance
