@@ -105,6 +105,13 @@ export async function generateTripReviews (req, res) {
           const recommend = review.canMarkUseful
           const title = review?.commentLevel || review?.ratingInfo?.commentLevel
           const propertyUrl = originalUrl || baseUrl
+          // 1=ctrip, 34=tripadvisor,
+          // let review_check =
+          //   review?.source === 1
+          //     ? 'Ctrip'
+          //     : review?.source === 34
+          //     ? 'Tripadvisor'
+          //     : 'Trip'
           let review_check = review?.source === 1 ? 'Ctrip' : 'Trip'
 
           const savedReview = await REVIEW.create({
