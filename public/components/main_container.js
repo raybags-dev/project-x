@@ -31,13 +31,12 @@ function setupEventListeners () {
     createAccountPage()
   })
 }
-
 export async function MAIN_PAGE () {
   try {
     let pageContent = `
          <nav  class="navbar navbar__default navbar-expand-lg navbar-light light-gray-bg shadow shadow-sm glassy bg-light">
           <div class="container-fluid">
-            <a class="navbar-brand text-info" href="/" title="main page">Reviewer</a>
+            <a class="navbar-brand text-info" href="/" title="main page"> <img src="../images/site_logo.jpeg" width="30" height="30" alt=""></img></a>
             <button class="navbar-toggler navbar_btn" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
