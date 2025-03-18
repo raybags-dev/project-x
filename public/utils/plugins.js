@@ -597,19 +597,11 @@ export const PLUGINS = {
         }
       }
     }
-    const fixAllModals = () => {
-      const modals = document.querySelectorAll('.modal[aria-hidden="true"]')
-      modals.forEach(modal => {
-        if (modal.contains(document.activeElement)) {
-          modal.removeAttribute('aria-hidden')
-        }
-      })
-    }
-    document.addEventListener('click', fixAllModals)
-    document.addEventListener('focus', fixAllModals, true)
+    document.addEventListener('click', PLUGINS.handleModleActiveStates)
+    document.addEventListener('focus', PLUGINS.handleModleActiveStates, true)
     const modalFixOnInteraction = () => {
       fixUserAccountModal()
-      fixAllModals()
+      PLUGINS.handleModleActiveStates()
     }
 
     const applyDropdownBehavior = screenWidth => {
@@ -721,7 +713,7 @@ export const PLUGINS = {
       applyDropdownBehavior(currentScreenWidth)
 
       fixUserAccountModal()
-      fixAllModals()
+      PLUGINS.handleModleActiveStates()
     })
   },
   fetchFromLocalStorage: async function (key) {
@@ -740,6 +732,14 @@ export const PLUGINS = {
     } catch (error) {
       console.log('Error saving to localStorage:', error)
     }
+  },
+  handleModleActiveStates: function () {
+    const modals = document.querySelectorAll('.modal[aria-hidden="true"]')
+    modals.forEach(modal => {
+      if (modal.contains(document.activeElement)) {
+        modal.removeAttribute('aria-hidden')
+      }
+    })
   },
   userGuideModel: async function () {
     const userGuideServiceModal = `

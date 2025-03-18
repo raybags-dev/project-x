@@ -76,14 +76,71 @@ body::after {
   margin-top: .4rem;
   transition: var(--animate-card);
 }
+/******* search styles ********* */
+.search_icon_cont {
+  position: fixed;
+  bottom: 2%;
+  left: 1%;
+  opacity: 1;
+  width: 55px;
+  height: 55px;
+  z-index: 100;
+  line-height: 50px;
+  place-content: center;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  font-size: 30px;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  text-decoration: none;
+  cursor: pointer;
+  transform: rotate(45deg);
+  transition: all 0.1s;
+}
+.search_icon_cont span {
+  transition: all.1s;
+}
+.search_icon_cont:hover {
+  background-color: #ffffff;
+}
 
+.main_search__container {
+  transition: all .3s;
+  justify-content: space-around;
+  align-items: center;
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  bottom: 100%;
+}
+.show_searchpannel {
+  -webkit-animation: search_pannel 1 forwards ease-in .3s;
+  animation: search_pannel 1 forwards ease-in .3s;
+}
+
+@-webkit-keyframes search_pannel {
+  to {
+    opacity: 1;
+    bottom: -100%;
+  }
+}
+
+@keyframes search_pannel {
+  to {
+    opacity: 1;
+    bottom: -100%;
+  }
+}
 .action_buttons {
   padding-bottom: .7rem;
 }
 .review-container .card-header {
   background-color: transparent;
 }
-
 .review-container {
   position: relative;
   flex: 1;
@@ -800,6 +857,12 @@ textarea:focus {
 
   .dropdown-item {
     padding-left: .03rem !important;
+  }
+  .main_search__container {
+    height: 50%;
+    display: flex !important;
+    flex-direction: column;
+    flex-grow: 1;
   }
 }
 
