@@ -1,5 +1,5 @@
 import { PLUGINS } from '../utils/plugins.js'
-import { finishSetup } from '../utils/utilities.js'
+import { finishSetup, handleSearchPannel } from '../utils/utilities.js'
 const {
   logOutUser,
   setUpBackToTop,
@@ -9,6 +9,7 @@ const {
   superManHandle,
   createAdminPage,
   createAccountPage,
+  handleModleActiveStates,
   handleReviewButtonsEvents,
   handleContainerScrollEffect,
   handlePaginatedDataAllAccounts
@@ -41,9 +42,6 @@ export async function MAIN_PAGE () {
               <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse light-gray-bg " id="navbarScroll">
-                <form class="d-flex doc_s_form bg-light" style="max-height:inherit !important">
-                  <input id="search____input" class="form-control me-2 bg-light shadow-sm" autocomplete="off" type="search" placeholder="Search" aria-label="Search">
-                </form>
                 <ul id="__nav" class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll light-gray-bg border-1 border-danger" style="--bs-scroll-height: 150px;">
                       <li class="nav-item dropdown">
                           <a class="nav-link dropdown-toggle text-dark text-uppercase" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -84,9 +82,12 @@ export async function MAIN_PAGE () {
             </div>
           </div>
         </nav>
-        <main>     
-        <div id="review_main_wrapper"  class="container review__wrapper"> 
-        </div>
+        <main class="parent__main">     
+          <div class="container bg-light shadow search_icon_cont d-flex justify-content-center align-content-center">
+            <span class="lead text-danger">&#128269;</span>
+          </div>
+          <div id="review_main_wrapper"  class="container review__wrapper"> 
+          </div>
         </main>
       `
     document.getElementById('innerBody').innerHTML = pageContent
@@ -98,6 +99,9 @@ export async function MAIN_PAGE () {
     await roadRunners()
     await finishSetup()
     await handleProfileGenerator('.create_profile')
+    await handleSearchPannel('.navbar__default')
+    handleModleActiveStates()
+
     return true
   } catch (e) {
     console.log(e)

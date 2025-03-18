@@ -1,4 +1,4 @@
-import { displayLabel, API_CLIENT } from '../components/apiCallHandlers.js'
+import { API_CLIENT, displayLabel } from '../components/apiCallHandlers.js'
 import { getAuthHandler } from '../components/auth.js'
 
 export async function runSpinner (isDone, message = '') {
@@ -425,4 +425,75 @@ async function deleteUserAccount (userId, e) {
     ])
     console.error('Error deleting user account:', error)
   }
+}
+export async function handleSearchPannel (anchorSelector) {
+  const anchorElement = document.querySelector(anchorSelector)
+
+  if (!anchorElement) {
+    console.error(`Element with selector '${anchorSelector}' not found.`)
+    return
+  }
+
+  const form = document.createElement('form')
+  form.className = 'w-100 main_search__container border rounded bg-light shadow'
+
+  form.innerHTML = `
+      <fieldset class="bg-light _innter_search_cont p-1">
+          <div class="row d-flex" style="justify-content:center; align-items-center;flex-wrap:wrap">
+              <div class="col-12 col-md-2">
+                  <label for="range_filter_field" class="form-label">Date Range</label>
+                  <select name="range_filter_field" id="range_filter_field" class="form-select">
+                      <option value="">All</option>
+                      <option value="created_at">created_at</option>
+                      <option value="updated_at">updated_at</option>
+                      <option value="date_review">date_review</option>
+                  </select>
+              </div>
+              <div class="col-12 col-md-2">
+                  <label for="range_filter_from" class="form-label">From</label>
+                  <input id="range_filter_from" name="range_filter_from" type="date" class="form-control" value="2025-03-17">
+              </div>
+              <div class="col-12 col-md-2">
+                  <label for="range_filter_to" class="form-label">To</label>
+                  <input id="range_filter_to" name="range_filter_to" type="date" class="form-control" value="2025-03-18">
+              </div>
+              <div class="col-12 col-md-2">
+                  <label for="sort_field" class="form-label">Sort By</label>
+                  <select name="sort_field" id="sort_field" class="form-select">
+                      <option value="created_at" selected>created_at</option>
+                      <option value="updated_at">updated_at</option>
+                      <option value="date_review">date_review</option>
+                  </select>
+              </div>
+              <div class="col-12 col-md-2 form-group">
+                  <label for="search" class="form-label">Search</label>
+                  <input type="text" data-search="t_search_box" placeholder="Type here..." value="" class="form-control" name="q">
+              </div>              
+          </div>
+      </fieldset> `
+  anchorElement.prepend(form)
+
+  document
+    .querySelector('.search_icon_cont')
+    .addEventListener('click', async e => {
+      console.log('clicked')
+      document
+        .querySelector('.main_search__container')
+        .classList.toggle('show_searchpannel')
+    })
+  document.body.addEventListener('click', e => {
+    const searchPanel = document.querySelector('.main_search__container')
+
+    if (
+      !e.target.closest('.main_search__container') &&
+      !e.target.closest('.search_icon_cont')
+    ) {
+      searchPanel.classList.remove('show_searchpannel')
+    }
+  })
+  window.addEventListener('scroll', () => {
+    document
+      .querySelector('.main_search__container')
+      .classList.remove('show_searchpannel')
+  })
 }
