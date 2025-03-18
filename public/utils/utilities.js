@@ -476,10 +476,10 @@ export async function handleSearchPannel (anchorSelector) {
   document
     .querySelector('.search_icon_cont')
     .addEventListener('click', async e => {
-      console.log('clicked')
+      e.preventDefault()
       document
         .querySelector('.main_search__container')
-        .classList.toggle('show_searchpannel')
+        .classList?.toggle('show_searchpannel')
     })
   document.body.addEventListener('click', e => {
     const searchPanel = document.querySelector('.main_search__container')
@@ -488,12 +488,22 @@ export async function handleSearchPannel (anchorSelector) {
       !e.target.closest('.main_search__container') &&
       !e.target.closest('.search_icon_cont')
     ) {
-      searchPanel.classList.remove('show_searchpannel')
+      searchPanel?.classList?.remove('show_searchpannel')
     }
   })
   window.addEventListener('scroll', () => {
     document
       .querySelector('.main_search__container')
-      .classList.remove('show_searchpannel')
+      .classList?.remove('show_searchpannel')
+  })
+  form.addEventListener('submit', async e => {
+    e.preventDefault()
+
+    const searchInput = e.target.querySelector('[data-search="t_search_box"]')
+
+    const searchText = searchInput?.value
+    if (!searchText) return
+    //********** SEARCH DB *********** */
+    //********** SEARCH DB *********** */
   })
 }
