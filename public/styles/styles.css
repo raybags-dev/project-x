@@ -112,6 +112,8 @@ body::after {
   transition: all .3s;
   justify-content: space-around;
   align-items: center;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
   position: absolute;
   opacity: 0;
   width: 100%;
@@ -863,6 +865,19 @@ textarea:focus {
     display: flex !important;
     flex-direction: column;
     flex-grow: 1;
+  }
+  @-webkit-keyframes search_pannel {
+    to {
+      opacity: 1;
+      bottom: -100%;
+    }
+  }
+
+  @keyframes search_pannel {
+    to {
+      opacity: 1;
+      bottom: -50%;
+    }
   }
 }
 
