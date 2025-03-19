@@ -307,3 +307,119 @@ export async function SearchDocumentsController (req, res) {
     return res.status(500).json({ error: 'Server error' })
   }
 }
+export async function searchReviews (req, res) {
+  try {
+    const requestUserId = req.params.id
+    const localUser = req.locals.user
+    const userId = localUser.userId.toString()
+
+    if (requestUserId !== userId) {
+      return res.status(403).json({
+        status: 'FORBIDDEN',
+        message: 'You are not authorized'
+      })
+    }
+
+    const {
+      q,
+      range_filter_field,
+      range_filter_from,
+      range_filter_to,
+      sort_field = 'created_at',
+      page = 1,
+      limit = 20
+    } = req.query
+
+    // Build query filter
+    const filter = { userId: userId }
+
+    if (q && q.trim() !== '') {
+      const searchRegex = new RegExp(q.trim(), 'i')
+      filter.$or = [{ author: searchRegex }, { title: searchRegex }]
+    }
+
+    if (range_filter_field && range_filter_from && range_filter_to) {
+      const fromDate = new Date(range_filter_from)
+      const toDate = new Date(range_filter_to)
+
+      toDate.setDate(toDate.getDate() + 1)
+      const dateFieldMap = {
+        created_at: 'createdAt',
+        updated_at: 'updatedAt',
+        date_review: 'reviewDate'
+      }
+
+      const fieldToFilter = dateFieldMap[range_filter_field]
+
+      if (fieldToFilter) {
+        if (fieldToFilter === 'reviewDate') {
+          const fromISO = fromDate.toISOString().split('T')[0]
+          const toISO = toDate.toISOString().split('T')[0]
+
+          filter.$or = [
+            { reviewDate: { $gte: fromDate, $lt: toDate } },
+            { reviewDate: { $gte: fromISO, $lt: toISO } }
+          ]
+        } else {
+          filter[fieldToFilter] = { $gte: fromDate, $lt: toDate }
+        }
+      }
+    }
+
+    // Calculate pagination values
+    const skip = (parseInt(page) - 1) * parseInt(limit)
+
+    const sortConfig = {}
+    if (sort_field) {
+      const sortFieldMap = {
+        created_at: 'createdAt',
+        updated_at: 'updatedAt',
+        date_review: 'reviewDate'
+      }
+      sortConfig[sortFieldMap[sort_field] || sort_field] = -1
+    }
+
+    // Execute query with pagination
+    const reviews = await REVIEW.find(filter)
+      .sort(sortConfig)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean()
+
+    // Get total count for pagination
+    const totalReviews = await REVIEW.countDocuments(filter)
+    const totalPages = Math.ceil(totalReviews / parseInt(limit))
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        reviews,
+        pagination: {
+          total: totalReviews,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages
+        },
+        query: {
+          q,
+          range_filter_field,
+          range_filter_from,
+          range_filter_to,
+          sort_field
+        }
+      }
+    })
+  } catch (error) {
+    logger(
+      `Error in searchReviews: ${error.message}, ${JSON.stringify({
+        stack: error.stack
+      })}`,
+      'error'
+    )
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while searching reviews',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
+  }
+}

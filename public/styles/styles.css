@@ -79,7 +79,7 @@ body::after {
 /******* search styles ********* */
 .search_icon_cont {
   position: fixed;
-  bottom: 2%;
+  bottom: 1%;
   left: 1%;
   opacity: 1;
   width: 55px;
@@ -109,6 +109,7 @@ body::after {
 }
 
 .main_search__container {
+  display: none !important;
   transition: all .3s;
   justify-content: space-around;
   align-items: center;
@@ -120,6 +121,7 @@ body::after {
   bottom: 100%;
 }
 .show_searchpannel {
+  display: block !important;
   -webkit-animation: search_pannel 1 forwards ease-in .3s;
   animation: search_pannel 1 forwards ease-in .3s;
 }
@@ -862,7 +864,6 @@ textarea:focus {
   }
   .main_search__container {
     height: 50%;
-    display: flex !important;
     flex-direction: column;
     flex-grow: 1;
   }

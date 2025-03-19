@@ -1,5 +1,6 @@
 import { API_CLIENT, displayLabel } from '../components/apiCallHandlers.js'
 import { getAuthHandler } from '../components/auth.js'
+import { siteLogos } from '../components/logoPaths.js'
 
 export async function runSpinner (isDone, message = '') {
   const loader = document.querySelector('#main-page-loader')
@@ -160,6 +161,15 @@ export async function removeElementFromDOM (elementAnchor) {
     console.log(e.message)
   }
 }
+export async function removeChildElementsFromDOM (elementAnchor) {
+  try {
+    if (typeof elementAnchor !== 'string' || !elementAnchor.trim()) return
+    const elements = document.querySelectorAll(elementAnchor)
+    elements?.forEach(element => element.remove())
+  } catch (e) {
+    console.error('Error removing elements:', e.message)
+  }
+}
 export async function finishSetup () {
   try {
     const userString = sessionStorage.getItem('user')
@@ -173,6 +183,15 @@ export async function finishSetup () {
   } catch (error) {
     console.error('Error in finishSetup:', error)
   }
+}
+export function formatDate (timestamp) {
+  const date = new Date(timestamp)
+  const year = date.getUTCFullYear()
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(date.getUTCDate()).padStart(2, '0')
+  const hours = String(date.getUTCHours()).padStart(2, '0')
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 export function clearContainer (anchorTagOrElement) {
   try {
@@ -284,7 +303,6 @@ export function mountAdminPageHandler (parentSelector, data) {
     })
   })
 }
-
 async function toggleUserSubscription (
   userId,
   isCurrentlyActive,
@@ -426,14 +444,463 @@ async function deleteUserAccount (userId, e) {
     console.error('Error deleting user account:', error)
   }
 }
+export async function handleSearchFormSubmission (form) {
+  try {
+    const formData = new FormData(form)
+    const searchParams = new URLSearchParams()
 
+    // Convert FormData to URLSearchParams
+    for (const [key, value] of formData.entries()) {
+      if (value) {
+        searchParams.append(key, value)
+      }
+    }
+
+    // Validate date range if applicable
+    const rangeFieldValue = formData.get('range_filter_field')
+    if (rangeFieldValue) {
+      const fromDate = new Date(formData.get('range_filter_from'))
+      const toDate = new Date(formData.get('range_filter_to'))
+
+      if (fromDate > toDate) {
+        runSpinner(true)
+        displayLabel([
+          'review_main_wrapper',
+          'alert-warning',
+          'Invalid date range: "From" date must be before "To" date'
+        ])
+        return { error: 'Invalid date range' }
+      }
+    }
+
+    if (searchParams.toString() === '') {
+      console.warn('No search parameters provided')
+      return { error: 'No search parameters provided' }
+    }
+
+    // Get auth information
+    const user = getAuthHandler()
+    const { 'auth-token': token, userId } = user
+
+    // Create the API URL with query parameters
+    const baseUrl = `/user/${userId}/search`
+    const searchUrl = `${baseUrl}?${searchParams.toString()}`
+
+    // Set headers for the request
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+
+    // Make the API call
+    const apiClient = await API_CLIENT()
+    const response = await apiClient.post(searchUrl, {}, { headers })
+
+    if (response.status === 200 && response.data.success) {
+      return { data: response.data.data }
+    } else {
+      console.error('Search failed:', response.data.message)
+      return { error: response.data.message }
+    }
+  } catch (error) {
+    console.error('Error processing search form:', error)
+    return { error: error.message }
+  }
+}
+export async function ReviewHTML (reviewsDataOject = {}, cardIsNew = false) {
+  try {
+    if (!reviewsDataOject) return
+    const _id = reviewsDataOject?._id,
+      reviewSiteSlug = reviewsDataOject?.reviewSiteSlug,
+      reviewPageId = reviewsDataOject?.reviewPageId,
+      urlAgent = reviewsDataOject?.urlAgent,
+      author = reviewsDataOject?.author,
+      authorExternalId = reviewsDataOject?._id,
+      authorLocation = reviewsDataOject?.authorLocation,
+      authorReviewCount = reviewsDataOject?.authorReviewCount,
+      authorProfileUrl = reviewsDataOject?.authorProfileUrl,
+      reviewBody = reviewsDataOject?.reviewBody,
+      hasPropertyResponse = reviewsDataOject?.hasPropertyResponse,
+      propertyResponse = reviewsDataOject?.propertyResponse,
+      brandCheck = reviewsDataOject?.brandCheck,
+      language1 = reviewsDataOject?.language,
+      recommended = reviewsDataOject?.recommends,
+      propertyProfileUrl = reviewsDataOject?.propertyProfileUrl,
+      originalEndpoint = reviewsDataOject?.originalEndpoint,
+      propertyName = reviewsDataOject?.propertyName,
+      rating = reviewsDataOject.rating,
+      replyUrl = reviewsDataOject?.replyUrl,
+      stayDate = reviewsDataOject?.stayDate,
+      stayStatus = reviewsDataOject?.stayStatus,
+      reviewDate = reviewsDataOject?.reviewDate,
+      checkInDate = reviewsDataOject?.checkInDate,
+      checkOutDate = reviewsDataOject?.checkOutDate,
+      title = reviewsDataOject?.title,
+      userId = reviewsDataOject?.userId,
+      tripType = normalizeTravelType(reviewsDataOject?.tripType),
+      subratings = reviewsDataOject?.subratings,
+      uuid = reviewsDataOject?.uuid,
+      siteId = reviewsDataOject.siteId,
+      internalId = reviewsDataOject?.internalId,
+      externalId = reviewsDataOject?.externalId,
+      country = reviewsDataOject?.country,
+      createdAt = reviewsDataOject?.createdAt,
+      updatedAt = reviewsDataOject?.updatedAt,
+      miscellaneous = reviewsDataOject?.miscellaneous,
+      roomTypeName = miscellaneous?.roomTypeName,
+      lengthOfStay = miscellaneous?.lengthOfStay,
+      language2 = miscellaneous?.languageDetails?.fullLanguage,
+      language = (language1 && language1) || language2,
+      isExpertReviewer = miscellaneous?.isExpertReviewer
+
+    const InnerReviewHTMLContent = `
+        <div id="${_id}" class="row review-container shadow shadow-sm  __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
+              <div class="card text-bg-light my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
+                  <div class="card-header shadow-none card_header">
+                  <img src="" style="width:30%;max-width:100px !important;min-width:65px !important;max-height:100px !important;border-radius:3px" class="img-thumbnail review-logo-${uuid}-${internalId} bg-transparent" alt="...">
+                  </div>
+                  <div class="card-body d-flex flex-column left__body" data-subratings="${authorExternalId}">
+                    <span class="text" data-guest-rating="rating-${authorExternalId}" data-rating="${rating}"></span>
+                    <br class="linner">
+                  </div>
+              </div>
+    
+              <div class="card card-${_id} text-bg-light my-font-color card-middle" style="width:55%;">
+                  <div class="card-body middle__body">
+                    <div class="d-flex">
+                        <a class="text-secondary text-decoration-underline" target="_blank" href="${authorProfileUrl}">
+                        <h4 class="card-title review-author">${
+                          (author && author) || '..'
+                        }</h4>
+                        </a>
+                        </a>
+                    </div>
+                    <h5 class="card-title review-author d-inline m-1 text-left text-muted">
+                      ${title ? `<q>${title}</q>` : ''}
+                    </h5>
+                    <p class="review-body">${
+                      (reviewBody && reviewBody) ||
+                      'There are no comments available for this review'
+                    }</p>
+  
+                      <span class="card-text review-submitted-date">
+                        <small class="text-muted">Created: ${formatDate(
+                          createdAt
+                        )}</small>
+                      </span>              
+                  </div>
+              </div>
+    
+              <div class="card text-bg-light card-right" style="width: 22%;">
+                  <div class="card-header border-transparent shadow-none mt-1">
+                      <div class="btn-group d-block text-center align-content-center">
+                            <button title="not implimented!" class="btn btn-lg text-muted  btn-outline-transparent dropdown-toggle btn-block" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                              Actions
+                            </button>
+                            <ul class="dropdown-menu shadow rounded bg-light">
+                              <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Expand review Object</a></li>
+                              <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Contact customer service</a></li>
+                              <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Weekly review analysis</a></li>
+                              <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Generate monthly report</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                  <div class="d-grid gap-2 col-6 mx-auto m-auto action_buttons right__body" style="width:100%;">
+                    <a class="btn btn-transparent btn-outline-secondary action_2" href="${
+                      originalEndpoint || propertyProfileUrl
+                    }" target="_blank"  type="button">Go to ${reviewSiteSlug}</a>
+                    <button disabled class="btn btn-transparent btn-outline-secondary shadow shadow-sm action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
+                    <button class="btn btn-transparent btn-outline-danger action_3 shadow shadow-sm" del-revie-data="${_id}"  type="button">Delete review</button>
+                  </div>
+            </div>
+        </div>`
+
+    const parent_wrapper = document.querySelector('#review_main_wrapper')
+
+    if (cardIsNew) {
+      parent_wrapper?.insertAdjacentHTML('afterbegin', InnerReviewHTMLContent)
+    } else {
+      parent_wrapper?.insertAdjacentHTML('beforeend', InnerReviewHTMLContent)
+    }
+    createSubratings(subratings, `[data-subratings="${authorExternalId}"]`)
+    createRating(rating, `[data-guest-rating="rating-${authorExternalId}"]`)
+    addReviewResponse(
+      propertyResponse,
+      `.card-${_id}`,
+      hasPropertyResponse,
+      _id
+    )
+    responseButtonVisibility(hasPropertyResponse, `.has-response-${uuid}`)
+    reviewCount(authorReviewCount, `[data-subratings="${authorExternalId}"]`)
+    getSiteLogoPath(
+      reviewSiteSlug,
+      brandCheck,
+      `.review-logo-${uuid}-${internalId}`
+    )
+    generateLeftContainerContent(
+      [
+        { key: 'Posted', value: reviewDate },
+        { key: 'Checkin', value: checkInDate },
+        { key: 'Checkout', value: checkOutDate },
+        { key: 'Guest stayed', value: `${(stayStatus && 'Yes') || ''}` },
+        { key: 'Recommended', value: `${(recommended && 'Yes') || ''}` },
+        { key: 'Trip type', value: tripType },
+        { key: 'Room type', value: roomTypeName },
+        { key: 'Nights stayed', value: lengthOfStay },
+        { key: 'Country', value: country },
+        { key: 'Professional Reviewer', value: isExpertReviewer }
+      ],
+      authorExternalId
+    )
+    return InnerReviewHTMLContent
+  } catch (error) {
+    console.log(error)
+  }
+}
+export async function createSubratings (subratingsArray, selector) {
+  const cardBody = document.querySelector(selector)
+
+  if (subratingsArray && subratingsArray?.length > 0) {
+    subratingsArray.forEach(subrating => {
+      const { key, value } = subrating
+      const totalStars = 5
+
+      const spanElement = document.createElement('small')
+      spanElement.classList.add('text-warning')
+
+      const smallElement = document.createElement('small')
+      smallElement.classList.add('text-dark', 'text-muted')
+      smallElement.textContent = `${key}: `
+
+      const starsElement = document.createElement('span')
+
+      // Loop through all 5 stars
+      for (let i = 1; i <= totalStars; i++) {
+        const star = document.createElement('span')
+        star.style.opacity = '0.8'
+
+        if (i <= value) {
+          star.innerHTML = '&bigstar;'
+          star.style.color = '#29cf00'
+        } else {
+          star.innerHTML = '&bigstar;'
+          star.style.color = '#29cf0080'
+        }
+
+        starsElement.appendChild(star)
+      }
+
+      spanElement.appendChild(smallElement)
+      spanElement.appendChild(starsElement)
+
+      cardBody?.appendChild(spanElement)
+    })
+  }
+}
+export async function createRating (ratingValue, selector) {
+  const smallElement = document.querySelector(selector)
+  if (smallElement) {
+    const totalStars = 5
+
+    const containerElement = document.createElement('span')
+    containerElement.classList.add('text-muted')
+    const textElement = document.createElement('small')
+    textElement.textContent = 'Rating: '
+
+    const starsElement = document.createElement('small')
+
+    for (let i = 1; i <= totalStars; i++) {
+      const star = document.createElement('span')
+
+      if (i <= ratingValue) {
+        star.innerHTML = '&bigstar;'
+        star.style.color = '#29cf00'
+      } else {
+        star.innerHTML = '&bigstar;'
+        star.style.color = '#C1F2B0;'
+      }
+
+      starsElement.appendChild(star)
+    }
+
+    containerElement.appendChild(textElement)
+    containerElement.appendChild(starsElement)
+
+    smallElement.innerHTML = ''
+    smallElement.appendChild(containerElement)
+  }
+}
+export function addReviewResponse (
+  responseObject = {},
+  response_anchor,
+  hasPropertyResponse,
+  _id
+) {
+  try {
+    if (responseObject && responseObject.body?.length !== null) {
+      const { body: responseBody, responseDate, author } = responseObject
+
+      const reviewContainer = document.querySelector(response_anchor)
+      if (reviewContainer) {
+        const accordionElement = document.createElement('div')
+        accordionElement.className =
+          'accordion accordion-flush bg-light  res_body shadow shadow-sm'
+        accordionElement.id = _id
+
+        const accordionItem = document.createElement('div')
+        accordionItem.className = 'accordion-item bg-light'
+        accordionItem.dataset.parent = `#${_id}`
+
+        const accordionHeader = document.createElement('h2')
+        accordionHeader.className = 'accordion-header'
+        accordionHeader.id = `flush-heading-${_id}`
+
+        const accordionButton = document.createElement('button')
+        accordionButton.className =
+          'accordion-button  text-dark shadow-sm collapsed'
+        accordionButton.type = 'button'
+        accordionButton.setAttribute('data-bs-toggle', 'collapse')
+        accordionButton.setAttribute('data-bs-target', `#flush-collapse-${_id}`)
+        accordionButton.setAttribute('aria-expanded', 'false')
+        accordionButton.setAttribute('aria-controls', `flush-collapse-${_id}`)
+        accordionButton.style.backgroundColor = '#373737 !important'
+        accordionButton.innerHTML = 'Response from the owner'
+
+        accordionHeader.appendChild(accordionButton)
+
+        const accordionBody = document.createElement('div')
+        accordionBody.id = `flush-collapse-${_id}`
+        accordionBody.className = 'accordion-collapse collapse show'
+        accordionBody.setAttribute('aria-labelledby', `flush-heading-${_id}`)
+
+        const accordionBodyContent = document.createElement('div')
+        accordionBodyContent.className =
+          'accordion-body bg-light light-gray-bg shadow'
+        accordionBodyContent.innerHTML = responseBody
+
+        const response_date = document.createElement('p')
+        response_date.className = 'container bg-light text-muted'
+        response_date.innerHTML = responseDate
+          ? `Response posted on: ${responseDate}`
+          : ''
+
+        accordionBody.appendChild(accordionBodyContent)
+        accordionBody.appendChild(response_date)
+
+        accordionItem.appendChild(accordionHeader)
+        accordionItem.appendChild(accordionBody)
+
+        accordionElement.appendChild(accordionItem)
+
+        hasPropertyResponse &&
+          reviewContainer?.insertBefore(
+            accordionElement,
+            reviewContainer.firstChild
+          )
+
+        const existingElement = document.getElementById(`#${_id}`)
+        if (existingElement) {
+          const accordionInstance = new bootstrap.Collapse(accordionItem, {
+            parent: `#${_id}`,
+            toggle: false
+          })
+          accordionInstance.show()
+        }
+      }
+    }
+  } catch (error) {
+    console.log('Error in addReviewResponse:', error.message)
+  }
+}
+export function responseButtonVisibility (hasPropertyResponse, selector) {
+  const button = document.querySelector(selector)
+  if (button) {
+    if (hasPropertyResponse) {
+      button.classList.add('hide')
+    } else {
+      button.classList.remove('hide')
+    }
+  }
+}
+export async function reviewCount (countTotal, selector) {
+  const container = document.querySelector(selector)
+
+  if (container && countTotal !== undefined && countTotal !== null) {
+    const spanElement = document.createElement('small')
+    spanElement.classList.add('text-muted')
+
+    const displayedCount = countTotal == 0 ? 1 : countTotal
+
+    spanElement.innerHTML = `Review count: <small style="color: green; font-weight: 700">${displayedCount}</small>`
+    container.insertBefore(spanElement, container.querySelector('br'))
+  }
+}
+export async function getSiteLogoPath (reviewSiteSlug, brandCheck, uuid) {
+  const defaultPath = '../images/fallback.png'
+  const extractBaseDomain = slug => (slug ? slug.split('-')[0] : null)
+
+  const baseDomain = brandCheck
+    ? extractBaseDomain(brandCheck.toLowerCase())
+    : extractBaseDomain(reviewSiteSlug)
+
+  const siteLogo = Object.values(siteLogos).find(
+    logo => extractBaseDomain(logo.slug) === baseDomain
+  )
+
+  if (siteLogo) {
+    const cardLogo = await document.querySelector(uuid)
+    if (cardLogo) {
+      cardLogo.src = siteLogo.logopath || defaultPath
+
+      cardLogo.onerror = function () {
+        this.src = defaultPath
+        this.onerror = null
+      }
+    }
+  }
+}
+export async function generateLeftContainerContent (
+  dataArray,
+  authorExternalId
+) {
+  const container = document.querySelector(
+    `.left__body[data-subratings="${authorExternalId}"]`
+  )
+  if (!container) return console.log('Container not found')
+
+  dataArray.forEach((dataObject, index) => {
+    try {
+      if (!dataObject || typeof dataObject !== 'object') {
+        console.log(`Invalid object at index ${index}. Skipping append.`)
+        return
+      }
+      const { key, value } = dataObject
+      if (!key || !value) return
+
+      const displayValue = value === false ? 'No' : value
+      const spanElement = document.createElement('span')
+      spanElement.className = 'text text-muted'
+      spanElement.innerHTML = `<small>${key}: <a href="#" style="cursor:pointer;" class="sub_link text-success" data-datatype="${value}">${displayValue}</a></small>`
+
+      const brEle = container.querySelector('.linner')
+      container.insertBefore(spanElement, brEle)
+    } catch (error) {
+      console.log(`Error appending element at index ${index}:`, error)
+    }
+  })
+}
+export function normalizeTravelType (input) {
+  if (!input) return
+  return input
+    .replace(/[_-]/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, char => char.toUpperCase())
+}
 export async function handleSearchPannel (anchorSelector) {
   const anchorElement = document.querySelector(anchorSelector)
 
-  if (!anchorElement) {
-    console.error(`Element with selector '${anchorSelector}' not found.`)
-    return
-  }
+  if (!anchorElement)
+    return console.error(`Element '${anchorSelector}' not found.`)
 
   const form = document.createElement('form')
   form.className = 'w-100 main_search__container border'
@@ -471,23 +938,36 @@ export async function handleSearchPannel (anchorSelector) {
                   <input type="text" data-search="t_search_box" placeholder="Type here..." value="" class="form-control shadow" name="q">
               </div>                      
           </div>
-      </fieldset> `
+      </fieldset>`
+
   anchorElement.prepend(form)
-  // Find search icon safely
+
   const searchIcon = document.querySelector('.search_icon_cont')
   if (searchIcon) {
     searchIcon.addEventListener('click', e => {
       e.preventDefault()
       const searchPanel = document.querySelector('.main_search__container')
       if (searchPanel) {
+        const isVisible = searchPanel.classList.contains('show_searchpannel')
         searchPanel.classList.toggle('show_searchpannel')
+
+        if (isVisible) {
+          form.dispatchEvent(new Event('submit'))
+        }
       }
     })
   } else {
-    console.warn("Search icon with class '.search_icon_cont' not found")
+    console.warn('Search icon not found')
   }
-
-  // Event delegation for document click
+  const searchInput = form.querySelector('input[name="q"]')
+  if (searchInput) {
+    searchInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        form.dispatchEvent(new Event('submit'))
+      }
+    })
+  }
   document.body.addEventListener('click', e => {
     const searchPanel = document.querySelector('.main_search__container')
     if (
@@ -499,67 +979,65 @@ export async function handleSearchPannel (anchorSelector) {
     }
   })
 
-  // Debounce scroll event for better performance
-  let scrollTimeout
-  window.addEventListener('scroll', () => {
-    clearTimeout(scrollTimeout)
-    scrollTimeout = setTimeout(() => {
+  document
+    .querySelector('#review_main_wrapper')
+    .addEventListener('scroll', () => {
       const searchPanel = document.querySelector('.main_search__container')
       if (searchPanel) {
-        searchPanel.classList.remove('show_searchpannel')
+        setTimeout(() => searchPanel.classList.remove('show_searchpannel'), 800)
       }
-    }, 100)
+    })
+  const selectElements = form.querySelectorAll('select')
+  selectElements.forEach(select => {
+    select.addEventListener('change', () => {
+      form.dispatchEvent(new Event('submit'))
+    })
   })
 
-  // Form submission handler
+  const dateInputs = form.querySelectorAll('input[type="date"]')
+  dateInputs.forEach(input => {
+    input.addEventListener('change', () => {
+      setTimeout(() => {
+        form.dispatchEvent(new Event('submit'))
+      }, 300)
+    })
+  })
+
   form.addEventListener('submit', async e => {
     e.preventDefault()
+    runSpinner(false, 'Searching...')
 
-    try {
-      const formData = new FormData(e.target)
-      const searchParams = Object.fromEntries(formData)
+    const { data, error } = await handleSearchFormSubmission(e.target)
+    const reviewData = data?.reviews
 
-      const rangeFieldSelect = e.target.querySelector('#range_filter_field')
-      const sortFieldSelect = e.target.querySelector('#sort_field')
-
-      searchParams.range_filter_field = rangeFieldSelect
-        ? rangeFieldSelect.value
-        : ''
-      searchParams.sort_field = sortFieldSelect
-        ? sortFieldSelect.value
-        : 'created_at'
-
-      console.log('Search parameters:', searchParams)
-
-      // Validate date range if applicable
-      if (
-        searchParams.range_filter_field &&
-        searchParams.range_filter_from &&
-        searchParams.range_filter_to
-      ) {
-        const fromDate = new Date(searchParams.range_filter_from)
-        const toDate = new Date(searchParams.range_filter_to)
-
-        if (fromDate > toDate) {
-          console.error(
-            'Invalid date range: "From" date must be before "To" date'
-          )
-          return
-        }
+    if (error) {
+      runSpinner(true)
+      if (error !== 'No search parameters provided') {
+        displayLabel([
+          'review_main_wrapper',
+          'alert-warning',
+          `Search error: ${error}`
+        ])
       }
-
-      const hasSearchParam = Object.values(searchParams).some(val => val !== '')
-      if (!hasSearchParam) {
-        console.warn('No search parameters provided')
-        return
-      }
-
-      console.log('Available search params:', searchParams)
-
-      // Example: await performSearch(searchParams)
-    } catch (error) {
-      console.error('Error processing search form:', error)
     }
+    runSpinner(true)
+    displayLabel([
+      'review_main_wrapper',
+      'alert-success',
+      `Success: Here are your search results`
+    ])
+
+    if (!reviewData?.length)
+      return displayLabel([
+        'review_main_wrapper',
+        'alert-warning',
+        `There are no results for this search`
+      ])
+    await removeChildElementsFromDOM('.review-container')
+
+    reviewData.forEach(async review => {
+      await ReviewHTML(review, true)
+    })
   })
 
   return form

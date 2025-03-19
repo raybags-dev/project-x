@@ -30,7 +30,7 @@ const axiosInstance = axios.create({
 })
 
 axiosInstance.interceptors.request.use(config => {
-  logger(`Request URL: ${config.url}`, 'info')
+  logger(`${config.url}`, 'info')
   if (config.data) {
     logger(`payload: ${JSON.stringify(config.data)}`, 'info')
   }
