@@ -9,9 +9,9 @@ import {
   validateSuperAdmin
 } from '../components/auth.js'
 import { LOGIN_HTML } from '../components/login.js'
-import { siteLogos } from '../components/logoPaths.js'
 import { SIGNUP_HTML } from '../components/signup.js'
 import {
+  ReviewHTML,
   confirmAction,
   mountAdminPageHandler,
   runSpinner
@@ -73,173 +73,6 @@ export const PLUGINS = {
       if (spinnerContainer) {
         spinnerContainer?.remove()
       }
-    }
-  },
-  createSubratings: async function (subratingsArray, selector) {
-    const cardBody = document.querySelector(selector)
-
-    if (subratingsArray && subratingsArray?.length > 0) {
-      subratingsArray.forEach(subrating => {
-        const { key, value } = subrating
-        const totalStars = 5
-
-        const spanElement = document.createElement('small')
-        spanElement.classList.add('text-warning')
-
-        const smallElement = document.createElement('small')
-        smallElement.classList.add('text-dark', 'text-muted')
-        smallElement.textContent = `${key}: `
-
-        const starsElement = document.createElement('span')
-
-        // Loop through all 5 stars
-        for (let i = 1; i <= totalStars; i++) {
-          const star = document.createElement('span')
-          star.style.opacity = '0.8'
-
-          if (i <= value) {
-            star.innerHTML = '&bigstar;'
-            star.style.color = '#29cf00'
-          } else {
-            star.innerHTML = '&bigstar;'
-            star.style.color = '#29cf0080'
-          }
-
-          starsElement.appendChild(star)
-        }
-
-        spanElement.appendChild(smallElement)
-        spanElement.appendChild(starsElement)
-
-        cardBody?.appendChild(spanElement)
-      })
-    }
-  },
-  formatDate: function (timestamp) {
-    const date = new Date(timestamp)
-    const year = date.getUTCFullYear()
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0')
-    const day = String(date.getUTCDate()).padStart(2, '0')
-    const hours = String(date.getUTCHours()).padStart(2, '0')
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0')
-    return `${year}-${month}-${day}`
-  },
-  addReviewResponse: function (
-    responseObject = {},
-    response_anchor,
-    hasPropertyResponse,
-    _id
-  ) {
-    try {
-      if (responseObject && responseObject.body?.length !== null) {
-        const { body: responseBody, responseDate, author } = responseObject
-
-        const reviewContainer = document.querySelector(response_anchor)
-        if (reviewContainer) {
-          const accordionElement = document.createElement('div')
-          accordionElement.className =
-            'accordion accordion-flush bg-light  res_body shadow shadow-sm'
-          accordionElement.id = _id
-
-          const accordionItem = document.createElement('div')
-          accordionItem.className = 'accordion-item bg-light'
-          accordionItem.dataset.parent = `#${_id}`
-
-          const accordionHeader = document.createElement('h2')
-          accordionHeader.className = 'accordion-header'
-          accordionHeader.id = `flush-heading-${_id}`
-
-          const accordionButton = document.createElement('button')
-          accordionButton.className =
-            'accordion-button  text-dark shadow-sm collapsed'
-          accordionButton.type = 'button'
-          accordionButton.setAttribute('data-bs-toggle', 'collapse')
-          accordionButton.setAttribute(
-            'data-bs-target',
-            `#flush-collapse-${_id}`
-          )
-          accordionButton.setAttribute('aria-expanded', 'false')
-          accordionButton.setAttribute('aria-controls', `flush-collapse-${_id}`)
-          accordionButton.style.backgroundColor = '#373737 !important'
-          accordionButton.innerHTML = 'Response from the owner'
-
-          accordionHeader.appendChild(accordionButton)
-
-          const accordionBody = document.createElement('div')
-          accordionBody.id = `flush-collapse-${_id}`
-          accordionBody.className = 'accordion-collapse collapse show'
-          accordionBody.setAttribute('aria-labelledby', `flush-heading-${_id}`)
-
-          const accordionBodyContent = document.createElement('div')
-          accordionBodyContent.className =
-            'accordion-body bg-light light-gray-bg shadow'
-          accordionBodyContent.innerHTML = responseBody
-
-          const response_date = document.createElement('p')
-          response_date.className = 'container bg-light text-muted'
-          response_date.innerHTML = responseDate
-            ? `Response posted on: ${responseDate}`
-            : ''
-
-          accordionBody.appendChild(accordionBodyContent)
-          accordionBody.appendChild(response_date)
-
-          accordionItem.appendChild(accordionHeader)
-          accordionItem.appendChild(accordionBody)
-
-          accordionElement.appendChild(accordionItem)
-
-          hasPropertyResponse &&
-            reviewContainer?.insertBefore(
-              accordionElement,
-              reviewContainer.firstChild
-            )
-
-          const existingElement = document.getElementById(`#${_id}`)
-          if (existingElement) {
-            const accordionInstance = new bootstrap.Collapse(accordionItem, {
-              parent: `#${_id}`,
-              toggle: false
-            })
-            accordionInstance.show()
-          }
-        }
-      }
-    } catch (error) {
-      console.log('Error in addReviewResponse:', error.message)
-    }
-  },
-  createRating: async function (ratingValue, selector) {
-    const smallElement = document.querySelector(selector)
-    if (smallElement) {
-      const totalStars = 5
-
-      const containerElement = document.createElement('span')
-      containerElement.classList.add('text-muted')
-      const textElement = document.createElement('small')
-      textElement.textContent = 'Rating: '
-
-      const starsElement = document.createElement('small')
-
-      for (let i = 1; i <= totalStars; i++) {
-        const star = document.createElement('span')
-
-        if (i <= ratingValue) {
-          star.innerHTML = '&bigstar;'
-          star.style.color = '#29cf00'
-        } else {
-          star.innerHTML = '&bigstar;'
-          star.style.color = '#C1F2B0;'
-        }
-
-        starsElement.appendChild(star)
-      }
-
-      containerElement.appendChild(textElement)
-      containerElement.appendChild(starsElement)
-
-      smallElement.innerHTML = ''
-      smallElement.appendChild(containerElement)
     }
   },
   addSuperAdminLinkToNavbar: async function () {
@@ -360,6 +193,7 @@ export const PLUGINS = {
                   'alert-danger',
                   `An unexpected error occurred.`
                 ])
+                runSpinner(true)
               }
             }
 
@@ -374,30 +208,6 @@ export const PLUGINS = {
         `An unexpected error occurred.`
       ])
       runSpinner(true)
-    }
-  },
-  reviewCount: async function (countTotal, selector) {
-    const container = document.querySelector(selector)
-
-    if (container && countTotal !== undefined && countTotal !== null) {
-      const spanElement = document.createElement('small')
-      spanElement.classList.add('text-muted')
-
-      const displayedCount = countTotal == 0 ? 1 : countTotal
-
-      spanElement.innerHTML = `Review count: <small style="color: green; font-weight: 700">${displayedCount}</small>`
-      container.insertBefore(spanElement, container.querySelector('br'))
-    }
-  },
-  responseButtonVisibility: function (hasPropertyResponse, selector) {
-    const button = document.querySelector(selector)
-
-    if (button) {
-      if (hasPropertyResponse) {
-        button.classList.add('hide')
-      } else {
-        button.classList.remove('hide')
-      }
     }
   },
   clearStorage: function (storage) {
@@ -1134,7 +944,7 @@ export const PLUGINS = {
                   const deletedCard = document.getElementById(`${reviewId}`)
                   deletedCard?.classList.add('delete_item')
                   setTimeout(() => deletedCard.remove(), 20)
-                  await PLUGINS.generateReviewCard(updatedReview, true)
+                  await ReviewHTML(updatedReview, true)
                   const newCard = document.querySelector(
                     `.__${authorExternalId}`
                   )
@@ -1173,13 +983,6 @@ export const PLUGINS = {
     }
     return null
   },
-  normalizeTravelType: function (input) {
-    if (!input) return
-    return input
-      .replace(/[_-]/g, ' ')
-      .toLowerCase()
-      .replace(/\b\w/g, char => char.toUpperCase())
-  },
   getSiteSlug: function (reviewID) {
     const targetElement = document.getElementById(reviewID)
     if (targetElement) {
@@ -1202,219 +1005,6 @@ export const PLUGINS = {
     }
     return null
   },
-  getSiteLogoPath: async function (reviewSiteSlug, brandCheck, uuid) {
-    const defaultPath = '../images/fallback.png'
-    const extractBaseDomain = slug => (slug ? slug.split('-')[0] : null)
-
-    const baseDomain = brandCheck
-      ? extractBaseDomain(brandCheck.toLowerCase())
-      : extractBaseDomain(reviewSiteSlug)
-
-    const siteLogo = Object.values(siteLogos).find(
-      logo => extractBaseDomain(logo.slug) === baseDomain
-    )
-
-    if (siteLogo) {
-      const cardLogo = await document.querySelector(uuid)
-      if (cardLogo) {
-        cardLogo.src = siteLogo.logopath || defaultPath
-
-        cardLogo.onerror = function () {
-          this.src = defaultPath
-          this.onerror = null
-        }
-      }
-    }
-  },
-  generateLeftContainerContent: async function (dataArray, authorExternalId) {
-    const container = document.querySelector(
-      `.left__body[data-subratings="${authorExternalId}"]`
-    )
-    if (!container) return console.log('Container not found')
-
-    dataArray.forEach((dataObject, index) => {
-      try {
-        if (!dataObject || typeof dataObject !== 'object') {
-          console.log(`Invalid object at index ${index}. Skipping append.`)
-          return
-        }
-        const { key, value } = dataObject
-        if (!key || !value) return
-
-        const displayValue = value === false ? 'No' : value
-        const spanElement = document.createElement('span')
-        spanElement.className = 'text text-muted'
-        spanElement.innerHTML = `<small>${key}: <a href="#" style="cursor:pointer;" class="sub_link text-success" data-datatype="${value}">${displayValue}</a></small>`
-
-        const brEle = container.querySelector('.linner')
-        container.insertBefore(spanElement, brEle)
-      } catch (error) {
-        console.log(`Error appending element at index ${index}:`, error)
-      }
-    })
-  },
-  generateReviewCard: async function (
-    reviewsDataOject = {},
-    cardIsNew = false
-  ) {
-    if (!reviewsDataOject) return
-    const _id = reviewsDataOject?._id,
-      reviewSiteSlug = reviewsDataOject?.reviewSiteSlug,
-      reviewPageId = reviewsDataOject?.reviewPageId,
-      urlAgent = reviewsDataOject?.urlAgent,
-      author = reviewsDataOject?.author,
-      authorExternalId = reviewsDataOject?._id,
-      authorLocation = reviewsDataOject?.authorLocation,
-      authorReviewCount = reviewsDataOject?.authorReviewCount,
-      authorProfileUrl = reviewsDataOject?.authorProfileUrl,
-      reviewBody = reviewsDataOject?.reviewBody,
-      hasPropertyResponse = reviewsDataOject?.hasPropertyResponse,
-      propertyResponse = reviewsDataOject?.propertyResponse,
-      brandCheck = reviewsDataOject?.brandCheck,
-      language1 = reviewsDataOject?.language,
-      recommended = reviewsDataOject?.recommends,
-      propertyProfileUrl = reviewsDataOject?.propertyProfileUrl,
-      originalEndpoint = reviewsDataOject?.originalEndpoint,
-      propertyName = reviewsDataOject?.propertyName,
-      rating = reviewsDataOject.rating,
-      replyUrl = reviewsDataOject?.replyUrl,
-      stayDate = reviewsDataOject?.stayDate,
-      stayStatus = reviewsDataOject?.stayStatus,
-      reviewDate = reviewsDataOject?.reviewDate,
-      checkInDate = reviewsDataOject?.checkInDate,
-      checkOutDate = reviewsDataOject?.checkOutDate,
-      title = reviewsDataOject?.title,
-      userId = reviewsDataOject?.userId,
-      tripType = PLUGINS.normalizeTravelType(reviewsDataOject?.tripType),
-      subratings = reviewsDataOject?.subratings,
-      uuid = reviewsDataOject?.uuid,
-      siteId = reviewsDataOject.siteId,
-      internalId = reviewsDataOject?.internalId,
-      externalId = reviewsDataOject?.externalId,
-      country = reviewsDataOject?.country,
-      createdAt = reviewsDataOject?.createdAt,
-      updatedAt = reviewsDataOject?.updatedAt,
-      miscellaneous = reviewsDataOject?.miscellaneous,
-      roomTypeName = miscellaneous?.roomTypeName,
-      lengthOfStay = miscellaneous?.lengthOfStay,
-      language2 = miscellaneous?.languageDetails?.fullLanguage,
-      language = (language1 && language1) || language2,
-      isExpertReviewer = miscellaneous?.isExpertReviewer
-
-    const InnerReviewHTMLContent = `
-      <div id="${_id}" class="row review-container shadow shadow-sm  __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
-            <div class="card text-bg-light my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
-                <div class="card-header shadow-none card_header">
-                <img src="" style="width:30%;max-width:100px !important;min-width:65px !important;max-height:100px !important;border-radius:3px" class="img-thumbnail review-logo-${uuid}-${internalId} bg-transparent" alt="...">
-                </div>
-                <div class="card-body d-flex flex-column left__body" data-subratings="${authorExternalId}">
-                  <span class="text" data-guest-rating="rating-${authorExternalId}" data-rating="${rating}"></span>
-                  <br class="linner">
-                </div>
-            </div>
-  
-            <div class="card card-${_id} text-bg-light my-font-color card-middle" style="width:55%;">
-                <div class="card-body middle__body">
-                  <div class="d-flex">
-                      <a class="text-secondary text-decoration-underline" target="_blank" href="${authorProfileUrl}">
-                      <h4 class="card-title review-author">${
-                        (author && author) || '..'
-                      }</h4>
-                      </a>
-                      </a>
-                  </div>
-                  <h5 class="card-title review-author d-inline m-1 text-left text-muted">
-                    ${title ? `<q>${title}</q>` : ''}
-                  </h5>
-                  <p class="review-body">${
-                    (reviewBody && reviewBody) ||
-                    'There are no comments available for this review'
-                  }</p>
-
-                    <span class="card-text review-submitted-date">
-                      <small class="text-muted">Created: ${PLUGINS.formatDate(
-                        createdAt
-                      )}</small>
-                    </span>              
-                </div>
-            </div>
-  
-            <div class="card text-bg-light card-right" style="width: 22%;">
-                <div class="card-header border-transparent shadow-none mt-1">
-                    <div class="btn-group d-block text-center align-content-center">
-                          <button title="not implimented!" class="btn btn-lg text-muted  btn-outline-transparent dropdown-toggle btn-block" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
-                            Actions
-                          </button>
-                          <ul class="dropdown-menu shadow rounded bg-light">
-                            <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Expand review Object</a></li>
-                            <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Contact customer service</a></li>
-                            <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Weekly review analysis</a></li>
-                            <li><a class="dropdown-item text-dark rounded shadow shadow-sm" href="#">Generate monthly report</a></li>
-                          </ul>
-                      </div>
-                  </div>
-                <div class="d-grid gap-2 col-6 mx-auto m-auto action_buttons right__body" style="width:100%;">
-                  <a class="btn btn-transparent btn-outline-secondary action_2" href="${
-                    originalEndpoint || propertyProfileUrl
-                  }" target="_blank"  type="button">Go to ${reviewSiteSlug}</a>
-                  <button disabled class="btn btn-transparent btn-outline-secondary shadow shadow-sm action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
-                  <button class="btn btn-transparent btn-outline-danger action_3 shadow shadow-sm" del-revie-data="${_id}"  type="button">Delete review</button>
-                </div>
-          </div>
-      </div>`
-
-    const parent_wrapper = document.querySelector('#review_main_wrapper')
-
-    if (cardIsNew) {
-      parent_wrapper?.insertAdjacentHTML('afterbegin', InnerReviewHTMLContent)
-    } else {
-      parent_wrapper?.insertAdjacentHTML('beforeend', InnerReviewHTMLContent)
-    }
-
-    PLUGINS.createSubratings(
-      subratings,
-      `[data-subratings="${authorExternalId}"]`
-    )
-    PLUGINS.createRating(
-      rating,
-      `[data-guest-rating="rating-${authorExternalId}"]`
-    )
-    PLUGINS.addReviewResponse(
-      propertyResponse,
-      `.card-${_id}`,
-      hasPropertyResponse,
-      _id
-    )
-    PLUGINS.responseButtonVisibility(
-      hasPropertyResponse,
-      `.has-response-${uuid}`
-    )
-    PLUGINS.reviewCount(
-      authorReviewCount,
-      `[data-subratings="${authorExternalId}"]`
-    )
-    PLUGINS.getSiteLogoPath(
-      reviewSiteSlug,
-      brandCheck,
-      `.review-logo-${uuid}-${internalId}`
-    )
-    PLUGINS.generateLeftContainerContent(
-      [
-        { key: 'Posted', value: reviewDate },
-        { key: 'Checkin', value: checkInDate },
-        { key: 'Checkout', value: checkOutDate },
-        { key: 'Guest stayed', value: `${(stayStatus && 'Yes') || ''}` },
-        { key: 'Recommended', value: `${(recommended && 'Yes') || ''}` },
-        { key: 'Trip type', value: tripType },
-        { key: 'Room type', value: roomTypeName },
-        { key: 'Nights stayed', value: lengthOfStay },
-        { key: 'Country', value: country },
-        { key: 'Professional Reviewer', value: isExpertReviewer }
-      ],
-      authorExternalId
-    )
-  },
-  // ******* brandtype 👇🏾👇🏾👇🏾👇🏾👇🏾 ********
   fetchData: async function (page = 1, slug = '') {
     try {
       runSpinner(false, 'loading...')
@@ -1525,6 +1115,7 @@ export const PLUGINS = {
         }
         if (error.response.status === 404) {
           handleProfileGenerator(null, false)
+          runSpinner(true)
           return displayLabel([
             'review_main_wrapper',
             'alert-warning',
@@ -1533,12 +1124,9 @@ export const PLUGINS = {
         }
       }
       console.warn('Error fetching data:', error)
-    } finally {
       runSpinner(true)
     }
   },
-
-  // ******* ☝🏾☝🏾☝🏾☝🏾☝🏾☝🏾 ********
   PaginateData: async function (slug) {
     runSpinner(false)
     PLUGINS.removeAdminContainer()
@@ -1554,7 +1142,7 @@ export const PLUGINS = {
       if (data && data.length) {
         for (const obj of data) {
           try {
-            await PLUGINS.generateReviewCard(obj)
+            await ReviewHTML(obj)
           } catch (e) {
             console.log(e)
           }
@@ -1571,7 +1159,7 @@ export const PLUGINS = {
                 const data = await PLUGINS.fetchData(++page, slug)
                 if (data && data.length) {
                   data.forEach(async obj => {
-                    await PLUGINS.generateReviewCard(obj)
+                    await ReviewHTML(obj)
                   })
 
                   if (data.length < 20) {
@@ -1604,7 +1192,6 @@ export const PLUGINS = {
         return await LOGIN_HTML()
       }
       console.warn(error)
-    } finally {
       runSpinner(true)
     }
   },
@@ -1709,7 +1296,6 @@ export const PLUGINS = {
       }
     } catch (e) {
       console.warn(e)
-    } finally {
       runSpinner(true)
     }
   },
