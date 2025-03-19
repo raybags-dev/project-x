@@ -335,7 +335,13 @@ export async function searchReviews (req, res) {
 
     if (q && q.trim() !== '') {
       const searchRegex = new RegExp(q.trim(), 'i')
-      filter.$or = [{ author: searchRegex }, { title: searchRegex }]
+      filter.$or = [
+        { author: searchRegex },
+        { title: searchRegex },
+        { brandCheck: searchRegex },
+        { tripType: searchRegex },
+        { country: searchRegex }
+      ]
     }
 
     if (range_filter_field && range_filter_from && range_filter_to) {
