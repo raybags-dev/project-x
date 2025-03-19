@@ -14,6 +14,7 @@ import {
   ReviewHTML,
   confirmAction,
   mountAdminPageHandler,
+  removeChildElementsFromDOM,
   runSpinner
 } from './utilities.js'
 
@@ -162,6 +163,8 @@ export const PLUGINS = {
 
               // Ensure response is valid before proceeding
               if (response.status === 200 && response.statusText === 'OK') {
+                await removeChildElementsFromDOM('.admin-card')
+                await removeChildElementsFromDOM('.review-container')
                 const data = response.data?.user_profiles || []
                 mountAdminPageHandler('#review_main_wrapper', data)
                 runSpinner(true)
