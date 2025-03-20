@@ -1,5 +1,7 @@
+import { USER_MODEL } from '../models/user.js'
 import { agodaReviewUpdateHandler } from './updateAgoda.js'
 import { googleReviewUpdateHandler } from './updateGoogle.js'
+import { validateEndpointDomain } from './validateBaseUrl.js'
 
 export function generateMessage (savedReviews, reviewsData) {
   if (!savedReviews || !reviewsData) return
@@ -136,4 +138,47 @@ export function cleanUpBaseUrl (url) {
   let baseUrl = url?.split('?')[0]
   const match = baseUrl?.match(/^(https?:\/\/[^?#]+\.html)/)
   return match ? match[1] : baseUrl
+}
+export async function validateAndAuthorizeUser (
+  req,
+  res,
+  shouldCleanUrl = true
+) {
+  const frontFacingUrl = shouldCleanUrl
+    ? cleanUpBaseUrl(req.body.frontFacingUrl)
+    : req.body.frontFacingUrl
+
+  const isValid = validateEndpointDomain(frontFacingUrl, req)
+  if (!isValid) {
+    return {
+      error: res.status(400).json('Error: Bad request - Invalid baseUrl!')
+    }
+  }
+
+  const { email, isAdmin, userId } = await req.locals.user
+  if (!isAdmin) {
+    return {
+      error: res
+        .status(400)
+        .json({ status: 'failed', message: 'Unauthorized request' })
+    }
+  }
+
+  const user = await USER_MODEL.findOne({ email })
+  if (!user) {
+    return { error: res.status(404).json('User not found!') }
+  }
+
+  const isSubscribed = await USER_MODEL.getSubscriptionStatus(userId)
+  if (!isSubscribed) {
+    return {
+      error: res.status(400).json({
+        status: 'failed',
+        message:
+          'User is unsubscribed - review profile creation requires an active subscription'
+      })
+    }
+  }
+
+  return { frontFacingUrl, user }
 }

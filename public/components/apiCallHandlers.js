@@ -317,7 +317,7 @@ export async function fetchReviewSiteProfile (user_id, slug) {
     ])
   }
 }
-export async function runCrawlerHandler (slug, depth = 10) {
+export async function runCrawlerHandler (slug, depth = 5) {
   if (!slug) return
   runSpinner(false, 'Crawling...')
 
@@ -341,7 +341,7 @@ export async function runCrawlerHandler (slug, depth = 10) {
         displayLabel([
           'review_main_wrapper',
           'alert-danger',
-          `Yoru account is innactive. - Contact admin to activate your subscription!`
+          `Your account is innactive. - Contact admin to activate your subscription!`
         ])
         await profileGenerator()
         return false
