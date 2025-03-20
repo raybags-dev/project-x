@@ -1,9 +1,9 @@
-import { PROFILE_MODEL } from '../models/profileModel.js'
-import { REVIEW } from '../models/documentModel.js'
 import { ObjectId } from 'mongodb'
-import { USER_MODEL, USER_ID_MODEL } from '../models/user.js'
 import { validateSuperUserToken } from '../../middleware/auth.js'
 import { logger } from '../loggers/logger.js'
+import { REVIEW } from '../models/documentModel.js'
+import { PROFILE_MODEL } from '../models/profileModel.js'
+import { USER_ID_MODEL, USER_MODEL } from '../models/user.js'
 
 export async function deleteAccountProfile (req, res) {
   try {
@@ -164,12 +164,12 @@ export async function deleteAccountProfileAndAllDocuments (req, res) {
     const profileId = req.params._id
     const { userId, _id } = req.locals.user
 
-    const profile = await PROFILE_MODEL.findOneAndDelete({
+    const profileExists = await PROFILE_MODEL.findOne({
       _id: new ObjectId(profileId),
       userId
     })
 
-    if (!profile) {
+    if (!profileExists) {
       return res.status(404).json({ error: 'Profile not found for this user' })
     }
 
@@ -177,6 +177,11 @@ export async function deleteAccountProfileAndAllDocuments (req, res) {
       { _id: new ObjectId(_id) },
       { $pull: { profiles: { _id: new ObjectId(profileId) } } }
     )
+
+    await PROFILE_MODEL.findOneAndDelete({
+      _id: new ObjectId(profileId),
+      userId
+    })
 
     const deleteResult = await REVIEW.deleteMany({
       userId,
