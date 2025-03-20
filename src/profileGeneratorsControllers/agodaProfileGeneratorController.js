@@ -2,8 +2,7 @@ import axiosInstance from '../../src/utils/proxy.js'
 import { HEADERS } from '../_data_/headers/headers.js'
 import { logger } from '../loggers/logger.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
-import { getAgodaCreds } from '../spiders/agodaSpider.js'
-import { validateAndAuthorizeUser } from '../utils/utilities.js'
+import { getAgodaCreds, validateAndAuthorizeUser } from '../utils/utilities.js'
 
 export async function generateAgodaProfile (req, res) {
   try {

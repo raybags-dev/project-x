@@ -169,10 +169,6 @@ export async function deleteAccountProfileAndAllDocuments (req, res) {
       userId
     })
 
-    if (!profileExists) {
-      return res.status(404).json({ error: 'Profile not found for this user' })
-    }
-
     await USER_MODEL.updateOne(
       { _id: new ObjectId(_id) },
       { $pull: { profiles: { _id: new ObjectId(profileId) } } }

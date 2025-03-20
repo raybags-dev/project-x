@@ -11,36 +11,6 @@ import axiosInstance from '../utils/proxy.js'
  * @returns {Promise<object>} - A promise that resolves to the response data from the Agoda API.
  */
 
-export async function getAgodaCreds (req, res) {
-  try {
-    const frontFacingUrl = req.body.frontFacingUrl
-    const { agodaHeadersGenProfile } = HEADERS
-
-    const response = await axiosInstance.get(frontFacingUrl, {
-      headers: agodaHeadersGenProfile
-    })
-    if (response.status === 200) {
-      const body = response.data
-
-      const hotelId1Regex = /hotelId:(\d+)/
-      const matchHotelId1 = body.match(hotelId1Regex)
-      const hotelId1 = matchHotelId1 ? matchHotelId1[1] : null
-
-      const hotelId2Regex = /propertyId:(\d+)/
-      const matchHotelId2 = body.match(hotelId2Regex)
-      const hotelId2 = matchHotelId2 ? matchHotelId2[1] : null
-
-      const hotelId3Regex = /hotel_id=(\d+)/
-      const matchHotelId3 = body.match(hotelId3Regex)
-      const hotelId3 = matchHotelId3 ? matchHotelId3[1] : null
-
-      return hotelId1 || hotelId2 || hotelId3
-    }
-  } catch (error) {
-    logger(`Error, 'hotelId could not be fetched: ${error.message}`, 'error')
-  }
-}
-
 export async function fetchAgodaReviews (
   depth = 1,
   propertyExternalId,
