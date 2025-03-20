@@ -205,11 +205,6 @@ export const PLUGINS = {
       }
     } catch (e) {
       console.error(e)
-      displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        `An unexpected error occurred.`
-      ])
       runSpinner(true)
     }
   },
@@ -1528,11 +1523,6 @@ export const PLUGINS = {
           }
         } catch (e) {
           console.log(e.message)
-          displayLabel([
-            'review_main_wrapper',
-            'alert-danger',
-            `Something went wrong please try again later`
-          ])
         }
       })
     })
@@ -1559,11 +1549,6 @@ export const PLUGINS = {
           }
         } catch (e) {
           console.log(e.message)
-          displayLabel([
-            'review_main_wrapper',
-            'alert-danger',
-            `Something went wrong please try again later`
-          ])
         }
       })
     })
@@ -1584,12 +1569,12 @@ export const PLUGINS = {
           const response = await PLUGINS.deleteOnlyReviews(slug, cardId)
 
           if (!response) {
+            runSpinner(true)
             return displayLabel([
               'review_main_wrapper',
               'alert-warning',
               `Request could not be completed at the moment - try again later`
             ])
-            runSpinner(true)
           }
 
           if (response.status === 200) {
@@ -1623,12 +1608,6 @@ export const PLUGINS = {
         } catch (error) {
           console.error('Delete Reviews Error:', error.message)
           console.log(error.response)
-
-          displayLabel([
-            'review_main_wrapper',
-            'alert-danger',
-            `Something went wrong! Please try again later.`
-          ])
         }
       })
     })
@@ -1671,11 +1650,6 @@ export const PLUGINS = {
       }
     } catch (e) {
       console.log(e)
-      displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        `Something went wrong! Profile could not be deleted. `
-      ])
     } finally {
       runSpinner(true)
     }
@@ -1715,11 +1689,6 @@ export const PLUGINS = {
       }
     } catch (e) {
       console.log(e)
-      displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        `Something went wrong! account could not be deleted.`
-      ])
     } finally {
       runSpinner(true)
     }
@@ -1745,7 +1714,6 @@ export const PLUGINS = {
       const response = await apiClient.delete(baseUrl, { headers })
 
       if (response.status === 200) {
-        console.log(`Success: Reviews for ${slug} deleted successfully.`)
         return response
       }
 

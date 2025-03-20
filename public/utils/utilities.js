@@ -95,19 +95,34 @@ export function validateSlug (slug, url) {
     justForAMoment('Aborting...')
     return false
   }
-
   const normalizedSlug = slug.trim().replace('-', '.')
 
-  const urlHostMatch = url.match(/https?:\/\/(?:www\.)?([^\/.]+)\./)
+  const urlHostMatch = url.match(/https?:\/\/(?:www\.)?([^\/]+)/)
+
   if (!urlHostMatch) {
     displayLabel(['review_main_wrapper', 'alert-danger', 'Invalid URL format!'])
     justForAMoment('Aborting...')
     return false
   }
 
-  const extractedHost = urlHostMatch[1].trim()
+  const extractedFullHost = urlHostMatch[1].trim()
+  const extractedMainHost = extractedFullHost.match(/([^\/.]+)\./)
+  if (
+    extractedMainHost &&
+    extractedMainHost[1] === normalizedSlug.split('.')[0]
+  ) {
+    return true
+  }
 
-  if (extractedHost === normalizedSlug.split('.')[0]) {
+  const slugBase = normalizedSlug.split('.')[0]
+  if (
+    extractedFullHost.includes(slugBase) &&
+    extractedFullHost.indexOf(slugBase) < extractedFullHost.lastIndexOf('.')
+  ) {
+    return true
+  }
+
+  if (url.includes(normalizedSlug)) {
     return true
   }
 

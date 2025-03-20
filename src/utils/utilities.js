@@ -1,4 +1,6 @@
+import { HEADERS } from '../_data_/headers/headers.js'
 import { USER_MODEL } from '../models/user.js'
+import axiosInstance from './proxy.js'
 import { agodaReviewUpdateHandler } from './updateAgoda.js'
 import { googleReviewUpdateHandler } from './updateGoogle.js'
 import { validateEndpointDomain } from './validateBaseUrl.js'
@@ -181,4 +183,33 @@ export async function validateAndAuthorizeUser (
   }
 
   return { frontFacingUrl, user }
+}
+export async function getAgodaCreds (req, res) {
+  try {
+    const frontFacingUrl = req.body.frontFacingUrl
+    const { agodaHeadersGenProfile } = HEADERS
+
+    const response = await axiosInstance.get(frontFacingUrl, {
+      headers: agodaHeadersGenProfile
+    })
+    if (response.status === 200) {
+      const body = response.data
+
+      const hotelId1Regex = /hotelId:(\d+)/
+      const matchHotelId1 = body.match(hotelId1Regex)
+      const hotelId1 = matchHotelId1 ? matchHotelId1[1] : null
+
+      const hotelId2Regex = /propertyId:(\d+)/
+      const matchHotelId2 = body.match(hotelId2Regex)
+      const hotelId2 = matchHotelId2 ? matchHotelId2[1] : null
+
+      const hotelId3Regex = /hotel_id=(\d+)/
+      const matchHotelId3 = body.match(hotelId3Regex)
+      const hotelId3 = matchHotelId3 ? matchHotelId3[1] : null
+
+      return hotelId1 || hotelId2 || hotelId3
+    }
+  } catch (error) {
+    logger(`Error, 'hotelId could not be fetched: ${error.message}`, 'error')
+  }
 }
