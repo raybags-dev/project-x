@@ -23,7 +23,7 @@ export const PLUGINS = {
   simpleLoader: async function (anchor, isLoading) {
     if (!anchor && !isLoading) {
       const shouldBeRemoved = document.getElementById('spinner-container')
-      shouldBeRemoved && shouldBeRemoved.remove()
+      shouldBeRemoved && shouldBeRemoved?.remove()
     }
     const containerId = 'spinner-container'
     if (isLoading) {
@@ -337,6 +337,7 @@ export const PLUGINS = {
       }
     }
   },
+
   setupDropdownHover: async function () {
     const dropdownItems = document.querySelectorAll('li.nav-item.dropdown')
 
@@ -443,8 +444,11 @@ export const PLUGINS = {
         }
 
         if (isSmallScreen) {
-          navLink.setAttribute('aria-expanded', 'true')
-          dropdownMenu.classList.add('show')
+          // For small screens, set the dropdown to be hidden initially
+          // It will be shown when the navbar toggle is clicked
+          navLink.setAttribute('aria-expanded', 'false')
+          dropdownMenu.classList.remove('show')
+
           const dropdownLinks = dropdownMenu.querySelectorAll('a.dropdown-item')
           dropdownLinks.forEach(link => {
             const clickHandler = () => {
@@ -460,6 +464,7 @@ export const PLUGINS = {
             })
           })
         } else {
+          // Always ensure dropdowns are hidden on page load for large screens
           navLink.setAttribute('aria-expanded', 'false')
           dropdownMenu.classList.remove('show')
 
@@ -510,15 +515,37 @@ export const PLUGINS = {
       }
     }
     initModalFix()
-    const savedScreenWidth = await PLUGINS.fetchFromLocalStorage('screenWidth')
-    const initialScreenWidth =
-      savedScreenWidth !== null ? parseInt(savedScreenWidth) : window.innerWidth
 
-    applyDropdownBehavior(initialScreenWidth)
+    // Add a handler for navbar toggle button to show dropdowns on small screens
+    const navbarToggle = document.querySelector('.navbar_btn')
+    if (navbarToggle) {
+      navbarToggle.addEventListener('click', () => {
+        const currentWidth = window.innerWidth
+        if (currentWidth <= 991) {
+          // When navbar toggle is clicked on small screens, show all dropdowns
+          dropdownItems.forEach(item => {
+            const navLink = item.querySelector('a.nav-link')
+            const dropdownMenu = item.querySelector('ul.dropdown-menu')
+            if (navLink && dropdownMenu) {
+              navLink.setAttribute('aria-expanded', 'true')
+              dropdownMenu.classList.add('show')
+            }
+          })
+        }
+      })
+    }
+
+    // Apply dropdown behavior based on current screen width, not saved width
+    const currentScreenWidth = window.innerWidth
+    applyDropdownBehavior(currentScreenWidth)
+
+    // Save the current screen width for future reference
+    await PLUGINS.saveToLocalStorage('screenWidth', currentScreenWidth)
+
     window.addEventListener('resize', async () => {
-      const currentScreenWidth = window.innerWidth
-      await PLUGINS.saveToLocalStorage('screenWidth', currentScreenWidth)
-      applyDropdownBehavior(currentScreenWidth)
+      const newScreenWidth = window.innerWidth
+      await PLUGINS.saveToLocalStorage('screenWidth', newScreenWidth)
+      applyDropdownBehavior(newScreenWidth)
 
       fixUserAccountModal()
       PLUGINS.handleModleActiveStates()
@@ -912,7 +939,7 @@ export const PLUGINS = {
                 if (isDeleted) {
                   const deletedCard = document.getElementById(`${reviewId}`)
                   deletedCard?.classList.add('delete_item')
-                  setTimeout(() => deletedCard.remove(), 200)
+                  setTimeout(() => deletedCard?.remove(), 200)
                 }
               }, 1500)
             } catch (error) {
@@ -941,7 +968,7 @@ export const PLUGINS = {
                 if (updatedReview) {
                   const deletedCard = document.getElementById(`${reviewId}`)
                   deletedCard?.classList.add('delete_item')
-                  setTimeout(() => deletedCard.remove(), 20)
+                  setTimeout(() => deletedCard?.remove(), 20)
                   await ReviewHTML(updatedReview, true)
                   const newCard = document.querySelector(
                     `.__${authorExternalId}`
@@ -1195,7 +1222,7 @@ export const PLUGINS = {
   },
   removeAdminContainer: function () {
     const container = document.querySelector('#admin_page')
-    if (container) return container.remove()
+    if (container) return container?.remove()
   },
   handlePaginatedDataClick: async function (event) {
     try {
@@ -1205,7 +1232,7 @@ export const PLUGINS = {
         runSpinner(false, 'Fetching...')
         const reviews = document.querySelectorAll('.review-container')
         if (reviews.length) {
-          reviews.forEach(reviewContainer => reviewContainer.remove())
+          reviews.forEach(reviewContainer => reviewContainer?.remove())
           await PLUGINS.PaginateData(textContent)
           return
         }
@@ -1517,7 +1544,7 @@ export const PLUGINS = {
             if (deletedProfile) {
               await fetchCurrentUserUpdateSeesionStorage()
               const deletedProfileCard = document.getElementById(`${cardId}`)
-              deletedProfileCard.remove()
+              deletedProfileCard?.remove()
               runSpinner(true)
             }
           }
@@ -1613,7 +1640,6 @@ export const PLUGINS = {
     })
   },
   deletProfileAndAssociatedReviews: async function (slug, profile_Id) {
-    console.log(slug, profile_Id)
     try {
       if (!slug) return
       runSpinner(false, 'Deleting...')
@@ -1779,7 +1805,7 @@ export const PLUGINS = {
   },
   createAccountPage: async function () {
     const isContainerInDOM = document.querySelector('#userAccount')
-    if (isContainerInDOM) isContainerInDOM.remove()
+    if (isContainerInDOM) isContainerInDOM?.remove()
     try {
       let user = {}
       const userLocalStorage = await getAuthHandler()
