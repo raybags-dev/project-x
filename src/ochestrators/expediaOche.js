@@ -74,7 +74,18 @@ export async function generateExpediaReviews (req, res) {
 
     if (!reviewData.length) {
       logger('Review list is empty', 'warn')
-      return
+      return res.status(404).json({
+        state: 'nothing found',
+        isCompleted: false,
+        reviewSiteName: reviewSiteSlug,
+        reviewDocumentCount: null,
+        accountName: property_name,
+        profile_id: profile_id,
+        endpoint: originalUrl,
+        siteId: internalId,
+        reviewPage: baseUrl,
+        message: []
+      })
     }
 
     for (const review of reviewData) {

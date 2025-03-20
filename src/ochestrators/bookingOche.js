@@ -3,7 +3,11 @@ import { REVIEW } from '../models/documentModel.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import { fetchBookingReviews } from '../spiders/bookingSpider.js'
-import { generateMessage } from '../utils/utilities.js'
+import {
+  formatReviewBodyString,
+  generateMessage,
+  convertUnixToDate
+} from '../utils/utilities.js'
 
 export async function generateBookingComReviews (req, res) {
   try {
@@ -71,6 +75,22 @@ export async function generateBookingComReviews (req, res) {
       userProfile
     )
 
+    if (!reviewData.length) {
+      logger('Review list is empty', 'warn')
+      return res.status(404).json({
+        state: 'nothing found',
+        isCompleted: false,
+        reviewSiteName: reviewSiteSlug,
+        reviewDocumentCount: null,
+        accountName: property_name,
+        profile_id: profile_id,
+        endpoint: originalUrl,
+        siteId: internalId,
+        reviewPage: baseUrl,
+        message: []
+      })
+    }
+
     for (const review of reviewData) {
       const existingReview = await REVIEW.findOne({
         authorExternalId: review.reviewUrl,
@@ -90,14 +110,14 @@ export async function generateBookingComReviews (req, res) {
           authorProfileUrl: originalUrl,
           externallId: propertyExternalId,
           reviewSiteSlug: reviewSiteSlug,
-          reviewBody: formatReviewString(
+          reviewBody: formatReviewBodyString(
             review.textDetails?.negativeText,
             review.textDetails?.positiveText
           ),
           title: review.textDetails.title,
           propertyProfileUrl: originalUrl || baseUrl,
           originalEndpoint: originalUrl,
-          reviewDate: formatFromUnix(review.reviewedDate),
+          reviewDate: convertUnixToDate(review.reviewedDate),
           checkInDate: review.bookingDetails.checkinDate,
           checkOutDate: review.bookingDetails.checkoutDate,
           stayDate: review.bookingDetails.checkinDate,
@@ -141,23 +161,7 @@ export async function generateBookingComReviews (req, res) {
     res.status(500).json({ error: 'Server error' })
   }
 }
-function formatReviewString (reviewNegatives = '', reviewPositives = '') {
-  let formattedString = ''
-  if (reviewNegatives) {
-    formattedString += `\n\nBad: ${reviewNegatives}`
-  }
-  if (reviewPositives) {
-    formattedString += `\n\nGood: ${reviewPositives}`
-  }
-  return formattedString.trim()
-}
-function formatFromUnix (timestamp) {
-  const date = new Date(timestamp * 1000)
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
+
 function to_base_rating (rating) {
   const numericRating = typeof rating === 'string' ? parseFloat(rating) : rating
   if (isNaN(numericRating)) return null

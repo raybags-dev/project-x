@@ -222,8 +222,7 @@ export function mountAdminPageHandler (parentSelector, data) {
   let container = parentElement.querySelector('.admin_page_outer')
   if (!container) {
     container = document.createElement('div')
-    container.className =
-      'admin_page_outer d-flex flex-wrap justify-content-center gap-2'
+    container.className = 'admin_page_outer d-flex flex-wrap  gap-2'
     parentElement.appendChild(container)
   }
 
@@ -774,8 +773,7 @@ export function addReviewResponse (
         accordionBody.setAttribute('aria-labelledby', `flush-heading-${_id}`)
 
         const accordionBodyContent = document.createElement('div')
-        accordionBodyContent.className =
-          'accordion-body bg-light light-gray-bg shadow'
+        accordionBodyContent.className = 'accordion-body bg-light shadow'
         accordionBodyContent.innerHTML = responseBody
 
         const response_date = document.createElement('p')

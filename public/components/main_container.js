@@ -35,14 +35,14 @@ function setupEventListeners () {
 export async function MAIN_PAGE () {
   try {
     let pageContent = `
-         <nav  class="navbar navbar__default navbar-expand-lg navbar-light light-gray-bg shadow shadow-sm glassy bg-light">
+         <nav  class="navbar navbar__default navbar-expand-lg navbar-light shadow shadow-sm glassy bg-light">
           <div class="container-fluid">
             <a class="navbar-brand text-info" href="/" title="main page"> <img src="../images/site_logo.jpeg" width="30" height="30" alt=""></img></a>
             <button class="navbar-toggler navbar_btn" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse light-gray-bg " id="navbarScroll">
-                <ul id="__nav" class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll light-gray-bg border-1 border-danger" style="--bs-scroll-height: 150px;">
+            <div class="collapse navbar-collapse" id="navbarScroll">
+                <ul id="__nav" class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll  border-1 border-danger" style="--bs-scroll-height: 150px;">
                       <li class="nav-item dropdown">
                           <a class="nav-link dropdown-toggle text-dark text-uppercase" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             account
@@ -63,6 +63,7 @@ export async function MAIN_PAGE () {
                             <li><a class="dropdown-item  btn btn-outline-success text-dark text-uppercase  google-com" href="#">google-com</a></li>
                             <li><a class="dropdown-item  btn btn-outline-success text-dark text-uppercase  agoda-com" href="#">agoda-com</a></li>
                             <li><a class="dropdown-item  btn btn-outline-success text-dark text-uppercase  booking-com" href="#">booking-com</a></li>
+                            <li><a class="dropdown-item  btn btn-outline-success text-dark text-uppercase  opentable-com" href="#">opentable-com</a></li>
                             <li><a class="dropdown-item  text-dark text-uppercase  expedia-com" href="#">expedia-com</a></li>
                             <li><a class="dropdown-item text-dark text-uppercase trip-com" href="#">trip-com</a></li>
                             <li><a class="dropdown-item text-dark text-uppercase ctrip-com" href="#">ctrip-com</a></li>

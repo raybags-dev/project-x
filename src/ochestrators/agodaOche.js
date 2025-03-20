@@ -3,7 +3,11 @@ import { REVIEW } from '../models/documentModel.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import { fetchAgodaReviews } from '../spiders/agodaSpider.js'
-import { generateMessage } from '../utils/utilities.js'
+import {
+  extractISODate,
+  formatReviewBodyString,
+  generateMessage
+} from '../utils/utilities.js'
 
 export async function generateAgodaReviews (req, res) {
   try {
@@ -63,6 +67,22 @@ export async function generateAgodaReviews (req, res) {
       userProfile
     )
 
+    if (!reviewData.length) {
+      logger('Review list is empty', 'warn')
+      return res.status(404).json({
+        state: 'nothing found',
+        isCompleted: false,
+        reviewSiteName: reviewSiteSlug,
+        reviewDocumentCount: null,
+        accountName: property_name,
+        profile_id: profile_id,
+        endpoint: originalUrl,
+        siteId: internalId,
+        reviewPage: baseUrl,
+        message: []
+      })
+    }
+
     for (const review of reviewData) {
       const existingReview = await REVIEW.findOne({
         authorExternalId: review.hotelReviewId,
@@ -105,7 +125,7 @@ export async function generateAgodaReviews (req, res) {
           authorProfileUrl: originalUrl,
           authorReviewCount: reviewerReviewedCount,
           reviewSiteSlug: reviewSiteSlug,
-          reviewBody: formatReviewString(
+          reviewBody: formatReviewBodyString(
             reviewNegatives,
             reviewPositives,
             reviewComments
@@ -113,14 +133,14 @@ export async function generateAgodaReviews (req, res) {
           title: `${ratingText && ratingText + '. '}${reviewTitle}`,
           propertyProfileUrl: originalUrl || baseUrl,
           originalEndpoint: originalUrl,
-          reviewDate: formattDate(reviewDate),
-          checkInDate: formattDate(checkInDate),
-          checkOutDate: formattDate(checkOutDate),
+          reviewDate: extractISODate(reviewDate),
+          checkInDate: extractISODate(checkInDate),
+          checkOutDate: extractISODate(checkOutDate),
           urlAgent: baseUrl,
           propertyName: property_name,
           propertyResponse: {
             body: responseText,
-            responseDate: formattDate(responseDate),
+            responseDate: extractISODate(responseDate),
             author: responderName
           },
           miscellaneous: {
@@ -159,23 +179,4 @@ export async function generateAgodaReviews (req, res) {
     logger(`Error generating Agoda reviews: ${error.message}`, 'error')
     res.status(500).json({ error: 'Server error' })
   }
-}
-function formatReviewString (reviewNegatives, reviewPositives, reviewComments) {
-  let formattedString = reviewComments || ''
-  if (reviewNegatives) {
-    formattedString += `\n\nBad: ${reviewNegatives}`
-  }
-  if (reviewPositives) {
-    formattedString += `\n\nGood: ${reviewPositives}`
-  }
-  return formattedString.trim()
-}
-function formattDate (originalDate) {
-  if (originalDate) {
-    const match = originalDate.match(/^(\d{4}-\d{2}-\d{2})T/)
-    if (match && match[1]) {
-      return match[1]
-    }
-  }
-  return originalDate
 }
