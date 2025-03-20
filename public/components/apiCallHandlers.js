@@ -442,6 +442,7 @@ export async function profileGenerator () {
             <option value="google">google-com</option>
             <option value="agoda">agoda-com</option>
             <option value="booking">booking-com</option>
+            <option value="opentable">opentable-com</option>
             <option value="expedia">expedia-com</option>
             <option value="trip">trip-com</option>
           </select>

@@ -1,14 +1,15 @@
 import * as cheerio from 'cheerio'
-import { PROFILE_MODEL } from '../models/profileModel.js'
-import { USER_MODEL } from '../models/user.js'
 import { HEADERS } from '../_data_/headers/headers.js'
 import { logger } from '../loggers/logger.js'
-import { validateEndpointDomain } from '../utils/validateBaseUrl.js'
+import { PROFILE_MODEL } from '../models/profileModel.js'
+import { USER_MODEL } from '../models/user.js'
 import axiosInstance from '../utils/proxy.js'
+import { cleanUpBaseUrl } from '../utils/utilities.js'
+import { validateEndpointDomain } from '../utils/validateBaseUrl.js'
 
 export async function generateBookingComProfile (req, res) {
   try {
-    const frontFacingUrl = req.body.frontFacingUrl
+    const frontFacingUrl = cleanUpBaseUrl(req.body.frontFacingUrl)
     if (!frontFacingUrl) return res.status(400).json('bad request')
 
     const isValid = validateEndpointDomain(frontFacingUrl, req)

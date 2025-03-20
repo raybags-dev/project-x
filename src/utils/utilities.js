@@ -1,5 +1,5 @@
-import { googleReviewUpdateHandler } from './updateGoogle.js'
 import { agodaReviewUpdateHandler } from './updateAgoda.js'
+import { googleReviewUpdateHandler } from './updateGoogle.js'
 
 export function generateMessage (savedReviews, reviewsData) {
   if (!savedReviews || !reviewsData) return
@@ -100,4 +100,40 @@ export async function isUserSubscribed (user) {
     console.error('Error checking subscription:', error)
     return false
   }
+}
+export function extractISODate (originalDate) {
+  if (originalDate) {
+    const match = originalDate.match(/^(\d{4}-\d{2}-\d{2})T/)
+    if (match && match[1]) {
+      return match[1]
+    }
+  }
+  return originalDate
+}
+export function convertUnixToDate (timestamp) {
+  const date = new Date(timestamp * 1000)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+export function formatReviewBodyString (
+  reviewNegatives,
+  reviewPositives,
+  reviewComments
+) {
+  let formattedString = reviewComments || ''
+  if (reviewNegatives) {
+    formattedString += `\n\nBad: ${reviewNegatives}`
+  }
+  if (reviewPositives) {
+    formattedString += `\n\nGood: ${reviewPositives}`
+  }
+  return formattedString.trim()
+}
+export function cleanUpBaseUrl (url) {
+  if (!url) return ''
+  let baseUrl = url?.split('?')[0]
+  const match = baseUrl?.match(/^(https?:\/\/[^?#]+\.html)/)
+  return match ? match[1] : baseUrl
 }

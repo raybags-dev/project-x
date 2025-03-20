@@ -243,10 +243,6 @@ body::after {
   color: rgb(2, 214, 20) !important;
 }
 
-.light-gray-bg {
-  color: #000000;
-}
-
 li > a,
 a {
   text-decoration: none !important;
@@ -879,6 +875,13 @@ textarea:focus {
       opacity: 1;
       bottom: -50%;
     }
+  }
+  .admin_page_outer {
+    justify-content: center !important;
+  }
+  .user_accountcard {
+    flex-grow: 1 !important;
+    min-width: 80% !important;
   }
 }
 

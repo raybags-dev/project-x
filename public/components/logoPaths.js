@@ -46,5 +46,9 @@ export const siteLogos = {
   ctrip_logo: {
     slug: 'ctrip-com',
     logopath: '../images/ctrip_logo.png'
+  },
+  opentable_logo: {
+    slug: 'opentable-com',
+    logopath: '../images/opentable_logo.png'
   }
 }

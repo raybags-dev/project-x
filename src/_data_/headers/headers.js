@@ -208,5 +208,46 @@ export const HEADERS = {
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
     Cookie:
       '_abtest_userid=939ddfc9-0a69-4de5-a4de-d74cf12f9e1d; ibu_online_home_language_match={"isRedirect":false,"isShowSuggestion":false,"lastVisited":true,"region":"us","redirectSymbol":false}; _uetvid=288c0f50b1bc11ed85d9699ce3765135; _ga_2DCSB93KS4=GS1.2.1718739946.100.0.1718739947.59.0.0; _ga_X437DZ73MR=GS1.1.1718739946.123.0.1718740064.0.0.0; _ga=GA1.2.2087740175.1697628972; oldLocale=en-XX; _ga_37RNVFDP1J=GS1.2.1728309464.103.1.1728309464.60.0.0; ibulanguage=EN; cookiePricesDisplayed=USD; nfes_isSupportWebP=1; UBT_VID=1697628965150.288h9e; _RSG=ZHK.PJutEj3WsNthWggxSB; _RDG=28540e6a512d3c2e4627474a1f323ab387; _RGUID=3b4edf84-d9f9-4463-b73b-aaa82bdd7da0; _fwb=417q8mmZpY0UHGgPdpYJHz.1736868746761; _tt_enable_cookie=1; _ttp=PLszoCGPqMWWCy6wU29QG6X72XK.tt.1; _fbp=fb.1.1736868749554.773517262863905195; ibu_online_permission_cls_ct=3; ibu_online_permission_cls_gap=1738330834566; _gcl_au=1.1.205165355.1738835107; _gid=GA1.2.258470160.1742073175; GUID=09034072215074970768; ibulocale=en_us; ibu_country=US; _resDomain=https%3A%2F%2Faw-s.tripcdn.com; intl_ht1=h4%3D633_1643571; _bfa=1.1697628965150.288h9e.1.1742130040011.1742152776719.138.1.10320668147; _RF1=199.101.196.83; g_state={"i_p":1742159982651,"i_l":1}; Union=AllianceID=1078328&SID=2036522&OUID=ctag.hash.nnrohn2hu7wy&Expires=1744745459500&createtime=1742153459'
+  },
+  opentableHeadersGenProfile: {
+    accept:
+      'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+    'cache-control': 'max-age=0',
+    priority: 'u=0, i',
+    'sec-ch-ua':
+      '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"macOS"',
+    'sec-fetch-dest': 'document',
+    'sec-fetch-mode': 'navigate',
+    'sec-fetch-site': 'same-origin',
+    'sec-fetch-user': '?1',
+    'upgrade-insecure-requests': '1',
+    'user-agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+    cookie:
+      'bm_sv=149AE9E85BDC66ADADEE53D1DDCDBE55~YAAQo0Y5F+kRy6qVAQAARSSZsBvuJ+eWLHEGXmL0UvkceTJ6TqaFODg0ZX0KLwSy6RkaUNAzavakmD2DEHHG0jSbktwlcos3UdweMZu5gkmnpshEdrcY38Uu0MyOAUcT6EYKrzwdi24d/WDkI1IobZjTvjGuq466sKvWlzH4E2l3KIk0yr555AWfcGrNhizxrSoBNr5FxwEh6SS78t+R4z6+cK9PytC3eluCUXj67bMe6HerRVnosH0W1UhiNKzyMFU/sg==~1; ftc=x=2025-03-19T23%3A49%3A41&c=1&pt1=1&pt2=1&er=151951; ha_userSession=lastModified=2025-03-18T11%3A41%3A36.000Z&origin=prod-sc2'
+  },
+  opentableHeadersGenReviews: {
+    accept: '*/*',
+    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+    'content-type': 'application/json',
+    origin: 'https://www.opentable.com',
+    'ot-page-group': 'rest-profile',
+    'ot-page-type': 'restprofilepage',
+    priority: 'u=1, i',
+    connection: 'keep-alive',
+    'sec-ch-ua':
+      '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"macOS"',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin',
+    'user-agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+    'x-csrf-token': 'eca2923e-c54f-4bb8-962b-e6978444da7d',
+    cookie:
+      'bm_sv=AB1CD03B6959C8E686476F7E4F494F76~YAAQvXd7XLCmRqSVAQAAJ8QYsRsilH/OTkoxhtc6ceTiQ+78P9NXrPjf4AAoo6nQnkyUZwtPJvXQeh5gWOiR9kpfgV6F6cX6kZVwDE/ajJD1EnYaDqArTvKODkblWLR7SuF5zxsNewr0cKGEMNRfZBqopR6hTv9bCjLB8zUWWuW5cMOzgXajL5jWJFyU9n+P34eILBQ3y52K+op4Z/uiikEHcNgnZ8BdCXD8zE/MaaypyZw2JLmyrAcew4Z1pZuNgK/s~1; ftc=x=2025-03-19T23%3A49%3A41&c=1&pt1=1&pt2=1&er=151951; ha_userSession=lastModified=2025-03-18T11%3A41%3A36.000Z&origin=prod-sc2'
   }
 }
