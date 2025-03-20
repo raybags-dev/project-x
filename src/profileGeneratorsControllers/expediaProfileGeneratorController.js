@@ -4,11 +4,13 @@ import { logger } from '../loggers/logger.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import axiosInstance from '../utils/proxy.js'
+import { cleanUpBaseUrl } from '../utils/utilities.js'
+
 import { validateEndpointDomain } from '../utils/validateBaseUrl.js'
 
 export async function generateExpediaProfile (req, res) {
   try {
-    const frontFacingUrl = req.body.frontFacingUrl
+    const frontFacingUrl = cleanUpBaseUrl(req.body.frontFacingUrl)
     const isValid = validateEndpointDomain(frontFacingUrl, req)
     if (!isValid)
       return res.status(400).json('Error: Bad request - Invalid baseUrl!')

@@ -131,3 +131,9 @@ export function formatReviewBodyString (
   }
   return formattedString.trim()
 }
+export function cleanUpBaseUrl (url) {
+  if (!url) return ''
+  let baseUrl = url?.split('?')[0]
+  const match = baseUrl?.match(/^(https?:\/\/[^?#]+\.html)/)
+  return match ? match[1] : baseUrl
+}

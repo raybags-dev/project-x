@@ -1,15 +1,15 @@
+import axiosInstance from '../../src/utils/proxy.js'
 import { HEADERS } from '../_data_/headers/headers.js'
 import { logger } from '../loggers/logger.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import { getAgodaCreds } from '../spiders/agodaSpider.js'
+import { cleanUpBaseUrl } from '../utils/utilities.js'
 import { validateEndpointDomain } from '../utils/validateBaseUrl.js'
-
-import axiosInstance from '../../src/utils/proxy.js'
 
 export async function generateAgodaProfile (req, res) {
   try {
-    const frontFacingUrl = req.body.frontFacingUrl
+    const frontFacingUrl = cleanUpBaseUrl(req.body.frontFacingUrl)
     logger(frontFacingUrl, 'info')
 
     if (!frontFacingUrl) return res.status(400).json('Bad request')

@@ -226,9 +226,14 @@ function genbaseTripUrl (url) {
   if (url.startsWith('https://www.trip.com/hotels/detail/?hotelId=')) {
     return url
   }
-  const match = url.match(/hotel-detail-(\d+)/)
-  if (match) {
-    return `https://www.trip.com/hotels/detail/?hotelId=${match[1]}`
+
+  const match1 = url.match(/hotel-detail-(\d+)/)
+  const match2 = url.match(/hotelId=(\d+)/)
+  const hotelId = match1 ? match1[1] : match2 ? match2[1] : null
+
+  if (hotelId) {
+    return `https://www.trip.com/hotels/detail/?hotelId=${hotelId}`
   }
+
   return null
 }
