@@ -56,7 +56,7 @@ async function fetchPageData (endpointUrl, requestBody, headers) {
     })
 
     if (!response.data?.comments || response.data?.comments?.length === 0) {
-      logger('⚠️ No more comments available. Exiting...', 'info')
+      logger('⚠️  No more comments available. Exiting...', 'info')
       return null
     }
 

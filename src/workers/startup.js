@@ -2,6 +2,7 @@ import 'dotenv/config'
 import connectDB from '../DB/connect.js'
 import { devLogger } from '../loggers/devLogger.js'
 import { clearDevPort } from '../utils/cleanUp.js'
+import { testProxyConnection } from '../utils/proxy.js'
 
 const { MONGO_URI } = process.env
 
@@ -21,6 +22,8 @@ async function starterLogger (port) {
     devLogger(`User: ${currentUser}`, 'info')
     devLogger(`Log name: ${logname}`, 'info')
     devLogger(`Server running on port: ${port}`, 'info')
+    devLogger(`Testing proxy server...`, 'info')
+    await testProxyConnection()
   } catch (e) {
     devLogger(`Error occurred in starterLogger function: ${e}`, 'error')
   }

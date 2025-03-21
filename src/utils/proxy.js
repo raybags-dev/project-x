@@ -3,15 +3,16 @@ import 'dotenv/config'
 import url from 'url'
 import { logger } from '../loggers/logger.js'
 
-const proxyEndpoint = process.env.PROXY_ENDPOINT
+const { PROXY_ENDPOINT } = process.env
+
 function getProxyConfig () {
-  if (!proxyEndpoint) {
+  if (!PROXY_ENDPOINT) {
     throw new Error(
       'Proxy endpoint missing! Not found in environment variables.'
     )
   }
 
-  const parsedUrl = new url.URL(proxyEndpoint)
+  const parsedUrl = new url.URL(PROXY_ENDPOINT)
   return {
     protocol: parsedUrl.protocol.replace(':', ''),
     host: parsedUrl.hostname,
@@ -70,8 +71,18 @@ axiosInstance.interceptors.response.use(
         }
       }
     }
-
     return Promise.reject(error)
   }
 )
+export const testProxyConnection = async () => {
+  try {
+    const response = await axiosInstance.get('http://ipv4.webshare.io/')
+    logger(`Proxy connection successful. IP: ${response.data.trim()}`, 'info')
+    return response.data
+  } catch (error) {
+    logger(`Proxy connection test failed: ${error.message}`, 'error')
+    throw error
+  }
+}
+
 export default axiosInstance
