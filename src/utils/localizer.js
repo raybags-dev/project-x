@@ -297,12 +297,12 @@ function validateLanguageMap () {
 function parseLocale (localeCode) {
   // Validate input
   if (!localeCode || typeof localeCode !== 'string') {
-    throw new Error('Invalid locale code: Input must be a non-empty string')
+    return console.log('Invalid locale code: Input must be a non-empty string')
   }
 
   const localeRegex = /^[a-z]{2}_[A-Z]{2}$/
   if (!localeRegex.test(localeCode)) {
-    throw new Error(
+    return console.log(
       `Invalid locale format: ${localeCode}. Expected format: 'xx_YY'`
     )
   }
@@ -310,7 +310,7 @@ function parseLocale (localeCode) {
   const [languageCode, regionCode] = localeCode.split('_')
 
   if (!languageMap[languageCode]) {
-    throw new Error(`Unsupported language code: ${languageCode}`)
+    return console.log(`Unsupported language code: ${languageCode}`)
   }
 
   // First, check direct mapping
