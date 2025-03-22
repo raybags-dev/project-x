@@ -1,7 +1,8 @@
 import crypto from 'crypto'
-import 'dotenv/config'
+import { config } from 'dotenv'
 import { promises as fs } from 'fs'
 import path from 'path'
+config()
 
 async function encryptAllFile (filePath) {
   try {
@@ -92,6 +93,7 @@ function loadEncryptionKey (keyName) {
   }
   return validKey
 }
+
 async function processAuthFiles (encrypt, folderPaths) {
   try {
     for (const folderPath of folderPaths) {
