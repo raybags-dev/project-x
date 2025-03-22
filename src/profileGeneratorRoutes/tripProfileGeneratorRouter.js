@@ -12,8 +12,8 @@ router.post(
   authMiddleware,
   isAdmin,
   customRateLimiter({
-    windowMs: 30 * 60 * 1000, // 30 minutes
-    max: 50, // Max 3 profile creation requests per user in 30 minutes
+    windowMs: 30 * 60 * 1000, // 30 minutes (30 * 60 * 1000 ms)
+    max: 50,
     message:
       'Too many trip.com profile creation requests. Please wait and try again.'
   }),
