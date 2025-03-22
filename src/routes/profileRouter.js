@@ -1,15 +1,15 @@
 import express from 'express'
-import { authMiddleware, isAdmin } from '../../middleware/auth.js'
 import { asyncMiddleware } from '../../middleware/asyncErros.js'
+import { authMiddleware, isAdmin } from '../../middleware/auth.js'
 import { customRateLimiter } from '../../middleware/limiters.js'
 
 import {
   deleteAccountProfile,
   deleteAccountProfileAndAllDocuments,
+  getAccountProfile,
   pargeUserPrivate,
   pargeUserPublic,
-  validateCaller,
-  getAccountProfile
+  validateCaller
 } from '../controllers/profileController.js'
 
 const router = express.Router()
@@ -18,11 +18,6 @@ router.delete(
   '/raybags/v1/review-crawler/user/delete-own-profile',
   authMiddleware,
   isAdmin,
-  customRateLimiter({
-    windowMs: 60 * 60 * 1000,
-    max: 10,
-    message: 'Too many deletion attempts'
-  }),
   asyncMiddleware(deleteAccountProfile)
 )
 
@@ -31,8 +26,8 @@ router.delete(
   authMiddleware,
   isAdmin,
   customRateLimiter({
-    windowMs: 2 * 60 * 60 * 1000,
-    max: 20,
+    windowMs: 15 * 60 * 60 * 1000,
+    max: 50,
     message: 'Too many delete-all attempts'
   }),
   asyncMiddleware(deleteAccountProfileAndAllDocuments)
@@ -43,8 +38,8 @@ router.delete(
   authMiddleware,
   isAdmin,
   customRateLimiter({
-    windowMs: 2 * 60 * 60 * 1000,
-    max: 10,
+    windowMs: 15 * 60 * 60 * 1000,
+    max: 50,
     message: 'Too many purge attempts'
   }),
   asyncMiddleware(pargeUserPrivate)
@@ -55,8 +50,8 @@ router.delete(
   authMiddleware,
   isAdmin,
   customRateLimiter({
-    windowMs: 2 * 60 * 60 * 1000,
-    max: 10,
+    windowMs: 15 * 60 * 60 * 1000,
+    max: 50,
     message: 'Too many public purge attempts'
   }),
   asyncMiddleware(pargeUserPublic)
@@ -68,8 +63,8 @@ router.post(
   authMiddleware,
   isAdmin,
   customRateLimiter({
-    windowMs: 30 * 60 * 1000,
-    max: 30,
+    windowMs: 15 * 60 * 60 * 1000,
+    max: 50,
     message: 'Too many validation requests'
   }),
   asyncMiddleware(validateCaller)
@@ -80,8 +75,8 @@ router.post(
   authMiddleware,
   isAdmin,
   customRateLimiter({
-    windowMs: 60 * 60 * 1000,
-    max: 100,
+    windowMs: 15 * 60 * 60 * 1000,
+    max: 50,
     message: 'Too many profile requests'
   }),
   asyncMiddleware(getAccountProfile)

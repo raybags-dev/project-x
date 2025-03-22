@@ -11,7 +11,6 @@ export const authRateLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false
 })
-
 export const loginRateLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
   max: 5,
@@ -21,7 +20,6 @@ export const loginRateLimiter = rateLimit({
     })
   }
 })
-
 export const customRateLimiter = (options = {}) => {
   const {
     windowMs = 15 * 60 * 1000,

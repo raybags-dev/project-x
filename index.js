@@ -1,15 +1,16 @@
-import express from 'express'
-import cors from 'cors'
-import morgan from 'morgan'
-import { handleNotSupported, miscellaneous } from './src/utils/miscellaneous.js'
 import bodyParser from 'body-parser'
-import startUp from './src/workers/startup.js'
-import routesHandler from './src/workers/routesHandler.js'
+import cors from 'cors'
+import express from 'express'
+import morgan from 'morgan'
+import { dynoActivator, wakeupService } from './middleware/ping_service.js'
+import { handleNotSupported, miscellaneous } from './src/utils/miscellaneous.js'
 import profileGeneratorHandler from './src/workers/profileGeneratorRoutesHandler.js'
-import { wakeupService, dynoActivator } from './middleware/ping_service.js'
+import routesHandler from './src/workers/routesHandler.js'
+import startUp from './src/workers/startup.js'
 
 const app = express()
 
+app.set('trust proxy', 1)
 app.use(cors())
 app.use(bodyParser.json())
 app.use(express.urlencoded({ extended: true }))

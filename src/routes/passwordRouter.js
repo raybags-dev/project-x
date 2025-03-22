@@ -1,7 +1,7 @@
 import express from 'express'
 import { asyncMiddleware } from '../../middleware/asyncErros.js'
 import { loginUser } from '../../middleware/auth.js'
-import { authRateLimiter, loginRateLimiter } from '../../middleware/limiters.js'
+import { authRateLimiter } from '../../middleware/limiters.js'
 import {
   ForgotPasswordController,
   UpdatePasswordController
