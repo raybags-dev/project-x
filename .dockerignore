@@ -2,11 +2,15 @@ node_modules
 npm-debug.log
 yarn-error.log
 .DS_Store
+.github
 .git
+.env
+.env.*
 .gitignore
 *.md
 *.markdown
 *.log
+logs/
 test
 tests
 __tests__

@@ -13,6 +13,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Debug node_modules
+        run: ls -la node_modules | grep dotenv
+
+      - name: Set execute permissions for encrypt script
+        run: chmod +x ./scripts/encrypt.sh
+
+      - name: Run encryption script
+        run: ./scripts/encrypt.sh
+
       - name: Create Merge Request and Merge
         run: |
           # Create the merge request
