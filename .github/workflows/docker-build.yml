@@ -23,12 +23,19 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Debug node_modules
+        run: ls -la node_modules | grep dotenv || echo "dotenv NOT FOUND"
 
       - name: Set execute permissions for encrypt script
         run: chmod +x ./scripts/encrypt.sh
 
       - name: Run encryption script
         run: ./scripts/encrypt.sh
+      # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
