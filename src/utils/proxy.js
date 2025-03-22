@@ -38,9 +38,9 @@ axiosInstance.interceptors.response.use(
   async error => {
     const config = error.config
 
-    logger(`Error with request to ${config.url}: ${error.message}`, 'error')
+    logger(`${config.url}: ${error.message}`, 'warn')
     if (config.data) {
-      logger(`Request Body: ${JSON.stringify(config.data)}`, 'error')
+      logger(`Request Body: ${JSON.stringify(config.data)}`, 'warn')
     }
 
     // Handle retry logic

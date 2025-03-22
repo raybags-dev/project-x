@@ -2,15 +2,9 @@ import express from 'express'
 import { asyncMiddleware } from '../../middleware/asyncErros.js'
 import { authMiddleware } from '../../middleware/auth.js'
 import { searchReviews } from '../controllers/documentController.js'
-import { SearchUserDocsController } from '../controllers/searchDatabaseController.js'
 
 const router = express.Router()
 
-router.post(
-  '/raybags/v1/review-crawler/search-docs',
-  authMiddleware,
-  asyncMiddleware(SearchUserDocsController)
-)
 router.post(
   '/raybags/v1/review-crawler/user/:id/search',
   authMiddleware,

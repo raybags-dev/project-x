@@ -1,1 +1,1 @@
-agoda-com,booking-com,despegar-com,expedia-com,google-com,holidaycheck-com,hotels-com,kurzurlaub-com,makemytrip-com,marriott-verified-com,opentable-com,orbitz-com,travelocity-com,traveloka-com,wotif-com
+agoda-com,booking-com,expedia-com,google-com,opentable-com,trip-comtraveloka-com,

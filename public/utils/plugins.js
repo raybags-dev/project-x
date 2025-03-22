@@ -939,9 +939,9 @@ export const PLUGINS = {
                 if (isDeleted) {
                   const deletedCard = document.getElementById(`${reviewId}`)
                   deletedCard?.classList.add('delete_item')
-                  setTimeout(() => deletedCard?.remove(), 200)
+                  setTimeout(() => deletedCard?.remove(), 80)
                 }
-              }, 1500)
+              }, 100)
             } catch (error) {
               PLUGINS.simpleLoader(`[del-review-data="${reviewId}"]`, false)
               console.log('Error handling button click:', error.message)
