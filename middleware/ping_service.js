@@ -1,5 +1,5 @@
-import axiosInstance from '../src/utils/proxy.js'
 import cron from 'node-cron'
+import axiosInstance from '../src/utils/proxy.js'
 
 async function wakeupService (req, res, next) {
   try {
@@ -33,4 +33,4 @@ function dynoActivator () {
   })
 }
 
-export { wakeupService, dynoActivator }
+export { dynoActivator, wakeupService }
