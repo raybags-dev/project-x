@@ -134,3 +134,38 @@ EMAIL_PROVIDER='your_email_provider'
 
 - **Contact**:
 For any inquiries, please reachout to be directly at:  `baguma.github@gmail.com`.
+
+
+## Docker Setup
+
+### 1. **Prerequisites**  
+Docker and Docker Compose should be installed on your system.
+
+### 2. **Clone Repository**
+  ```bash
+  git clone https://github.com/raybags-dev/project-x.git
+  cd reviewer-x
+  ```
+
+
+### 3. **Create a .env File**
+  ```bash
+    cp .env.example .env
+  ```
+Edit the .env file to match your local environment.
+
+### 4. **Build and Run with Docker Compose**
+```bash
+docker compose build --no-cache
+docker compose up -d
+```
+### 5. **Access the Application**
+```bash
+  API: http://localhost:3002
+  You can access the UI from the same endpoint. 
+  # You can access the UI from the same endpoint
+```
+### 7. **Stopping the Containers**
+```bash
+  docker compose down -v
+```
