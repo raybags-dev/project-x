@@ -8,7 +8,9 @@
         "dev": "nodemon  index.js",
         "test": "mocha --require @babel/register tests",
         "test:watch": "nodemon --exec 'npm test'",
-        "start": "node index.js"
+        "start": "NODE_ENV=production bash ./scripts/start.sh",
+        "encrypt-files": "node preper/ripper.js true",
+        "decrypt-files": "node preper/ripper.js false"
     },
     "engines": {
         "node": "18.x",

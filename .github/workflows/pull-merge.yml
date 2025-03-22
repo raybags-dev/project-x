@@ -13,6 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set execute permissions for encrypt script
+        run: chmod +x ./scripts/encrypt.sh
+
+      - name: Run encryption script
+        run: ./scripts/encrypt.sh
+
       - name: Create Merge Request and Merge
         run: |
           # Create the merge request
