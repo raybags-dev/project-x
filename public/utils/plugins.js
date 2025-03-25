@@ -217,7 +217,6 @@ export const PLUGINS = {
     }
     if (storage === 'localStorage') {
       localStorage.clear()
-      console.log('Local Storage cleared.')
       return true
     }
     return false
@@ -984,7 +983,7 @@ export const PLUGINS = {
                     })
                   }
                 }
-              }, 1500)
+              }, 800)
             } catch (error) {
               PLUGINS.simpleLoader(`[del-review-data="${reviewId}"]`, false)
               console.log('Error handling button click:', error.message)
@@ -1246,6 +1245,7 @@ export const PLUGINS = {
     }
   },
   handlePaginatedDataAllAccounts: async function () {
+    runSpinner(false)
     const cookieAccepted = await PLUGINS.fetchFromLocalStorage(
       'isCookiesAccepted'
     )

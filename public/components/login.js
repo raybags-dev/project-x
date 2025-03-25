@@ -1,8 +1,8 @@
-import { SIGNUP_HTML } from './signup.js'
-import { MAIN_PAGE } from './main_container.js'
-import { setAuthHandler } from '../components/auth.js'
 import { loginUser } from '../components/apiCallHandlers.js'
-import { runSpinner, justForAMoment } from '../utils/utilities.js'
+import { setAuthHandler } from '../components/auth.js'
+import { justForAMoment, runSpinner } from '../utils/utilities.js'
+import { MAIN_PAGE } from './main_container.js'
+import { SIGNUP_HTML } from './signup.js'
 
 import { displayLabel } from './apiCallHandlers.js'
 
@@ -30,7 +30,7 @@ async function handleLoginFormSubmit (event) {
         displayLabel([
           'review_main_wrapper',
           'alert-success',
-          'Login successful 😀'
+          'Login was successful'
         ])
         setTimeout(async () => {
           runSpinner(true)
@@ -54,7 +54,7 @@ async function handleLoginFormSubmit (event) {
       displayLabel([
         'review_main_wrapper',
         'alert-danger',
-        'Invalid email or password'
+        'Login failed - Invalid user credentials'
       ])
     }
   } catch (error) {

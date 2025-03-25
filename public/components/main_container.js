@@ -102,7 +102,6 @@ export async function MAIN_PAGE () {
     await handleProfileGenerator('.create_profile')
     await handleSearchPannel('.navbar__default')
     handleModleActiveStates()
-
     return true
   } catch (e) {
     console.log(e)

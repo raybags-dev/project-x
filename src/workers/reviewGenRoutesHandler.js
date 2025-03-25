@@ -5,7 +5,7 @@ import { logger } from '../loggers/logger.js'
 const __dirname = path.resolve()
 
 export default async app => {
-  const routesPath = path.join(__dirname, 'src', 'profileGeneratorRoutes')
+  const routesPath = path.join(__dirname, 'src', 'reviewGenRoutes')
 
   try {
     const files = await fs.readdir(routesPath)

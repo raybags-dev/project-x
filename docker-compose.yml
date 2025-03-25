@@ -22,6 +22,7 @@ services:
       - PROXY_ENDPOINT=${PROXY_ENDPOINT}
       - WEBSHARE_API_TOKEN=${WEBSHARE_API_TOKEN}
       - AUTH_ENCRYPTION_KEY=${AUTH_ENCRYPTION_KEY}
+      - PROD_URL=${PROD_URL}
     volumes:
       - ./scripts:/app/scripts
       - ./logs:/app/logs

@@ -57,7 +57,7 @@ body::after {
 }
 
 .offcanvas-body {
-  background-color: rgb(17, 17, 17, .4);
+  background-color: #11111166;
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   position: relative !important;
@@ -924,18 +924,6 @@ textarea:focus {
   .sign___up,
   .update___password {
     background-image: unset;
-  }
-  @-webkit-keyframes notice-wrapper {
-    100% {
-      bottom: 20%;
-      opacity: 0;
-    }
-  }
-  @keyframes notice-wrapper {
-    100% {
-      bottom: 30%;
-      opacity: 0;
-    }
   }
 }
 

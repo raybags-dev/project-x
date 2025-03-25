@@ -30,7 +30,7 @@ export async function API_CLIENT () {
           displayLabel([
             'review_main_wrapper',
             'alert-danger',
-            `Invalid login credentials. Logging in should fix this issue!`
+            `Your session has exπired. Please login again!`
           ])
           runSpinner(false, 'Aborting...')
           setTimeout(() => {
@@ -56,6 +56,7 @@ export async function loginUser (user) {
   }
   const url = '/user/login'
   try {
+    runSpinner(false, 'Almost there')
     const apiClient = await API_CLIENT()
     const loginResponse = await apiClient.post(url, {
       email: user.email,
@@ -65,6 +66,7 @@ export async function loginUser (user) {
     const { headers, status } = loginResponse
 
     if (status === 200) {
+      runSpinner(true)
       await setAuthHandler(userData, headers)
       sessionStorage.setItem('redirected', true)
       displayLabel([
@@ -78,7 +80,7 @@ export async function loginUser (user) {
     return displayLabel([
       'review_main_wrapper',
       'alert-danger',
-      'Login failed!'
+      'Something went wrong. Login failed!'
     ])
   } catch (error) {
     runSpinner(false, 'Failed!')
@@ -101,6 +103,7 @@ export async function loginUser (user) {
       'alert-danger',
       'Login failed. PLease try to login again!'
     ])
+    setTimeout(() => runSpinner(true), 3000)
     return error?.response
   }
 }
@@ -341,7 +344,7 @@ export async function runCrawlerHandler (slug, depth = 5) {
         displayLabel([
           'review_main_wrapper',
           'alert-danger',
-          `Your account is innactive. - Contact admin to activate your subscription!`
+          `Your account is innactive - Contact admin to activate your subscription!`
         ])
         await profileGenerator()
         return false

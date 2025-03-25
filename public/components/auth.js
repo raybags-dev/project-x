@@ -1,5 +1,5 @@
-import { API_CLIENT } from './apiCallHandlers.js'
-import { runSpinner, justForAMoment } from '../utils/utilities.js'
+import { justForAMoment, runSpinner } from '../utils/utilities.js'
+import { API_CLIENT, displayLabel } from './apiCallHandlers.js'
 
 export async function validateSuperAdmin () {
   try {
@@ -34,11 +34,14 @@ export async function validateSuperAdmin () {
       error.response.status === 403 &&
       error.response.data.status === 'UNAUTHORIZED'
     ) {
-      PLUGINS.runSpinner(true)
-      return ''
-    } else {
-      console.warn('An error occurred:', error)
+      runSpinner(true)
+      return displayLabel([
+        'review_main_wrapper',
+        'alert-warning',
+        'Your session has expired.'
+      ])
     }
+    console.warn(error)
   }
 }
 export function getAuthHandler () {

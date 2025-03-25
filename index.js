@@ -3,10 +3,11 @@ import cors from 'cors'
 import express from 'express'
 import morgan from 'morgan'
 import { dynoActivator, wakeupService } from './middleware/ping_service.js'
+import startUp from './src/startup.js'
 import { handleNotSupported, miscellaneous } from './src/utils/miscellaneous.js'
-import profileGeneratorHandler from './src/workers/profileGeneratorRoutesHandler.js'
-import routesHandler from './src/workers/routesHandler.js'
-import startUp from './src/workers/startup.js'
+import generalRoutesHandler from './src/workers/generalRoutesHandler.js'
+import profileGeneratorHandler from './src/workers/profileGenRoutesHandler.js'
+import reviewGeneratorHandler from './src/workers/reviewGenRoutesHandler.js'
 
 const app = express()
 
@@ -21,7 +22,9 @@ app.use(wakeupService)
 
 miscellaneous(app)
 profileGeneratorHandler(app)
-routesHandler(app)
-handleNotSupported(app)
+reviewGeneratorHandler(app)
+generalRoutesHandler(app)
 startUp(app)
+
+handleNotSupported(app)
 dynoActivator()

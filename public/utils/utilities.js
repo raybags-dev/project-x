@@ -620,11 +620,21 @@ export async function ReviewHTML (reviewsDataOject = {}, cardIsNew = false) {
                         </div>
                     </div>
                   <div class="d-grid gap-2 col-6 mx-auto m-auto action_buttons right__body" style="width:100%;">
-                    <a class="btn btn-transparent btn-outline-secondary action_2" href="${
+                    <a class="btn btn-sm btn-transparent btn-outline-secondary action_2" href="${
                       originalEndpoint || propertyProfileUrl
                     }" target="_blank"  type="button">Go to ${reviewSiteSlug}</a>
-                    <button disabled class="btn btn-transparent btn-outline-secondary shadow shadow-sm action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
-                    <button class="btn btn-transparent btn-outline-danger action_3 shadow shadow-sm" del-revie-data="${_id}"  type="button">Delete review</button>
+                    <button disabled class="btn btn-sm btn-transparent btn-outline-secondary shadow shadow-sm action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
+                    <a
+                      href="${
+                        originalEndpoint || propertyProfileUrl
+                      }" target="_blank" 
+                      class="btn btn-sm btn-transparent btn-outline-secondary action_5 shadow shadow-sm 
+                        ${hasPropertyResponse ? 'd-none' : ''}" 
+                      respond-review-data="${_id}"  
+                      type="button" 
+                      ${hasPropertyResponse ? 'disabled' : ''}
+                    > Respond to review </a>
+                    <button class="btn btn-sm btn-transparent btn-outline-danger action_3 shadow shadow-sm" del-revie-data="${_id}"  type="button">Delete review</button>
                   </div>
             </div>
         </div>`
@@ -758,7 +768,7 @@ export function addReviewResponse (
       if (reviewContainer) {
         const accordionElement = document.createElement('div')
         accordionElement.className =
-          'accordion accordion-flush bg-light  res_body shadow shadow-sm'
+          'accordion accordion-flush bg-light  res_body shadow-sm'
         accordionElement.id = _id
 
         const accordionItem = document.createElement('div')
@@ -771,13 +781,12 @@ export function addReviewResponse (
 
         const accordionButton = document.createElement('button')
         accordionButton.className =
-          'accordion-button  text-dark shadow-sm collapsed'
+          'accordion-button  text-dark shadow-sm collapsed text-center'
         accordionButton.type = 'button'
         accordionButton.setAttribute('data-bs-toggle', 'collapse')
         accordionButton.setAttribute('data-bs-target', `#flush-collapse-${_id}`)
         accordionButton.setAttribute('aria-expanded', 'false')
         accordionButton.setAttribute('aria-controls', `flush-collapse-${_id}`)
-        accordionButton.style.backgroundColor = '#373737 !important'
         accordionButton.innerHTML = 'Response from the owner'
 
         accordionHeader.appendChild(accordionButton)
@@ -835,6 +844,7 @@ export function responseButtonVisibility (hasPropertyResponse, selector) {
     }
   }
 }
+
 export async function reviewCount (countTotal, selector) {
   const container = document.querySelector(selector)
 

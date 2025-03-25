@@ -1,35 +1,35 @@
+import 'dotenv/config'
 import cron from 'node-cron'
 import axiosInstance from '../src/utils/proxy.js'
 
+const isProd = process.env.NODE_ENV === 'production' && process.env.PROD_URL
+const productionUrl = process.env.PROD_URL
+
 async function wakeupService (req, res, next) {
+  if (!isProd) return next()
+
   try {
-    await axiosInstance.get(
-      'https://ray-project-x-5b3928eb0bca.herokuapp.com/#'
-    )
+    await axiosInstance.get(productionUrl)
     next()
   } catch (error) {
-    console.error('Error pinging server: ', error)
+    console.error('Error prod-dyno:', error.message)
     next()
   }
 }
 
 function dynoActivator () {
-  const cron_schedule = '59 29 * * * *'
-  cron.schedule(cron_schedule, () => {
-    console.log('Pinging to keep the dyno awake...')
+  if (!isProd) return
 
-    axiosInstance
-      .get('https://ray-project-x-5b3928eb0bca.herokuapp.com/#')
-      .then(response => {
-        console.log(
-          response.status === 200
-            ? `> is_dyno_awake: ${response.status === 200}`
-            : 'false'
-        )
-      })
-      .catch(error => {
-        console.error('Error pinging Heroku app:', error)
-      })
+  const cron_schedule = '*/10 * * * *'
+  cron.schedule(cron_schedule, async () => {
+    console.log('pinging prod-dyno...')
+
+    try {
+      const response = await axiosInstance.get(productionUrl)
+      console.log(`> is_dyno_awake: ${response.status === 200}`)
+    } catch (error) {
+      console.error('Error pinging prod-dyno:', error.message)
+    }
   })
 }
 

@@ -108,7 +108,7 @@ async function fetchPage (
 
   if (!responseData) return
 
-  allReviews.push(...responseData.reviewCard)
+  allReviews.push(...responseData?.reviewCard)
   logger(`Collected ${allReviews.length} reviews`, 'info')
 }
 function createRequestBody (
