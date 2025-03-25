@@ -1,10 +1,9 @@
 import { HEADERS } from '../_data_/headers/headers.js'
+import { logger } from '../loggers/logger.js'
 import { REVIEW } from '../models/documentModel.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import { parseReviewHtml } from '../ochestrators/googleOche.js'
-
-import { logger } from '../loggers/logger.js'
 import axiosInstance from '../utils/proxy.js'
 
 export async function generateGoogleReviews (req, res) {

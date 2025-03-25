@@ -1,17 +1,17 @@
 import express from 'express'
-import {
-  LoginController,
-  CreateUserController,
-  GetUserController,
-  GetUserControllerPrivate,
-  GetAllUsersController,
-  UpdateSubscriptionController
-} from '../controllers/userController.js'
 import { loginUser } from '../../middleware/auth.js'
 import { authRateLimiter, loginRateLimiter } from '../../middleware/limiters.js'
+import {
+  CreateUserController,
+  GetAllUsersController,
+  GetUserController,
+  GetUserControllerPrivate,
+  LoginController,
+  UpdateSubscriptionController
+} from '../controllers/userController.js'
 
-import { authMiddleware, isAdmin } from '../../middleware/auth.js'
 import { asyncMiddleware } from '../../middleware/asyncErros.js'
+import { authMiddleware, isAdmin } from '../../middleware/auth.js'
 
 const router = express.Router()
 
@@ -30,7 +30,6 @@ router.post(
   '/raybags/v1/review-crawler/get-users',
   authMiddleware,
   isAdmin,
-  authRateLimiter,
   asyncMiddleware(GetAllUsersController)
 )
 router.post(
@@ -50,7 +49,7 @@ router.put(
   '/raybags/v1/review-crawler/user/update-subscription/:userId',
   authMiddleware,
   isAdmin,
-  authRateLimiter,
   asyncMiddleware(UpdateSubscriptionController)
 )
+
 export default router

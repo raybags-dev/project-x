@@ -3,14 +3,6 @@ import { logger } from '../loggers/logger.js'
 import { findTotalIndexById } from '../profileGeneratorsControllers/agodaProfileGeneratorController.js'
 import axiosInstance from '../utils/proxy.js'
 
-/**
- *
- * @param {string} url - The Agoda API endpoint URL.
- * @param {object} requestBody - The request body to be sent with the API request.
- * @param {object} headers - The headers to be included in the API request.
- * @returns {Promise<object>} - A promise that resolves to the response data from the Agoda API.
- */
-
 export async function fetchAgodaReviews (
   depth = 1,
   propertyExternalId,

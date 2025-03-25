@@ -126,15 +126,18 @@ REVIEW_MODEL.pre('save', async function (next) {
   if (!isNaN(rating) && rating > 5) {
     this.rating = Math.round((rating / 10) * 5)
   }
-  if (this.propertyResponse?.body !== null) {
-    this.hasPropertyResponse = true
-  }
+
+  // if (this.propertyResponse?.body?.trim()) {
+  //   this.hasPropertyResponse = true
+  // }
 
   const siteProfile = await PROFILE_MODEL.findOne({
     userId: this.userId,
     reviewSiteSlug: this.reviewSiteSlug
   })
   if (siteProfile) this.uuid = siteProfile._id
+
+  this.hasPropertyResponse = !!this.propertyResponse?.body?.trim()
 
   next()
 })

@@ -1,18 +1,12 @@
-import 'dotenv/config'
-import { USER_MODEL, USER_ID_MODEL } from '../models/user.js'
-import { PROFILE_MODEL } from '../models/profileModel.js'
-import { sendEmail } from '../../middleware/emailer.js'
-import { REVIEW } from '../models/documentModel.js'
-import { logger } from '../loggers/logger.js'
 import { calculateObjectSize } from 'bson'
+import 'dotenv/config'
+import { sendEmail } from '../../middleware/emailer.js'
+import { logger } from '../loggers/logger.js'
+import { REVIEW } from '../models/documentModel.js'
+import { PROFILE_MODEL } from '../models/profileModel.js'
+import { USER_ID_MODEL, USER_MODEL } from '../models/user.js'
 
-const {
-  RECIPIENT_EMAIL,
-  AWS_BUCKET_NAME,
-  AWS_REGION,
-  SECRET_ADMIN_TOKEN,
-  SUPER_USER_TOKEN
-} = process.env
+const { RECIPIENT_EMAIL, SECRET_ADMIN_TOKEN, SUPER_USER_TOKEN } = process.env
 
 export async function CreateUserController (req, res) {
   try {
@@ -67,7 +61,7 @@ export async function CreateUserController (req, res) {
 
     const createUserEmailData = {
       title: 'User account created successfully',
-      body: `A user:\n${user}\n has successfully been created in your S3 bucket: "${AWS_BUCKET_NAME}" in: ${AWS_REGION}.`
+      body: `A user: (${user}) has successfully been created in the database".`
     }
     await sendEmail(createUserEmailData, RECIPIENT_EMAIL)
 
@@ -175,8 +169,7 @@ export async function GetAllUsersController (req, res) {
     const isSuperUser = await USER_MODEL.isSuperUser(
       req.locals.user.superUserToken
     )
-    if (!isSuperUser)
-      return res.status(401).json({ error: 'Unauthorized - Not a super user' })
+    if (!isSuperUser) return res.status(401).json({ error: 'Unauthorized!' })
 
     const currentUser = req.locals.user
     const perPage = 10
