@@ -289,7 +289,7 @@ export function mountAdminPageHandler (parentSelector, data) {
               </div>
               <div class="container bg-transparent d-flex flex-column gap-2 pb-2">
                   <button type="button" class="btn ${
-                    isSubscribed ? 'btn-success' : 'btn-secondary'
+                    isSubscribed ? 'btn-success' : 'btn-warning'
                   } shadow w-100 subscription-btn" data-user-id="${id}">${
       isSubscribed ? 'Deactivate subscription' : 'Activate subscription'
     }</button>
@@ -301,10 +301,12 @@ export function mountAdminPageHandler (parentSelector, data) {
   const subscriptionButtons = container.querySelectorAll('.subscription-btn')
 
   subscriptionButtons.forEach(button => {
+    let userId = button.getAttribute('data-user-id')
+    initializeSubscriptionButtonState(userId, button)
     button.addEventListener('click', function (e) {
-      const userId = e.target.getAttribute('data-user-id')
+      userId = e.target.getAttribute('data-user-id')
       const isCurrentlyActive =
-        e.target.textContent === 'Deactivate subscription'
+        e.target.textContent.trim() === 'Deactivate subscription'
 
       toggleUserSubscription(userId, isCurrentlyActive, e.target)
     })
@@ -324,6 +326,9 @@ async function toggleUserSubscription (
   buttonElement
 ) {
   try {
+    const subscriptionKey = `user_subscription_${userId}`
+    const storedSubscriptionState = localStorage.getItem(subscriptionKey)
+
     runSpinner(false, 'Processing...')
 
     const user = getAuthHandler()
@@ -331,7 +336,6 @@ async function toggleUserSubscription (
 
     const apiClient = await API_CLIENT()
     const url = `/user/update-subscription/${userId}`
-
     const headers = {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -340,32 +344,24 @@ async function toggleUserSubscription (
     const response = await apiClient.put(url, {}, { headers })
 
     if (response.status === 200) {
-      runSpinner(true)
+      const newSubState = response.data.isSubscribed
 
       const parentCard = document.querySelector(`._${userId}_`)
       if (!parentCard) {
         console.error(`Parent card for user ${userId} not found.`)
-        return
+        return false
       }
 
-      const newSubState = response.data.isSubscribed
+      updateButtonState(buttonElement, newSubState)
+      updateSubscriptionStatusDisplay(parentCard, userId, newSubState)
 
-      buttonElement.textContent = newSubState
-        ? 'Deactivate Subscription'
-        : 'Activate Subscription'
-      buttonElement.classList.remove('btn-success', 'btn-secondary')
-      buttonElement.classList.add(newSubState ? 'btn-success' : 'btn-secondary')
-
-      const subscriptionStatusElement = parentCard.querySelector(
-        `[data-sub="${userId}"]`
+      localStorage.setItem(
+        subscriptionKey,
+        JSON.stringify({
+          isSubscribed: newSubState,
+          lastUpdated: Date.now()
+        })
       )
-      if (subscriptionStatusElement) {
-        subscriptionStatusElement.textContent = `Subscription Active: ${newSubState}`
-      } else {
-        console.error(
-          `Subscription status element for user ${userId} not found.`
-        )
-      }
 
       displayLabel([
         'review_main_wrapper',
@@ -375,6 +371,8 @@ async function toggleUserSubscription (
           : 'Account subscription deactivated successfully'
       ])
 
+      runSpinner(true)
+
       return true
     } else {
       displayLabel([
@@ -382,17 +380,52 @@ async function toggleUserSubscription (
         'alert-warning',
         'User account subscription update failed!'
       ])
+      return false
     }
+  } catch (error) {
+    console.error('Error updating subscription:', error)
 
     displayLabel([
       'review_main_wrapper',
       'alert-danger',
       'Failed to update subscription status'
     ])
-    return false
-  } catch (error) {
-    console.error('Error updating subscription:', error)
+
     runSpinner(true)
+
+    return false
+  }
+}
+function updateButtonState (buttonElement, isSubscribed) {
+  buttonElement.textContent = isSubscribed
+    ? 'Deactivate Subscription'
+    : 'Activate Subscription'
+
+  buttonElement.classList.remove('btn-success', 'btn-warning')
+  buttonElement.classList.add(isSubscribed ? 'btn-success' : 'btn-warning')
+}
+function updateSubscriptionStatusDisplay (parentCard, userId, isSubscribed) {
+  const subscriptionStatusElement = parentCard.querySelector(
+    `[data-sub="${userId}"]`
+  )
+
+  if (subscriptionStatusElement) {
+    subscriptionStatusElement.textContent = `Subscription Active: ${isSubscribed}`
+  } else {
+    console.error(`Subscription status element for user ${userId} not found.`)
+  }
+}
+function initializeSubscriptionButtonState (userId, buttonElement) {
+  const subscriptionKey = `user_subscription_${userId}`
+  const storedSubscription = localStorage.getItem(subscriptionKey)
+
+  if (storedSubscription) {
+    try {
+      const { isSubscribed } = JSON.parse(storedSubscription)
+      updateButtonState(buttonElement, isSubscribed)
+    } catch (error) {
+      console.error('Error parsing stored subscription state:', error)
+    }
   }
 }
 async function deleteUserAccount (userId, e) {
