@@ -96,6 +96,10 @@ EMAIL_PROVIDER='your_email_provider'
 
 ## Security Overview
 
+### Content Security Policy (Helm)
+
+My server enforces **Content Security Policy (CSP)** using a custom middleware to mitigate security risks like cross-site scripting (XSS) and data injection attacks. This middleware is applied globally to ensure consistent security across all responses. The CSP directives are set within a middleware function and included in the response headers for every request
+
 ### Authentication and Authorization
 
 **Project X** employs a robust authentication and authorization framework to ensure secure access to resources. Here's an overview of the key security mechanisms:
