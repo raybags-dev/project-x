@@ -1391,7 +1391,7 @@ export const PLUGINS = {
     } = rest
 
     const profileCardHTML = `
-        <div id="${profile_id}" data-profileid="${userId}" class="card admin-card bg-light-custom shadow  user-${account_id}" style="width:60vw; height:40vh">
+        <div id="${profile_id}" data-profileid="${userId}" draggable="true" class="card admin-card bg-light-custom shadow  user-${account_id}" style="width:60vw; height:40vh">
         <div class="card-header d-grid justify-content align-content-center">
             <h4 class="lead text-uppercase">${reviewSiteSlug || ''}</h4>
           </div>
@@ -1897,7 +1897,8 @@ export const PLUGINS = {
             } = object
 
             const card = document.createElement('div')
-            card.classList.add('card', 'w-100', 'shadow')
+            card.classList.add('card', 'w-100', 'inset_shadow')
+            card.setAttribute('draggable', true)
 
             const cardBody = document.createElement('div')
             cardBody.classList.add('bg-light', 'rounded')

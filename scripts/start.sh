@@ -3,7 +3,7 @@
 echo "Current NODE_ENV: $NODE_ENV"
 
 if [ "$NODE_ENV" = "production" ] || [ -z "$NODE_ENV" ]; then
-    echo "Running in production mode, encrypting files..."
+    echo "Running in production mode, decrypting files..."
     
     chmod +x ./scripts/decrypt.sh
     

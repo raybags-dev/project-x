@@ -108,6 +108,11 @@ body::after {
   background-color: #ffffff;
 }
 
+.inset_shadow {
+  border-radius: 10px;
+  box-shadow: inset 10px 10px 10px rgba(83, 83, 83, 0.3);
+}
+
 .main_search__container {
   display: none !important;
   transition: all .3s;

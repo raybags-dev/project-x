@@ -264,6 +264,7 @@ export function mountAdminPageHandler (parentSelector, data) {
 
     const card = document.createElement('div')
     card.className = `card m-1 shadow-lg rounded user_accountcard _${id}_`
+    card.setAttribute('draggable', true)
     card.style =
       'max-width: 15rem; min-width: 30%; min-height: 30vh; max-height: auto;'
 
@@ -768,7 +769,7 @@ export function addReviewResponse (
       if (reviewContainer) {
         const accordionElement = document.createElement('div')
         accordionElement.className =
-          'accordion accordion-flush bg-light  res_body shadow-sm'
+          'accordion accordion-flush bg-light  res_body'
         accordionElement.id = _id
 
         const accordionItem = document.createElement('div')
