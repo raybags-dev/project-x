@@ -341,11 +341,15 @@ export async function runCrawlerHandler (slug, depth = 5) {
       const query = `?depth=${depth}`
 
       if (!isSubscribed) {
-        displayLabel([
-          'review_main_wrapper',
-          'alert-danger',
-          `Your account is innactive - Contact admin to activate your subscription!`
-        ])
+        setTimeout(
+          () =>
+            displayLabel([
+              'review_main_wrapper',
+              'alert-danger',
+              `Your account is innactive - Contact admin to activate your subscription!`
+            ]),
+          4000
+        )
         await profileGenerator()
         return false
       }

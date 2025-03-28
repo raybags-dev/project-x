@@ -1,3 +1,6 @@
+import 'dotenv/config'
+import helmet from 'helmet'
+
 import { HEADERS } from '../_data_/headers/headers.js'
 import { USER_MODEL } from '../models/user.js'
 import axiosInstance from './proxy.js'
@@ -211,5 +214,64 @@ export async function getAgodaCreds (req, res) {
     }
   } catch (error) {
     logger(`Error, 'hotelId could not be fetched: ${error.message}`, 'error')
+  }
+}
+
+export function handleCSP (app) {
+  if (process.env.NODE_ENV === 'production') {
+    app.use(
+      helmet({
+        contentSecurityPolicy: {
+          directives: {
+            defaultSrc: ["'self'"],
+            connectSrc: ["'self'"],
+            imgSrc: [
+              "'self'",
+              'https://raw.githubusercontent.com',
+              'https://github.com',
+              'data:'
+            ],
+            scriptSrc: [
+              "'self'",
+              "'unsafe-inline'",
+              'https://cdn.jsdelivr.net',
+              'https://cdnjs.cloudflare.com'
+            ],
+            styleSrc: [
+              "'self'",
+              "'unsafe-inline'",
+              'https://cdn.jsdelivr.net',
+              'https://fonts.googleapis.com',
+              'https://cdnjs.cloudflare.com'
+            ],
+            fontSrc: [
+              "'self'",
+              'https://fonts.googleapis.com',
+              'https://fonts.gstatic.com',
+              'https://cdnjs.cloudflare.com'
+            ],
+            objectSrc: ["'none'"],
+            upgradeInsecureRequests: []
+          }
+        },
+        crossOriginEmbedderPolicy: false,
+        crossOriginOpenerPolicy: { policy: 'same-origin' },
+        referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+        hsts: {
+          maxAge: 31536000,
+          includeSubDomains: true,
+          preload: true
+        },
+        frameguard: {
+          action: 'deny'
+        }
+      })
+    )
+  } else {
+    app.use(
+      helmet({
+        contentSecurityPolicy: false
+      })
+    )
   }
 }

@@ -5,12 +5,14 @@ import morgan from 'morgan'
 import { dynoActivator, wakeupService } from './middleware/ping_service.js'
 import startUp from './src/startup.js'
 import { handleNotSupported, miscellaneous } from './src/utils/miscellaneous.js'
+import { handleCSP } from './src/utils/utilities.js'
 import generalRoutesHandler from './src/workers/generalRoutesHandler.js'
 import profileGeneratorHandler from './src/workers/profileGenRoutesHandler.js'
 import reviewGeneratorHandler from './src/workers/reviewGenRoutesHandler.js'
 
 const app = express()
 
+handleCSP(app)
 app.set('trust proxy', 1)
 app.use(cors())
 app.use(bodyParser.json())

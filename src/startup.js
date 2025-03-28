@@ -71,6 +71,18 @@ export default async function (app) {
   try {
     const PORT = process.env.PORT || 3001
 
+    // if (process.env.NODE_ENV === 'production') {
+    //   app.use((req, res, next) => {
+    //     const allowedHost = 'raybags.com'
+    //     const requestHost = req.headers.host
+
+    //     if (!requestHost || !requestHost.endsWith(allowedHost))
+    //       return res.status(403).send('Access Denied')
+
+    //     next()
+    //   })
+    // }
+
     app.use('/raybags/v1/review-crawler/*', (req, res, next) => {
       let newUrl = req.url.replace(
         '/raybags/v1/review-crawler/',
