@@ -1318,7 +1318,40 @@ export const PLUGINS = {
           `Extraction completed, fetching updated data...`
         ])
         setTimeout(() => location.reload(), 5000)
+        return
       }
+      if (res.data?.message?.includes('new objects were saved')) {
+        const msg = res.data.message
+        const match = msg.match(/\(?(\d+)\)?\s+new objects/)
+        const extractedNumber = match ? match[1] : 'no'
+
+        runSpinner(false, 'Done')
+        displayLabel([
+          'review_main_wrapper',
+          'alert-success',
+          `A total of ${extractedNumber} reviews collected successfully`
+        ])
+        runSpinner(true)
+        setTimeout(() => location.reload(), 5000)
+        return
+      }
+
+      if (res.status == 200 && res.data?.message.includes('nothing new')) {
+        runSpinner(true)
+        displayLabel([
+          'review_main_wrapper',
+          'alert-warning',
+          `The process completed but no new reviews data was collected`
+        ])
+        setTimeout(() => location.reload(), 5000)
+        return
+      }
+      runSpinner(true)
+      displayLabel([
+        'review_main_wrapper',
+        'alert-danger',
+        `An error occurred while processing your request. Please try again later`
+      ])
     } catch (e) {
       console.warn(e)
       runSpinner(true)
