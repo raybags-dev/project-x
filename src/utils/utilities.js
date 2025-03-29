@@ -216,7 +216,6 @@ export async function getAgodaCreds (req, res) {
     logger(`Error, 'hotelId could not be fetched: ${error.message}`, 'error')
   }
 }
-
 export function handleCSP (app) {
   if (process.env.NODE_ENV === 'production') {
     app.use(
@@ -224,25 +223,24 @@ export function handleCSP (app) {
         contentSecurityPolicy: {
           directives: {
             defaultSrc: ["'self'"],
-            connectSrc: ["'self'"],
+            scriptSrc: [
+              "'self'",
+              'https://cdn.jsdelivr.net',
+              'https://cdnjs.cloudflare.com',
+              "'unsafe-inline'"
+            ],
+            styleSrc: [
+              "'self'",
+              'https://fonts.googleapis.com',
+              'https://cdn.jsdelivr.net',
+              'https://cdnjs.cloudflare.com',
+              "'unsafe-inline'"
+            ],
             imgSrc: [
               "'self'",
               'https://raw.githubusercontent.com',
               'https://github.com',
               'data:'
-            ],
-            scriptSrc: [
-              "'self'",
-              "'unsafe-inline'",
-              'https://cdn.jsdelivr.net',
-              'https://cdnjs.cloudflare.com'
-            ],
-            styleSrc: [
-              "'self'",
-              "'unsafe-inline'",
-              'https://cdn.jsdelivr.net',
-              'https://fonts.googleapis.com',
-              'https://cdnjs.cloudflare.com'
             ],
             fontSrc: [
               "'self'",
@@ -250,27 +248,14 @@ export function handleCSP (app) {
               'https://fonts.gstatic.com',
               'https://cdnjs.cloudflare.com'
             ],
+            connectSrc: ["'self'"],
             objectSrc: ["'none'"],
             upgradeInsecureRequests: []
           }
         },
         crossOriginEmbedderPolicy: false,
         crossOriginOpenerPolicy: { policy: 'same-origin' },
-        referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-        hsts: {
-          maxAge: 31536000,
-          includeSubDomains: true,
-          preload: true
-        },
-        frameguard: {
-          action: 'deny'
-        }
-      })
-    )
-  } else {
-    app.use(
-      helmet({
-        contentSecurityPolicy: false
+        referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
       })
     )
   }

@@ -1,5 +1,6 @@
 import { HEADERS } from '../_data_/headers/headers.js'
 import { logger } from '../loggers/logger.js'
+import { validateResponse } from '../utils/generalUtilities.js'
 import axiosInstance from '../utils/proxy.js'
 
 export async function fetchBookingReviews (
@@ -35,6 +36,9 @@ async function fetchPageData (endpointUrl, requestBody, headers) {
     const response = await axiosInstance.post(endpointUrl, requestBody, {
       headers
     })
+
+    if (!validateResponse(response)) return
+
     const isResponseSuccess =
       response.status == 200 && response.statusText == 'OK'
 

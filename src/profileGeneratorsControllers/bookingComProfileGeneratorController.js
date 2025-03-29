@@ -5,6 +5,7 @@ import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import axiosInstance from '../utils/proxy.js'
 import { validateAndAuthorizeUser } from '../utils/utilities.js'
+import { validateResponse } from '../utils/generalUtilities.js'
 
 export async function generateBookingComProfile (req, res) {
   try {
@@ -15,6 +16,9 @@ export async function generateBookingComProfile (req, res) {
 
     const headers = HEADERS.bookingHeadersGenProfile
     const response = await axiosInstance.get(frontFacingUrl, { headers })
+
+    if (!validateResponse(response)) return
+
     const bookingHtmlContent = response.data
     const $ = cheerio.load(bookingHtmlContent)
 
