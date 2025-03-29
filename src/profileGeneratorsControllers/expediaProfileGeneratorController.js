@@ -3,6 +3,7 @@ import { HEADERS } from '../_data_/headers/headers.js'
 import { logger } from '../loggers/logger.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
+import { validateResponse } from '../utils/generalUtilities.js'
 import axiosInstance from '../utils/proxy.js'
 import { validateAndAuthorizeUser } from '../utils/utilities.js'
 
@@ -16,6 +17,8 @@ export async function generateExpediaProfile (req, res) {
     const response = await axiosInstance.get(frontFacingUrl, {
       headers: HEADERS.expediaHeadersGenProfile
     })
+
+    if (!validateResponse(response)) return
 
     const expediaHtmlContent = response.data
     const $ = cheerio.load(expediaHtmlContent)

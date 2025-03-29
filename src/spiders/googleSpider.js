@@ -72,6 +72,11 @@ export async function generateGoogleReviews (req, res) {
         logger(`Fetching page ${currentPage + 1}: ${urlWithPageToken}`, 'info')
 
         let response = await axiosInstance.get(urlWithPageToken, { headers })
+        if (!response || !response.data) {
+          logger('No response data received', 'error')
+          return null
+        }
+
         let { data } = response
 
         let nextPageTokenMatch = data.match(/data-next-page-token="([^"]+)"/)

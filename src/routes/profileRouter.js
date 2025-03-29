@@ -2,6 +2,7 @@ import express from 'express'
 import { asyncMiddleware } from '../../middleware/asyncErros.js'
 import { authMiddleware, isAdmin } from '../../middleware/auth.js'
 import { customRateLimiter } from '../../middleware/limiters.js'
+import { withThrottle } from '../utils/throttler.js'
 
 import {
   deleteAccountProfile,
@@ -18,6 +19,10 @@ router.delete(
   '/raybags/v1/review-crawler/user/delete-own-profile',
   authMiddleware,
   isAdmin,
+  withThrottle(
+    '/raybags/v1/review-crawler/user/delete-own-profile',
+    5 * 60 * 1000
+  ),
   asyncMiddleware(deleteAccountProfile)
 )
 
@@ -30,6 +35,10 @@ router.delete(
     max: 50,
     message: 'Too many delete-all attempts'
   }),
+  withThrottle(
+    '/raybags/v1/review-crawler/user/delete-own-profile-and-documents/:_id',
+    5 * 60 * 1000
+  ),
   asyncMiddleware(deleteAccountProfileAndAllDocuments)
 )
 
@@ -42,6 +51,10 @@ router.delete(
     max: 50,
     message: 'Too many purge attempts'
   }),
+  withThrottle(
+    '/raybags/v1/review-crawler/user/purge-user/:_id',
+    5 * 60 * 1000
+  ),
   asyncMiddleware(pargeUserPrivate)
 )
 
@@ -54,10 +67,13 @@ router.delete(
     max: 50,
     message: 'Too many public purge attempts'
   }),
+  withThrottle(
+    '/raybags/v1/review-crawler/user/purge-own-user-account',
+    5 * 60 * 1000
+  ),
   asyncMiddleware(pargeUserPublic)
 )
 
-// Validate Caller - Medium Limit (Max 30 per 30 minutes)
 router.post(
   '/raybags/v1/review-crawler/user/validate',
   authMiddleware,
@@ -67,6 +83,7 @@ router.post(
     max: 50,
     message: 'Too many validation requests'
   }),
+  withThrottle('/raybags/v1/review-crawler/user/validate', 5 * 60 * 1000),
   asyncMiddleware(validateCaller)
 )
 
@@ -79,6 +96,10 @@ router.post(
     max: 50,
     message: 'Too many profile requests'
   }),
+  withThrottle(
+    '/raybags/v1/review-crawler/user/get-profile/:_id',
+    5 * 60 * 1000
+  ),
   asyncMiddleware(getAccountProfile)
 )
 

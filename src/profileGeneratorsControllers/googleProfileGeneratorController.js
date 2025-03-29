@@ -30,6 +30,12 @@ export async function generateGoogleProfile (req, res) {
 
       const headers = HEADERS.google_headers
       const response = await axiosInstance.get(frontFacingUrl, { headers })
+
+      if (!response || !response.data) {
+        logger('No response data received', 'error')
+        return null
+      }
+
       const htmlContent = response.data
       const $ = cheerio.load(htmlContent)
 

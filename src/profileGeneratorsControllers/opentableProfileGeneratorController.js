@@ -7,6 +7,7 @@ import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import axiosInstance from '../utils/proxy.js'
 import { validateAndAuthorizeUser } from '../utils/utilities.js'
+import { validateResponse } from '../utils/generalUtilities.js'
 
 export async function generateOpentableProfile (req, res) {
   try {
@@ -17,6 +18,7 @@ export async function generateOpentableProfile (req, res) {
     const response = await axiosInstance.get(frontFacingUrl, {
       headers: HEADERS.opentableHeadersGenProfile
     })
+    if (!validateResponse(response)) return
 
     const opentableHtmlContent = response.data
     const $ = cheerio.load(opentableHtmlContent)

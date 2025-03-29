@@ -289,7 +289,7 @@ export function mountAdminPageHandler (parentSelector, data) {
               </div>
               <div class="container bg-transparent d-flex flex-column gap-2 pb-2">
                   <button type="button" class="btn ${
-                    isSubscribed ? 'btn-success' : 'btn-secondary'
+                    isSubscribed ? 'btn-success' : 'btn-warning'
                   } shadow w-100 subscription-btn" data-user-id="${id}">${
       isSubscribed ? 'Deactivate subscription' : 'Activate subscription'
     }</button>
@@ -729,7 +729,6 @@ export async function createSubratings (subratingsArray, selector) {
 
       const starsElement = document.createElement('span')
 
-      // Loop through all 5 stars
       for (let i = 1; i <= totalStars; i++) {
         const star = document.createElement('span')
         star.style.opacity = '0.8'
