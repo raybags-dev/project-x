@@ -197,7 +197,6 @@ export async function sendCreateProfileRequest () {
         return
       }
 
-      // Validate URL format
       const urlRegex = /^(https?:\/\/(www\.)?|www\.)\S*$/
       if (!urlRegex.test(siteUrl)) {
         displayLabel([
@@ -226,6 +225,7 @@ export async function sendCreateProfileRequest () {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
+
       const res = await apiClient.post(baseUrl, formData, { headers })
       runSpinner(true)
 
@@ -234,7 +234,7 @@ export async function sendCreateProfileRequest () {
         displayLabel([
           'review_main_wrapper',
           'alert-success',
-          `${slug} profile created successfully ✅`
+          `${slug} profile created successfully.`
         ])
         setTimeout(() => {
           runSpinner(false)
@@ -266,18 +266,39 @@ export async function sendCreateProfileRequest () {
       }
     }
   } catch (error) {
-    if (error.response && error.response.status === 400) {
-      removeElementFromDOM('#uploadForm')
-      runSpinner(true)
-      displayLabel([
-        'review_main_wrapper',
-        'alert-warn',
-        `This account already has a ${slug} profile!`
-      ])
-      runSpinner('Running...')
-      await runCrawlerHandler(slug)
-      runSpinner(true)
+    const { response } = error
+
+    if (response) {
+      const { status, data } = response
+
+      // Handle "User is unsubscribed" error
+      if (status === 400 && data.message.includes('User is unsubscribed')) {
+        removeElementFromDOM('#uploadForm')
+        runSpinner(true)
+        displayLabel([
+          'review_main_wrapper',
+          'alert-warning',
+          `Your account is innactive - Contact admin to activate your subscription!`
+        ])
+        return
+      }
+
+      // Handle "Account already has a profile" error
+      if (status === 400) {
+        removeElementFromDOM('#uploadForm')
+        runSpinner(true)
+        displayLabel([
+          'review_main_wrapper',
+          'alert-warning',
+          `This account already has a ${slug} profile!`
+        ])
+        runSpinner('Running...')
+        await runCrawlerHandler(slug)
+        runSpinner(true)
+      }
     }
+  } finally {
+    runSpinner(true)
   }
 }
 export async function fetchReviewSiteProfile (user_id, slug) {

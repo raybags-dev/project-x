@@ -1329,7 +1329,7 @@ export const PLUGINS = {
         displayLabel([
           'review_main_wrapper',
           'alert-success',
-          `A total of ${extractedNumber} reviews collected successfully`
+          `Reviews collected successfully`
         ])
         runSpinner(true)
         setTimeout(() => location.reload(), 5000)

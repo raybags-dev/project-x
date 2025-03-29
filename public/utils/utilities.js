@@ -289,7 +289,7 @@ export function mountAdminPageHandler (parentSelector, data) {
               </div>
               <div class="container bg-transparent d-flex flex-column gap-2 pb-2">
                   <button type="button" class="btn ${
-                    isSubscribed ? 'btn-success' : 'btn-secondary'
+                    isSubscribed ? 'btn-success' : 'btn-warning'
                   } shadow w-100 subscription-btn" data-user-id="${id}">${
       isSubscribed ? 'Deactivate subscription' : 'Activate subscription'
     }</button>
@@ -341,11 +341,11 @@ async function toggleUserSubscription (
       'Content-Type': 'application/json'
     }
 
-    // Make API call
     const response = await apiClient.put(url, {}, { headers })
 
     if (response.status === 200) {
       const newSubState = response.data.isSubscribed
+
       const parentCard = document.querySelector(`._${userId}_`)
       if (!parentCard) {
         console.error(`Parent card for user ${userId} not found.`)
@@ -384,11 +384,13 @@ async function toggleUserSubscription (
     }
   } catch (error) {
     console.error('Error updating subscription:', error)
+
     displayLabel([
       'review_main_wrapper',
       'alert-danger',
       'Failed to update subscription status'
     ])
+
     runSpinner(true)
 
     return false
@@ -416,6 +418,7 @@ function updateSubscriptionStatusDisplay (parentCard, userId, isSubscribed) {
 function initializeSubscriptionButtonState (userId, buttonElement) {
   const subscriptionKey = `user_subscription_${userId}`
   const storedSubscription = localStorage.getItem(subscriptionKey)
+
   if (storedSubscription) {
     try {
       const { isSubscribed } = JSON.parse(storedSubscription)
@@ -875,6 +878,7 @@ export function responseButtonVisibility (hasPropertyResponse, selector) {
     }
   }
 }
+
 export async function reviewCount (countTotal, selector) {
   const container = document.querySelector(selector)
 

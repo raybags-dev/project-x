@@ -2,6 +2,7 @@ import axiosInstance from '../../src/utils/proxy.js'
 import { HEADERS } from '../_data_/headers/headers.js'
 import { logger } from '../loggers/logger.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
+import { validateResponse } from '../utils/generalUtilities.js'
 import { getAgodaCreds, validateAndAuthorizeUser } from '../utils/utilities.js'
 
 export async function generateAgodaProfile (req, res) {
@@ -110,6 +111,8 @@ export async function generateAgodaProfile (req, res) {
 async function callAgodaEndpoint (url, requestBody, headers) {
   try {
     const response = await axiosInstance.post(url, requestBody, { headers })
+    if (!validateResponse(response)) return
+
     return response.data
   } catch (error) {
     logger(`Error calling Agoda API: ${error.message}`, 'error')

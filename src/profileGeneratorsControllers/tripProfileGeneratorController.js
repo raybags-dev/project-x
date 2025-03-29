@@ -3,6 +3,7 @@ import { HEADERS } from '../_data_/headers/headers.js'
 import { logger } from '../loggers/logger.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
+import { validateResponse } from '../utils/generalUtilities.js'
 import axiosInstance from '../utils/proxy.js'
 import { validateAndAuthorizeUser } from '../utils/utilities.js'
 
@@ -11,12 +12,16 @@ export async function generateTripProfile (req, res) {
     const validation = await validateAndAuthorizeUser(req, res, false)
     if (validation.error) return
     const { frontFacingUrl, user } = validation
+    console.log('frontFacingUrl: ', frontFacingUrl)
 
     const basetripUrl = genbaseTripUrl(frontFacingUrl)
+    console.log('base trip url: ', basetripUrl)
 
     const response = await axiosInstance.get(basetripUrl, {
       headers: HEADERS.tripHeadersGenProfile
     })
+
+    if (!validateResponse(response)) return
 
     const tripHtmlContent = response.data
     const $ = cheerio.load(tripHtmlContent)
@@ -207,7 +212,14 @@ function genbaseTripUrl (url) {
 
   const match1 = url.match(/hotel-detail-(\d+)/)
   const match2 = url.match(/hotelId=(\d+)/)
-  const hotelId = match1 ? match1[1] : match2 ? match2[1] : null
+  const match3 = url.match(/hotelid=(\d+)/)
+  const hotelId = match1
+    ? match1[1]
+    : match2
+    ? match2[1]
+    : match3
+    ? match3[1]
+    : null
 
   if (hotelId) {
     return `https://www.trip.com/hotels/detail/?hotelId=${hotelId}`

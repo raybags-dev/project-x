@@ -216,7 +216,6 @@ export async function getAgodaCreds (req, res) {
     logger(`Error, 'hotelId could not be fetched: ${error.message}`, 'error')
   }
 }
-
 export function handleCSP (app) {
   if (process.env.NODE_ENV === 'production') {
     app.use(
