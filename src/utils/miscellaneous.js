@@ -18,9 +18,7 @@ export async function findAccessibleUrl (...urls) {
   const accessibilityResults = await Promise.all(urls.map(testUrl))
 
   for (let i = 0; i < urls.length; i++) {
-    if (accessibilityResults[i]) {
-      return urls[i]
-    }
+    if (accessibilityResults[i]) return urls[i]
   }
   return null
 }

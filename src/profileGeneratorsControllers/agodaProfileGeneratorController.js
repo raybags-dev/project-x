@@ -1,5 +1,4 @@
-import axiosInstance from '../../src/utils/proxy.js'
-import { HEADERS } from '../_data_/headers/headers.js'
+import { HEADERS } from '../data/headers/headers.js'
 import { logger } from '../loggers/logger.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { validateResponse } from '../utils/generalUtilities.js'
@@ -12,6 +11,7 @@ export async function generateAgodaProfile (req, res) {
     const { frontFacingUrl, user } = validation
 
     const hotelId = await getAgodaCreds(req, res)
+    console.log('HotelID: ', hotelId)
 
     const endpointUrl =
       'https://www.agoda.com/api/cronos/property/review/ReviewComments'
@@ -104,18 +104,23 @@ export async function generateAgodaProfile (req, res) {
       data: siteProfileData
     })
   } catch (error) {
-    logger(`Error generating Agoda profile: ${error.message}`, 'error')
-    res.status(500).json('Internal server error')
+    if (!res.headersSent) {
+      return res
+        .status(500)
+        .json({ status: 'failed', message: 'Internal server error' })
+    }
+    logger(error.message, 'error')
   }
 }
 async function callAgodaEndpoint (url, requestBody, headers) {
+  if ((!url, requestBody)) return null
   try {
     const response = await axiosInstance.post(url, requestBody, { headers })
     if (!validateResponse(response)) return
 
     return response.data
   } catch (error) {
-    logger(`Error calling Agoda API: ${error.message}`, 'error')
+    logger(`Error calling Agoda API: ${error}`, 'error')
   }
 }
 export async function findTotalIndexById (providerList, id) {

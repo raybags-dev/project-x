@@ -228,11 +228,13 @@ export function clearContainer (anchorTagOrElement) {
     return false
   }
 }
+//*************** FIXES *************** */
+//*************** FIXES *************** */
 export function mountAdminPageHandler (parentSelector, data) {
   const parentElement = document.querySelector(parentSelector)
   const is_ready = clearContainer(parentElement)
 
-  if (!parentElement) return
+  if (!parentElement && !is_ready) return
 
   let container = parentElement.querySelector('.admin_page_outer')
   if (!container) {
@@ -242,6 +244,7 @@ export function mountAdminPageHandler (parentSelector, data) {
   }
 
   if (!data.length) return false
+
   container.innerHTML = ''
   data.forEach(item => {
     const {
@@ -258,6 +261,11 @@ export function mountAdminPageHandler (parentSelector, data) {
     } = item
     let name = item?.name
 
+    const buttonClass = isSubscribed ? 'btn-success' : 'btn-warning'
+    const buttonText = isSubscribed
+      ? 'Deactivate subscription'
+      : 'Activate subscription'
+
     const sanitizeName = name =>
       name?.replace(/_/g, ' ').replace(/@.*/, '').toUpperCase()
     name = sanitizeName(name)
@@ -268,11 +276,16 @@ export function mountAdminPageHandler (parentSelector, data) {
     card.style =
       'max-width: 15rem; min-width: 30%; min-height: 30vh; max-height: auto;'
 
+    const buttonState = isSubscribed ? 'true' : 'false'
+
     card.innerHTML = `
               <h5 class="card-header bg-transparent text-center">${name}</h5>
               <div class="card-body text-dark" style="overflow-y: auto;">
                   <ul class="list-group">
-                      <li class="list-group-item" data-sub="${id}">Subscription Active: ${isSubscribed}</li>
+                      <li class="list-group-item" data-sub="${id}">${
+      (isSubscribed && 'Subscription Active: true') ||
+      'Subscription Active: false'
+    }</li>
                       <li class="list-group-item">Account Email: ${email}</li>
                       <li class="list-group-item" data-admin="${isAdmin}">Is Admin: ${isAdmin}</li>
                       <li class="list-group-item">Is Superuser: ${isSuperUser}</li>
@@ -288,11 +301,13 @@ export function mountAdminPageHandler (parentSelector, data) {
                   </ul>
               </div>
               <div class="container bg-transparent d-flex flex-column gap-2 pb-2">
-                  <button type="button" class="btn ${
-                    isSubscribed ? 'btn-success' : 'btn-warning'
-                  } shadow w-100 subscription-btn" data-user-id="${id}">${
-      isSubscribed ? 'Deactivate subscription' : 'Activate subscription'
-    }</button>
+                <button type="button" class="btn ${buttonClass} shadow w-100 subscription-btn" 
+                  data-user-id="${id}" 
+                  data-isSubscribed="${isSubscribed}">
+                  ${buttonText}
+                </button>
+
+
                   <button type="button" class="btn btn-danger border-danger shadow w-100 delete-btn" data-user-id="${id}">Delete account</button>
               </div>`
 
@@ -327,8 +342,6 @@ async function toggleUserSubscription (
 ) {
   try {
     const subscriptionKey = `user_subscription_${userId}`
-    const storedSubscriptionState = localStorage.getItem(subscriptionKey)
-
     runSpinner(false, 'Processing...')
 
     const user = getAuthHandler()
@@ -344,23 +357,26 @@ async function toggleUserSubscription (
     const response = await apiClient.put(url, {}, { headers })
 
     if (response.status === 200) {
+      // Get the new subscription state from the response
       const newSubState = response.data.isSubscribed
 
+      // Find the parent card
       const parentCard = document.querySelector(`._${userId}_`)
       if (!parentCard) {
         console.error(`Parent card for user ${userId} not found.`)
         return false
       }
 
+      // Update the button state (text and class)
       updateButtonState(buttonElement, newSubState)
+
+      // Update the subscription status text in the list
       updateSubscriptionStatusDisplay(parentCard, userId, newSubState)
 
-      localStorage.setItem(
+      // Save the current state to localStorage
+      sessionStorage.setItem(
         subscriptionKey,
-        JSON.stringify({
-          isSubscribed: newSubState,
-          lastUpdated: Date.now()
-        })
+        JSON.stringify({ isSubscribed: newSubState, lastUpdated: Date.now() })
       )
 
       displayLabel([
@@ -372,7 +388,6 @@ async function toggleUserSubscription (
       ])
 
       runSpinner(true)
-
       return true
     } else {
       displayLabel([
@@ -384,50 +399,78 @@ async function toggleUserSubscription (
     }
   } catch (error) {
     console.error('Error updating subscription:', error)
-
     displayLabel([
       'review_main_wrapper',
       'alert-danger',
       'Failed to update subscription status'
     ])
-
     runSpinner(true)
-
     return false
   }
 }
-function updateButtonState (buttonElement, isSubscribed) {
-  buttonElement.textContent = isSubscribed
-    ? 'Deactivate Subscription'
-    : 'Activate Subscription'
 
+function updateButtonState (buttonElement, isSubscribed) {
+  // Update button text
+  buttonElement.textContent = isSubscribed
+    ? 'Deactivate subscription'
+    : 'Activate subscription'
+
+  // Update button class
   buttonElement.classList.remove('btn-success', 'btn-warning')
   buttonElement.classList.add(isSubscribed ? 'btn-success' : 'btn-warning')
+
+  // Update data attribute
+  buttonElement.setAttribute('data-isSubscribed', isSubscribed.toString())
 }
+
 function updateSubscriptionStatusDisplay (parentCard, userId, isSubscribed) {
+  // Find the subscription status element by data-sub attribute
   const subscriptionStatusElement = parentCard.querySelector(
     `[data-sub="${userId}"]`
   )
 
   if (subscriptionStatusElement) {
+    // Update the text content to reflect the new state
     subscriptionStatusElement.textContent = `Subscription Active: ${isSubscribed}`
+    subscriptionStatusElement.setAttribute(
+      'data-sub-active',
+      isSubscribed.toString()
+    )
   } else {
     console.error(`Subscription status element for user ${userId} not found.`)
   }
 }
+
 function initializeSubscriptionButtonState (userId, buttonElement) {
   const subscriptionKey = `user_subscription_${userId}`
-  const storedSubscription = localStorage.getItem(subscriptionKey)
+  const storedSubscription = sessionStorage.getItem(subscriptionKey)
+
+  // Default to the data attribute value
+  let isSubscribed = buttonElement.getAttribute('data-isSubscribed') === 'true'
 
   if (storedSubscription) {
     try {
-      const { isSubscribed } = JSON.parse(storedSubscription)
-      updateButtonState(buttonElement, isSubscribed)
+      const parsedData = JSON.parse(storedSubscription)
+      // Update from localStorage if available
+      isSubscribed = parsedData.isSubscribed
+
+      // Find the parent card to update the subscription text as well
+      const parentCard = buttonElement.closest(`.user_accountcard`)
+      if (parentCard) {
+        updateSubscriptionStatusDisplay(parentCard, userId, isSubscribed)
+      }
     } catch (error) {
       console.error('Error parsing stored subscription state:', error)
     }
   }
+
+  // Update the button state
+  updateButtonState(buttonElement, isSubscribed)
 }
+
+// *************** FIXES *************** */
+// *************** FIXES *************** */
+
 async function deleteUserAccount (userId, e) {
   try {
     const confirmation = await confirmAction(
@@ -878,7 +921,6 @@ export function responseButtonVisibility (hasPropertyResponse, selector) {
     }
   }
 }
-
 export async function reviewCount (countTotal, selector) {
   const container = document.querySelector(selector)
 

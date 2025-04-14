@@ -5,9 +5,11 @@ import { REVIEW } from '../models/documentModel.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_ID_MODEL, USER_MODEL } from '../models/user.js'
 
+import { deleteReviewsByProfileFromS3 } from '../blobStorage/aws/s3BucketUtility.js'
+
 export async function deleteAccountProfile (req, res) {
   try {
-    const userId = req.locals.user.userId
+    const userId = req.locals?.user.userId
 
     const profile = await PROFILE_MODEL.findOne({ userId })
 
@@ -18,6 +20,7 @@ export async function deleteAccountProfile (req, res) {
     const profileInstance = new PROFILE_MODEL(profile)
     await profileInstance.beforeDelete()
 
+    await deleteReviewsByProfileFromS3(profile)
     await PROFILE_MODEL.deleteOne({ userId })
 
     return res.status(200).json({ message: 'Profile deleted successfully' })
@@ -26,32 +29,43 @@ export async function deleteAccountProfile (req, res) {
     return res.status(500).json({ error: 'Internal Server Error' })
   }
 }
+
 export async function pargeUserPublic (req, res) {
   try {
-    const isAdmin = await req.locals.user?.isAdmin
-    const userId = await req.locals.user?.userId
+    if (!req.locals?.user) {
+      logger('Error: req.locals.user is undefined', 'error')
+      return res?.status(403).json({ error: 'Unauthorized request' })
+    }
 
-    if (!isAdmin || !userId) return res.status(403).json({ error: 'FORBIDDE' })
+    const { isAdmin, userId } = req.locals?.user
+
+    if (!isAdmin || !userId) {
+      return res.status(403).json({ error: 'FORBIDDEN' })
+    }
 
     const review = await REVIEW.deleteMany({ userId })
-    const profile = await PROFILE_MODEL.deleteOne({ userId })
-    const user = await USER_MODEL.deleteOne({ userId })
 
-    return res.status(200).json({
-      message: 'User, profile purged successfully!',
+    const profile = await PROFILE_MODEL.findOneAndDelete({ userId })
+    if (profile) {
+      await deleteAccountProfile(profile.userId)
+    }
+
+    const user = await USER_MODEL.findOneAndDelete({ userId })
+
+    return res?.status(200).json({
+      message: 'User and profile purged successfully!',
       details: {
-        'documents-deleted': review.acknowledged && review.deletedCount,
         reviews: {
-          isreviewsDeleted: review.acknowledged && review.acknowledged,
-          count: review.deletedCount && review.deletedCount
+          isDeleted: !!review.acknowledged,
+          count: review.deletedCount || 0
         },
         profile: {
-          isDeleted: profile.acknowledged && profile.acknowledged,
-          count: profile.deletedCount && profile.deletedCount
+          isDeleted: !!profile,
+          profileId: profile ? profile._id : null
         },
         user: {
-          isDeleted: user.acknowledged && user.acknowledged,
-          count: user.deletedCount && user.deletedCount
+          isDeleted: !!user,
+          userId: user ? user._id : null
         }
       }
     })
@@ -60,6 +74,7 @@ export async function pargeUserPublic (req, res) {
     return res.status(500).json({ error: 'Internal Server Error' })
   }
 }
+
 export async function pargeUserPrivate (req, res) {
   try {
     const superUserToken = req.locals.user.superUserToken
@@ -82,9 +97,13 @@ export async function pargeUserPrivate (req, res) {
     }
 
     const userId = targetUser.userId
+    const profiles = await PROFILE_MODEL.find({ userId })
 
-    // Delete related records
-    const [review, profiles, user, userIdDeletion] = await Promise.all([
+    for (const userProfile of profiles) {
+      await deleteReviewsByProfileFromS3(userProfile)
+    }
+
+    const [review, profileDeletion, user, userIdDeletion] = await Promise.all([
       REVIEW.deleteMany({ userId }),
       PROFILE_MODEL.deleteMany({ userId }),
       USER_MODEL.deleteOne({ _id: user_Id }),
@@ -96,8 +115,8 @@ export async function pargeUserPrivate (req, res) {
       details: {
         reviews: { isDeleted: review.acknowledged, count: review.deletedCount },
         profiles: {
-          isDeleted: profiles.acknowledged,
-          count: profiles.deletedCount
+          isDeleted: profileDeletion.acknowledged,
+          count: profileDeletion.deletedCount
         },
         user: { isDeleted: user.acknowledged, count: user.deletedCount }
       }
@@ -160,37 +179,53 @@ export async function validateCaller (req, res) {
 }
 export async function deleteAccountProfileAndAllDocuments (req, res) {
   try {
+    // Ensure req.locals.user exists
+    if (!req.locals?.user) {
+      logger('Error: req.locals.user is undefined', 'error')
+      return res.status(403).json({ error: 'Unauthorized request' })
+    }
+
     const slug = req.query.slug
     const profileId = req.params._id
     const { userId, _id } = req.locals.user
 
-    const profileExists = await PROFILE_MODEL.findOne({
+    // Check if profile exists
+    const profile = await PROFILE_MODEL.findOne({
       _id: new ObjectId(profileId),
       userId
     })
 
+    if (!profile) {
+      return res.status(404).json({ error: 'Profile not found' })
+    }
+
+    // Delete related S3 data
+    await deleteReviewsByProfileFromS3(profile)
+
+    // Remove profile reference from user
     await USER_MODEL.updateOne(
       { _id: new ObjectId(_id) },
       { $pull: { profiles: { _id: new ObjectId(profileId) } } }
     )
 
+    // Delete profile
     await PROFILE_MODEL.findOneAndDelete({
       _id: new ObjectId(profileId),
       userId
     })
 
+    // Delete associated reviews
     const deleteResult = await REVIEW.deleteMany({
       userId,
       reviewSiteSlug: slug
     })
-    const deletedReviewsCount = deleteResult.deletedCount
 
     return res.status(200).json({
       message: 'Profile and associated reviews deleted successfully',
-      deletedReviewsCount
+      deletedReviewsCount: deleteResult.deletedCount
     })
   } catch (error) {
-    logger(`Error in deleteAccountProfile: ${error}`, 'error')
+    logger(`Error in deleteAccountProfileAndAllDocuments: ${error}`, 'error')
     return res.status(500).json({ error: 'Internal Server Error' })
   }
 }

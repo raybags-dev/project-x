@@ -16,10 +16,7 @@ export function asyncMiddleware (handler) {
               'Attempted to read a property of a null object. Please check your data and ensure all required fields are present.'
           })
         } else {
-          console.warn(
-            'Headers already sent, skipping response for TypeError:',
-            ex.message
-          )
+          console.warn('Headers already sent', ex.message)
         }
 
         // Log the error details
@@ -40,13 +37,10 @@ export function asyncMiddleware (handler) {
 
       // General error handling for other types of errors
       const statusCode = ex.statusCode || 500
-      if (!res.headersSent) {
+      if (!res.headersSent)
         res
           .status(statusCode)
           .json({ status: 'async-error - failed', message: ex.message })
-      } else {
-        console.warn('Headers already sent, skipping response:', ex.message)
-      }
 
       // Log general error message
       console.error('Error message:', ex.message)

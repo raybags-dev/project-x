@@ -1,21 +1,20 @@
 import * as cheerio from 'cheerio'
-import { HEADERS } from '../_data_/headers/headers.js'
+import { HEADERS } from '../data/headers/headers.js'
 import { logger } from '../loggers/logger.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import { validateResponse } from '../utils/generalUtilities.js'
-import axiosInstance from '../utils/proxy.js'
 import { validateAndAuthorizeUser } from '../utils/utilities.js'
+
+import axiosInstance from '../utils/proxy.js'
 
 export async function generateTripProfile (req, res) {
   try {
     const validation = await validateAndAuthorizeUser(req, res, false)
     if (validation.error) return
     const { frontFacingUrl, user } = validation
-    console.log('frontFacingUrl: ', frontFacingUrl)
 
     const basetripUrl = genbaseTripUrl(frontFacingUrl)
-    console.log('base trip url: ', basetripUrl)
 
     const response = await axiosInstance.get(basetripUrl, {
       headers: HEADERS.tripHeadersGenProfile
@@ -192,38 +191,41 @@ export async function generateTripProfile (req, res) {
     await USER_MODEL.setSubStatus(user, true)
     return res.status(200).json(siteProfileData)
   } catch (e) {
-    logger(e, 'error')
-    res.status(500).json({ status: 'failed', message: 'Internal server error' })
+    if (!res.headersSent) {
+      return res
+        .status(500)
+        .json({ status: 'failed', message: 'Internal server error' })
+    }
+    logger(e.message, 'error')
   }
 }
 function extractData (str, regex) {
+  if (!str) return
   const match = str && str.match(regex)
   return match ? match[1].replace(/_/g, ' ') : null
 }
 function extractStringFromHTML ($, regex) {
+  if (!$ || !regex) return
   const htmlString = $.html()
   const match = htmlString.match(regex)
   return match ? match[1] : null
 }
 function genbaseTripUrl (url) {
-  if (url.startsWith('https://www.trip.com/hotels/detail/?hotelId=')) {
-    return url
+  try {
+    const tripUrlPattern =
+      /^https:\/\/www\.trip\.com\/hotels\/detail\/?\?hotelId=\d+$/
+
+    if (tripUrlPattern.test(url)) return url
+
+    const hotelIdMatch = url?.match(
+      /hotel[-_]?[dD]etail[-_]?(\d+)|hotel[Ii]d=(\d+)/
+    )
+    const hotelId = hotelIdMatch ? hotelIdMatch[1] || hotelIdMatch[2] : null
+
+    return hotelId
+      ? `https://www.trip.com/hotels/detail/?hotelId=${hotelId}`
+      : null
+  } catch (error) {
+    logger(error, 'warn')
   }
-
-  const match1 = url.match(/hotel-detail-(\d+)/)
-  const match2 = url.match(/hotelId=(\d+)/)
-  const match3 = url.match(/hotelid=(\d+)/)
-  const hotelId = match1
-    ? match1[1]
-    : match2
-    ? match2[1]
-    : match3
-    ? match3[1]
-    : null
-
-  if (hotelId) {
-    return `https://www.trip.com/hotels/detail/?hotelId=${hotelId}`
-  }
-
-  return null
 }

@@ -1,8 +1,8 @@
+import bcrypt from 'bcryptjs'
+import { randomBytes } from 'crypto'
 import 'dotenv/config'
 import mongoose from 'mongoose'
-import bcrypt from 'bcryptjs'
 import { generateToken } from '../../middleware/auth.js'
-import { randomBytes } from 'crypto'
 import { logger } from '../loggers/logger.js'
 
 const { SUPER_USER_TOKEN } = process.env
@@ -171,4 +171,4 @@ export async function generatePasswordResetToken () {
 }
 const USER_MODEL = mongoose.model('User', userSchema)
 const USER_ID_MODEL = mongoose.model('UserId', userIdSchema)
-export { USER_MODEL, USER_ID_MODEL }
+export { USER_ID_MODEL, USER_MODEL }

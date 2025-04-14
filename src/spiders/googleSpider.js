@@ -1,4 +1,4 @@
-import { HEADERS } from '../_data_/headers/headers.js'
+import { HEADERS } from '../data/headers/headers.js'
 import { logger } from '../loggers/logger.js'
 import { REVIEW } from '../models/documentModel.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
@@ -51,92 +51,55 @@ export async function generateGoogleReviews (req, res) {
     } = userProfile
 
     const headers = HEADERS.googleHtmlHeaders
-    let nextPageToken = null
-    let savedReviews = []
-    let previousPageToken = null
-
     const depth = req.query.depth
     const runType = await PROFILE_MODEL.nextRunType(req, res)
 
-    const totalPagesToFetch = depth
-      ? parseInt(depth) || 10
-      : runType === 'INITIAL' || depth === 'full'
-      ? Infinity
-      : Infinity
+    const { savedReviews } = await downloadHttpGoogleReviews(
+      baseUrl,
+      headers,
+      depth,
+      runType,
+      parseReviewHtml,
+      req,
+      computedUrl
+    )
 
-    for (let currentPage = 0; currentPage < totalPagesToFetch; currentPage++) {
-      const urlWithPageToken =
-        currentPage === 0 ? baseUrl : `${baseUrl}${nextPageToken}`
+    for (const { reviewsData, previousPageToken } of savedReviews) {
+      for (const review of reviewsData) {
+        const existingReview = await REVIEW.findOne({
+          authorExternalId: review.authorExternalId,
+          author: review.author
+        })
 
-      try {
-        logger(`Fetching page ${currentPage + 1}: ${urlWithPageToken}`, 'info')
-
-        let response = await axiosInstance.get(urlWithPageToken, { headers })
-        if (!response || !response.data) {
-          logger('No response data received', 'error')
-          return null
-        }
-
-        let { data } = response
-
-        let nextPageTokenMatch = data.match(/data-next-page-token="([^"]+)"/)
-        nextPageToken = nextPageTokenMatch ? nextPageTokenMatch[1] : null
-
-        const reviewsData = await parseReviewHtml(
-          data,
-          baseUrl,
-          req,
-          computedUrl
-        )
-
-        for (const review of reviewsData) {
-          const existingReview = await REVIEW.findOne({
+        if (!existingReview) {
+          await REVIEW.create({
+            author: review.author,
+            userId: review.userId,
+            siteId: internalId,
+            uuid: profile_id,
+            reviewPageId: previousPageToken,
             authorExternalId: review.authorExternalId,
-            author: review.author
+            authorProfileUrl: review.authorProfileUrl,
+            authorReviewCount: review.authorReviewCount,
+            reviewSiteSlug: review.reviewSiteSlug,
+            reviewBody: review.reviewBody,
+            propertyProfileUrl: computedUrl || review.propertyProfileUrl,
+            originalEndpoint: originalUrl,
+            reviewDate: review.reviewDate,
+            urlAgent: baseUrl || review.urlAgent,
+            propertyName: property_name || review.propertyName,
+            propertyResponse: {
+              body: review.propertyResponse.body,
+              responseDate: review.propertyResponse.responseDate
+            },
+            rating: review.rating,
+            tripType: review.tripType,
+            subratings: review.subratings
           })
-
-          if (!existingReview) {
-            const savedReview = await REVIEW.create({
-              author: review.author,
-              userId: review.userId,
-              siteId: internalId,
-              uuid: profile_id,
-              reviewPageId: previousPageToken,
-              authorExternalId: review.authorExternalId,
-              authorProfileUrl: review.authorProfileUrl,
-              authorReviewCount: review.authorReviewCount,
-              reviewSiteSlug: review.reviewSiteSlug,
-              reviewBody: review.reviewBody,
-              propertyProfileUrl: computedUrl || review.propertyProfileUrl,
-              originalEndpoint: originalUrl,
-              reviewDate: review.reviewDate,
-              urlAgent: urlWithPageToken || review.urlAgent,
-              propertyName: property_name || review.propertyName,
-              propertyResponse: {
-                body: review.propertyResponse.body,
-                responseDate: review.propertyResponse.responseDate
-              },
-              rating: review.rating,
-              tripType: review.tripType,
-              subratings: review.subratings
-            })
-            savedReviews.push(savedReview)
-          }
         }
-
-        logger(`Review objects processed: ${savedReviews.length}`, 'info')
-        if (reviewsData.length === 0) {
-          logger('No more reviews on the current page.', 'error')
-          break
-        }
-        // Update previousPageToken for the next iteration
-        previousPageToken = nextPageToken
-      } catch (error) {
-        logger(`Error fetching reviews: ${error}`, 'info')
       }
     }
 
-    // Update propertyReviewCount in PROFILE_MODEL
     const totalReviewCount = savedReviews.length
     await PROFILE_MODEL.updateOne(
       { userId: user.userId },
@@ -169,4 +132,58 @@ export async function generateGoogleReviews (req, res) {
     logger(`Error fetching reviews: ${error}`, 'error')
     res.status(500).json({ error: 'Server error' })
   }
+}
+async function downloadHttpGoogleReviews (
+  baseUrl,
+  headers,
+  depth,
+  runType,
+  parseReviewHtml,
+  req,
+  computedUrl
+) {
+  let nextPageToken = null
+  let previousPageToken = null
+  let savedReviews = []
+
+  const totalPagesToFetch = depth
+    ? parseInt(depth) || 10
+    : runType === 'INITIAL' || depth === 'full'
+    ? Infinity
+    : Infinity
+
+  for (let currentPage = 0; currentPage < totalPagesToFetch; currentPage++) {
+    const urlWithPageToken =
+      currentPage === 0 ? baseUrl : `${baseUrl}${nextPageToken}`
+
+    try {
+      logger(`Fetching page ${currentPage + 1}: ${urlWithPageToken}`, 'info')
+
+      let response = await axiosInstance.get(urlWithPageToken, { headers })
+      if (!response || !response.data) {
+        logger('No response data received', 'error')
+        return { savedReviews, nextPageToken: null }
+      }
+
+      let { data } = response
+
+      let nextPageTokenMatch = data.match(/data-next-page-token="([^"]+)"/)
+      nextPageToken = nextPageTokenMatch ? nextPageTokenMatch[1] : null
+
+      const reviewsData = await parseReviewHtml(data, baseUrl, req, computedUrl)
+
+      savedReviews.push({ reviewsData, previousPageToken })
+
+      if (reviewsData.length === 0) {
+        logger('No more reviews on the current page.', 'error')
+        break
+      }
+
+      previousPageToken = nextPageToken
+    } catch (error) {
+      logger(`Error fetching reviews: ${error}`, 'info')
+    }
+  }
+
+  return { savedReviews, nextPageToken }
 }

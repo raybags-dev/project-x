@@ -1,4 +1,4 @@
-import { HEADERS } from '../_data_/headers/headers.js'
+import { HEADERS } from '../data/headers/headers.js'
 import { logger } from '../loggers/logger.js'
 import { validateResponse } from '../utils/generalUtilities.js'
 import axiosInstance from '../utils/proxy.js'

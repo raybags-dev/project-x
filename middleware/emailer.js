@@ -1,9 +1,10 @@
 import 'dotenv/config'
 import nodemailer from 'nodemailer'
-import { generatePasswordResetToken } from '../src/models/user.js'
 import { logger } from '../src/loggers//logger.js'
+import { generatePasswordResetToken } from '../src/models/user.js'
 
 const { EMAIL_PROVIDER, EMAIL_FOR_NOTIFICATION, EMAIL__APP_PASS } = process.env
+
 const transporter = nodemailer.createTransport({
   service: EMAIL_PROVIDER,
   auth: {
@@ -11,14 +12,14 @@ const transporter = nodemailer.createTransport({
     pass: EMAIL__APP_PASS
   }
 })
-export async function sendEmail (
+
+export async function sendNotificationEmail (
   emailData,
   recipient,
   verificationToken,
   callback
 ) {
   try {
-    return
     const verificationLink = verificationToken
       ? `Verification Token: ${verificationToken}`
       : ''

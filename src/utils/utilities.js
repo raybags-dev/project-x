@@ -1,12 +1,14 @@
 import 'dotenv/config'
 import helmet from 'helmet'
 
-import { HEADERS } from '../_data_/headers/headers.js'
+import { HEADERS } from '../data/headers/headers.js'
+import { logger } from '../loggers/logger.js'
 import { USER_MODEL } from '../models/user.js'
-import axiosInstance from './proxy.js'
 import { agodaReviewUpdateHandler } from './updateAgoda.js'
 import { googleReviewUpdateHandler } from './updateGoogle.js'
 import { validateEndpointDomain } from './validateBaseUrl.js'
+
+import axiosInstance from './proxy.js'
 
 export function generateMessage (savedReviews, reviewsData) {
   if (!savedReviews || !reviewsData) return
@@ -195,6 +197,7 @@ export async function getAgodaCreds (req, res) {
     const response = await axiosInstance.get(frontFacingUrl, {
       headers: agodaHeadersGenProfile
     })
+
     if (response.status === 200) {
       const body = response.data
 
@@ -213,8 +216,21 @@ export async function getAgodaCreds (req, res) {
       return hotelId1 || hotelId2 || hotelId3
     }
   } catch (error) {
-    logger(`Error, 'hotelId could not be fetched: ${error.message}`, 'error')
+    logger(error, 'error')
   }
+}
+export function validateRequest ({ name, email, password, superUserToken }) {
+  if (superUserToken && superUserToken.length <= 0)
+    return { error: 'Invalid super user token' }
+  if (!name || !email || !password) return { error: 'All fields are required' }
+  if (password.length < 6)
+    return { error: 'Password must be at least 6 characters long' }
+  if (name.length < 3)
+    return { error: 'Name must be at least 3 characters long' }
+  if (email.length < 5)
+    return { error: 'Email must be at least 5 characters long' }
+  if (email.length > 255) return { error: 'Email cannot exceed 255 characters' }
+  return null
 }
 export function handleCSP (app) {
   if (process.env.NODE_ENV === 'production') {
@@ -260,3 +276,82 @@ export function handleCSP (app) {
     )
   }
 }
+export function sanitizeUser (user) {
+  if (!user) return null
+  return {
+    ...user.toObject(),
+    superUserToken: 'retracted',
+    password: 'retracted',
+    __v: 'retracted'
+  }
+}
+//******* TO BE IMPLIMENTED ****** */
+export async function retryWithBackoff (fn, maxRetries = 3, delay = 1000) {
+  let attempt = 0
+
+  while (attempt < maxRetries) {
+    try {
+      return await fn()
+    } catch (error) {
+      attempt++
+
+      const isNetworkError =
+        error.name === 'NetworkError' ||
+        error.name === 'TimeoutError' ||
+        error.message.includes('network') ||
+        error.message.includes('timeout') ||
+        error.message.includes('connection') ||
+        error.code === 'ECONNABORTED' ||
+        error.code === 'ECONNREFUSED' ||
+        error.code === 'ECONNRESET'
+
+      const isTimeoutError =
+        error.name === 'TimeoutError' ||
+        error.message.includes('timeout') ||
+        error.code === 'ECONNABORTED' ||
+        error.code === 'ETIMEDOUT' ||
+        (error.message && error.message.includes('timed out'))
+
+      const isConnectionRefusedError =
+        error.code === 'ECONNREFUSED' ||
+        error.message.includes('connection refused') ||
+        error.message.includes('ECONNREFUSED') ||
+        (error.response && error.response.status === 0) ||
+        (error.message && error.message.includes('Could not connect'))
+
+      const isConnectionResetError =
+        error.code === 'ECONNRESET' ||
+        error.message.includes('connection reset') ||
+        error.message.includes('ECONNRESET') ||
+        (error.message && error.message.includes('socket hang up'))
+
+      const shouldRetry =
+        isNetworkError ||
+        isTimeoutError ||
+        isConnectionRefusedError ||
+        isConnectionResetError
+
+      if (!shouldRetry) {
+        logger(`Non-retriable error: ${error.message}`, 'error')
+        throw error
+      }
+
+      if (attempt >= maxRetries) {
+        logger(
+          `Max retries reached. Failing with error: ${error.message}`,
+          'error'
+        )
+        throw error
+      }
+
+      const backoffTime = delay * Math.pow(2, attempt)
+      logger(
+        `Retrying (${attempt}/${maxRetries}) in ${backoffTime}ms due to error: ${error.message}`,
+        'warn'
+      )
+
+      await new Promise(resolve => setTimeout(resolve, backoffTime))
+    }
+  }
+}
+//******* TO BE IMPLIMENTED ****** */

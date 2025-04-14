@@ -1,12 +1,15 @@
+import { saveObjectToS3 } from '../blobStorage/aws/s3BucketUtility.js'
+import { handleAzureBlobAndPipeline } from '../blobStorage/azure/pipelines/azureOchestrator.js'
+
 import { logger } from '../loggers/logger.js'
 import { REVIEW } from '../models/documentModel.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import { fetchBookingReviews } from '../spiders/bookingSpider.js'
 import {
+  convertUnixToDate,
   formatReviewBodyString,
-  generateMessage,
-  convertUnixToDate
+  generateMessage
 } from '../utils/utilities.js'
 
 export async function generateBookingComReviews (req, res) {
@@ -156,9 +159,16 @@ export async function generateBookingComReviews (req, res) {
       reviewPage: baseUrl,
       message: generateMessage(savedReviews, reviewData)
     })
+    //****** Save buckets *** */
+    saveObjectToS3(savedReviews)
+    handleAzureBlobAndPipeline(savedReviews, [
+      'booking-com',
+      profile_id,
+      propertyExternalId
+    ])
+    //******* Save buckets ********* */
   } catch (error) {
     logger(`Error generating Booking reviews: ${error.message}`, 'error')
-    res.status(500).json({ error: 'Server error' })
   }
 }
 
