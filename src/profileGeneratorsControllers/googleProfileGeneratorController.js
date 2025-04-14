@@ -1,9 +1,10 @@
 import * as cheerio from 'cheerio'
+import { HEADERS } from '../data/headers/headers.js'
+import { logger } from '../loggers/logger.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
-import { HEADERS } from '../_data_/headers/headers.js'
 import { validateEndpointDomain } from '../utils/validateBaseUrl.js'
-import { logger } from '../loggers/logger.js'
+
 import axiosInstance from '../utils/proxy.js'
 
 export async function generateGoogleProfile (req, res) {
@@ -28,73 +29,20 @@ export async function generateGoogleProfile (req, res) {
             'user is unsubscribed - review profile creation requires active subscription'
         })
 
-      const headers = HEADERS.google_headers
-      const response = await axiosInstance.get(frontFacingUrl, { headers })
+      const httpData = await downloadGoogleInitialPage(frontFacingUrl)
 
-      if (!response || !response.data) {
-        logger('No response data received', 'error')
-        return null
+      if (httpData.failed) {
+        return res.status(404).json(httpData)
       }
 
-      const htmlContent = response.data
-      const $ = cheerio.load(htmlContent)
-
-      const hotelFeatureId = $('[data-hotel-feature-id]').attr(
-        'data-hotel-feature-id'
-      )
-      const restaurantFeatureId = $('[data-feature-id]').attr('data-feature-id')
-      const featureId =
-        (hotelFeatureId && hotelFeatureId) || restaurantFeatureId
-
-      if (!featureId)
-        return res.status(404).json({ failed: true, response: response.data })
-
-      const encodedFeatureId = featureId.replace(':', '%3A')
-      const googleCrawlerUrl = `https://www.google.com/async/reviewSort?yv=3&async=feature_id:${encodedFeatureId},review_source:Google,sort_by:newestFirst,partner_start_index:0,is_owner:false,filter_text:,_pms:s,_fmt:pc,next_page_token:`
-
-      const hotelName1 = $('h1.FNkAEc.o4k8l[role="heading"][tabindex="-1"]')
-        .text()
-        .trim()
-      const hotelName2 = $('span.FjC1We.ogfYpf.zUyrwb.uhWwJd').text().trim()
-      const hotelName3 = $('div.LHVjrc').text().trim()
-      const immWithHotelName = $('img.iSN49d.us9x4d')
-      const hotelName4 = immWithHotelName.attr('alt')
-      const hotelName5 = $('h3.LC20lb.MBeuO.DKV0Md').first().text().trim()
-      const hotelName6 = $('a.CQYfx.hAP9Pd.gEBR9d').text().trim()
-
-      let hotelName7 = ''
-      const divWithDataKey = $('div[data-encoded-entity-key]')
-      if (divWithDataKey.length > 0) {
-        hotelName7 = divWithDataKey.attr('data-query')
-      }
-
-      const hotelName =
-        (hotelName1 && hotelName1) ||
-        (hotelName2 && hotelName2) ||
-        (hotelName3 && hotelName3) ||
-        (hotelName4 && hotelName4) ||
-        (hotelName5 && hotelName5) ||
-        (hotelName6 && hotelName6) ||
-        (hotelName7 && hotelName7)
-
-      const urlConstruct1 = hotelName.split(' ').join('+')
-      const computedUrl2 = `https://www.google.com/travel/search?q=${urlConstruct1}&lrd=${featureId},1`
-
-      const part1 = $('a[data-hveid][href^="/travel/hotels/entity"]').attr(
-        'href'
-      )
-      const base_url = $('base').attr('href')
-      const computedUrl1 = part1
-        ? base_url.replace(/\/$/, '') + part1.replace(/\?/, '/reviews?')
-        : null
-
-      const allEndpoints = {}
-      $('a[jsname="UWckNb"]')?.each((index, element) => {
-        const href = $(element).attr('href')
-        const parsedUrl = new URL(href)
-        const domainName = parsedUrl?.hostname?.split('.')?.slice(-2)?.join('.')
-        allEndpoints[domainName] = href
-      })
+      const {
+        googleCrawlerUrl,
+        hotelName,
+        computedUrl1,
+        computedUrl2,
+        allEndpoints,
+        propertyType
+      } = httpData
 
       const existingProfile = await PROFILE_MODEL.findOne(
         {
@@ -124,7 +72,7 @@ export async function generateGoogleProfile (req, res) {
         url: googleCrawlerUrl,
         userId: user.userId,
         propertyEndpoints: allEndpoints,
-        propertyType: (hotelFeatureId && 'HOTEL') || 'RESTAURANT',
+        propertyType,
         nextRunType: 'INITIAL',
         computedUrl: computedUrl1 || computedUrl2,
         name: hotelName
@@ -140,6 +88,92 @@ export async function generateGoogleProfile (req, res) {
     })
   } catch (e) {
     logger(e, 'error')
+    if (e.response && e.response.status === 404) {
+      return res
+        .status(404)
+        .json({ status: 'failed', message: 'Resource not found' })
+    }
+
+    if (e.status === 404 || e.code === 'ENOENT') {
+      return res.status(404).json({ status: 'failed', message: 'Not found' })
+    }
+
     res.status(500).json({ status: 'failed', message: 'Internal server error' })
+  }
+}
+async function downloadGoogleInitialPage (frontFacingUrl) {
+  const headers = HEADERS.google_headers
+  const response = await axiosInstance.get(frontFacingUrl, { headers })
+
+  if (!response || !response.data) {
+    logger('No response data received', 'error')
+    return null
+  }
+
+  const htmlContent = response.data
+  const $ = cheerio.load(htmlContent)
+
+  const hotelFeatureId = $('[data-hotel-feature-id]').attr(
+    'data-hotel-feature-id'
+  )
+  const restaurantFeatureId = $('[data-feature-id]').attr('data-feature-id')
+  const featureId = (hotelFeatureId && hotelFeatureId) || restaurantFeatureId
+
+  if (!featureId) {
+    return { failed: true, response: response.data }
+  }
+
+  const encodedFeatureId = featureId.replace(':', '%3A')
+  const googleCrawlerUrl = `https://www.google.com/async/reviewSort?yv=3&async=feature_id:${encodedFeatureId},review_source:Google,sort_by:newestFirst,partner_start_index:0,is_owner:false,filter_text:,_pms:s,_fmt:pc,next_page_token:`
+
+  const hotelName1 = $('h1.FNkAEc.o4k8l[role="heading"][tabindex="-1"]')
+    .text()
+    .trim()
+  const hotelName2 = $('span.FjC1We.ogfYpf.zUyrwb.uhWwJd').text().trim()
+  const hotelName3 = $('div.LHVjrc').text().trim()
+  const immWithHotelName = $('img.iSN49d.us9x4d')
+  const hotelName4 = immWithHotelName.attr('alt')
+  const hotelName5 = $('h3.LC20lb.MBeuO.DKV0Md').first().text().trim()
+  const hotelName6 = $('a.CQYfx.hAP9Pd.gEBR9d').text().trim()
+
+  let hotelName7 = ''
+  const divWithDataKey = $('div[data-encoded-entity-key]')
+  if (divWithDataKey.length > 0) {
+    hotelName7 = divWithDataKey.attr('data-query')
+  }
+
+  const hotelName =
+    (hotelName1 && hotelName1) ||
+    (hotelName2 && hotelName2) ||
+    (hotelName3 && hotelName3) ||
+    (hotelName4 && hotelName4) ||
+    (hotelName5 && hotelName5) ||
+    (hotelName6 && hotelName6) ||
+    (hotelName7 && hotelName7)
+
+  const urlConstruct1 = hotelName.split(' ').join('+')
+  const computedUrl2 = `https://www.google.com/travel/search?q=${urlConstruct1}&lrd=${featureId},1`
+
+  const part1 = $('a[data-hveid][href^="/travel/hotels/entity"]').attr('href')
+  const base_url = $('base').attr('href')
+  const computedUrl1 = part1
+    ? base_url.replace(/\/$/, '') + part1.replace(/\?/, '/reviews?')
+    : null
+
+  const allEndpoints = {}
+  $('a[jsname="UWckNb"]')?.each((index, element) => {
+    const href = $(element).attr('href')
+    const parsedUrl = new URL(href)
+    const domainName = parsedUrl?.hostname?.split('.')?.slice(-2)?.join('.')
+    allEndpoints[domainName] = href
+  })
+
+  return {
+    googleCrawlerUrl,
+    hotelName,
+    computedUrl1,
+    computedUrl2,
+    allEndpoints,
+    propertyType: (hotelFeatureId && 'HOTEL') || 'RESTAURANT'
   }
 }

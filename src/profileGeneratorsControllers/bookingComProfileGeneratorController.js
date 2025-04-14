@@ -1,11 +1,12 @@
 import * as cheerio from 'cheerio'
-import { HEADERS } from '../_data_/headers/headers.js'
+import { HEADERS } from '../data/headers/headers.js'
 import { logger } from '../loggers/logger.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
-import axiosInstance from '../utils/proxy.js'
-import { validateAndAuthorizeUser } from '../utils/utilities.js'
 import { validateResponse } from '../utils/generalUtilities.js'
+import { validateAndAuthorizeUser } from '../utils/utilities.js'
+
+import axiosInstance from '../utils/proxy.js'
 
 export async function generateBookingComProfile (req, res) {
   try {
@@ -35,11 +36,12 @@ export async function generateBookingComProfile (req, res) {
     const mainUrl = $('a.bui_breadcrumb__link_masked[itemprop="item"]').attr(
       'href'
     )
+
     const updatedFrontfacingUrl = `http://www.booking.com${
       mainUrl || null
     }#tab-reviews`
 
-    const bookingCrawlerUrl = extractSidValue(mainUrl)
+    const bookingCrawlerUrl = buildBackendUrl(mainUrl)
 
     const hotelName1 = $('h2.pp-header__title').text().trim()
     const hotelName2 = getScriptData($, /"name"\s*:\s*"([^"]+)"/)
@@ -153,27 +155,35 @@ export async function generateBookingComProfile (req, res) {
 
     await USER_MODEL.setSubStatus(user, true)
     return res.status(200).json(siteProfileData)
-  } catch (e) {
-    logger(e, 'error')
+  } catch (error) {
+    logger(`failed in <generateBookingComProfile> - ${error}`, 'error')
     res.status(500).json({ status: 'failed', message: 'Internal server error' })
   }
 }
 
-function extractSidValue (url) {
-  const regex = /([?&]label=[^&]+&sid=[^&]+)/
-  const match = url.match(regex)
+function buildBackendUrl (url) {
+  if (!url) return null
 
-  if (match) {
+  let match = url.match(/([?&]label=[^&]+&sid=[^&]+)/)
+  if (match && match[1]) {
     return `https://www.booking.com/dml/graphql${match[1]}&dist=0&keep_landing=1&sb_price_type=total&tab=4&type=total&lang=en-gb`
-  } else {
-    return null
   }
+
+  // Fallback attempt: extract just the label (no sid)
+  match = url.match(/\?label=[^#&]+/)
+  if (match && match[0]) {
+    return `https://www.booking.com/dml/graphql${match[0]}&dist=0&keep_landing=1&sb_price_type=total&tab=4&type=total&lang=en-gb`
+  }
+
+  return null
 }
 function extractData (str, regex) {
+  if (!str || regex) return null
   const match = str.match(regex)
   return match ? match[1] : null
 }
 function getScriptData ($, regex) {
+  if (!$ || !regex) return null
   const scriptContent = $('script')
     .toArray()
     .map(el => $(el).text())
@@ -190,6 +200,7 @@ function getScriptData ($, regex) {
   return match ? match[1] : null
 }
 function extractAlternateLinks ($) {
+  if (!$) return null
   const linksObj = {}
 
   $('link[rel="alternate"]').each((i, el) => {

@@ -1,0 +1,157 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "For_each_review": {
+                "actions": {
+                    "Add_xInternalId": {
+                        "inputs": {
+                            "xInternalId": "@{guid()}"
+                        },
+                        "runAfter": {},
+                        "type": "Compose"
+                    },
+                    "Create_or_update_document": {
+                        "inputs": {
+                            "body": {
+                                "id": "@{guid()}",
+                                "metadata": {
+                                    "processedTimestamp": "@{utcNow()}",
+                                    "processorType": "LogicApp",
+                                    "sourceBlob": "@{triggerBody()?['Name']}"
+                                },
+                                "review": "@items('For_each_review')",
+                                "xInternalId": "@outputs('Add_xInternalId')['xInternalId']"
+                            },
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['documentdb']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/dbs/@{encodeURIComponent('ReviewsDB')}/colls/@{encodeURIComponent('processed-reviews')}/docs"
+                        },
+                        "runAfter": {
+                            "Add_xInternalId": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ApiConnection"
+                    }
+                },
+                "foreach": "@body('Parse_JSON')",
+                "runAfter": {
+                    "Parse_JSON": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Foreach"
+            },
+            "Get_blob_content": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureblob']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/content",
+                    "queries": {
+                        "inferContentType": true,
+                        "path": "@triggerBody()?['Path']",
+                        "queryParametersSingleEncoded": true
+                    }
+                },
+                "runAfter": {},
+                "type": "ApiConnection"
+            },
+            "Parse_JSON": {
+                "inputs": {
+                    "content": "@body('Get_blob_content')",
+                    "schema": {
+                        "items": {
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "reviewContent": {
+                                    "type": "string"
+                                },
+                                "reviewDate": {
+                                    "type": "string"
+                                },
+                                "reviewRating": {
+                                    "type": "number"
+                                },
+                                "reviewerName": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "id",
+                                "reviewContent",
+                                "reviewDate",
+                                "reviewRating"
+                            ],
+                            "type": "object"
+                        },
+                        "type": "array"
+                    }
+                },
+                "runAfter": {
+                    "Get_blob_content": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ParseJson"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "When_a_blob_is_added_or_modified": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureblob']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/datasets/default/triggers/batch/onupdatedfile",
+                    "queries": {
+                        "folderId": "/reviewerstorageaccount/reviews-container",
+                        "maxFileCount": 10
+                    }
+                },
+                "recurrence": {
+                    "frequency": "Minute",
+                    "interval": 3
+                },
+                "splitOn": "@triggerBody()",
+                "type": "ApiConnection"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "azureblob": {
+                    "connectionId": "/subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.Web/connections/azureblob",
+                    "connectionName": "azureblob",
+                    "id": "/subscriptions/{subscription-id}/providers/Microsoft.Web/locations/{location}/managedApis/azureblob"
+                },
+                "documentdb": {
+                    "connectionId": "/subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.Web/connections/documentdb",
+                    "connectionName": "documentdb",
+                    "id": "/subscriptions/{subscription-id}/providers/Microsoft.Web/locations/{location}/managedApis/documentdb"
+                }
+            }
+        }
+    }
+}

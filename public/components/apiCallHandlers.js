@@ -366,8 +366,8 @@ export async function runCrawlerHandler (slug, depth = 5) {
           () =>
             displayLabel([
               'review_main_wrapper',
-              'alert-danger',
-              `Your account is innactive - Contact admin to activate your subscription!`
+              'alert-warning',
+              'Subscription innactive - Please contact admin to to activate your subscription!'
             ]),
           4000
         )
@@ -426,10 +426,10 @@ export async function runCrawlerHandler (slug, depth = 5) {
       e?.response?.status === 403 &&
       e?.response?.data?.message == 'trial period expired'
     const message =
-      'Trial period expired - Please contact admin to renew your subscription!'
+      'Subscription innactive - Please contact admin to to activate your subscription!'
     if (isNotSubscribed) {
       runSpinner(false, 'Failed')
-      await displayLabel(['review_main_wrapper', 'alert-danger', message])
+      await displayLabel(['review_main_wrapper', 'alert-warning', message])
     }
   }
 }

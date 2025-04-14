@@ -1,15 +1,21 @@
 import { calculateObjectSize } from 'bson'
 import 'dotenv/config'
-import { sendEmail } from '../../middleware/emailer.js'
+import { sendNotificationEmail } from '../../middleware/emailer.js'
 import { logger } from '../loggers/logger.js'
 import { REVIEW } from '../models/documentModel.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_ID_MODEL, USER_MODEL } from '../models/user.js'
+import { sanitizeUser, validateRequest } from '../utils/utilities.js'
 
 const { RECIPIENT_EMAIL, SECRET_ADMIN_TOKEN, SUPER_USER_TOKEN } = process.env
 
 export async function CreateUserController (req, res) {
   try {
+    const validationError = validateRequest(req.body)
+    if (validationError) {
+      return res.status(400).send(validationError)
+    }
+
     const secret = SECRET_ADMIN_TOKEN
     const { name, email, password, superUserToken } = req.body
 
@@ -41,8 +47,8 @@ export async function CreateUserController (req, res) {
         userId,
         isAdmin: true,
         superUserToken,
-        isSuperUser: isSuperUser,
-        isSubscribed
+        isSuperUser,
+        isSubscribed: isSuperUser ? true : isSubscribed
       })
     } else {
       user = new USER_MODEL({
@@ -57,13 +63,16 @@ export async function CreateUserController (req, res) {
 
     await user.save()
 
+    const sanitizedUser = sanitizeUser(user)
     const token = user.generateAuthToken()
 
-    const createUserEmailData = {
+    const userEmailData = {
       title: 'User account created successfully',
-      body: `A user: (${user}) has successfully been created in the database".`
+      body: `A user:\n=========\n\n(${JSON.stringify(
+        sanitizedUser
+      )})\n==========\n\nhas successfully been created in the database".`
     }
-    await sendEmail(createUserEmailData, RECIPIENT_EMAIL)
+    await sendNotificationEmail(userEmailData, RECIPIENT_EMAIL)
 
     res.status(201).send({
       state: 'successful',

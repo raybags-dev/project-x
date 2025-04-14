@@ -1296,8 +1296,8 @@ export const PLUGINS = {
       if (!isSubscribed) {
         displayLabel([
           'review_main_wrapper',
-          'alert-danger',
-          `Trial period expired - Please contact admin to renew your subscription!`
+          'alert-warning',
+          `Subscription innactive - Please contact admin to renew your subscription!`
         ])
         setTimeout(() => location.reload(), 5000)
         return false
@@ -1816,7 +1816,7 @@ export const PLUGINS = {
     await fetchCurrentUserUpdateSeesionStorage()
     const { userProfiles, ...rest } = (await getAuthHandler()) || {}
 
-    if (!userProfiles.length)
+    if (!userProfiles?.length)
       return displayLabel([
         'review_main_wrapper',
         'alert-warning',

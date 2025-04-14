@@ -1,6 +1,6 @@
-import { USER_MODEL } from '../models/user.js'
-import { sendEmail } from '../../middleware/emailer.js'
+import { sendNotificationEmail } from '../../middleware/emailer.js'
 import { logger } from '../loggers/logger.js'
+import { USER_MODEL } from '../models/user.js'
 
 export async function ForgotPasswordController (req, res) {
   const email = req.body.email
@@ -21,7 +21,7 @@ export async function ForgotPasswordController (req, res) {
   }
 
   try {
-    await sendEmail(emailData, email, resetToken)
+    await sendNotificationEmail(emailData, email, resetToken)
     res.status(200).json({ message: 'Password reset email sent.' })
   } catch (error) {
     logger(`Error generating verification token: ${error}`, 'error')

@@ -127,17 +127,22 @@ REVIEW_MODEL.pre('save', async function (next) {
     this.rating = Math.round((rating / 10) * 5)
   }
 
-  // if (this.propertyResponse?.body?.trim()) {
-  //   this.hasPropertyResponse = true
-  // }
-
   const siteProfile = await PROFILE_MODEL.findOne({
     userId: this.userId,
     reviewSiteSlug: this.reviewSiteSlug
   })
   if (siteProfile) this.uuid = siteProfile._id
 
-  this.hasPropertyResponse = !!this.propertyResponse?.body?.trim()
+  if (
+    this.propertyResponse &&
+    typeof this.propertyResponse.body === 'string' &&
+    this.propertyResponse.body.trim()
+  ) {
+    this.hasPropertyResponse = true
+  } else {
+    this.hasPropertyResponse = false
+    this.propertyResponse = null
+  }
 
   next()
 })

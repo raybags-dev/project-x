@@ -1,5 +1,9 @@
 import dateFns from 'date-fns'
 import mongoose from 'mongoose'
+import {
+  deleteReviewsByProfileFromS3,
+  deleteReviewsFromS3
+} from '../blobStorage/aws/s3BucketUtility.js'
 import { logger } from '../loggers/logger.js'
 import { REVIEW } from '../models/documentModel.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
@@ -72,6 +76,7 @@ export async function DeleteOneDocumentController (req, res) {
       })
     }
 
+    await deleteReviewsFromS3(document)
     await document.delete()
 
     res.status(200).json({
@@ -124,6 +129,8 @@ export async function DeleteAllUserProfileDocumentsController (req, res) {
         message: 'No matching user profile found for the provided slug'
       })
     }
+
+    await deleteReviewsByProfileFromS3(userProfile)
 
     const deleteResult = await REVIEW.deleteMany({
       userId: new mongoose.Types.ObjectId(userProfile.userId),

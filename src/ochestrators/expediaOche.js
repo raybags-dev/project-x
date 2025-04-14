@@ -1,3 +1,6 @@
+import { saveObjectToS3 } from '../blobStorage/aws/s3BucketUtility.js'
+import { handleAzureBlobAndPipeline } from '../blobStorage/azure/pipelines/azureOchestrator.js'
+
 import { logger } from '../loggers/logger.js'
 import { REVIEW } from '../models/documentModel.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
@@ -9,7 +12,7 @@ import { generateMessage } from '../utils/utilities.js'
 export async function generateExpediaReviews (req, res) {
   try {
     logger('Starting expedia review extraction...', 'info')
-    const { email, isAdmin, userId } = await req.locals.user
+    const { email, isAdmin, userId, _id } = await req.locals.user
     const isSubscribed = await USER_MODEL.getSubscriptionStatus(userId)
     let depth = req.query.depth
 
@@ -182,6 +185,14 @@ export async function generateExpediaReviews (req, res) {
       reviewPage: baseUrl,
       message: generateMessage(savedReviews, reviewData)
     })
+    //****** Save buckets *** */
+    saveObjectToS3(savedReviews)
+    handleAzureBlobAndPipeline(savedReviews, [
+      'expedia-com',
+      profile_id,
+      propertyExternalId
+    ])
+    //******* Save buckets ********* */
   } catch (error) {
     logger(`Error generating Expedia reviews: ${error}`, 'warn')
   }

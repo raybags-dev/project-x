@@ -1,4 +1,7 @@
 import * as cheerio from 'cheerio'
+import { saveObjectToS3 } from '../blobStorage/aws/s3BucketUtility.js'
+import { handleAzureBlobAndPipeline } from '../blobStorage/azure/pipelines/azureOchestrator.js'
+
 import { logger } from '../loggers/logger.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
@@ -8,7 +11,11 @@ export async function parseReviewHtml (html, urlAgent, req, propertyProfileUrl) 
     const $ = cheerio.load(html)
     const reviews = []
     const userId = await req.locals.user.userId
-    const { name: propertyName, reviewSiteSlug } = await PROFILE_MODEL.findOne({
+    const {
+      name: propertyName,
+      reviewSiteSlug,
+      _id
+    } = await PROFILE_MODEL.findOne({
       userId
     })
     const userIDD = await USER_MODEL.findOne({ userId })
@@ -68,7 +75,6 @@ export async function parseReviewHtml (html, urlAgent, req, propertyProfileUrl) 
         .first()
         .text()
         .trim()
-      // ********************
       const mainAnchor = $(element)
       const reviewTextAnchor = [
         'div[style="display:none;vertical-align:top"] div.Jtu6Td span span span span.review-full-text',
@@ -77,7 +83,6 @@ export async function parseReviewHtml (html, urlAgent, req, propertyProfileUrl) 
       ]
 
       const originalReviewText = getReviewText(mainAnchor, reviewTextAnchor)
-      // ********************
       const reviewText = parseReviewText(
         $(element).find('span[data-expandable-section]')
       )
@@ -95,11 +100,13 @@ export async function parseReviewHtml (html, urlAgent, req, propertyProfileUrl) 
         ''
       )
 
+      const authorExternalId = extractAuthorExternalId(element)
+
       const commonReviewProperties = {
         author: username,
         authorProfileUrl,
         userId: userIDD.userId,
-        authorExternalId: extractAuthorExternalId(element),
+        authorExternalId,
         reviewSiteSlug: siteSlug,
         reviewBody: mainReviewBody,
         propertyProfileUrl,
@@ -156,6 +163,10 @@ export async function parseReviewHtml (html, urlAgent, req, propertyProfileUrl) 
         })
       }
     })
+    //****** Save buckets *** */
+    saveObjectToS3(reviews)
+    handleAzureBlobAndPipeline(reviews, ['google-com', userIDD.userId, _id])
+    //******* Save buckets ********* */
     return reviews
   } catch (e) {
     logger(`${e}: from <parseReviewHtml> function`, 'error')
@@ -198,7 +209,7 @@ function extractNumericRating (ariaLabel) {
   const ratingMatch = ariaLabel.match(ratingRegex)
   return ratingMatch
     ? parseFloat(ratingMatch[1].replace(',', '.'))
-    : parseFloat('1.0') // adding constant for missing rating
+    : parseFloat('1.0')
 }
 function parseReviewDate (relativeDate) {
   if (relativeDate) {

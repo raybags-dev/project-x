@@ -1,3 +1,6 @@
+import { saveObjectToS3 } from '../blobStorage/aws/s3BucketUtility.js'
+import { handleAzureBlobAndPipeline } from '../blobStorage/azure/pipelines/azureOchestrator.js'
+
 import { logger } from '../loggers/logger.js'
 import { REVIEW } from '../models/documentModel.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
@@ -182,6 +185,14 @@ export async function generateOpentableReviews (req, res) {
       reviewPage: baseUrl,
       message: generateMessage(savedReviews, reviewData)
     })
+    //****** Save buckets *** */
+    saveObjectToS3(savedReviews)
+    handleAzureBlobAndPipeline(savedReviews, [
+      'opentable-com',
+      profile_id,
+      propertyExternalId
+    ])
+    //******* Save buckets ********* */
   } catch (error) {
     logger(`Error generating trip reviews: ${error}`, 'warn')
   }
