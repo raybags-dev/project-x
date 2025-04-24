@@ -1,45 +1,29 @@
 export const HEADERS = {
-  google_headers: {
+  googleHeadersGenProfile: {
     authority: 'www.google.com',
     accept:
       'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
     'accept-language': 'en-US,en;q=0.9',
     'cache-control': 'max-age=0',
-    'sec-ch-ua':
-      '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120.0.6099.129"',
-    'sec-ch-ua-arch': '"arm"',
-    'sec-ch-ua-bitness': '"64"',
-    'sec-ch-ua-full-version': '"120.0.6099.129"',
-    'sec-ch-ua-full-version-list':
-      '"Not_A Brand";v="8.0.0.0", "Chromium";v="120.0.6099.129", "Google Chrome";v="120.0.6099.129"',
-    'sec-ch-ua-mobile': '?0',
-    'sec-ch-ua-model': '""',
-    'sec-ch-ua-platform': '"macOS"',
-    'sec-ch-ua-platform-version': '"13.3.1"',
-    'sec-ch-ua-wow64': '?0',
-    'sec-fetch-dest': 'document',
-    'sec-fetch-mode': 'navigate',
-    'sec-fetch-site': 'same-origin',
-    'sec-fetch-user': '?1',
     'upgrade-insecure-requests': '1',
     'user-agent':
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36',
     'x-client-data':
       'CK21yQEIhLbJAQiktskBCKmdygEI1ITLAQiSocsBCIagzQEIusjNAQisns4BCOSvzgEIwbbOAQjZt84BGI/OzQEYwK7OARidsc4BGL+T1SI='
   },
-  googleHtmlHeaders: {
-    authority: 'www.google.com',
-    accept:
-      'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
-    'cache-control': 'no-cache',
-    cookie:
-      '_uetvid=9697ae9065c411eea0cc29668aed3012; _pin_unauth=dWlkPU1tSmlZV1F4Wm1FdE9ESTNPQzAwTVRrM0xXRm1ZemN0WVRWbE9USTJOV0ppTkRVNA',
+  googleHeadersGenReviews: {
+    'accept-language': 'en-US,en;q=0.9',
     'upgrade-insecure-requests': '1',
     'user-agent':
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36',
-    'x-client-data':
-      'CK21yQEIhLbJAQiktskBCKmdygEI1ITLAQiUocsBCIWTzQEIhqDNAQjatM0BCKS9zQEI3L3NAQi8vs0BCKW/zQEIvL/NAQj/v80BGPWmzQEYpq7NAQ=='
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
+    'sec-ch-ua':
+      '"Google Chrome";v="135", " Not;A Brand";v="99", "Chromium";v="135"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Mac OS X"',
+    referer: 'https://www.google.com/',
+    origin: 'https://www.google.com',
+    cookie:
+      'NID=523=bKVEevVQ2a34t2uiohvvag0GUZFsHLsLGHBGHGiyPDX8N0xjMRXrkxLE7A3CN8FPrBq5TnxfeT5bJLynpdtmWNvYynbOYeobR7Jo2_snIK5UYElfLVgZ00C1K25xGgZFLbcUew0EQ_RTYq5zqKwn35Qn8P6BJr-798Gb8z2Sz-oXNB4VKCC9_SeMPxgmJ1rF4LBZwA'
   },
   agodaHeadersGenProfile: {
     authority: 'www.agoda.com',
@@ -62,7 +46,7 @@ export const HEADERS = {
     'user-agent':
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
   },
-  agodaApiHeaders: {
+  agodaHeadersGenReviews: {
     authority: 'www.agoda.com',
     accept: 'application/json',
     connection: 'keep-alive',
@@ -78,62 +62,16 @@ export const HEADERS = {
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36'
   },
   bookingHeadersGenProfile: {
-    authority: 'www.booking.com',
-    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
-    'accept-encoding': 'gzip, deflate, br',
-    'upgrade-insecure-requests': '1',
     accept:
       'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-    connection: 'keep-alive',
-    cookie:
-      'pcm_personalization_disabled=0; bkng_sso_session=e30; OptanonAlertBoxClosed=2025-04-03T12:06:28.577Z; bkng_sso_ses=eyJib29raW5nX2dsb2JhbCI6W3siaCI6IjdtVTBZeDlGOThLbG8vN2R6endKMFZZRFVYQVV0WElJcjE4d1pNTEZta28iLCJhIjoxfV19; pcm_consent=consentedAt%3D2025-04-03T12%3A06%3A28.827Z%26countryCode%3DNL%26expiresAt%3D2025-09-30T12%3A06%3A28.827Z%26implicit%3Dfalse%26regionCode%3DFL%26regulation%3Dgdpr%26legacyRegulation%3Dgdpr%26consentId%3D81c20270-7048-4ce8-ae6a-c1cb5cd8ee83%26analytical%3Dfalse%26marketing%3Dfalse; bkng_sso_auth=CAIQ0+WGHxpmd8R0Z62xycumxnryLXYGDcTUwjJf+H1kUdXpxgAJi7kkfU4UajrbVihfePJcFgDanptU+C1ISdjwyWQm+08phY3kCxTRbNzOlVf5DmD+AidHtHbyNoMISNz5W6Ww8keVObS1z1a+; cors_js=1; OptanonConsent=consentCausedByGPCSignalStored=1742471720854&isGpcEnabled=1&datestamp=Tue+Apr+08+2025+10%3A50%3A40+GMT%2B0200+(Central+European+Summer+Time)&version=202501.2.0&browserGpcFlag=1&isIABGlobal=false&hosts=&consentId=d0def993-4d48-4873-9f15-4292aa2c744c&interactionCount=1&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A0%2CC0004%3A0&implicitConsentCountry=GDPR&implicitConsentDate=1743681988242&AwaitingReconsent=false&backfilled_at=1743681988829&backfilled_seed=1&geolocation=NL%3BFL; BJS=-; lastSeen=0; bkng=11UmFuZG9tSVYkc2RlIyh9Yaa29%2F3xUOLbnmKTRaewPBteB2jvzYdLWmZ5Vgdz4bfaWT3tohw0vPMIywm3eYgekwtlR%2Bixzo9ofXkQ9l7F7ACF39au72hzwzHO9gUmQh20EkTC8U5gqhjCJ9BvApSeVjB2mx2twF7KT3YOBrxocdov5M2u8zs972UOCuRm1s%2BE6D11TD9Q0WA%3D; aws-waf-token=5809b5b2-a918-4df6-a54c-4e523f35fd13:CQoApss+I1aDAgAA:y/L8lBZ1tf1JqkXMYibZhJvSgLc99BT+1+vACOJvLfcv6+W8cpi+LaNxVF44A7BS3xO4bAtcJNbHx4QwOrDzsyFNFiTx3FCiLTO0TEKjUU88cwhnaAO3RLJXjwjM114jnOqOSaOm+hXlLhT8qK9oOn1y/dsGeb1N2BbjsHjM4s9AxYURBoB2dmZQ7GJY0wk6EXhs62lwJT9VKmcPP/EToUkLKMxG2jzoOxEVW4mUOhAONQMGNb8Jmb7f/mWHx+uFBrU=',
-    'user-agent':
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'
-  },
-  bookingHeadersGenReviews: {
-    accept: '*/*',
-    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
-    'apollographql-client-name': 'b-property-web-property-page_node',
-    'apollographql-client-version': 'EQMGDECL',
-    'content-type': 'application/json',
-    origin: 'https://www.booking.com',
-    priority: 'u=1, i',
-    referer:
-      'https://www.booking.com/hotel/id/swiss-belresort-pecatu.id.html?label=gen173nr-1FCAsoaEIWc3dpc3MtYmVscmVzb3J0LXBlY2F0dUgSWARoqQGIAQGYARK4AQfIAQzYAQHoAQH4AQKIAgGoAgO4Atb07r0GwAIB0gIkYjgyYTBiNGItNTdhZS00MDhlLTk2OTItMmMzMjQyZTczNzRi2AIF4AIB&sid=5cf0621a444f0a79009e49aa4a650ae2&breadcrumb=hotel&',
-    'sec-ch-ua':
-      '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
-    'sec-ch-ua-mobile': '?0',
-    'sec-ch-ua-platform': '"macOS"',
-    'sec-fetch-dest': 'empty',
-    'sec-fetch-mode': 'cors',
-    'sec-fetch-site': 'same-origin',
-    'user-agent':
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
-    'x-apollo-operation-name': 'ReviewList',
-    'x-booking-context-action': 'hotel',
-    'x-booking-context-action-name': 'hotel',
-    'x-booking-context-aid': '304142',
-    'x-booking-csrf-token':
-      'eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJjb250ZXh0LWVucmljaG1lbnQtYXBpIiwic3ViIjoiY3NyZi10b2tlbiIsImlhdCI6MTc0MDM1NjQwNCwiZXhwIjoxNzQwNDQyODA0fQ.tc293yHFvnA2zmQ4OY5_DruTHGMqPZp7KhTk5V2vkstz8s7IQWGZref7Mp7oIJmnG-c03qxmnhtoWZYH9DWnSA',
-    'x-booking-dml-cluster': 'node',
-    'x-booking-et-serialized-state':
-      'EStynLzM2shYQawYZoVi7Yoxu8-DMBhlPpshm8Jawtwbdc6_WGuXuzFSfB6QdLCGldc8DZfam7_eQpkUecDWrWqTZzV8H9Zvv',
-    'x-booking-pageview-id': 'b4b9025a3d9c03f6',
-    'x-booking-site-type-id': '1',
-    'x-booking-timeout-ms': '4000',
-    'x-booking-topic': 'capla_browser_b-property-web-property-page',
-    'x-envoy-upstream-rq-timeout-ms': '4000',
-    Cookie:
-      'bkng=11UmFuZG9tSVYkc2RlIyh9Yaa29%2F3xUOLbVA9iGwA%2BUSxb6c8BZypH8JjhcpG6GG3Pmrxha5wsD18MIhkRxeYvXVUST%2BQzZ3CKjErnKkvcDaxCUB0oaFLQBtUqnHw6J9eTnKebO0X3U%2FkVjbnbwvPEvnI6T88XJpZXTO4XWpFRBmiBG3YkWXVJo6jGbS0BJ6eKcf50AsBAceb5LuAjRhjlrg%3D%3D; bkng_sso_auth=CAIQ0+WGHxpoTte2eojnJURiXWfVmE45np1ZgnLn0WrTDOaGmNIX0Ie269Sj4OrGbEaLCmiTPbvOsvVqSvwVTaM1lDATf73jPOY5DcROrhTgFWAeJY8t8Vt2fAc2NRaIatXUtCJTwCfhJqKQOweCPlA=; pcm_consent=analytical%3Dfalse%26countryCode%3DDK%26consentId%3Dde1638ec-ba39-4a1c-aef2-b691ce881593%26consentedAt%3D2025-04-08T19%3A51%3A16.008Z%26expiresAt%3D2025-10-05T19%3A51%3A16.008Z%26implicit%3Dtrue%26marketing%3Dfalse%26regionCode%3D84%26regulation%3Dgdpr%26legacyRegulation%3Dgdpr; pcm_personalization_disabled=0'
-  },
-  expediaHeadersGenProfile: {
-    accept:
-      'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+    'accept-language': 'en-US,en;q=0.9',
     'cache-control': 'max-age=0',
+    cookie:
+      'cors_js=1; px_init=0; bkng_sso_session=e30; FPID=FPID2.2.yBf7glL4dGEEHZZZqDxZH85qKX4A0DfQ7wxLo3hdjCI%3D.1700556835; _yjsu_yjad=1715597843.f9d9ce94-e220-44f1-a4e5-03d21c2017fd; _pin_unauth=dWlkPU5URTFORFV4WWpJdE5ESTRaQzAwWVdNM0xUa3haakl0WkRCbE0yVTFNVFUzWlRnMQ; _ga_SEJWFCBCVM=GS1.1.1715597842.1.1.1715597922.60.0.0; pcm_personalization_disabled=0; _gcl_au=1.1.2145518399.1740875041; OptanonAlertBoxClosed=2025-03-14T22:22:26.665Z; _gcl_aw=GCL.1741990947.CjwKCAjwp8--BhBREiwAj7og1_NOPEIZ3PcC1GmhbRKlmTStwgxxi2e6x9o4x1bAymDMGJwjLHvQ_RoCn0EQAvD_BwE; _gac_UA-116109-18=1.1741990948.CjwKCAjwp8--BhBREiwAj7og1_NOPEIZ3PcC1GmhbRKlmTStwgxxi2e6x9o4x1bAymDMGJwjLHvQ_RoCn0EQAvD_BwE; bkng_sso_ses=eyJib29raW5nX2dsb2JhbCI6W3siYSI6MSwiaCI6IjA3aUZ4ckdJSE9yTi82dFBCeU1kZFhTT2k3bEdxMjF4aGo4T2xLQ3RNRlUifV19; pcm_consent=consentedAt%3D2025-03-14T22%3A22%3A27.853Z%26countryCode%3DNL%26expiresAt%3D2025-09-10T22%3A22%3A27.853Z%26implicit%3Dfalse%26regionCode%3DFL%26regulation%3Dgdpr%26legacyRegulation%3Dgdpr%26consentId%3Db80f9271-ba02-4d8c-832d-dfa9130c2302%26analytical%3Dtrue%26marketing%3Dtrue; FPAU=1.1.2145518399.1740875041; FPGCLAW=2.1.kCjwKCAjwp8--BhBREiwAj7og1_NOPEIZ3PcC1GmhbRKlmTStwgxxi2e6x9o4x1bAymDMGJwjLHvQ_RoCn0EQAvD_BwE$i1742195014; bkng_sso_auth=CAIQ0+WGHxpmtv7NaxPtyrS4MNxeFv2N1ranJ7hQGso8EMqf5eFO2Z37ykBCdcau7wcx37/9wLaPJ8CzzlKbaKs9V7jd3ORvIuR1gdwKMcqATr5VZlaiRwod9KDL9cBUqkeM8gAFXV7dC1wOCAJo; BJS=-; _gid=GA1.2.833473038.1745505299; _gat=1; __eoi=ID=2e369a88c8c30e61:T=1745505299:RT=1745505299:S=AA-AfjYKW-IaVQZVnvjZfsLKRvyC; bkng_prue=1; cgumid=5MKZTV9jeW1rSFhBVSUyRjBrd05VTWdRYUpXdnZpbWlEUzFhblJBY2F4UEFzeTMwWE0lM0Q; FPLC=jYWBRfjmVlSo0gJ8YyhZgfqdKtpFzZjRcMMe4glKAL9XkaLi090EEnw6mMVoq7h6bkdLHuBKT75fnUGXkvx5UFO2PbHUl%2Fhmq5NkQ5gVQlIaGAtN3MPtYPZj0jUP4g%3D%3D; OptanonConsent=isGpcEnabled=0&datestamp=Thu+Apr+24+2025+16%3A35%3A03+GMT%2B0200+(Central+European+Summer+Time)&version=202501.2.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=91b1c845-07ac-44ba-ad84-019b0672182f&interactionCount=1&isAnonUser=1&landingPath=NotLandingPage&AwaitingReconsent=false&groups=C0001%3A1%2CC0002%3A1%2CC0004%3A1&implicitConsentCountry=GDPR&implicitConsentDate=1741990922185&backfilled_at=1741990947878&backfilled_seed=1&geolocation=US%3BNY; _ga=GA1.1.115511342.1700556835; cto_bundle=_5QF8l9CdUtlanFWSEVxbldzenVBQWV3ck1rMDhzWGU3emRCNml1Nm03JTJGWlZyQzQ1Q0poTnB4bURVOUdVRkJpWkdKTEhOJTJGUmFpY0hOUkM4VSUyRlRoaVV3Uk4lMkJYbFIlMkIlMkJOWnpYZDNzdGNQTkVwWGY1Yk4lMkYyTXNiMkpCem5SNWV5YTBZMjJuNkE5NnB4R2pZRWtVeiUyQjhHdGZtUFNiSUZKbHlzMHNGVzU2dzdqOGY3T25jT3RZZVo2TWwxOTlENURGb216WFkyaWpzbzJ2Ym9kSWNPTGV5dlFIRlNjdyUzRCUzRA; lastSeen=0; _ga_A12345=GS1.1.1745505301.5.1.1745505311.0.0.657411247; _uetsid=4e4971d0211911f09424eb50013fee74; _uetvid=9340e240111711ef9f850be65c0f9817; bkng=11UmFuZG9tSVYkc2RlIyh9Yaa29%2F3xUOLbnmKTRaewPBtcytMqUN5RwJrCbqqiX8U00DbXcJWim9cuM6tOYIdcrJi94R2yvYWZrzthvfmWZ%2BudrnzfeY0P4RJKfTvNTETqLKb0%2FJFouvrx736kJTSmMYP8zLfJkaifQP7KoFAYEc%2FO1Gjqs6AiLXWkzWNH02D8YG96tr%2BMM94%3D; aws-waf-token=b73ba657-da2c-4d90-9b5f-b463dbabd983:CQoAmhxmNlMUAQAA:vZt+SE1c9XHTUEk5n803w/UEMyKW5hB2VOdUGnxb0oCiuxaudLnhf3lup8wOvfK79awAtzmQwKvLD4an+ik/8ZP8bduz6ZQcKV0BV1qPuERdEcEY6pj5fx1HW4IBG7nr0+sEPYdn3LBdWsZTonNyozYpc/kg5W8tcDEXqH9aMu1IZow5sxMlCcUK+bSKjHCyWA8UlxmN8u5TzJD44oLGIxHQU/0TnofDeKmimkBWvRXil9z1R0cavrCHKyUWBWq8+KI=',
     priority: 'u=0, i',
+    referer: 'https://www.booking.com/',
     'sec-ch-ua':
-      '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
+      '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"macOS"',
     'sec-fetch-dest': 'document',
@@ -142,48 +80,77 @@ export const HEADERS = {
     'sec-fetch-user': '?1',
     'upgrade-insecure-requests': '1',
     'user-agent':
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
-    Cookie:
-      'iEAPID=0; currency=USD; CRQS=t|1`s|1`l|en_US`c|USD; CRQSS=e|0; linfo=v.4,|0|0|255|1|0||||||||1033|0|0||0|0|0|-1|-1; EG_SESSIONTOKEN=ClAKJgokYmYzMzEwZGUtMzgyNi00Mzc0LTk3ZDMtZTk2NWQzNjEwNDQ2EiYKJDk3YmNkNWExLTJiODItNDZjNS1hOGM5LWY4NTZiYjY5NjRhZQ.WTNJKHJXAh9OrxQP.T_dOuwUY0MUrsS_SQrsIQE_FaZ7_rJm8iO9VdWE9F7xWX9ilfHbHsfFW7GWynph-PfRwtKoq1PJLCkzsRLnfmEkW5JelDmyyhCd2OCohF5FVgCUyF6Zc0VNw3grln-dYI8lAky93gyIUac6MOu4k7CmXkpXZEL-GzSbafdrfrn8BoMy1mlb__m16VfSlVESaOnvGnqvsO3LSPYJXLu9UMSu8cC48FFiSzrsl40qH-bU.rX72RaOJppslMCf_iqeVmQ; MC1=GUID=d3d1a6782ade4b4f80945162da05ebd4; DUAID=d3d1a678-2ade-4b4f-8094-5162da05ebd4; NavActions=acctWasOpened; AMCVS_C00802BE5330A8350A490D4C%40AdobeOrg=1; s_ppv=%5B%5BB%5D%5D; s_ips=1; PIM-SESSION-ID=Vlu3oQOVRGuWanNE; s_tp=1690; tpid=v.1,1; HMS=6928e413-076f-320a-b771-0f9ca54408a6; _abck=5CEE5338B3F7F34D46280710FF2EAD1B~-1~YAAQYgcQAvw4ghSWAQAA1wWgFA0mODyA2XxGZOOkU+9Ean1LhawSc34OLDP1/ZDcRr5uGY2qDd1sVMozd4iHNLhtIPDYK71SJHju7TbJaEvYtWO4eH2cKECwDLhXOLVZ1uw8V3rUX6bAYAEk4y76rDCtoRQNKIYq5wNdpOPuHuXcfTVLk2gYBNN3LfiWR8HBZmZFg+v1b/KF2Jurns9unFUTFUFcnkQoOEdSb1/nJqHcdOXmV37Fa6lJ2ZNxbTzsr3m9NqqqCMOY/4jSwMTyGNkp7Br/8gG0wxswUanQQMJNxBuHvF/C/xPgQVJdYTw+XYKO+oi5JkZvV5yz3j6kFLn2GPiyJN5RUEomz5hcC1KzhuFD0HlFVAcNQTLFYgvMP++90DPVAztxuuFiFcSp4RQkZndX2wuhsbY9vSXYkET//uQ8Uzp+QPWe7KqaujASjNvH6hNFZYh/zwE4fVIxE2sjTA==~-1~-1~-1; bm_ss=ab8e18ef4e; bm_so=385E3A45585B0D3B18AD99617E8B8C04579292CFCBC6C72677788400558D0025~YAAQYgcQAqZAghSWAQAAEhCgFAM4z5vKKo6sV1bhFhDiOaIvhd2lp3gXBPnjfzbkgBQaj5Y4m2svO9PlVck1KeP/YhRhFM0MKCSsD/HLHDBx3R+oNrgKyHMtw+UlAAxZjbOKIZrPjEvkwHSMoPUVDdIlGQ9Esg4b9kgl0vBsw/k8hiyakOEjmjypzB5VPDU0h/I92zBQl0iNb1dy2F7D8/dgPEhbU11HP9GIprseQ98py/93ZhOkQpBTMp3vipzrJLSg5My+0y82XYTmPyOqW2JYbpzBILwDXArrT2tlQeaINaVj11hV8zJJd65I9ubJuMhu6kAiTqD95cod+ccQRaa82Do50UlPidrmOar3XjMyLHh2dmaCgPbxPIaSLw8ni6zd7V1fXShSx+2lRVF1tAdH1UDZDrSjZi0kwyutDFvoSk3b7tbb9ZLK3S0yM51TOp7jlCxUbGsg8fo2aTSd; bm_lso=385E3A45585B0D3B18AD99617E8B8C04579292CFCBC6C72677788400558D0025~YAAQYgcQAqZAghSWAQAAEhCgFAM4z5vKKo6sV1bhFhDiOaIvhd2lp3gXBPnjfzbkgBQaj5Y4m2svO9PlVck1KeP/YhRhFM0MKCSsD/HLHDBx3R+oNrgKyHMtw+UlAAxZjbOKIZrPjEvkwHSMoPUVDdIlGQ9Esg4b9kgl0vBsw/k8hiyakOEjmjypzB5VPDU0h/I92zBQl0iNb1dy2F7D8/dgPEhbU11HP9GIprseQ98py/93ZhOkQpBTMp3vipzrJLSg5My+0y82XYTmPyOqW2JYbpzBILwDXArrT2tlQeaINaVj11hV8zJJd65I9ubJuMhu6kAiTqD95cod+ccQRaa82Do50UlPidrmOar3XjMyLHh2dmaCgPbxPIaSLw8ni6zd7V1fXShSx+2lRVF1tAdH1UDZDrSjZi0kwyutDFvoSk3b7tbb9ZLK3S0yM51TOp7jlCxUbGsg8fo2aTSd^1744102771692; session_id=6928e413-076f-320a-b771-0f9ca54408a6; pageVisited=true; bm_mi=DC3B729285EC80464A54E341F30F0EA1~YAAQYgcQAqRyghSWAQAAdlKgFBsXEgL7iJH5H67q6BD2jNIdpXN5+kx7bD+NC0xr97+iEl5ubjLJSDCTto/83sYpRI2qBF/oVVi3w7lZWL+t5MIUODfq0H0juNve+epnwni0s2TeMV69QMtOAtnRB2sUKQcIaUKxAQkhvJ/M1SK7TAVlO8k2SzxgJuCSRh6Kk6UmUbDdx6oYmm3YxLZPxmMYOZTQ8QchCebzI5SoH5yyiyuLrg6rSQaxb+NzKPZXsocBWcLvwtnmTMHVVsCSvpV/Bk/HjNMQeHSXec3O9Sw48qJDOyiEGGy/AQx0bWcl0J543XuDi6kJj4a0CmYehB098N+9+a7h59Kv2bCURD74oboTMzBd/c/UZZPJ1WJzvXUd/mXaxuCb28eqc1qWDA==~1; bm_sz=F8D95E4ED2DF457DA0FC4634AE5440BF~YAAQYgcQAqdyghSWAQAAdlKgFBvYQdgZoj/oCA/1rd4dSEFZCvdWdoM6b6IcbQJq+nachHc2e9yqhuyqr4/H/A+W8nmxRiC0ta0JoH4gSkIDG0WY4jQeH24PwJLnJjOuT7ZZSXr7cQl3xr+Ugxn1vaBGRx4v0AQrpJsEU9UEApxiuWY/kNwDZd1wDrJppZ7TYQacrC03i/CuZEsy5H1du/SAxffCpji4ISYeWlA+/I8SZiM4NX53Y7/lalFsgYb6ogtvexQ6LQhnVt6IcjVYoslP6Yu9NbLsgXGExLGuSWaXIxoOiTgi15JYeMEUOiamlgeJnrcgJWvvmPd+hpwqh1hah8E/yPxI4Ss9fl2RyFoydsOq7f1kqwI4/05QCajy6Rn/DHcXbm0uK6Kqr6C0ytc50AbDxWJVPkk=~3422020~3551555; ak_bmsc=E87E6AF330373540500686F8351E011D~000000000000000000000000000000~YAAQYgcQAmV3ghSWAQAAV1igFBt/J82UBlrMqju4VQUS97PFaCTV8jT5ZCr/9kOXAJG4Xbuinb8wHx4Ngpn7ibuDtRhf4KH+MsMBkHQhCAiwclmiK1nOU8kaDKOi0nUBTZRoCpury2E19yq8qSwDdmHZCwAE3rZcLrau1GGWCGSwEj1S7Kg5WzbwdR740ZwPDOBLGoP9o/c6HeONSEwfaLot+gkkXAZW2D0fRVgLvSXvKj93ARAi09KLT2xOuzENsCcO14IzgAvvQUfHfmLxbqqrS4OhJLLj/N6YJQbdHP0LSUya8jZDbSfshXxsduJ+I2NuwsTcoJP6ghsb4UvTUZGuLZ1x20xksxItWsJl6oalG8W3iZerOyRxIajQkvAKa+0RivcOTFG6ZxWIeAjn/4OEWdGv8325NPSR3PhHvcfWfGbYExLVNnlgHtnjzAlkIUY7DQLt888o/b9cEdZFMag87jX2cHmCvtKdWJXR6MF4EILAfAeY27nfvinSBXwc8A65onCyDNe68jc4PiHAJ8T+QGzE8Zz7LGCuMIbw2JD6aewwOtlqqw==; page_name=page.Hotels.Infosite.Information.Dated; cesc=%7B%22lpe%22%3A%5B%22cba417df-eb57-461a-b7b4-ef0a65ba6164%22%2C1744102777689%5D%2C%22marketingClick%22%3A%5B%22false%22%2C1744102777689%5D%2C%22lmc%22%3A%5B%22DIRECT.REFERRAL%22%2C1744102777689%5D%2C%22hitNumber%22%3A%5B%227%22%2C1744102777689%5D%2C%22amc%22%3A%5B%22DIRECT.REFERRAL%22%2C1744102777689%5D%2C%22visitNumber%22%3A%5B%2218%22%2C1744102756361%5D%2C%22ape%22%3A%5B%224184ad59-be39-4f6e-81ea-e66a2bd1d0fa%22%2C1744102777689%5D%2C%22entryPage%22%3A%5B%22page.Hotels.Infosite.Information.Dateless%22%2C1744102777689%5D%2C%22semdtl%22%3A%5B%22a111798314955.b1119954581092.g1kwd-19385482.e1c.m1%7Bgclid%7D.r1.c1.j12840.k1.d1618838447897.h1e.i1.l1.n1.o1.p1.q1.s1.t1.x1.f1.u1.v1.w1%22%2C1742157723749%5D%2C%22cid%22%3A%5B%22SEO.U.google.com%22%2C1743586876082%5D%7D; bm_s=YAAQYgcQArx/ghSWAQAAY2OgFAMGHZyq31AUKRHM3TkqUUJdNniKysFyAnCe/oD0XhW75M09GTBtClYD707xWrMirQgRhjAvm4clbc+BpZzAgbY5FD4vM/3ZafRjUVdGDQ+KQihMVRpvqB+a6ke3xlKUlGx85BUZtWni3GRmN1ZzI7GYFB52snz4l5Veq3Q96wppTCEXiime4wY/yVbc3MlxZGCfNuQACIU0S6qld3Yg7th4HkzEB0FHX7wWB7D2u2zzV5N70puV5yDvsGZUBezNDJC1EEjMEfbA7uUPVocrsLMR82nCdZqvJDU9hqS7otnpMSxRkLHvYZR8spFNlV2SjcSyKLCOUKDURTeHDtJEwOjBSZ/CMDA54mk7PypwbMKsxgAv4xy3vmLggaOLbYLewj+7e/7JszhDer0DgS3mT23HZ8ReO+HXCE1TWSRxnbfPex7N8/QU; bm_sv=96C391F69CF7393A46B9AFF20819CC46~YAAQYgcQApSJghSWAQAADHCgFBvGaBG1n7bJflXU9OJrrMcd+WLcXATXr5qk4qN/+Es5jDwpXSfD8vJxQVdNvTKTvYurf2qe/ELsD9SOD1CWbFUghsw4smgtfg5CtOsrX3M/ZM7KvfB/d7AamTG2XlOEDHTF3ulEy87Kix05w5pcZH+iMS/vy1SMNxbUhlZQvcjcoZGj3wmzOJiJHq2Il+MKa0ulqslG3dlXj3CYlG06mvM7I8jqO3qQY3SeDLS9Iyc=~1; _dd_s=rum=0&expire=1744103681886'
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36'
   },
-  expediaHeadersGenReviews: {
+  bookingHeadersGenReviews: {
     accept: '*/*',
-    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
-    'client-info':
-      'blossom-flex-ui,a82a4804fdf82d4c0b0d78f4c54b162d0ee761eb,us-west-2',
+    'accept-language': 'en-US,en;q=0.9',
+    'apollographql-client-name': 'b-property-web-property-page_node',
+    'apollographql-client-version': 'ZDLDAfJQ',
     'content-type': 'application/json',
-    origin: 'https://www.expedia.com',
+    cookie:
+      'cors_js=1; px_init=0; bkng_sso_session=e30; FPID=FPID2.2.yBf7glL4dGEEHZZZqDxZH85qKX4A0DfQ7wxLo3hdjCI%3D.1700556835; _yjsu_yjad=1715597843.f9d9ce94-e220-44f1-a4e5-03d21c2017fd; _pin_unauth=dWlkPU5URTFORFV4WWpJdE5ESTRaQzAwWVdNM0xUa3haakl0WkRCbE0yVTFNVFUzWlRnMQ; _ga_SEJWFCBCVM=GS1.1.1715597842.1.1.1715597922.60.0.0; pcm_personalization_disabled=0; _gcl_au=1.1.2145518399.1740875041; OptanonAlertBoxClosed=2025-03-14T22:22:26.665Z; _gcl_aw=GCL.1741990947.CjwKCAjwp8--BhBREiwAj7og1_NOPEIZ3PcC1GmhbRKlmTStwgxxi2e6x9o4x1bAymDMGJwjLHvQ_RoCn0EQAvD_BwE; _gac_UA-116109-18=1.1741990948.CjwKCAjwp8--BhBREiwAj7og1_NOPEIZ3PcC1GmhbRKlmTStwgxxi2e6x9o4x1bAymDMGJwjLHvQ_RoCn0EQAvD_BwE; bkng_sso_ses=eyJib29raW5nX2dsb2JhbCI6W3siYSI6MSwiaCI6IjA3aUZ4ckdJSE9yTi82dFBCeU1kZFhTT2k3bEdxMjF4aGo4T2xLQ3RNRlUifV19; pcm_consent=consentedAt%3D2025-03-14T22%3A22%3A27.853Z%26countryCode%3DNL%26expiresAt%3D2025-09-10T22%3A22%3A27.853Z%26implicit%3Dfalse%26regionCode%3DFL%26regulation%3Dgdpr%26legacyRegulation%3Dgdpr%26consentId%3Db80f9271-ba02-4d8c-832d-dfa9130c2302%26analytical%3Dtrue%26marketing%3Dtrue; FPAU=1.1.2145518399.1740875041; FPGCLAW=2.1.kCjwKCAjwp8--BhBREiwAj7og1_NOPEIZ3PcC1GmhbRKlmTStwgxxi2e6x9o4x1bAymDMGJwjLHvQ_RoCn0EQAvD_BwE$i1742195014; bkng_sso_auth=CAIQ0+WGHxpmtv7NaxPtyrS4MNxeFv2N1ranJ7hQGso8EMqf5eFO2Z37ykBCdcau7wcx37/9wLaPJ8CzzlKbaKs9V7jd3ORvIuR1gdwKMcqATr5VZlaiRwod9KDL9cBUqkeM8gAFXV7dC1wOCAJo; BJS=-; _gid=GA1.2.833473038.1745505299; __eoi=ID=2e369a88c8c30e61:T=1745505299:RT=1745505299:S=AA-AfjYKW-IaVQZVnvjZfsLKRvyC; bkng_prue=1; cgumid=5MKZTV9jeW1rSFhBVSUyRjBrd05VTWdRYUpXdnZpbWlEUzFhblJBY2F4UEFzeTMwWE0lM0Q; FPLC=jYWBRfjmVlSo0gJ8YyhZgfqdKtpFzZjRcMMe4glKAL9XkaLi090EEnw6mMVoq7h6bkdLHuBKT75fnUGXkvx5UFO2PbHUl%2Fhmq5NkQ5gVQlIaGAtN3MPtYPZj0jUP4g%3D%3D; OptanonConsent=isGpcEnabled=0&datestamp=Thu+Apr+24+2025+16%3A35%3A16+GMT%2B0200+(Central+European+Summer+Time)&version=202501.2.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=91b1c845-07ac-44ba-ad84-019b0672182f&interactionCount=1&isAnonUser=1&landingPath=NotLandingPage&AwaitingReconsent=false&groups=C0001%3A1%2CC0002%3A1%2CC0004%3A1&implicitConsentCountry=GDPR&implicitConsentDate=1741990922185&backfilled_at=1741990947878&backfilled_seed=1&geolocation=US%3BNY; _ga_A12345=GS1.1.1745505301.5.1.1745505317.0.0.657411247; _ga=GA1.1.115511342.1700556835; cto_bundle=Ha1IY19QcHJqWWxKMjFGY3ZjbW5FckJ2OSUyQnVsRmwycklCY2Z6c1FTNjBWcWs1TzN0QWNuUnZab08lMkZRYml6WFN1RzI3NlVIdXB3WnFOYTkyWGMlMkZ4eWc4ZXFGVXJuek9Ubmk2U284NWxuemZwRWM0dCUyRk5Ib1hvaERvNDlzeU1BNk1BY0pydzVwcGRiYm9OZVhHblglMkJOWktOVWdUSGV0M1RVem5JWk1FV2VhZFZVYVg4bGVQOWhxWHElMkJycVd6ZERGQ0lUdnBsTCUyQlM2TmxuNGpYeGE3WENFTjNpeXclM0QlM0Q; _uetsid=4e4971d0211911f09424eb50013fee74; _uetvid=9340e240111711ef9f850be65c0f9817; _gat=1; bkng=11UmFuZG9tSVYkc2RlIyh9Yaa29%2F3xUOLblgO%2Fz4BDP5uY8wnFL9TzDfa0DktKrOyWbANThrxPeYhUtLj38TmMePQx%2FECkXpy40XBYjgy832hjvD2hnnm6dhRhVyZDFxmUqpapk%2ByvuDv43jaA4BreJmUIp7jbsA02OKo%2B3pmZIUqKpJXgniNbLQaSej12OCAzFIV3zXI0j4Xs%2BE%2F%2FyaU3DQ%3D%3D; aws-waf-token=b73ba657-da2c-4d90-9b5f-b463dbabd983:CQoAqYVljTYyBAAA:Ltwgrg+st1ZEHiMyXKLT14Yq2xx0cNlwXUsmlrYdPennUTDFmTk2bfQ2AnrPgb/Z8/lFTCIzhAfb573R+Lrf4qV+Qb3pHnZjySA16z0meWMLoLtTdAKyGle7O5VOOeTA/8+qeGBkvUNBODzTpip24OjIHgFGH57K8ynvNHJOw4bU+KODur5oo4mihqMXgcYfTUXP2/VlPHwn8BtQ8vl5Z7+yxswOrTvHwy1/C5zEjXPfq324dlHfUCUqzEovXsaX0nU=; lastSeen=0',
+    origin: 'https://www.booking.com',
     priority: 'u=1, i',
-    referer:
-      'https://www.expedia.com/New-York-Hotels-Grand-Hyatt-New-York.h23677.Hotel-Information?pwaDialog=product-reviews',
     'sec-ch-ua':
-      '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+      '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"macOS"',
     'sec-fetch-dest': 'empty',
     'sec-fetch-mode': 'cors',
     'sec-fetch-site': 'same-origin',
     'user-agent':
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
-    'x-hcom-origin-id': 'page.Hotels.Infosite.Information.Dateless,H,30',
-    'x-page-id': 'page.Hotels.Infosite.Information.Dateless,H,30',
-    Cookie:
-      'iEAPID=0; currency=USD; CRQS=t|1`s|1`l|en_US`c|USD; CRQSS=e|0; linfo=v.4,|0|0|255|1|0||||||||1033|0|0||0|0|0|-1|-1; EG_SESSIONTOKEN=ClAKJgokYmYzMzEwZGUtMzgyNi00Mzc0LTk3ZDMtZTk2NWQzNjEwNDQ2EiYKJDk3YmNkNWExLTJiODItNDZjNS1hOGM5LWY4NTZiYjY5NjRhZQ.WTNJKHJXAh9OrxQP.T_dOuwUY0MUrsS_SQrsIQE_FaZ7_rJm8iO9VdWE9F7xWX9ilfHbHsfFW7GWynph-PfRwtKoq1PJLCkzsRLnfmEkW5JelDmyyhCd2OCohF5FVgCUyF6Zc0VNw3grln-dYI8lAky93gyIUac6MOu4k7CmXkpXZEL-GzSbafdrfrn8BoMy1mlb__m16VfSlVESaOnvGnqvsO3LSPYJXLu9UMSu8cC48FFiSzrsl40qH-bU.rX72RaOJppslMCf_iqeVmQ; MC1=GUID=d3d1a6782ade4b4f80945162da05ebd4; DUAID=d3d1a678-2ade-4b4f-8094-5162da05ebd4; NavActions=acctWasOpened; AMCVS_C00802BE5330A8350A490D4C%40AdobeOrg=1; s_ppv=%5B%5BB%5D%5D; s_ips=1; PIM-SESSION-ID=Vlu3oQOVRGuWanNE; s_tp=1690; tpid=v.1,1; HMS=6928e413-076f-320a-b771-0f9ca54408a6; _abck=5CEE5338B3F7F34D46280710FF2EAD1B~-1~YAAQYgcQAvw4ghSWAQAA1wWgFA0mODyA2XxGZOOkU+9Ean1LhawSc34OLDP1/ZDcRr5uGY2qDd1sVMozd4iHNLhtIPDYK71SJHju7TbJaEvYtWO4eH2cKECwDLhXOLVZ1uw8V3rUX6bAYAEk4y76rDCtoRQNKIYq5wNdpOPuHuXcfTVLk2gYBNN3LfiWR8HBZmZFg+v1b/KF2Jurns9unFUTFUFcnkQoOEdSb1/nJqHcdOXmV37Fa6lJ2ZNxbTzsr3m9NqqqCMOY/4jSwMTyGNkp7Br/8gG0wxswUanQQMJNxBuHvF/C/xPgQVJdYTw+XYKO+oi5JkZvV5yz3j6kFLn2GPiyJN5RUEomz5hcC1KzhuFD0HlFVAcNQTLFYgvMP++90DPVAztxuuFiFcSp4RQkZndX2wuhsbY9vSXYkET//uQ8Uzp+QPWe7KqaujASjNvH6hNFZYh/zwE4fVIxE2sjTA==~-1~-1~-1; bm_ss=ab8e18ef4e; session_id=6928e413-076f-320a-b771-0f9ca54408a6; pageVisited=true; bm_mi=DC3B729285EC80464A54E341F30F0EA1~YAAQYgcQAqRyghSWAQAAdlKgFBsXEgL7iJH5H67q6BD2jNIdpXN5+kx7bD+NC0xr97+iEl5ubjLJSDCTto/83sYpRI2qBF/oVVi3w7lZWL+t5MIUODfq0H0juNve+epnwni0s2TeMV69QMtOAtnRB2sUKQcIaUKxAQkhvJ/M1SK7TAVlO8k2SzxgJuCSRh6Kk6UmUbDdx6oYmm3YxLZPxmMYOZTQ8QchCebzI5SoH5yyiyuLrg6rSQaxb+NzKPZXsocBWcLvwtnmTMHVVsCSvpV/Bk/HjNMQeHSXec3O9Sw48qJDOyiEGGy/AQx0bWcl0J543XuDi6kJj4a0CmYehB098N+9+a7h59Kv2bCURD74oboTMzBd/c/UZZPJ1WJzvXUd/mXaxuCb28eqc1qWDA==~1; ak_bmsc=E87E6AF330373540500686F8351E011D~000000000000000000000000000000~YAAQYgcQAmV3ghSWAQAAV1igFBt/J82UBlrMqju4VQUS97PFaCTV8jT5ZCr/9kOXAJG4Xbuinb8wHx4Ngpn7ibuDtRhf4KH+MsMBkHQhCAiwclmiK1nOU8kaDKOi0nUBTZRoCpury2E19yq8qSwDdmHZCwAE3rZcLrau1GGWCGSwEj1S7Kg5WzbwdR740ZwPDOBLGoP9o/c6HeONSEwfaLot+gkkXAZW2D0fRVgLvSXvKj93ARAi09KLT2xOuzENsCcO14IzgAvvQUfHfmLxbqqrS4OhJLLj/N6YJQbdHP0LSUya8jZDbSfshXxsduJ+I2NuwsTcoJP6ghsb4UvTUZGuLZ1x20xksxItWsJl6oalG8W3iZerOyRxIajQkvAKa+0RivcOTFG6ZxWIeAjn/4OEWdGv8325NPSR3PhHvcfWfGbYExLVNnlgHtnjzAlkIUY7DQLt888o/b9cEdZFMag87jX2cHmCvtKdWJXR6MF4EILAfAeY27nfvinSBXwc8A65onCyDNe68jc4PiHAJ8T+QGzE8Zz7LGCuMIbw2JD6aewwOtlqqw==; page_name=page.Hotels.Infosite.Information.Dated; bm_so=C05B9DBB303B5C6DCF4D60D2131B4A1261E1380C6DD4516B699564C19C72BC70~YAAQYgcQAmaNghSWAQAAInWgFAMElTQrdC4/o9IwDUBwHzw2+8hmjFaiZOVT7ISuAXy76Vb/KcrJx1LbFAABI6jqUiJA3ZGZQCOkPhgESlhROjBjxJYDhdCtcbpAYe7kHN30ACSUs+UkEoAnEaPNQjK6gwb4Gr8q3hO+bHxKpqsRglXCr2eBu5xMLV7JONaRhal0gPJ5Oai30gxQ86viPV8WRwsedXZ7rNp5VdzW7bGInoPXxj+j1eoJ/+ksIUibUSGdWK8uOxzHhk5CXNViY3bT+bSAN04wstOlnLqMUAR6XiusQnBeidB3OQ0nFBnmZR/Bb0KrvPkYvz54atzgPvIX5YRZ9Cyb2LYS5ZIm4KVlFxYx59Khy3ulSuu/bOPInYfkigS5nlKn7y3B/JiJUrKJU7NIMSJZBehXKKFkZouLDxW3+rC894a6ax8fX65ZozQEm3EBBfClGOhvpODG; bm_sz=F8D95E4ED2DF457DA0FC4634AE5440BF~YAAQYgcQAmiNghSWAQAAInWgFBt8f7Hs9XTJ3gQwBU7RNHl4zYyA3hFu2vtfN8visdn4lqG5rVjo65PQMYoKUGC9CXr3aZSQDF14dkegllMh2cixQxYUQ8bCwbwVOdvMNXEyGtV8qb605BIoClJzvpUBoQXZSWd38D+fTDFsZuusBNo7BdKra7IZQV65o/z7e7sqPgQJcmT7XiyYg8PN1cTr0lPyKXFzVtJkcxM62Q65DI8Qxmbqw3YT1ZZ/OhfroXAZZuDs2CRODvkYsdwycLw6yo93JP6bhMFFecHhqhiulbz6K1HXDDFv8MThbMcN3oUhnpLmKRB5P8cxSWOXirKj1qQngZD6W9B4xi3DEd+2Wtfu0xaxjAIrc0/EOHgtnXWUHbYh3iYh5GT+I8aX+bfZ+aj/6Jb5bPQh7vmMdg==~3422020~3551555; bm_lso=C05B9DBB303B5C6DCF4D60D2131B4A1261E1380C6DD4516B699564C19C72BC70~YAAQYgcQAmaNghSWAQAAInWgFAMElTQrdC4/o9IwDUBwHzw2+8hmjFaiZOVT7ISuAXy76Vb/KcrJx1LbFAABI6jqUiJA3ZGZQCOkPhgESlhROjBjxJYDhdCtcbpAYe7kHN30ACSUs+UkEoAnEaPNQjK6gwb4Gr8q3hO+bHxKpqsRglXCr2eBu5xMLV7JONaRhal0gPJ5Oai30gxQ86viPV8WRwsedXZ7rNp5VdzW7bGInoPXxj+j1eoJ/+ksIUibUSGdWK8uOxzHhk5CXNViY3bT+bSAN04wstOlnLqMUAR6XiusQnBeidB3OQ0nFBnmZR/Bb0KrvPkYvz54atzgPvIX5YRZ9Cyb2LYS5ZIm4KVlFxYx59Khy3ulSuu/bOPInYfkigS5nlKn7y3B/JiJUrKJU7NIMSJZBehXKKFkZouLDxW3+rC894a6ax8fX65ZozQEm3EBBfClGOhvpODG^1744102785254; cesc=%7B%22lpe%22%3A%5B%22cba417df-eb57-461a-b7b4-ef0a65ba6164%22%2C1744102835178%5D%2C%22marketingClick%22%3A%5B%22false%22%2C1744102835178%5D%2C%22lmc%22%3A%5B%22DIRECT.REFERRAL%22%2C1744102835178%5D%2C%22hitNumber%22%3A%5B%2213%22%2C1744102835178%5D%2C%22amc%22%3A%5B%22DIRECT.REFERRAL%22%2C1744102835178%5D%2C%22visitNumber%22%3A%5B%2218%22%2C1744102756361%5D%2C%22ape%22%3A%5B%224184ad59-be39-4f6e-81ea-e66a2bd1d0fa%22%2C1744102835178%5D%2C%22entryPage%22%3A%5B%22page.Hotels.Infosite.Information.Dateless%22%2C1744102835178%5D%2C%22semdtl%22%3A%5B%22a111798314955.b1119954581092.g1kwd-19385482.e1c.m1%7Bgclid%7D.r1.c1.j12840.k1.d1618838447897.h1e.i1.l1.n1.o1.p1.q1.s1.t1.x1.f1.u1.v1.w1%22%2C1742157723749%5D%2C%22cid%22%3A%5B%22SEO.U.google.com%22%2C1743586876082%5D%7D; bm_s=YAAQWQcQArapvQ+WAQAA9kOhFANrty6nxe7Yfz4LmasPBKOxicdRUuhMTSRNP9vg6vMq4FhjRrZXjGp8zALMtwZt4Ovri9VSBxoLNveUjERbqIPidUadevil9VrOid4g1mpGKGj9S96WNeTnHp7Ld36La2Vg+UMl6KKGCg5HDEkANRoD3drBjN9ePL99vP02JkM87LnSsyjIXBujZJr9HiQR+ZemSW4DhlWrPqf10v/i8ctH8nKqRwpUY5tHph7ic89PUpY5vO4pK98R8ydBG7Ajf3z9T1NrNrq+Fd/bJdBSKfkPJn6ASMjmM+p6bluC1ruosv5TJrravidCY/oOpQYCCsQDbeecw50NAxS9/QEWRHIMOaXIfQF78z2Nr8Bp2a3KDGNGxAkd/LCejrJQCDtj/UpjaUxcBTWACA8+B8nfe4sNJZAvVbGxrtkkndHPjeQY2cioVopD; bm_sv=96C391F69CF7393A46B9AFF20819CC46~YAAQWQcQApysvQ+WAQAAXEihFBvR+HPM+WWaV6B35WB4Trt5DwcHZ8CpVeLjNg1BqQ8ya7fySiEAHv9Yy2dCXtzLO1CCes+aLhc3F162e5nC1xieETkNYfxnBKSqOU5Ugk0p4TqIe+KCLbzjb0niOojerdYUekWOldh4CXAjz1quQplswR2NLs1S4dBTKfzL3VohUDSk3keOTt/yckvxCKgEJJMcMcYH9TwknDZdsnUyXxZyLXOiCC9odnFN/4W9XUA=~1; _dd_s=rum=0&expire=1744103739677'
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
+    'x-apollo-operation-name': 'ReviewList',
+    'x-booking-context-action': 'hotel',
+    'x-booking-context-action-name': 'hotel',
+    'x-booking-context-aid': '304142',
+    'x-booking-csrf-token':
+      'eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJjb250ZXh0LWVucmljaG1lbnQtYXBpIiwic3ViIjoiY3NyZi10b2tlbiIsImlhdCI6MTc0NTUwNTMxNiwiZXhwIjoxNzQ1NTkxNzE2fQ.XrIqjZQ59IzTaVf3Rs_LoCEhhsSXuGeRzj_kyACoeZMHFajiLsj7Yj07BmSKlE7mdS2DxhvMI6yuG_jxCYrBbQ',
+    'x-booking-dml-cluster': 'node',
+    'x-booking-et-serialized-state':
+      'EF-KGyeUm9CEXV50pZmq7b7r8Rl8ZoNwiCkax3Sb8K93O7qSasXMM0dsF7x62RaNH',
+    'x-booking-pageview-id': 'd59666916e35095e',
+    'x-booking-site-type-id': '1',
+    'x-booking-timeout-ms': '4000',
+    'x-booking-topic': 'capla_browser_b-property-web-property-page',
+    'x-envoy-upstream-rq-timeout-ms': '4000'
+  },
+  expediaHeadersGenProfile: {
+    accept:
+      'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'accept-language': 'en-US,en;q=0.9',
+    'cache-control': 'max-age=0',
+    cookie:
+      'session_id=26b9840a-6df8-3c7c-8f34-f812ccc06889; page_name=page.Hotels.Infosite.Information.Dated; linfo=v.4,|0|0|255|1|0||||||||2057|0|0||0|0|0|-1|-1; CRQS=t|11`s|11`l|en_GB`c|EUR; currency=EUR; MC1=GUID=c691c6de3a224ad494c0dd3b831d31ab; DUAID=c691c6de-3a22-4ad4-94c0-dd3b831d31ab; EG_SESSIONTOKEN=ClAKJgokYmYzMzEwZGUtMzgyNi00Mzc0LTk3ZDMtZTk2NWQzNjEwNDQ2EiYKJDFmZDYwZmQ1LTU4ZTEtNGZmZS05YmRhLWJjOWFkODg0MzJiZQ.WgRzj-teWsKrOepL.VwNqfODJ4bQq8z8TTudnCyYTCItTunTJbcaT3VWXEeDWGvmhmlyX-GryIFl7aILohmbIt5hCs6_ErH_FG0ve681NAfeRHlyV0MiMJRhgrL2_LmpLSQT_6qcwoAERTBVLSqLRByuKesS1TcmsorHo95NJPEpYAoD81NJXS0pzV64hK0ps9AT714IYdUlcg6I9wJNqGoTF5chHRMQiiN2PufbSVJBkeDfW3OuYqxjkUng.a59TJXelWhLuSCTTBMjlkw; s_fid=769D1980E896B28E-248207123580CE27; AMCV_C00802BE5330A8350A490D4C%40AdobeOrg=1585540135%7CMCIDTS%7C20152%7CMCMID%7C38375451245935840310730204848982067297%7CMCAAMLH-1741719554%7C9%7CMCAAMB-1741719554%7CRKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y%7CMCOPTOUT-1741121954s%7CNONE%7CMCAID%7CNONE%7CvVersion%7C4.4.0; xdid=0b7b72c6-71fb-435d-9f74-b5d40bfbc024|1726237591|expedia.com; OptanonAlertBoxClosed=2025-03-20T13:49:19.783Z; eupubconsent-v2=CQOkPxgQOkPxgAcABBENBhFoAP_gAAAAACiQK7QIAAKgAZAB4AEQAhEBXgFfANAAjUBbYC8wGMgPZAjNBPQE-QJ-QT_BQOCgwKKwUXBRkCjYFHoKQApXBS0FMgKaQU2BT-CoIKiQVGBVGCqgKsQVaBV-CsIKxwVlBWyCtwK4wV1BXYAAAAgSACAvMdABAXmSgAgLzKQAQF5g.f_wAAAAAAAAA; OIP=gdpr|1; tpid=v.1,11; iEAPID=0; CRQSS=e|0; HMS=26b9840a-6df8-3c7c-8f34-f812ccc06889; bm_ss=ab8e18ef4e; _abck=219B6CEC46355EEA7E50EDCC5B82C4E2~-1~YAAQlahkaFvsLV6WAQAAWlE+aA1y3oIx4cVvQdFVsSiLE4KqLa3PDEBvIoIZkLt5KbvEiqLi3k5Uhj7AAKCs9x/NhvB7Bx/p0Dp0F31eYmOndhheg/Puks+s/MHGP/A8yYf/JkC3WdflSz3e8tg1k4150uPDQsP49QVGC/n66Oddiv+9YOYAMXX8CZ0VUrfSJoajZFeCh9MYQeSwt7UVZJJ6lHF8v15iyJdXMsgOzk1Hahc38V/ypviEZp1nuUSi8RAw1Hput/fjxaghH/kfelRXkdUFaHUvyi2PKH9L124GkzzVDPlbcQshXTX51ZZAj3zGwey024MN9UtsiJmXnrEO2FpMQ0A8tZysprsEpR8zUTqVTJ9DHODtLDcRv1Vy5xYsg61aJtLNcwxb/uo2TjFwKUoyYA46V47xJ7NQUz/vini4mfyPvf8YgGZ/IV+vJDJj40PPW6ozV6G6AmJavY2EdJ23n8xLb2YDP3p7e26CgXrT30BFotbbO61HTRaFztepN4UXcv9Sw78mpOztXngyvfX00zoc2a4nfjv3DtbHNgUhdDtoRWFHTCfNutMocjfSjdrCsNq9f3ck/om6ZxAVQTp1TOaWcBYU0XrcofvyaqmB+XsbyF9D/L5iDxCTlmsk4JQZ6m1Z2TRb3aq2gOuVmEANN6xfCVwXQ0FpeavmlA==~-1~-1~-1; eg_adblock=e=0; eg_ppid=6f8af48c-9721-4d23-b761-0eac42263e13; ak_bmsc=FC013E5CCF95672AAEB2D676AB9E62C9~000000000000000000000000000000~YAAQhahkaBZhDl2WAQAAiFw+aBuHgg+r5eSdg2HOE02BVnthucoeCeYikKwdG68ynQy6OEs8vqH1dq4Ao6VDaC8Yeel6HrRmN9XvBPe0ROdDtLnEGlxhuNUdnpHCjup4Nw3GYlxNSyKp9PvgDv7N0m/yuwgnPXJ7kx4DTBp7JEyjwGZHVcPGtvSwCOiB5ZLCOeJwmK244/U+yXAqUuG61yD4zZVOinfVLJIFZqBo2GPyK93lpeWEL0fkJQ9BpuAc2HvE162dbW0D25Dci7Vq/s4KwXuq8QoOA9OOCwTQ6AJboZR8wN81NhimIz9iJmZHHxYECbRbSGML/j9NG4krKZchpfmY5lv6FpT3f6rgYCP75LkfFYKKVb66pDxPEKCjFi5FfkFRlRoe3aVxlbIkL/K5oHemGOuYQcPj4ltWeJJmGVglsjtZsY6/uPFopdPW+VLH; NavActions=acctWasOpened; session_id=26b9840a-6df8-3c7c-8f34-f812ccc06889; page_name=page.Hotel-Search; pageVisited=true; ttd_TDID=121b4b9a-6bab-43dd-b674-dfe084096255; _gcl_gs=2.1.k1$i1745505635$u126146905; _gcl_au=1.1.1489039531.1745505644; _fbp=fb.1.1745505644788.517775928106250439; g_state={"i_p":1746110453251,"i_l":3}; bm_so=0F023D12AA929003F40CA63C7195CABC9639B8399A99C54BF876D9B2DF90D97F~YAAQhahkaDJ/Dl2WAQAAfdA+aAN3QQshfl58BqHNToS+Jl7D+jUWuDSJHwvNqCAS+uPWG6g83E/4VU6q4p/EaUdowpExKRtb/XnvHH+SvLKJQLM43RrlRR27Akq32YfqW08AveTQHSOWJ+tEHe6bMuV2gRd1fOJnzG1Gg805FkWapVKHGNGJQ/f4sCZR1iqjqusxt8KvmxfuxINrdP9wxwnRR3DquHu1mzuAe8byGqT0qRfXoATahgQPXu2tMbBEHnh/LkilTD9Uur9Zt7CuNHiW8WCuJlrp01IsuZ6qIKmC5xdNa5VWcMYkX5Ry1AUbmiO3r5tQhrRO7yMzoy7vIZNZRIzly1eeydz2KRHXI8mQXCvZIazDb+Rgv8RGg2a4O9qG04ujPslhGhxpYkM1S0pVuSBD5RjhTtmlVVKwyq0St0O3z4pgZOt5inpTDRJViE2+BAskEeU3NNMz3/Y=; bm_sz=DB5ADA62EBA04C21045436555E320781~YAAQhahkaDR/Dl2WAQAAfdA+aBvKi16IKeiHd4kge1Vn/hJ+QeYQhyPKoEwZC54A66QRN/I9aXkoT7dyfMYQHYmV4YJGkhHixWr29LZK96pGtxFXljpTwfXvOr39jjnhQve8zAC1tnFjRWQqeS7Rs9U8mprFap4BALbxqL2I3lKabaMlENhAP8ZOWYOsLGzoepWtnhXRa6kcBEgJsNoQbr/K13KpZI1isnC31vXH30dWqBE2A+mOF7jPmlUWnJWKueTA3gh9wL6b8mm49W2IOWGzns6i8iTW3qvc1WlzAxuN/JUdAvPJksk+AbBh9JgHolu5hEQQFtVLN7CIjgKmB8jIcHKhbUYdz5x43si0we+JqFiI7DTWTiui770/J4cuXr+zTgY5VS8CCUylBNarBZ4XVZDyio6uVyEwdvTQ9g==~3486007~4272181; JSESSIONID=4D233927E2C73B7923AA6543DA7CE4B1; OptanonConsent=isGpcEnabled=0&datestamp=Thu+Apr+24+2025+16%3A41%3A11+GMT%2B0200+(Central+European+Summer+Time)&version=202402.1.0&browserGpcFlag=0&isIABGlobal=false&hosts=&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A1%2CC0004%3A1%2CV2STACK42%3A1&AwaitingReconsent=false&geolocation=US%3BNY; bm_lso=0F023D12AA929003F40CA63C7195CABC9639B8399A99C54BF876D9B2DF90D97F~YAAQhahkaDJ/Dl2WAQAAfdA+aAN3QQshfl58BqHNToS+Jl7D+jUWuDSJHwvNqCAS+uPWG6g83E/4VU6q4p/EaUdowpExKRtb/XnvHH+SvLKJQLM43RrlRR27Akq32YfqW08AveTQHSOWJ+tEHe6bMuV2gRd1fOJnzG1Gg805FkWapVKHGNGJQ/f4sCZR1iqjqusxt8KvmxfuxINrdP9wxwnRR3DquHu1mzuAe8byGqT0qRfXoATahgQPXu2tMbBEHnh/LkilTD9Uur9Zt7CuNHiW8WCuJlrp01IsuZ6qIKmC5xdNa5VWcMYkX5Ry1AUbmiO3r5tQhrRO7yMzoy7vIZNZRIzly1eeydz2KRHXI8mQXCvZIazDb+Rgv8RGg2a4O9qG04ujPslhGhxpYkM1S0pVuSBD5RjhTtmlVVKwyq0St0O3z4pgZOt5inpTDRJViE2+BAskEeU3NNMz3/Y=^1745505672846; _gcl_aw=GCL.1745505673.Cj0KCQjw1um-BhDtARIsABjU5x5Orz006ht1QcwxMKaCcGGQdfxMeAVwlnvO32p-tvK6kW05TwBjhDUaAst7EALw_wcB; _uetsid=1a17f910211a11f08a6d49f6111d00b6; _uetvid=1a181f70211a11f0b1d55b6dd6402ef9; cesc=%7B%22lpe%22%3A%5B%22bffbb60b-5559-4068-9fd3-7e037e18d799%22%2C1745505674809%5D%2C%22gclid%22%3A%5B%22Cj0KCQjw1um-BhDtARIsABjU5x5Orz006ht1QcwxMKaCcGGQdfxMeAVwlnvO32p-tvK6kW05TwBjhDUaAst7EALw_wcB%22%2C1745505669203%5D%2C%22marketingClick%22%3A%5B%22false%22%2C1745505674809%5D%2C%22lmc%22%3A%5B%22SEM.NL.B.GOOGLE.BD-C-EN.HOTEL%22%2C1745505674809%5D%2C%22hitNumber%22%3A%5B%2211%22%2C1745505674809%5D%2C%22amc%22%3A%5B%22SEM.NL.B.GOOGLE.BD-C-EN.HOTEL%22%2C1745505674809%5D%2C%22visitNumber%22%3A%5B%222%22%2C1745505636650%5D%2C%22ape%22%3A%5B%22bffbb60b-5559-4068-9fd3-7e037e18d799%22%2C1745505674809%5D%2C%22cidVisit%22%3A%5B%22SEM.NL.B.GOOGLE.BD-c-EN.HOTEL%22%2C1745505674809%5D%2C%22entryPage%22%3A%5B%22page.Hotel-Search%22%2C1745505674809%5D%2C%22semdtl%22%3A%5B%22a118926775742.b1147937710910.g1kwd-332860582925.e1c.m1Cj0KCQjw1um-BhDtARIsABjU5x5Orz006ht1QcwxMKaCcGGQdfxMeAVwlnvO32p-tvK6kW05TwBjhDUaAst7EALw_wcB.r1be168c20abcb562c7235b67d64635d7b057dc6eabeacf1e355a752ed0d3c0d7d.c1.j19065282.k1.d1720932686489.h1p.i1.l1.n1.o1.p1.q1.s1.t1.x1.f1.u1.v1.w1%22%2C1745505669203%5D%2C%22cid%22%3A%5B%22SEM.NL.B.GOOGLE.BD-c-EN.HOTEL%22%2C1745505669203%5D%7D; bm_s=YAAQhahkaImFDl2WAQAAQuY+aAN4e/teDbT2X4vD8SPjKsO0Rv1FsyRWSLR4nMASiTwNvVqXMdckJOtGCWiXDMVZgQiVh3SqUXxU9kNWyRQ48N2sIkSz5SdZYCP+51tUK3cvf2IzGzlKK/0t8hkXZmqL4LW87O/16N/sfXDIjvXA+aTBvlCIIzGlyjUPJDsdIEUSBWLu4L3OXL2XTPnWPgMsKtxVr02hzJwGFCaSzrziR2cznaAYOB7+EQ9SOOvGXeY2UyYMgckdlFccOqKwgg4NHImQgPR6mjlqajErTgXiq9AGbTO3+iZ/k+6lAC4DxH9K5YzwBWj/VZEMV3AUpeRwmQzr/MZqVeUP0nwJJ0oGuWQZo/mojSkjCgYR8vQE14UUZy8JgRqd+2Q2JI/TMfoqo+lqrlctrDiVKhUr4+ZmnOFIetDEeYEwisO6jsAWHQ1fCI/rP4q/; bm_sv=7385E9D712B04EE213A98C60E35F31F4~YAAQhahkaIqFDl2WAQAAQuY+aBs9UzQH/zIhpUl04GCatPYx9Cu+nbzq7/QlwdIapTARygTKpbHIkmBZO2+ipv+v6FDtc8OaO4zZc64/aA3Zqhyu8Fn/ZJNtTfB2RaEZp3hxuRVy9MZTP7WI8em7/hYRC10RVNhUBOpEa72MfRW8JbxYwB5EKO7mUIba5XUvZF7WcGj1iT9S0Fdz7+44tIEug2AGtj9e9cuFDTNNxtgqQ+LM0Dg7Y0mKWe3lOwLI8Q==~1; _dd_s=rum=0&expire=1745506572237',
+    'upgrade-insecure-requests': '1',
+    'user-agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36'
+  },
+  expediaHeadersGenReviews: {
+    accept: '*/*',
+    'accept-language': 'en-US,en;q=0.9',
+    'client-info':
+      'shopping-pwa,032a774a307502aa5d8c16bbb4452ffa6b2ca079,us-west-2',
+    'content-type': 'application/json',
+    cookie:
+      'linfo=v.4,|0|0|255|1|0||||||||2057|0|0||0|0|0|-1|-1; CRQS=t|11`s|11`l|en_GB`c|EUR; currency=EUR; MC1=GUID=c691c6de3a224ad494c0dd3b831d31ab; DUAID=c691c6de-3a22-4ad4-94c0-dd3b831d31ab; EG_SESSIONTOKEN=ClAKJgokYmYzMzEwZGUtMzgyNi00Mzc0LTk3ZDMtZTk2NWQzNjEwNDQ2EiYKJDFmZDYwZmQ1LTU4ZTEtNGZmZS05YmRhLWJjOWFkODg0MzJiZQ.WgRzj-teWsKrOepL.VwNqfODJ4bQq8z8TTudnCyYTCItTunTJbcaT3VWXEeDWGvmhmlyX-GryIFl7aILohmbIt5hCs6_ErH_FG0ve681NAfeRHlyV0MiMJRhgrL2_LmpLSQT_6qcwoAERTBVLSqLRByuKesS1TcmsorHo95NJPEpYAoD81NJXS0pzV64hK0ps9AT714IYdUlcg6I9wJNqGoTF5chHRMQiiN2PufbSVJBkeDfW3OuYqxjkUng.a59TJXelWhLuSCTTBMjlkw; s_fid=769D1980E896B28E-248207123580CE27; AMCV_C00802BE5330A8350A490D4C%40AdobeOrg=1585540135%7CMCIDTS%7C20152%7CMCMID%7C38375451245935840310730204848982067297%7CMCAAMLH-1741719554%7C9%7CMCAAMB-1741719554%7CRKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y%7CMCOPTOUT-1741121954s%7CNONE%7CMCAID%7CNONE%7CvVersion%7C4.4.0; xdid=0b7b72c6-71fb-435d-9f74-b5d40bfbc024|1726237591|expedia.com; OptanonAlertBoxClosed=2025-03-20T13:49:19.783Z; eupubconsent-v2=CQOkPxgQOkPxgAcABBENBhFoAP_gAAAAACiQK7QIAAKgAZAB4AEQAhEBXgFfANAAjUBbYC8wGMgPZAjNBPQE-QJ-QT_BQOCgwKKwUXBRkCjYFHoKQApXBS0FMgKaQU2BT-CoIKiQVGBVGCqgKsQVaBV-CsIKxwVlBWyCtwK4wV1BXYAAAAgSACAvMdABAXmSgAgLzKQAQF5g.f_wAAAAAAAAA; OIP=gdpr|1; tpid=v.1,11; iEAPID=0; CRQSS=e|0; HMS=26b9840a-6df8-3c7c-8f34-f812ccc06889; bm_ss=ab8e18ef4e; _abck=219B6CEC46355EEA7E50EDCC5B82C4E2~-1~YAAQlahkaFvsLV6WAQAAWlE+aA1y3oIx4cVvQdFVsSiLE4KqLa3PDEBvIoIZkLt5KbvEiqLi3k5Uhj7AAKCs9x/NhvB7Bx/p0Dp0F31eYmOndhheg/Puks+s/MHGP/A8yYf/JkC3WdflSz3e8tg1k4150uPDQsP49QVGC/n66Oddiv+9YOYAMXX8CZ0VUrfSJoajZFeCh9MYQeSwt7UVZJJ6lHF8v15iyJdXMsgOzk1Hahc38V/ypviEZp1nuUSi8RAw1Hput/fjxaghH/kfelRXkdUFaHUvyi2PKH9L124GkzzVDPlbcQshXTX51ZZAj3zGwey024MN9UtsiJmXnrEO2FpMQ0A8tZysprsEpR8zUTqVTJ9DHODtLDcRv1Vy5xYsg61aJtLNcwxb/uo2TjFwKUoyYA46V47xJ7NQUz/vini4mfyPvf8YgGZ/IV+vJDJj40PPW6ozV6G6AmJavY2EdJ23n8xLb2YDP3p7e26CgXrT30BFotbbO61HTRaFztepN4UXcv9Sw78mpOztXngyvfX00zoc2a4nfjv3DtbHNgUhdDtoRWFHTCfNutMocjfSjdrCsNq9f3ck/om6ZxAVQTp1TOaWcBYU0XrcofvyaqmB+XsbyF9D/L5iDxCTlmsk4JQZ6m1Z2TRb3aq2gOuVmEANN6xfCVwXQ0FpeavmlA==~-1~-1~-1; eg_adblock=e=0; eg_ppid=6f8af48c-9721-4d23-b761-0eac42263e13; ak_bmsc=FC013E5CCF95672AAEB2D676AB9E62C9~000000000000000000000000000000~YAAQhahkaBZhDl2WAQAAiFw+aBuHgg+r5eSdg2HOE02BVnthucoeCeYikKwdG68ynQy6OEs8vqH1dq4Ao6VDaC8Yeel6HrRmN9XvBPe0ROdDtLnEGlxhuNUdnpHCjup4Nw3GYlxNSyKp9PvgDv7N0m/yuwgnPXJ7kx4DTBp7JEyjwGZHVcPGtvSwCOiB5ZLCOeJwmK244/U+yXAqUuG61yD4zZVOinfVLJIFZqBo2GPyK93lpeWEL0fkJQ9BpuAc2HvE162dbW0D25Dci7Vq/s4KwXuq8QoOA9OOCwTQ6AJboZR8wN81NhimIz9iJmZHHxYECbRbSGML/j9NG4krKZchpfmY5lv6FpT3f6rgYCP75LkfFYKKVb66pDxPEKCjFi5FfkFRlRoe3aVxlbIkL/K5oHemGOuYQcPj4ltWeJJmGVglsjtZsY6/uPFopdPW+VLH; NavActions=acctWasOpened; session_id=26b9840a-6df8-3c7c-8f34-f812ccc06889; page_name=page.Hotel-Search; pageVisited=true; ttd_TDID=121b4b9a-6bab-43dd-b674-dfe084096255; _gcl_gs=2.1.k1$i1745505635$u126146905; _gcl_au=1.1.1489039531.1745505644; _fbp=fb.1.1745505644788.517775928106250439; g_state={"i_p":1746110453251,"i_l":3}; bm_so=0F023D12AA929003F40CA63C7195CABC9639B8399A99C54BF876D9B2DF90D97F~YAAQhahkaDJ/Dl2WAQAAfdA+aAN3QQshfl58BqHNToS+Jl7D+jUWuDSJHwvNqCAS+uPWG6g83E/4VU6q4p/EaUdowpExKRtb/XnvHH+SvLKJQLM43RrlRR27Akq32YfqW08AveTQHSOWJ+tEHe6bMuV2gRd1fOJnzG1Gg805FkWapVKHGNGJQ/f4sCZR1iqjqusxt8KvmxfuxINrdP9wxwnRR3DquHu1mzuAe8byGqT0qRfXoATahgQPXu2tMbBEHnh/LkilTD9Uur9Zt7CuNHiW8WCuJlrp01IsuZ6qIKmC5xdNa5VWcMYkX5Ry1AUbmiO3r5tQhrRO7yMzoy7vIZNZRIzly1eeydz2KRHXI8mQXCvZIazDb+Rgv8RGg2a4O9qG04ujPslhGhxpYkM1S0pVuSBD5RjhTtmlVVKwyq0St0O3z4pgZOt5inpTDRJViE2+BAskEeU3NNMz3/Y=; JSESSIONID=4D233927E2C73B7923AA6543DA7CE4B1; bm_lso=0F023D12AA929003F40CA63C7195CABC9639B8399A99C54BF876D9B2DF90D97F~YAAQhahkaDJ/Dl2WAQAAfdA+aAN3QQshfl58BqHNToS+Jl7D+jUWuDSJHwvNqCAS+uPWG6g83E/4VU6q4p/EaUdowpExKRtb/XnvHH+SvLKJQLM43RrlRR27Akq32YfqW08AveTQHSOWJ+tEHe6bMuV2gRd1fOJnzG1Gg805FkWapVKHGNGJQ/f4sCZR1iqjqusxt8KvmxfuxINrdP9wxwnRR3DquHu1mzuAe8byGqT0qRfXoATahgQPXu2tMbBEHnh/LkilTD9Uur9Zt7CuNHiW8WCuJlrp01IsuZ6qIKmC5xdNa5VWcMYkX5Ry1AUbmiO3r5tQhrRO7yMzoy7vIZNZRIzly1eeydz2KRHXI8mQXCvZIazDb+Rgv8RGg2a4O9qG04ujPslhGhxpYkM1S0pVuSBD5RjhTtmlVVKwyq0St0O3z4pgZOt5inpTDRJViE2+BAskEeU3NNMz3/Y=^1745505672846; bm_sz=DB5ADA62EBA04C21045436555E320781~YAAQhahkaKOIDl2WAQAA//E+aBv024OkvjFSZ7kgFpKX3HinFyJSsOdwcj/QkQTwfeGG61wwBdk74VqD5GTiYib9vX9WRdrYXA7QTcHQP2QgyWp+F5HcZKxshxNQ7s3aC6UNFALYqOPga5/BsPsMJAqqJ520RMfCA+DourE9d20+QZ6171gYHlpIOhs4TS0heYdxrnLzj03KJau+pZNLc8qBdZjA8iplbwgo5+F7LhUFt8wvr0F2IqqH6558Rn6g3wESbs21sBGwmKXVq1QshmhXKIoDx+FSoO5f5+OVH0R6D42r8zj+ST0AtPgSoZdJKojtPrwOFsfsbF372Ad0Sp36t/DQ7+GRTGrFfK/rRT7kYWW5yj7viuzg7X2rTFut6BU5MIwkcQz9sd2spNjMZPJOMRzUcvDMyigXnsHARo91RNAf~3486007~4272181; OptanonConsent=isGpcEnabled=0&datestamp=Thu+Apr+24+2025+16%3A41%3A19+GMT%2B0200+(Central+European+Summer+Time)&version=202402.1.0&browserGpcFlag=0&isIABGlobal=false&hosts=&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A1%2CC0004%3A1%2CV2STACK42%3A1&AwaitingReconsent=false&geolocation=US%3BNY; _gcl_aw=GCL.1745505681.Cj0KCQjw1um-BhDtARIsABjU5x5Orz006ht1QcwxMKaCcGGQdfxMeAVwlnvO32p-tvK6kW05TwBjhDUaAst7EALw_wcB; _uetsid=1a17f910211a11f08a6d49f6111d00b6; _uetvid=1a181f70211a11f0b1d55b6dd6402ef9; cesc=%7B%22lpe%22%3A%5B%22bffbb60b-5559-4068-9fd3-7e037e18d799%22%2C1745505795396%5D%2C%22gclid%22%3A%5B%22Cj0KCQjw1um-BhDtARIsABjU5x5Orz006ht1QcwxMKaCcGGQdfxMeAVwlnvO32p-tvK6kW05TwBjhDUaAst7EALw_wcB%22%2C1745505677804%5D%2C%22marketingClick%22%3A%5B%22false%22%2C1745505795396%5D%2C%22lmc%22%3A%5B%22SEM.NL.B.GOOGLE.BD-C-EN.HOTEL%22%2C1745505795396%5D%2C%22hitNumber%22%3A%5B%2215%22%2C1745505795396%5D%2C%22amc%22%3A%5B%22SEM.NL.B.GOOGLE.BD-C-EN.HOTEL%22%2C1745505795396%5D%2C%22visitNumber%22%3A%5B%222%22%2C1745505636650%5D%2C%22ape%22%3A%5B%22bffbb60b-5559-4068-9fd3-7e037e18d799%22%2C1745505795396%5D%2C%22cidVisit%22%3A%5B%22SEM.NL.B.GOOGLE.BD-c-EN.HOTEL%22%2C1745505795396%5D%2C%22entryPage%22%3A%5B%22page.Hotel-Search%22%2C1745505795396%5D%2C%22semdtl%22%3A%5B%22a118926775742.b1147937710910.g1kwd-332860582925.e1c.m1Cj0KCQjw1um-BhDtARIsABjU5x5Orz006ht1QcwxMKaCcGGQdfxMeAVwlnvO32p-tvK6kW05TwBjhDUaAst7EALw_wcB.r1be168c20abcb562c7235b67d64635d7b057dc6eabeacf1e355a752ed0d3c0d7d.c1.j19065282.k1.d1720932686489.h1p.i1.l1.n1.o1.p1.q1.s1.t1.x1.f1.u1.v1.w1%22%2C1745505677804%5D%2C%22cid%22%3A%5B%22SEM.NL.B.GOOGLE.BD-c-EN.HOTEL%22%2C1745505677804%5D%7D; bm_s=YAAQhahkaEzwDl2WAQAATb1AaAP0WAxmF0zB9WnyB7QDNZ7Khjf9CYgzgN/6ZxWDfJN+CXfreH+55ZNdcTiHJnUxMPDaPX191Stx10mgrOTwRG/Ns0A7YJaopSCxM7uDyLYhA0VQwepgiBXcPNvDLurWyEgHw1bvN2VSkfWSnVwFmFOMTKWMcxsO0IjmcMJ+U3UJibc6286gNBoSiq7PCcPGbcLVutWKoACgOqOIWnwguUzrj+OTM5kkhsgK58y/vLZAGrTEOqMImSSFN+x5XpghMDmQDR34DoZ1zIz3bX8aDTxdPoVq+d3y6V4AvWtAKirakLJdUMAmaCu4UGqjAbhdL7X6R6o+BKSTzDsoqaTp816PM7SLf+GkrG+m7+hM397j9M3wEA6MFPer1N6MySBiRw1iextOfkFi0qxd1C52zXDmDPVI4qV1BVfwqTiovQq3UB4sjsK7; bm_sv=7385E9D712B04EE213A98C60E35F31F4~YAAQhahkaDzzDl2WAQAA7cxAaBuUnopf+bMHh3Z+mCY5yOJKJq4i1jA6CHuAReDG81Fje9oI3AuHMGmNOArnufAQlfdcc5hK8ulXs3CXNB2R8js1Y1dfotP9dbk3Uy2o0rrcBjrUgBFda2RA/H2OHLTzI3GEW67YzyX2k4g28+Qg7s9ggOIOCLVkVqcTkqk4lAtriaVvXT8Z83weEDb2FOVBkv8QwP4z3gHbu65r7avAunj+vTYc+Ao5DQx7EZUMPw==~1; _dd_s=rum=0&expire=1745506701527',
+    'ctx-view-id': '24cfc92e-e9b5-4b7e-b0ff-ca77c95faece',
+    origin: 'https://www.expedia.nl',
+    priority: 'u=1, i',
+    'user-agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
+    'x-hcom-origin-id': 'page.Hotels.Infosite.Information,H,30',
+    'x-page-id': 'page.Hotels.Infosite.Information,H,30',
+    'x-parent-brand-id': 'expedia',
+    'x-product-line': 'lodging',
+    'x-shopping-product-line': 'lodging'
   },
   tripHeadersGenProfile: {
     accept:
       'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
     'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
     'cache-control': 'max-age=0',
-    priority: 'u=0, i',
-    'sec-ch-ua':
-      '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
-    'sec-ch-ua-mobile': '?0',
-    'sec-ch-ua-platform': '"macOS"',
-    'sec-fetch-dest': 'document',
-    'sec-fetch-mode': 'navigate',
-    'sec-fetch-site': 'same-origin',
-    'sec-fetch-user': '?1',
     'upgrade-insecure-requests': '1',
     'user-agent':
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
@@ -191,40 +158,23 @@ export const HEADERS = {
       'ibu_gotop_sale_autopop=1; _abtest_userid=939ddfc9-0a69-4de5-a4de-d74cf12f9e1d; ibu_online_home_language_match={"isRedirect":false,"isShowSuggestion":false,"lastVisited":true,"region":"us","redirectSymbol":false}; _uetvid=288c0f50b1bc11ed85d9699ce3765135; _ga_2DCSB93KS4=GS1.2.1718739946.100.0.1718739947.59.0.0; _ga_X437DZ73MR=GS1.1.1718739946.123.0.1718740064.0.0.0; _ga=GA1.2.2087740175.1697628972; oldLocale=en-XX; _ga_37RNVFDP1J=GS1.2.1728309464.103.1.1728309464.60.0.0; __rtbh.lid=%7B%22eventType%22%3A%22lid%22%2C%22id%22%3A%22xsAsnTNkeDCYkHejDJfG%22%2C%22expiryDate%22%3A%222025-11-06T12%3A28%3A59.726Z%22%7D; GUID=09034044111729455776; nfes_isSupportWebP=1; ibulanguage=EN; cookiePricesDisplayed=USD; nfes_isSupportWebP=1; UBT_VID=1697628965150.288h9e; _RSG=ZHK.PJutEj3WsNthWggxSB; _RDG=28540e6a512d3c2e4627474a1f323ab387; _RGUID=3b4edf84-d9f9-4463-b73b-aaa82bdd7da0; _fwb=417q8mmZpY0UHGgPdpYJHz.1736868746761; _tt_enable_cookie=1; _ttp=PLszoCGPqMWWCy6wU29QG6X72XK.tt.1; _fbp=fb.1.1736868749554.773517262863905195; ibu_online_permission_cls_ct=3; ibu_online_permission_cls_gap=1738330834566; _gcl_au=1.1.205165355.1738835107; g_state={"i_p":1744187484296,"i_l":4}; _gid=GA1.2.258470160.1742073175; wcs_bt=s_33fb334966e9:1742073175; ibulocale=en_us; Union=AllianceID=1078328&SID=2036522&OUID=ctag.hash.nnrohn2hu7wy&Expires=1744745511524&createtime=1742153511; ibu_country=US; _resDomain=https%3A%2F%2Faw-s.tripcdn.com; _bfa=1.1697628965150.288h9e.1.1742153590910.1742153602071.138.4.10320668147; intl_ht1=h4%3D633_1643571%2C359_700863%2C2_97205925%2C725_998312%2C622_36871637%2C685438_96162623; _RF1=173.239.211.81; Union=AllianceID=1078328&SID=2036522&OUID=ctag.hash.nnrohn2hu7wy&Expires=1744745523103&createtime=1742153523; cookiePricesDisplayed=USD; ibulanguage=EN; ibulocale=en_us; GUID=09034044111729455776; _resDomain=https%3A%2F%2Faw-s.tripcdn.com; ibu_country=US'
   },
   tripHeadersGenReviews: {
-    accept: 'application/json',
-    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
-    'content-type': 'application/json',
-    cookieorigin: 'https://us.trip.com',
-    origin: 'https://us.trip.com',
-    'phantom-token':
-      '1002-common-UHnRDLrUoe4OJGPJd8y9QJ65RX5YOMvsGyQgykZR4oiOhipgW9DilnYhayQTIn3vX8jZ0yz3ykOjzPYOAwpHvdhJ1ByqdJfdRfqvATRfXJsoR7tWp3r1Y31i41IHw1DRTMylqEBQYqtRpLJBbigmEs0yb8ilsJZTiUQw61Rm4Y5dWAY3bROAwaOJ3GePfYqmJGYf6iS0jMHjTNRs0whAvP4ydpwqPYkGjmAvX6wQ3JHBRBHJmHWf0ItGYLnjnqjp6K85vUXj9djFBxdESYfpe39en8EX1id4y0OyOBwo0wP8EdBybAv76ezPRhDJTgvsty7feodE63j3dwDnv1ceF6vADJGDya1jO8etDwOpRAmELXWldJgAv65WDhy7FwkcYLkY7tj6XeFlvGnrkYk8vnFWABwLoj17v7bYqBwm1iA7vNcYt8wXfKblwpj1Y8Ai7kiMhK4zYQZE5aY8Oy9aiAYPLWNLIdUwS3rLkEg9wh4xUZYqNjMpjT0WkbvkhK7AwqYTcjPDJ8HJ9ke3lwncW05WNAwHwoYt6iow5nY9fjBOYb6eQajqziGSWXPilayAYZTiNFyhlY8LRQXvtHYMpWZLehsRGHWNBjbPWNlIcgK7whYhkvahy0tWmUR0UvHtYdFWPDeT9R9oWf3J06JSte9zi4sidYavPgI8mi0hidfy1aYhFR0GiQoekYs9Rg8i6LEpAYSOikbwOPRS6EskWZLxoBKTt',
-    priority: 'u=1, i',
-    'sec-ch-ua':
-      '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
-    'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"macOS"',
-    'sec-fetch-dest': 'empty',
-    'sec-fetch-mode': 'cors',
-    'sec-fetch-site': 'same-origin',
-    'user-agent':
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
-    Cookie:
-      '_abtest_userid=939ddfc9-0a69-4de5-a4de-d74cf12f9e1d; ibu_online_home_language_match={"isRedirect":false,"isShowSuggestion":false,"lastVisited":true,"region":"us","redirectSymbol":false}; _uetvid=288c0f50b1bc11ed85d9699ce3765135; _ga_2DCSB93KS4=GS1.2.1718739946.100.0.1718739947.59.0.0; _ga_X437DZ73MR=GS1.1.1718739946.123.0.1718740064.0.0.0; _ga=GA1.2.2087740175.1697628972; oldLocale=en-XX; _ga_37RNVFDP1J=GS1.2.1728309464.103.1.1728309464.60.0.0; ibulanguage=EN; cookiePricesDisplayed=USD; nfes_isSupportWebP=1; UBT_VID=1697628965150.288h9e; _RSG=ZHK.PJutEj3WsNthWggxSB; _RDG=28540e6a512d3c2e4627474a1f323ab387; _RGUID=3b4edf84-d9f9-4463-b73b-aaa82bdd7da0; _fwb=417q8mmZpY0UHGgPdpYJHz.1736868746761; _tt_enable_cookie=1; _ttp=PLszoCGPqMWWCy6wU29QG6X72XK.tt.1; _fbp=fb.1.1736868749554.773517262863905195; ibu_online_permission_cls_ct=3; ibu_online_permission_cls_gap=1738330834566; _gcl_au=1.1.205165355.1738835107; _gid=GA1.2.258470160.1742073175; GUID=09034072215074970768; ibulocale=en_us; ibu_country=US; _resDomain=https%3A%2F%2Faw-s.tripcdn.com; intl_ht1=h4%3D633_1643571; _bfa=1.1697628965150.288h9e.1.1742130040011.1742152776719.138.1.10320668147; _RF1=199.101.196.83; g_state={"i_p":1742159982651,"i_l":1}; Union=AllianceID=1078328&SID=2036522&OUID=ctag.hash.nnrohn2hu7wy&Expires=1744745459500&createtime=1742153459'
+    Referer: 'https://www.trip.com/hotels/detail/?hotelId=15785534',
+    'sec-ch-ua':
+      '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
+    'phantom-token':
+      '1004-common-fOkWkOrtAyFZvq8JsdYqBJfkwGnjpGYAUyBGwkSEPkvZ4vFsEdBJ5UvokWgNYU4iDhYZbJkXjoOiaZwnHy9cxDPRShy6GEpAj16JLGy4mWtfjQgwhJnYMoxmsiTcvmMRP8y1fE3QEtpvdBRPzYlXJPkYXBEgHipDYB4whmYMbwaHRLY4crAAKOQwcQKM9j9ojg6EnOyFEGaiO1YXEQnYUfyMEHTY96ybPKkgKcQKsHIoUjBXwa8eftE3HI4nwcziZ1RMEOpYnmykbKh3iMkjg0jHXWXZycE5DYaZyktynXjGZjDlEmceMLWUE8kYmFylE5cipcy1lKGgi9Sjq5jObWoPx5QytESZicpJU8RoHJh5yp9jf0J4HJnci0nEkgJ1tjfkJ4Y54JHHxL9ekDRMDwU4vN5y8gw7dYalj15v9DwhSJ1kRN4JT8W3QIT8YbZj9GjP4KsDvGzjpETZeqZJXYBNwmkjLsx1cWDpyhsyFAwAbwqDw1HEsqwp5ecUWNcvZby6qvklemMEO1JoMvkoy7UeapJ3Zy8njFbi1bethJ9nW7OydbRgNwamwzAWcdvoHW63RUoyQMj3Li3HJHGRaY70igOR9bjsGjMBv9sYgHwGLiP4vaMYB1w4dJOAjLPInYdhxN5xQLY5mYzhEkdiZAIOhW7YSpe6fxdsYmFrNDE63wXlxZQYf6jM3j4XW7QEBmRTTx6YNdjzSygaJ7Me1ORn9YUdWMaj4E1bIoYLPwB0Iq7wS1jGaYZPepAjmSiGZJc4v7qr9YNnE90ImcIDtRlPv46YznWB9eDMRhnW94jQ5WnJpBJtzeUYT8yGAEqLef6R3ZvkqY9lW4Se9lRAaWU9JFLJFbIP4W0Gi7Y5lwtNyfoiozEpsiQ8RF4RBPj9bIfY9gJSHv3Lj7lYZ3iq4wUhR1lE7HWlSrS9Y6MRzYMpyapxzPj1BJAarfOePoKbYUEdgYmBx76jbcwa0vS7jTdvAXiAQjoYLNj4vGUJ9GYFUiU8JDly0Y9zyAAxDMxF5jDXwUNvPfjhTEFoWtqrhY0De1bwNdwg5RatJdGWmNwoXvkFefYUqJ9Mj4TxU4jgNiP7i1UxaUWOfjSrp1xAZY3PwoLIGrty9bY8PEqGEaDWNkjSjdtKkprNHRoYUOjppxz9el8RZOW49iOfYsSWkdwBhw0QjGNRM9EgtyXqK6LYS6',
+    cookieOrigin: 'https://www.trip.com',
+    'User-Agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
+    accept: 'application/json',
+    'content-type': 'application/json'
   },
   opentableHeadersGenProfile: {
     accept:
       'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
     'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
     'cache-control': 'max-age=0',
-    priority: 'u=0, i',
-    'sec-ch-ua':
-      '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
-    'sec-ch-ua-mobile': '?0',
-    'sec-ch-ua-platform': '"macOS"',
-    'sec-fetch-dest': 'document',
-    'sec-fetch-mode': 'navigate',
-    'sec-fetch-site': 'same-origin',
-    'sec-fetch-user': '?1',
     'upgrade-insecure-requests': '1',
     'user-agent':
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
@@ -233,23 +183,24 @@ export const HEADERS = {
   },
   opentableHeadersGenReviews: {
     accept: '*/*',
-    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+    'accept-language': 'en-US,en;q=0.9',
     'content-type': 'application/json',
+    cookie:
+      'otuvid=7702AFAC-F203-465B-9387-DD48CBD0AB12; otuvid_f=514658d3-1a70-4d7d-991b-66e4e6ff156c; otuvid_p=cd7f24d4-3d03-4ba1-b399-2f02e769f1d2; otuvid_t=19c2df34-8f60-4ed1-920a-64e1a02c4624; OT-Interactive-SessionId=498c0465-d756-4358-83c7-877c6a044c78; OT-SessionId=498c0465-d756-4358-83c7-877c6a044c78; ha_userSession=lastModified=2025-04-22T12%3A14%3A03.000Z&origin=prod-sc2; _ga=GA1.1.279662475.1745504935; ak_bmsc=9A3DD0E69D5B07D17790ED69EEF81977~000000000000000000000000000000~YAAQr0RnaO3Z8mWWAQAAuaEzaBse3qlmPNV+LHiOimyLRX8F9fxuYGBkT5aZmY9x13UKVHUyjTAyzlXFxpSsXJOuNm0EX0GM1oh3JTJnN13sPju+G0i0/ERSSAyB48cCcs3NG71gU+SZuSopAJtmC+T+rbJnoglu8WGXTNKRVphC6bzsn8SEyGdI8mdCZGer4SnjnKOTN6P/SxwuztO4s9CEJPgcOjlljWB0I+qnrEuGbUUoFd8bPKjYy/7QPzoDNaynPwxyG/n5g/Mj3RisPtwqkpVleOzLMxmxLUmgjVPbboInjjd/vOGiLCdsx7nvtm6eRGph9dhr3KEOjBcORSCmrymxaMYor0M84mT14OcVsQkRr6lDdXNmyG+hG568iYZSOxU/EMO5nni5KwRCW1b8V3jerHLKA+DfdueeU+MdfSWEoTqs4FTYYw2aM1lX2InDtlv6t0L89d1B1NcpIg==; OptanonAlertBoxClosed=2025-04-24T14:28:56.292Z; _fbp=fb.1.1745504936659.7449479737744788; _gcl_au=1.1.1269293310.1745504937; ftc=x=2025-04-24T15%3A28%3A58&c=1&pt1=1&pt2=1&er=265365; OptanonConsent=isGpcEnabled=0&datestamp=Thu+Apr+24+2025+16%3A28%3A58+GMT%2B0200+(Central+European+Summer+Time)&version=202503.1.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=3d3df5b8-001b-4936-9c1e-9684df1207f4&interactionCount=2&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A1%2CC0003%3A1%2CC0004%3A1&AwaitingReconsent=false&intType=1&geolocation=NL%3BFL; OT-Session-Update-Date=1745505040; bm_sv=84272B87AC1BE036CFEF9BC4DFFCE09F~YAAQr0RnaAbm8mWWAQAAVDg1aBvMQN9C0Mg6qc1DGAkEHneus/ccxwaoI4io3ChsqTDlbshYty+ALwareT9Jq3+b1TOExTcsFA7/m/degQFcvGD6p33MQcC6n3GheifxiyBydA9HambVWR9pzhxWZ8TvwqIcxVQaMniXWLhiKrqQ/4Ky2JHtulhuIOvNMRns4kHC1yxGPi+CE8MEgltAzklMYcCZCnUASzhI6Aoac+uPH8UHXo3GgztrZmjifNlRnG6utQ==~1; _ga_Y77FR7F6XF=GS1.1.1745504935.1.1.1745505043.0.0.0',
     origin: 'https://www.opentable.com',
     'ot-page-group': 'rest-profile',
     'ot-page-type': 'restprofilepage',
     priority: 'u=1, i',
-    connection: 'keep-alive',
     'sec-ch-ua':
-      '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+      '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"macOS"',
+    'sec-fetch-dest': 'empty',
     'sec-fetch-mode': 'cors',
     'sec-fetch-site': 'same-origin',
     'user-agent':
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
-    'x-csrf-token': 'eca2923e-c54f-4bb8-962b-e6978444da7d',
-    cookie:
-      'bm_sv=AB1CD03B6959C8E686476F7E4F494F76~YAAQvXd7XLCmRqSVAQAAJ8QYsRsilH/OTkoxhtc6ceTiQ+78P9NXrPjf4AAoo6nQnkyUZwtPJvXQeh5gWOiR9kpfgV6F6cX6kZVwDE/ajJD1EnYaDqArTvKODkblWLR7SuF5zxsNewr0cKGEMNRfZBqopR6hTv9bCjLB8zUWWuW5cMOzgXajL5jWJFyU9n+P34eILBQ3y52K+op4Z/uiikEHcNgnZ8BdCXD8zE/MaaypyZw2JLmyrAcew4Z1pZuNgK/s~1; ftc=x=2025-03-19T23%3A49%3A41&c=1&pt1=1&pt2=1&er=151951; ha_userSession=lastModified=2025-03-18T11%3A41%3A36.000Z&origin=prod-sc2'
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
+    'x-csrf-token': '95a77f26-71fc-4237-a717-704f0c821069',
+    'x-query-timeout': '150'
   }
 }

@@ -1,6 +1,6 @@
 import express from 'express'
 import { generateGoogleReviews } from '../spiders/googleSpider.js'
-import { updateReview } from '../utils/utilities.js'
+import { updateReview } from '../utilities/utilities.js'
 
 import { asyncMiddleware } from '../../middleware/asyncErros.js'
 import { authMiddleware, isAdmin } from '../../middleware/auth.js'

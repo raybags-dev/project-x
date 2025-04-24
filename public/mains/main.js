@@ -1,9 +1,10 @@
+import { getAuthHandler } from '../components/auth.js'
 import { LOGIN_HTML } from '../components/login.js'
 import { MAIN_PAGE } from '../components/main_container.js'
 import { PLUGINS } from '../utils/plugins.js'
 const { handleCookieAcceptance } = PLUGINS
-import { getAuthHandler } from '../components/auth.js'
-;(async () => {
+
+const DOMWorker = async () => {
   const cookieConcent = await handleCookieAcceptance()
   if (!cookieConcent) return
 
@@ -14,4 +15,5 @@ import { getAuthHandler } from '../components/auth.js'
   } catch (error) {
     console.log((error.message && error.message) || error)
   }
-})()
+}
+DOMWorker()

@@ -1,7 +1,7 @@
 import { HEADERS } from '../data/headers/headers.js'
+import axiosInstance from '../downloader/HTTPEngine.js'
 import { logger } from '../loggers/logger.js'
-import { validateResponse } from '../utils/generalUtilities.js'
-import axiosInstance from '../utils/proxy.js'
+import { validateResponse } from '../utilities/generalUtilities.js'
 
 export async function fetchExpediaReviews (
   depth = 1,
@@ -41,12 +41,19 @@ async function fetchPerPage (
   pageSize,
   metadata
 ) {
-  let skip = 0
   const allReviews = []
+  const maxConcurrency = 40 // Increased from 5 to 40
 
-  while (skip < depth * pageSize) {
-    const requests = Array.from({ length: Math.min(5, depth) }, (_, i) => {
-      const currentSkip = skip + i * pageSize
+  for (let batchStart = 0; batchStart < depth; batchStart += maxConcurrency) {
+    // Calculate how many pages to fetch in this batch (not exceeding depth)
+    const pagesInBatch = Math.min(maxConcurrency, depth - batchStart)
+
+    // Create array of promises for concurrent execution
+    const batchPromises = Array.from({ length: pagesInBatch }, (_, i) => {
+      logger(`Fetching: ${endpointUrl}`, 'info')
+      const pageIndex = batchStart + i
+      const currentSkip = pageIndex * pageSize
+
       return fetchPage(
         propertyExternalId,
         endpointUrl,
@@ -60,14 +67,30 @@ async function fetchPerPage (
           `Error fetching page at skip=${currentSkip}: ${error.message}`,
           'error'
         )
+        return { failed: true }
       })
     })
 
-    const results = await Promise.allSettled(requests)
-    if (results.some(res => res.status === 'rejected')) break
+    // Execute batch concurrently
+    const results = await Promise.allSettled(batchPromises)
 
-    skip += 5 * pageSize
+    // Check for errors and break if needed
+    if (results.some(res => res.status === 'rejected')) {
+      logger('Encountered rejected promises, stopping pagination', 'error')
+      break
+    }
+
+    // Check if all requests failed
+    const allFailed = results.every(
+      res => res.status === 'fulfilled' && res.value && res.value.failed
+    )
+
+    if (allFailed) {
+      logger('All requests in batch failed, stopping pagination', 'error')
+      break
+    }
   }
+
   return allReviews
 }
 

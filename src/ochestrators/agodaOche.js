@@ -9,7 +9,7 @@ import {
   extractISODate,
   formatReviewBodyString,
   generateMessage
-} from '../utils/utilities.js'
+} from '../utilities/utilities.js'
 
 export async function generateAgodaReviews (req, res) {
   try {

@@ -3,9 +3,9 @@ import { HEADERS } from '../data/headers/headers.js'
 import { logger } from '../loggers/logger.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
-import { validateEndpointDomain } from '../utils/validateBaseUrl.js'
+import { validateEndpointDomain } from '../utilities/validateBaseUrl.js'
 
-import axiosInstance from '../utils/proxy.js'
+import axiosInstance from '../downloader/HTTPEngine.js'
 
 export async function generateGoogleProfile (req, res) {
   try {
@@ -101,8 +101,9 @@ export async function generateGoogleProfile (req, res) {
     res.status(500).json({ status: 'failed', message: 'Internal server error' })
   }
 }
+// *********** ====== **********
 async function downloadGoogleInitialPage (frontFacingUrl) {
-  const headers = HEADERS.google_headers
+  const headers = HEADERS.googleHeadersGenProfile
   const response = await axiosInstance.get(frontFacingUrl, { headers })
 
   if (!response || !response.data) {
@@ -117,14 +118,25 @@ async function downloadGoogleInitialPage (frontFacingUrl) {
     'data-hotel-feature-id'
   )
   const restaurantFeatureId = $('[data-feature-id]').attr('data-feature-id')
-  const featureId = (hotelFeatureId && hotelFeatureId) || restaurantFeatureId
+  let featureId = hotelFeatureId || restaurantFeatureId
+  featureId = featureId.replace(':', '%3A').trim()
 
   if (!featureId) {
     return { failed: true, response: response.data }
   }
 
-  const encodedFeatureId = featureId.replace(':', '%3A')
-  const googleCrawlerUrl = `https://www.google.com/async/reviewSort?yv=3&async=feature_id:${encodedFeatureId},review_source:Google,sort_by:newestFirst,partner_start_index:0,is_owner:false,filter_text:,_pms:s,_fmt:pc,next_page_token:`
+  const urlPart1 = 'https://www.google.com/travel/hotels'
+  const urlPart2 =
+    $('a[data-hveid="CAMQAg"][target="_blank"]')?.attr('data-href')?.trim() ||
+    ''
+  const urlPart3 = '/reviews?q='
+  const urlPart4AddressString =
+    $('a[aria-label="Directions"]')?.attr('href') || ''
+  const addressMatch = urlPart4AddressString.match(/[?&]daddr=([^&]+)/)
+  const urlPart4 = addressMatch ? decodeURIComponent(addressMatch[1]) : ''
+  const urlPart5 = '&lrd='
+  const urlPart6 = '&utm_campaign=sharing&utm_medium=link&utm_source=htls'
+  const googleCrawlerUrl = `${urlPart1}${urlPart2}${urlPart3}${urlPart4}${urlPart5}${featureId}${urlPart6}`
 
   const hotelName1 = $('h1.FNkAEc.o4k8l[role="heading"][tabindex="-1"]')
     .text()

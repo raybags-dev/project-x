@@ -1,7 +1,7 @@
 import { HEADERS } from '../data/headers/headers.js'
+import axiosInstance from '../downloader/HTTPEngine.js'
 import { logger } from '../loggers/logger.js'
-import { validateResponse } from '../utils/generalUtilities.js'
-import axiosInstance from '../utils/proxy.js'
+import { validateResponse } from '../utilities/generalUtilities.js'
 
 export async function fetchOpentableReviews (
   depth = 1,
@@ -29,38 +29,40 @@ export async function fetchOpentableReviews (
     return []
   }
 }
+
 async function fetchPerPage (propertyExternalId, endpointUrl, headers, depth) {
   const allReviews = []
-  const maxConcurrency = 5
+  const maxConcurrency = 40
 
   // Process in batches of maxConcurrency
   for (let batchStart = 1; batchStart <= depth; batchStart += maxConcurrency) {
     const batchEnd = Math.min(batchStart + maxConcurrency - 1, depth)
     logger(`Processing batch from page ${batchStart} to ${batchEnd}`, 'info')
 
-    const batchPromises = []
+    // Create promises for each page in current batch
+    const batchPromises = Array.from(
+      { length: batchEnd - batchStart + 1 },
+      (_, index) => {
+        logger(`Fetching: ${endpointUrl}`, 'info')
 
-    // Create a batch of promises
-    for (let skip = batchStart; skip <= batchEnd; skip++) {
-      batchPromises.push(
-        fetchPageData(
+        const pageNumber = batchStart + index
+        return fetchPageData(
           endpointUrl,
-          createRequestBody(propertyExternalId, skip),
+          createRequestBody(propertyExternalId, pageNumber),
           headers
         ).catch(error => {
-          logger(
-            `Error fetching page at skip=${skip}: ${error.message}`,
-            'error'
-          )
-          return []
+          logger(`Error fetching page ${pageNumber}: ${error.message}`, 'error')
+          return [] // Return empty array on error
         })
-      )
-    }
+      }
+    )
 
+    // Wait for all promises in the batch to settle
     const results = await Promise.allSettled(batchPromises)
-    for (let i = 0; i < results.length; i++) {
-      const result = results[i]
-      const pageNumber = batchStart + i
+
+    // Process results with proper page number tracking
+    results.forEach((result, index) => {
+      const pageNumber = batchStart + index
 
       if (result.status === 'fulfilled' && Array.isArray(result.value)) {
         logger(
@@ -71,7 +73,7 @@ async function fetchPerPage (propertyExternalId, endpointUrl, headers, depth) {
       } else {
         logger(`Failed to fetch reviews from page ${pageNumber}`, 'warn')
       }
-    }
+    })
   }
 
   logger(`Final total reviews collected: ${allReviews.length}`, 'info')

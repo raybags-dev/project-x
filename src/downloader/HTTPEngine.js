@@ -9,7 +9,6 @@ const axiosInstance = axios.create({
     'User-Agent': 'axios-client'
   }
 })
-
 axiosInstance.interceptors.response.use(
   response => response,
   async error => {

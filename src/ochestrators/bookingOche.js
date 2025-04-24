@@ -10,7 +10,7 @@ import {
   convertUnixToDate,
   formatReviewBodyString,
   generateMessage
-} from '../utils/utilities.js'
+} from '../utilities/utilities.js'
 
 export async function generateBookingComReviews (req, res) {
   try {

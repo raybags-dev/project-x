@@ -24,7 +24,7 @@ const enrichReviewWithPartitionKey = review => {
 
 export async function runSaveToLogicAppPipeline (uploadResult, reviewsList) {
   if (!uploadResult || !uploadResult.success) {
-    logger('Skipping Cosmos DB save due to blob upload failure.', 'warn')
+    logger('Skipping Cosmos DB save nothing new.', 'warn')
     return { success: false, message: 'Upload to Blob failed.' }
   }
 

@@ -1,5 +1,13 @@
 import 'dotenv/config'
+import fs from 'fs'
 import helmet from 'helmet'
+import path from 'path'
+import { launchBrowser } from '../downloader/browserEngine.js'
+
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 import { HEADERS } from '../data/headers/headers.js'
 import { logger } from '../loggers/logger.js'
@@ -8,7 +16,7 @@ import { agodaReviewUpdateHandler } from './updateAgoda.js'
 import { googleReviewUpdateHandler } from './updateGoogle.js'
 import { validateEndpointDomain } from './validateBaseUrl.js'
 
-import axiosInstance from './proxy.js'
+import axiosInstance from '../downloader/HTTPEngine.js'
 
 export function generateMessage (savedReviews, reviewsData) {
   if (!savedReviews || !reviewsData) return
@@ -285,73 +293,150 @@ export function sanitizeUser (user) {
     __v: 'retracted'
   }
 }
-//******* TO BE IMPLIMENTED ****** */
-export async function retryWithBackoff (fn, maxRetries = 3, delay = 1000) {
-  let attempt = 0
+export async function refreshHeaders (req, res) {
+  let browser
+  try {
+    const slug = req.query.slug
+    logger(`Updating headers process for <${slug}> is underway...`)
 
-  while (attempt < maxRetries) {
+    if (!slug) {
+      logger(`Slug is missing`, 'warn')
+      return res.status(400).json({ error: 'Missing slug query parameter' })
+    }
+
+    const user = req.locals.user
+    if (!user || !user.profiles) {
+      logger(`User profiles not found`, 'warn')
+      return res.status(400).json({ error: 'User profiles not found' })
+    }
+
+    const profile = user.profiles.find(p => p.slug === slug)
+    if (!profile || !profile.originalUrl) {
+      logger(`Profile with the specified slug not found`, 'warn')
+      return res
+        .status(404)
+        .json({ error: 'Profile with the specified slug not found' })
+    }
+
+    browser = await launchBrowser(true)
+    const page = await browser.newPage()
+    const capturedHeaders = {}
+
+    // Capture request headers
+    page.on('request', request => {
+      Object.assign(capturedHeaders, request.headers())
+    })
+
+    let response
     try {
-      return await fn()
-    } catch (error) {
-      attempt++
-
-      const isNetworkError =
-        error.name === 'NetworkError' ||
-        error.name === 'TimeoutError' ||
-        error.message.includes('network') ||
-        error.message.includes('timeout') ||
-        error.message.includes('connection') ||
-        error.code === 'ECONNABORTED' ||
-        error.code === 'ECONNREFUSED' ||
-        error.code === 'ECONNRESET'
-
-      const isTimeoutError =
-        error.name === 'TimeoutError' ||
-        error.message.includes('timeout') ||
-        error.code === 'ECONNABORTED' ||
-        error.code === 'ETIMEDOUT' ||
-        (error.message && error.message.includes('timed out'))
-
-      const isConnectionRefusedError =
-        error.code === 'ECONNREFUSED' ||
-        error.message.includes('connection refused') ||
-        error.message.includes('ECONNREFUSED') ||
-        (error.response && error.response.status === 0) ||
-        (error.message && error.message.includes('Could not connect'))
-
-      const isConnectionResetError =
-        error.code === 'ECONNRESET' ||
-        error.message.includes('connection reset') ||
-        error.message.includes('ECONNRESET') ||
-        (error.message && error.message.includes('socket hang up'))
-
-      const shouldRetry =
-        isNetworkError ||
-        isTimeoutError ||
-        isConnectionRefusedError ||
-        isConnectionResetError
-
-      if (!shouldRetry) {
-        logger(`Non-retriable error: ${error.message}`, 'error')
-        throw error
-      }
-
-      if (attempt >= maxRetries) {
-        logger(
-          `Max retries reached. Failing with error: ${error.message}`,
-          'error'
-        )
-        throw error
-      }
-
-      const backoffTime = delay * Math.pow(2, attempt)
-      logger(
-        `Retrying (${attempt}/${maxRetries}) in ${backoffTime}ms due to error: ${error.message}`,
-        'warn'
+      response = await page.goto(profile.originalUrl, {
+        waitUntil: 'domcontentloaded',
+        timeout: 30000
+      })
+    } catch (navErr) {
+      throw new Error(
+        `Navigation to ${profile.originalUrl} failed: ${navErr.message}`
       )
+    }
 
-      await new Promise(resolve => setTimeout(resolve, backoffTime))
+    if (!response || !response.ok()) {
+      logger(`Failed to load the original URL`, 'warn')
+      return res.status(500).json({ error: 'Failed to load the original URL' })
+    }
+
+    const cookies = await page.cookies()
+    capturedHeaders['cookie'] = cookies
+      .map(c => `${c.name}=${c.value}`)
+      .join('; ')
+
+    const { HEADERS } = await import('../data/headers/headers.js')
+
+    const normalizedSlug = slug.split('-')[0].toLowerCase()
+
+    const headerKey = Object.keys(HEADERS).find(key => {
+      return key.startsWith(normalizedSlug) && key.endsWith('Profile')
+    })
+
+    if (!headerKey) {
+      logger(`No matching headers key found`, 'warn')
+      return res.status(404).json({ error: 'No matching headers key found' })
+    }
+
+    const cleanedCapturedHeaders = sanitizeHeaderValues(capturedHeaders)
+    const updatedHEADERS = { ...HEADERS, [headerKey]: cleanedCapturedHeaders }
+
+    const headersFilePath = path.resolve(
+      __dirname,
+      '../data/headers/headers.js'
+    )
+
+    const updatedHeadersContent = `export const HEADERS = {
+      ${Object.entries(updatedHEADERS)
+        .map(([headerSetName, headerObj]) => {
+          return `  '${headerSetName}': {
+      ${Object.entries(headerObj)
+        .map(([key, value]) => {
+          // Format value based on type
+          let formattedValue = value
+          if (typeof value === 'string') {
+            formattedValue = `'${value.replace(/'/g, "\\'")}'`
+          } else if (Array.isArray(value)) {
+            formattedValue = JSON.stringify(value)
+          } else if (value !== null && typeof value === 'object') {
+            formattedValue = JSON.stringify(value)
+          }
+          return `    '${key}': ${formattedValue}`
+        })
+        .join(',\n')}
+        }`
+        })
+        .join(',\n')}
+      };\n`
+
+    fs.writeFileSync(headersFilePath, updatedHeadersContent, 'utf8')
+
+    return res.status(200).json({
+      message: 'Headers updated successfully',
+      headers: cleanedCapturedHeaders
+    })
+  } catch (error) {
+    logger(`Error refreshing headers: ${error}`, 'error')
+    return res.status(500).json({ error: 'Internal server error' })
+  } finally {
+    if (browser) {
+      try {
+        await browser.close()
+      } catch (closeErr) {
+        logger(`Error closing browser: ${closeErr}`, 'error')
+      }
     }
   }
 }
-//******* TO BE IMPLIMENTED ****** */
+export function sanitizeHeaderValues (headers) {
+  const result = {}
+  for (const [key, value] of Object.entries(headers)) {
+    if (typeof value === 'string') {
+      let cleaned = value
+
+      if (key.startsWith('sec-ch-') || key.includes('user-agent')) {
+        cleaned = value.replace(/\\/g, '')
+      } else {
+        cleaned = value.replace(/\\/g, '').replace(/^"(.*)"$/, '$1')
+      }
+
+      result[key] = cleaned
+    } else if (Array.isArray(value)) {
+      result[key] = value.map(item =>
+        typeof item === 'string' ? item.replace(/\\/g, '') : item
+      )
+    } else if (value !== null && typeof value === 'object') {
+      result[key] = sanitizeHeaderValues(value)
+    } else {
+      result[key] = value
+    }
+  }
+  return result
+}
+export async function holdOnFor (timer = 2000) {
+  await new Promise(res => setTimeout(res, Number.parseInt(timer)))
+}

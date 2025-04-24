@@ -1,7 +1,7 @@
 import { HEADERS } from '../data/headers/headers.js'
+import axiosInstance from '../downloader/HTTPEngine.js'
 import { logger } from '../loggers/logger.js'
-import { validateResponse } from '../utils/generalUtilities.js'
-import axiosInstance from '../utils/proxy.js'
+import { validateResponse } from '../utilities/generalUtilities.js'
 
 export async function fetchBookingReviews (
   depth = 1,
@@ -31,27 +31,6 @@ export async function fetchBookingReviews (
     return []
   }
 }
-async function fetchPageData (endpointUrl, requestBody, headers) {
-  try {
-    const response = await axiosInstance.post(endpointUrl, requestBody, {
-      headers
-    })
-
-    if (!validateResponse(response)) return
-
-    const isResponseSuccess =
-      response.status == 200 && response.statusText == 'OK'
-
-    if (isResponseSuccess) {
-      const reviewsObj = await response.data.data?.reviewListFrontend
-      return reviewsObj
-    }
-    return null
-  } catch (error) {
-    logger(`Error fetching page: ${error.message}`, 'error')
-    return null
-  }
-}
 async function fetchPerPage (
   propertyExternalId,
   endpointUrl,
@@ -60,12 +39,26 @@ async function fetchPerPage (
   pageSize,
   metadata
 ) {
-  let skip = 0
   const allReviews = []
+  const maxConcurrency = 40 // Increased concurrency to 40
 
-  while (skip < depth * pageSize) {
-    const requests = Array.from({ length: Math.min(5, depth) }, (_, i) => {
-      const currentSkip = skip + i * pageSize
+  // Process pages in batches
+  for (let batchIndex = 0; batchIndex < depth; batchIndex += maxConcurrency) {
+    // Calculate how many pages to process in this batch (not exceeding depth)
+    logger(`fetching: ${endpointUrl}`, 'info')
+    const pagesInBatch = Math.min(maxConcurrency, depth - batchIndex)
+    logger(
+      `Processing batch of ${pagesInBatch} pages (${batchIndex + 1}-${
+        batchIndex + pagesInBatch
+      })`,
+      'info'
+    )
+
+    // Create batch promises
+    const batchPromises = Array.from({ length: pagesInBatch }, (_, i) => {
+      const pageIndex = batchIndex + i
+      const currentSkip = pageIndex * pageSize
+
       return fetchPage(
         propertyExternalId,
         endpointUrl,
@@ -79,14 +72,40 @@ async function fetchPerPage (
           `Error fetching page at skip=${currentSkip}: ${error.message}`,
           'error'
         )
+        return { error: true } // Return object to identify errors
       })
     })
 
-    const results = await Promise.allSettled(requests)
-    if (results.some(res => res.status === 'rejected')) break
+    // Wait for the current batch to complete
+    const results = await Promise.allSettled(batchPromises)
 
-    skip += 5 * pageSize
+    // Check if any critical errors occurred that should stop processing
+    if (
+      results.every(
+        result =>
+          result.status === 'fulfilled' &&
+          result.value &&
+          result.value.error === true
+      )
+    ) {
+      logger('All requests in batch failed, stopping pagination', 'error')
+      break
+    }
+
+    // Process successful results
+    results.forEach((result, index) => {
+      const pageNumber = batchIndex + index + 1
+      if (
+        result.status === 'fulfilled' &&
+        result.value &&
+        !result.value.error
+      ) {
+        logger(`Successfully processed page ${pageNumber}`, 'info')
+      }
+    })
   }
+
+  logger(`Total reviews collected: ${allReviews.length}`, 'info')
   return allReviews
 }
 async function fetchPage (
@@ -115,18 +134,39 @@ async function fetchPage (
   allReviews.push(...responseData?.reviewCard)
   logger(`Collected ${allReviews.length} reviews`, 'info')
 }
+async function fetchPageData (endpointUrl, requestBody, headers) {
+  try {
+    const response = await axiosInstance.post(endpointUrl, requestBody, {
+      headers
+    })
+
+    if (!validateResponse(response)) return
+
+    const isResponseSuccess =
+      response.status == 200 && response.statusText == 'OK'
+
+    if (isResponseSuccess) {
+      const reviewsObj = await response.data.data?.reviewListFrontend
+      return reviewsObj
+    }
+    return null
+  } catch (error) {
+    logger(`Error fetching page: ${error.message}`, 'error')
+    return null
+  }
+}
 function createRequestBody (
   hotelId,
   skip,
   rating,
   destId,
-  country_code = '',
+  country_code = 'au',
   dest_type
 ) {
   return {
     operationName: 'ReviewList',
     variables: {
-      shouldShowReviewListPhotoAltText: false,
+      shouldShowReviewListPhotoAltText: true,
       input: {
         hotelId: parseInt(hotelId),
         ufi: parseInt(`-${destId}`),
