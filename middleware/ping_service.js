@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import cron from 'node-cron'
 
-import axiosInstance from '../src/utils/proxy.js'
+import axiosInstance from '../src/downloader/HTTPEngine.js'
 
 const isProd = process.env.NODE_ENV === 'production' && process.env.PROD_URL
 const productionUrl = process.env.PROD_URL

@@ -1,7 +1,7 @@
+import { loginUser } from '../components/apiCallHandlers.js'
+import { justForAMoment, runSpinner } from '../utils/utilities.js'
 import { LOGIN_HTML } from './login.js'
 import { MAIN_PAGE } from './main_container.js'
-import { runSpinner, justForAMoment } from '../utils/utilities.js'
-import { loginUser } from '../components/apiCallHandlers.js'
 
 import { API_CLIENT, displayLabel } from './apiCallHandlers.js'
 

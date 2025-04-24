@@ -1,8 +1,12 @@
 import { HEADERS } from '../data/headers/headers.js'
+import axiosInstance from '../downloader/HTTPEngine.js'
 import { logger } from '../loggers/logger.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
-import { validateResponse } from '../utils/generalUtilities.js'
-import { getAgodaCreds, validateAndAuthorizeUser } from '../utils/utilities.js'
+import { validateResponse } from '../utilities/generalUtilities.js'
+import {
+  getAgodaCreds,
+  validateAndAuthorizeUser
+} from '../utilities/utilities.js'
 
 export async function generateAgodaProfile (req, res) {
   try {
@@ -11,7 +15,6 @@ export async function generateAgodaProfile (req, res) {
     const { frontFacingUrl, user } = validation
 
     const hotelId = await getAgodaCreds(req, res)
-    console.log('HotelID: ', hotelId)
 
     const endpointUrl =
       'https://www.agoda.com/api/cronos/property/review/ReviewComments'
@@ -34,14 +37,22 @@ export async function generateAgodaProfile (req, res) {
       searchFilters: []
     }
 
-    const headers = { ...HEADERS.agodaApiHeaders, method: 'POST' }
+    const headers = { ...HEADERS.agodaHeadersGenReviews, method: 'POST' }
 
+    logger('Creating agoda profile...', 'info')
     const responseData = await callAgodaEndpoint(
       endpointUrl,
       requestBody,
       headers
     )
 
+    if (!responseData) {
+      return res.status(404).json({
+        status: 'failed',
+        message: 'Empty response received. Try again later'
+      })
+    }
+    logger(`${responseData && 'Processing response...'}..`, 'info')
     const existingProfile = await PROFILE_MODEL.findOne(
       {
         reviewSiteSlug: 'agoda-com',
@@ -113,7 +124,7 @@ export async function generateAgodaProfile (req, res) {
   }
 }
 async function callAgodaEndpoint (url, requestBody, headers) {
-  if ((!url, requestBody)) return null
+  if (!url) return logger('url or requestBody missing...', 'warn')
   try {
     const response = await axiosInstance.post(url, requestBody, { headers })
     if (!validateResponse(response)) return

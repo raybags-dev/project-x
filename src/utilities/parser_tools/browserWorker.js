@@ -1,0 +1,195 @@
+import * as cheerio from 'cheerio'
+import { saveObjectToS3 } from '../../blobStorage/aws/s3BucketUtility.js'
+import { handleAzureBlobAndPipeline } from '../../blobStorage/azure/pipelines/azureOchestrator.js'
+import { logger } from '../../loggers/logger.js'
+import parseGoogleReview from './parsers.js'
+
+async function extractAndParseFromElements (
+  page,
+  reviewElementSelector,
+  extractedReviews,
+  saveObjectToS3,
+  handleAzureBlobAndPipeline,
+  user
+) {
+  const reviewElements = await page.$$(reviewElementSelector)
+  let newReviews = []
+  const slug = user?.slug || 'google'
+  const userId = user.userId
+  const id = user.id
+
+  for (let i = extractedReviews.length; i < reviewElements.length; i++) {
+    const element = reviewElements[i]
+
+    try {
+      const htmlContent = await page.evaluate(el => el.outerHTML, element)
+      const $ = cheerio.load(htmlContent)
+
+      const reviewData = await parseGoogleReview($)
+
+      newReviews.push({
+        ...reviewData
+      })
+    } catch (err) {
+      logger(`Error extracting review: ${err}`, 'warn')
+    }
+  }
+
+  extractedReviews.push(...newReviews)
+  saveObjectToS3(newReviews)
+  handleAzureBlobAndPipeline(newReviews, [slug, userId, id])
+  return newReviews.length > 0
+}
+// main worker
+export default async function fetchAndSaveGoogleReviews (
+  page,
+  totalPagesToFetch,
+  user,
+  options = {}
+) {
+  const { timeout = 30000, maxRetries = 3, retryDelay = 1500 } = options
+
+  const reviewElementSelector = 'div.Svr5cf.bKhjM'
+  const scrollableSelector = 'div[jsname="UcPrk"][class="v85cbc"]'
+  const extractedReviews = [true]
+
+  await extractAndParseFromElements(
+    page,
+    reviewElementSelector,
+    extractedReviews,
+    saveObjectToS3,
+    handleAzureBlobAndPipeline,
+    user
+  )
+
+  let continueScrolling = true
+  let retryCount = 0
+  let pagesDetected = 0
+
+  await page.waitForSelector(reviewElementSelector, { timeout: 10000 })
+
+  logger(`Initiating scrolling to fetch ${totalPagesToFetch} pages of reviews.`)
+
+  while (continueScrolling) {
+    try {
+      const responseDetectedPromise = new Promise(resolve => {
+        const handleResponse = response => {
+          const url = response.url()
+          const method = response.request().method()
+          const status = response.status()
+
+          logger(
+            `[BACKGROUND REQUEST-RESPONSES] URL: ${url}, Method: ${method}, Status: ${status}`
+          )
+
+          if (
+            url.startsWith(
+              'https://www.google.com/_/TravelFrontendUi/data/batchexecute'
+            ) &&
+            method === 'POST' &&
+            status === 200
+          ) {
+            page.off('response', handleResponse)
+            resolve(true)
+          }
+        }
+        page.on('response', handleResponse)
+      })
+
+      const timeoutPromise = new Promise(resolve =>
+        setTimeout(() => resolve(false), timeout)
+      )
+
+      const responseDetected = await Promise.race([
+        responseDetectedPromise,
+        timeoutPromise
+      ])
+
+      logger(`responseDetected: ${responseDetected}`)
+
+      if (responseDetected) {
+        logger(
+          `Google API POST request detected. Pages detected: ${
+            pagesDetected + 1
+          }/${totalPagesToFetch}`
+        )
+        pagesDetected++
+        const newReviewsLoaded = await extractAndParseFromElements(
+          page,
+          reviewElementSelector,
+          extractedReviews,
+          saveObjectToS3,
+          handleAzureBlobAndPipeline,
+          user
+        )
+
+        logger(
+          `Extracted ${
+            newReviewsLoaded ? 'new' : 'no new'
+          } reviews after request.`
+        )
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        retryCount = 0
+
+        if (pagesDetected >= totalPagesToFetch) {
+          logger(
+            `Reached target page count (${totalPagesToFetch}). Performing one more scroll to check for more content.`
+          )
+          await page.evaluate(anchor => {
+            const element = document.querySelector(anchor)
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'end' })
+            }
+          }, scrollableSelector)
+          await new Promise(resolve => setTimeout(resolve, 1500))
+          logger('Final scroll performed after reaching page limit. Stopping.')
+          continueScrolling = false
+        }
+      } else {
+        logger(
+          `Google API POST request NOT detected after scroll. Retry attempt: ${
+            retryCount + 1
+          }/${maxRetries + 1}`
+        )
+        if (retryCount < maxRetries) {
+          logger('Retrying scroll sequence...')
+          await page.evaluate(anchor => {
+            const element = document.querySelector(anchor)
+            if (element) {
+              element.scrollBy(0, -element.clientHeight / 2)
+            }
+          }, scrollableSelector)
+          await new Promise(resolve => setTimeout(resolve, retryDelay))
+
+          for (let i = 0; i < 3; i++) {
+            await page.evaluate(anchor => {
+              const element = document.querySelector(anchor)
+              if (element) {
+                element.scrollBy(0, element.clientHeight)
+              }
+            }, scrollableSelector)
+            await new Promise(resolve => setTimeout(resolve, retryDelay))
+          }
+          retryCount++
+        } else {
+          logger('Max retry attempts reached. Stopping scroll.', 'warn')
+          continueScrolling = false
+        }
+      }
+
+      // Perform the scroll AFTER setting up the response listener
+      await page.evaluate(anchor => {
+        const element = document.querySelector(anchor)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'end' })
+        }
+      }, scrollableSelector)
+      await new Promise(resolve => setTimeout(resolve, 500))
+    } catch (error) {
+      logger(`Error during scroll with page limit: ${error}`, 'warn')
+      continueScrolling = false
+    }
+  }
+
+  logger('Review fetching complete.')
+}

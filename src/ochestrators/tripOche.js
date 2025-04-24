@@ -6,7 +6,7 @@ import { REVIEW } from '../models/documentModel.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import { fetchTripReviews } from '../spiders/tripSpider.js'
-import { generateMessage } from '../utils/utilities.js'
+import { generateMessage } from '../utilities/utilities.js'
 
 export async function generateTripReviews (req, res) {
   try {

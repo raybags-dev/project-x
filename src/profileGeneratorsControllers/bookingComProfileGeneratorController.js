@@ -3,10 +3,10 @@ import { HEADERS } from '../data/headers/headers.js'
 import { logger } from '../loggers/logger.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
-import { validateResponse } from '../utils/generalUtilities.js'
-import { validateAndAuthorizeUser } from '../utils/utilities.js'
+import { validateResponse } from '../utilities/generalUtilities.js'
+import { validateAndAuthorizeUser } from '../utilities/utilities.js'
 
-import axiosInstance from '../utils/proxy.js'
+import axiosInstance from '../downloader/HTTPEngine.js'
 
 export async function generateBookingComProfile (req, res) {
   try {
@@ -75,6 +75,10 @@ export async function generateBookingComProfile (req, res) {
     const dest_ufi = dest_ufi1 || dest_ufi2 || null
 
     const code_default = extractData(mainUrl, /\/hotel\/([^/]+)\//)
+    const code_altString = $('link[rel="canonical"]').attr('href')
+    const code_alt1Match = code_altString.match(/hotel\/([a-z]{2})\//)
+    const code_alt2 = getScriptData($, /b_countrycode"\s*:\s*'([^/]+)'/)
+    const code_alt = (code_alt1Match && code_alt1Match[1]) || code_alt2 || null
 
     const rating1 = getScriptData($, /"ratingValue"\s*:\s*(\d+(\.\d+)?)/)
     const rating2 = getScriptData($, /utrs:\s*'([\d.]+)'/)
@@ -84,7 +88,7 @@ export async function generateBookingComProfile (req, res) {
       $('input[name="dest_type"]').attr('value')?.toUpperCase() || 'CITY'
 
     metadata.dest_ufi = dest_ufi
-    metadata.countryCode = code_default
+    metadata.countryCode = code_default || code_alt
     metadata.rating = rating
     metadata.dest_type = dest_type
     metadata.review_total = reviewCount

@@ -1,7 +1,7 @@
 import { HEADERS } from '../data/headers/headers.js'
+import axiosInstance from '../downloader/HTTPEngine.js'
 import { logger } from '../loggers/logger.js'
-import { validateResponse } from '../utils/generalUtilities.js'
-import axiosInstance from '../utils/proxy.js'
+import { validateResponse } from '../utilities/generalUtilities.js'
 
 export async function fetchTripReviews (
   depth = 1,
@@ -40,37 +40,47 @@ async function fetchPerPage (
   pageSize,
   metadata
 ) {
-  let skip = 1
   const allReviews = []
-  const maxConcurrency = 5
-  const requestQueue = []
+  const maxConcurrency = 40
 
-  while (skip <= depth) {
-    requestQueue.push(
-      fetchPageData(
-        endpointUrl,
-        createRequestBody(propertyExternalId, skip, metadata),
-        headers
-      ).catch(error => {
-        logger(
-          `Error fetching page at skip=${currentSkip}: ${error.message}`,
-          'error'
-        )
-      })
-    )
+  // Process pages in batches of maxConcurrency
+  for (
+    let currentPage = 1;
+    currentPage <= depth;
+    currentPage += maxConcurrency
+  ) {
+    // Create a batch of promises for concurrent execution
+    const batchPromises = []
 
-    if (requestQueue.length >= maxConcurrency || skip === depth) {
-      const results = await Promise.allSettled(requestQueue)
-      requestQueue.length = 0
+    // Calculate end of current batch (not exceeding depth)
+    const batchEnd = Math.min(currentPage + maxConcurrency - 1, depth)
 
-      for (const result of results) {
-        if (result.status === 'fulfilled' && Array.isArray(result.value)) {
-          allReviews.push(...result.value)
-        }
+    // Create promises for each page in current batch
+    for (let page = currentPage; page <= batchEnd; page++) {
+      logger(`Fetching: ${endpointUrl}`, 'info')
+      batchPromises.push(
+        fetchPageData(
+          endpointUrl,
+          createRequestBody(propertyExternalId, page, metadata),
+          headers
+        ).catch(error => {
+          logger(`Error fetching page ${page}: ${error.message}`, 'error')
+          return [] // Return empty array on error to maintain consistency
+        })
+      )
+    }
+
+    // Wait for all promises in the batch to settle
+    const results = await Promise.allSettled(batchPromises)
+
+    // Process results
+    for (const result of results) {
+      if (result.status === 'fulfilled' && Array.isArray(result.value)) {
+        allReviews.push(...result.value)
       }
     }
-    skip += 1
   }
+
   return allReviews
 }
 async function fetchPageData (endpointUrl, requestBody, headers) {

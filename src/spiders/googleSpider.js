@@ -1,10 +1,17 @@
+import 'dotenv/config'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import { HEADERS } from '../data/headers/headers.js'
 import { logger } from '../loggers/logger.js'
 import { REVIEW } from '../models/documentModel.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
-import { parseReviewHtml } from '../ochestrators/googleOche.js'
-import axiosInstance from '../utils/proxy.js'
+import headlessManager from '../ochestrators/googleOche.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+const isProduction = process.env.NODE_ENV === 'production'
 
 export async function generateGoogleReviews (req, res) {
   try {
@@ -22,7 +29,6 @@ export async function generateGoogleReviews (req, res) {
         message: 'Reviews could not be generated from generateGoogleReviews'
       })
     }
-
     const user = await USER_MODEL.findOne({ email })
 
     if (!user) {
@@ -50,21 +56,28 @@ export async function generateGoogleReviews (req, res) {
       originalUrl
     } = userProfile
 
-    const headers = HEADERS.googleHtmlHeaders
+    const headers = HEADERS.googleHeadersGenProfile
     const depth = req.query.depth
     const runType = await PROFILE_MODEL.nextRunType(req, res)
 
-    const { savedReviews } = await downloadHttpGoogleReviews(
+    const reviewsList = await headlessManager(
       baseUrl,
-      headers,
       depth,
       runType,
-      parseReviewHtml,
-      req,
-      computedUrl
+      headers,
+      {
+        userId: user.userId,
+        slug: userProfile.reviewSiteSlug,
+        id: userProfile._id
+      }
     )
 
-    for (const { reviewsData, previousPageToken } of savedReviews) {
+    return res
+      .status(200)
+      .json({ isDone: true, reviewsList: reviewsList || [] })
+    //********* FOR NOW, JUST SEND BACK REVIEWS LIST AS A RESPONSE. ******** */
+
+    for (const { reviewsData, previousPageToken } of reviewsList) {
       for (const review of reviewsData) {
         const existingReview = await REVIEW.findOne({
           authorExternalId: review.authorExternalId,
@@ -100,7 +113,7 @@ export async function generateGoogleReviews (req, res) {
       }
     }
 
-    const totalReviewCount = savedReviews.length
+    const totalReviewCount = reviewsList.length
     await PROFILE_MODEL.updateOne(
       { userId: user.userId },
       { $set: { propertyReviewCount: totalReviewCount } }
@@ -132,58 +145,4 @@ export async function generateGoogleReviews (req, res) {
     logger(`Error fetching reviews: ${error}`, 'error')
     res.status(500).json({ error: 'Server error' })
   }
-}
-async function downloadHttpGoogleReviews (
-  baseUrl,
-  headers,
-  depth,
-  runType,
-  parseReviewHtml,
-  req,
-  computedUrl
-) {
-  let nextPageToken = null
-  let previousPageToken = null
-  let savedReviews = []
-
-  const totalPagesToFetch = depth
-    ? parseInt(depth) || 10
-    : runType === 'INITIAL' || depth === 'full'
-    ? Infinity
-    : Infinity
-
-  for (let currentPage = 0; currentPage < totalPagesToFetch; currentPage++) {
-    const urlWithPageToken =
-      currentPage === 0 ? baseUrl : `${baseUrl}${nextPageToken}`
-
-    try {
-      logger(`Fetching page ${currentPage + 1}: ${urlWithPageToken}`, 'info')
-
-      let response = await axiosInstance.get(urlWithPageToken, { headers })
-      if (!response || !response.data) {
-        logger('No response data received', 'error')
-        return { savedReviews, nextPageToken: null }
-      }
-
-      let { data } = response
-
-      let nextPageTokenMatch = data.match(/data-next-page-token="([^"]+)"/)
-      nextPageToken = nextPageTokenMatch ? nextPageTokenMatch[1] : null
-
-      const reviewsData = await parseReviewHtml(data, baseUrl, req, computedUrl)
-
-      savedReviews.push({ reviewsData, previousPageToken })
-
-      if (reviewsData.length === 0) {
-        logger('No more reviews on the current page.', 'error')
-        break
-      }
-
-      previousPageToken = nextPageToken
-    } catch (error) {
-      logger(`Error fetching reviews: ${error}`, 'info')
-    }
-  }
-
-  return { savedReviews, nextPageToken }
 }

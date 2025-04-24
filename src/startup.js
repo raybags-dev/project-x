@@ -1,8 +1,7 @@
 import 'dotenv/config'
 import connectDB from './DB/connect.js'
 import { devLogger } from './loggers/devLogger.js'
-import { clearDevPort } from './utils/cleanUp.js'
-// import { testProxyConnection } from './utils/proxy.js'
+import { clearDevPort } from './utilities/cleanUp.js'
 
 const { MONGO_URI } = process.env
 
@@ -22,8 +21,6 @@ async function starterLogger (port) {
     devLogger(`User: ${currentUser}`, 'info')
     devLogger(`Log name: ${logname}`, 'info')
     devLogger(`Server running on port: ${port}`, 'info')
-    devLogger(`Testing proxy server...`, 'info')
-    // await testProxyConnection()
   } catch (e) {
     devLogger(`Error occurred in starterLogger function: ${e}`, 'error')
   }
@@ -70,18 +67,6 @@ const startServer = async (app, port, attempt = 1) => {
 export default async function (app) {
   try {
     const PORT = process.env.PORT || 3001
-
-    // if (process.env.NODE_ENV === 'production') {
-    //   app.use((req, res, next) => {
-    //     const allowedHost = 'raybags.com'
-    //     const requestHost = req.headers.host
-
-    //     if (!requestHost || !requestHost.endsWith(allowedHost))
-    //       return res.status(403).send('Access Denied')
-
-    //     next()
-    //   })
-    // }
 
     app.use('/raybags/v1/review-crawler/*', (req, res, next) => {
       let newUrl = req.url.replace(

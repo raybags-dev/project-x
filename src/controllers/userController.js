@@ -5,7 +5,7 @@ import { logger } from '../loggers/logger.js'
 import { REVIEW } from '../models/documentModel.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_ID_MODEL, USER_MODEL } from '../models/user.js'
-import { sanitizeUser, validateRequest } from '../utils/utilities.js'
+import { sanitizeUser, validateRequest } from '../utilities/utilities.js'
 
 const { RECIPIENT_EMAIL, SECRET_ADMIN_TOKEN, SUPER_USER_TOKEN } = process.env
 

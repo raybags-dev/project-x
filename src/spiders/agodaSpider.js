@@ -1,8 +1,8 @@
 import { HEADERS } from '../data/headers/headers.js'
+import axiosInstance from '../downloader/HTTPEngine.js'
 import { logger } from '../loggers/logger.js'
 import { findTotalIndexById } from '../profileGeneratorsControllers/agodaProfileGeneratorController.js'
-import { validateResponse } from '../utils/generalUtilities.js'
-import axiosInstance from '../utils/proxy.js'
+import { validateResponse } from '../utilities/generalUtilities.js'
 
 export async function fetchAgodaReviews (
   depth = 1,
@@ -18,7 +18,7 @@ export async function fetchAgodaReviews (
 
     const endpointUrl =
       'https://www.agoda.com/api/cronos/property/review/ReviewComments'
-    const headers = { ...HEADERS.agodaApiHeaders, method: 'POST' }
+    const headers = { ...HEADERS.agodaHeadersGenReviews, method: 'POST' }
 
     const parallelCalls = Math.max(2, Math.min(depth, 5))
     logger(`Running with ${parallelCalls} parallel calls...`, 'info')
@@ -51,7 +51,7 @@ async function fetchPageData (endpointUrl, requestBody, headers) {
     if (!validateResponse(response)) return
 
     if (!response.data?.comments || response.data?.comments?.length === 0) {
-      logger('⚠️  No more comments available. Exiting...', 'info')
+      logger('No more comments available. Exiting...', 'info')
       return null
     }
 
@@ -132,6 +132,7 @@ async function fetchAgodaReviewsPerPage (
 
     const pagePromises = []
     for (let i = 0; i < parallelCalls; i++) {
+      logger(`fetching: ${endpointUrl}`, 'info')
       if (depth !== 'full' || page + i <= depth) {
         pagePromises.push(
           fetchPage(

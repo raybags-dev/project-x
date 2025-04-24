@@ -10,11 +10,11 @@ export function handleAzureBlobAndPipeline (reviewsList, fileParamsList) {
     .then(cosmosSaveResult => {
       logger(
         `Pipeline status: ${
-          cosmosSaveResult.success ? '✅ Success' : '❌ Failure'
+          cosmosSaveResult.success ? '✅ Success' : 'Failure'
         }`
       )
     })
     .catch(err => {
-      logger(`❌ Error in Azure pipeline: ${err.message}`, 'error')
+      logger(`Error in Azure pipeline: ${err.message}`, 'warn')
     })
 }

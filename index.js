@@ -10,9 +10,12 @@ import startUp from './src/startup.js'
 import {
   injectNonceToLocalScripts,
   setupNoncedRoute
-} from './src/utils/injectionUtility.js'
-import { handleNotSupported, miscellaneous } from './src/utils/miscellaneous.js'
-import { handleCSP } from './src/utils/utilities.js'
+} from './src/utilities//injectionUtility.js'
+import {
+  handleNotSupported,
+  miscellaneous
+} from './src/utilities/miscellaneous.js'
+import { handleCSP } from './src/utilities/utilities.js'
 import generalRoutesHandler from './src/workers/generalRoutesHandler.js'
 import profileGeneratorHandler from './src/workers/profileGenRoutesHandler.js'
 import reviewGeneratorHandler from './src/workers/reviewGenRoutesHandler.js'
