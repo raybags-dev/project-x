@@ -88,7 +88,9 @@ async function saveReviewToS3 (review, save_to_s3 = true) {
     return null
   }
 }
-export async function saveObjectToS3 (reviews) {
+export async function saveObjectToS3 (reviews, run_pipeline = true) {
+  if (!run_pipeline) return logger(`bucket storage (s3) is turned off!`)
+
   if (!Array.isArray(reviews) || reviews.length === 0) return
   try {
     await Promise.all(reviews.map(review => saveReviewToS3(review, true)))

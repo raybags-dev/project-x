@@ -1,15 +1,10 @@
 import 'dotenv/config'
-import path from 'path'
-import { fileURLToPath } from 'url'
 import { HEADERS } from '../data/headers/headers.js'
 import { logger } from '../loggers/logger.js'
 import { REVIEW } from '../models/documentModel.js'
 import { PROFILE_MODEL } from '../models/profileModel.js'
 import { USER_MODEL } from '../models/user.js'
 import headlessManager from '../ochestrators/googleOche.js'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -60,6 +55,20 @@ export async function generateGoogleReviews (req, res) {
     const depth = req.query.depth
     const runType = await PROFILE_MODEL.nextRunType(req, res)
 
+    if (isProduction) {
+      res.status(200).json({
+        state: 'in progress',
+        isCompleted: false,
+        reviewSiteName: userProfile.reviewSiteSlug,
+        reviewDocumentCount: null,
+        accountName: userProfile.name,
+        profile_id: profile_id,
+        endpoint: userProfile.computedUrl,
+        siteId: internalId,
+        message: 'Please check back again later for review data.'
+      })
+    }
+
     const reviewsList = await headlessManager(
       baseUrl,
       depth,
@@ -72,44 +81,33 @@ export async function generateGoogleReviews (req, res) {
       }
     )
 
-    return res
-      .status(200)
-      .json({ isDone: true, reviewsList: reviewsList || [] })
-    //********* FOR NOW, JUST SEND BACK REVIEWS LIST AS A RESPONSE. ******** */
+    for (const review of reviewsList) {
+      const existingReview = await REVIEW.findOne({
+        authorExternalId: review.authorExternalId,
+        author: review.author
+      })
 
-    for (const { reviewsData, previousPageToken } of reviewsList) {
-      for (const review of reviewsData) {
-        const existingReview = await REVIEW.findOne({
+      if (!existingReview) {
+        await REVIEW.create({
+          author: review.author,
+          userId: user.userId,
+          siteId: internalId,
+          uuid: profile_id,
           authorExternalId: review.authorExternalId,
-          author: review.author
+          authorProfileUrl: review.authorProfileUrl,
+          // authorReviewCount: review.authorReviewCount,
+          reviewSiteSlug: review.reviewSiteSlug,
+          reviewBody: review.reviewBody,
+          propertyProfileUrl: computedUrl || review.propertyProfileUrl,
+          originalEndpoint: originalUrl,
+          reviewDate: review.reviewDate,
+          urlAgent: baseUrl || review.propertyProfileUrl,
+          propertyName: property_name || 'compute failed',
+          propertyResponse: review.propertyResponse,
+          rating: review.rating,
+          tripType: review.tripType,
+          subratings: review.subratings
         })
-
-        if (!existingReview) {
-          await REVIEW.create({
-            author: review.author,
-            userId: review.userId,
-            siteId: internalId,
-            uuid: profile_id,
-            reviewPageId: previousPageToken,
-            authorExternalId: review.authorExternalId,
-            authorProfileUrl: review.authorProfileUrl,
-            authorReviewCount: review.authorReviewCount,
-            reviewSiteSlug: review.reviewSiteSlug,
-            reviewBody: review.reviewBody,
-            propertyProfileUrl: computedUrl || review.propertyProfileUrl,
-            originalEndpoint: originalUrl,
-            reviewDate: review.reviewDate,
-            urlAgent: baseUrl || review.urlAgent,
-            propertyName: property_name || review.propertyName,
-            propertyResponse: {
-              body: review.propertyResponse.body,
-              responseDate: review.propertyResponse.responseDate
-            },
-            rating: review.rating,
-            tripType: review.tripType,
-            subratings: review.subratings
-          })
-        }
       }
     }
 
@@ -130,17 +128,19 @@ export async function generateGoogleReviews (req, res) {
     let ownershipId = userProfile.userId || req.locals.user.userId
     const totalCount = await REVIEW.countDocuments({ userId: ownershipId })
 
-    return res.status(200).json({
-      state: 'success',
-      isCompleted: res.statusCode >= 200 && res.statusCode < 300,
-      reviewSiteName: userProfile.reviewSiteSlug,
-      reviewDocumentCount: totalCount,
-      accountName: userProfile.name,
-      profile_id: profile_id,
-      endpoint: userProfile.computedUrl,
-      siteId: internalId,
-      message: 'completed!'
-    })
+    if (!isProduction) {
+      return res.status(200).json({
+        state: 'success',
+        isCompleted: res.statusCode >= 200 && res.statusCode < 300,
+        reviewSiteName: userProfile.reviewSiteSlug,
+        reviewDocumentCount: totalCount,
+        accountName: userProfile.name,
+        profile_id: profile_id,
+        endpoint: userProfile.computedUrl,
+        siteId: internalId,
+        message: 'completed!'
+      })
+    }
   } catch (error) {
     logger(`Error fetching reviews: ${error}`, 'error')
     res.status(500).json({ error: 'Server error' })

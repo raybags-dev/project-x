@@ -2,7 +2,7 @@ import * as cheerio from 'cheerio'
 import { saveObjectToS3 } from '../../blobStorage/aws/s3BucketUtility.js'
 import { handleAzureBlobAndPipeline } from '../../blobStorage/azure/pipelines/azureOchestrator.js'
 import { logger } from '../../loggers/logger.js'
-import parseGoogleReview from './parsers.js'
+import parseGoogleReview from '../parser/parsers.js'
 
 async function extractAndParseFromElements (
   page,
@@ -36,24 +36,27 @@ async function extractAndParseFromElements (
   }
 
   extractedReviews.push(...newReviews)
-  saveObjectToS3(newReviews)
-  handleAzureBlobAndPipeline(newReviews, [slug, userId, id])
-  return newReviews.length > 0
+  saveObjectToS3(newReviews, false)
+  handleAzureBlobAndPipeline(newReviews, [slug, userId, id], false)
+  return {
+    hasNew: newReviews.length > 0,
+    reviews: newReviews
+  }
 }
-// main worker
 export default async function fetchAndSaveGoogleReviews (
   page,
   totalPagesToFetch,
   user,
   options = {}
 ) {
+  let allReviews = []
   const { timeout = 30000, maxRetries = 3, retryDelay = 1500 } = options
 
   const reviewElementSelector = 'div.Svr5cf.bKhjM'
   const scrollableSelector = 'div[jsname="UcPrk"][class="v85cbc"]'
   const extractedReviews = [true]
 
-  await extractAndParseFromElements(
+  const initialReviews = await extractAndParseFromElements(
     page,
     reviewElementSelector,
     extractedReviews,
@@ -61,6 +64,8 @@ export default async function fetchAndSaveGoogleReviews (
     handleAzureBlobAndPipeline,
     user
   )
+
+  allReviews.push(...initialReviews.reviews)
 
   let continueScrolling = true
   let retryCount = 0
@@ -125,9 +130,11 @@ export default async function fetchAndSaveGoogleReviews (
 
         logger(
           `Extracted ${
-            newReviewsLoaded ? 'new' : 'no new'
+            newReviewsLoaded.hasNew ? 'new' : 'no new'
           } reviews after request.`
         )
+        allReviews.push(...newReviewsLoaded.reviews)
+
         await new Promise(resolve => setTimeout(resolve, 1000))
         retryCount = 0
 
@@ -177,7 +184,6 @@ export default async function fetchAndSaveGoogleReviews (
         }
       }
 
-      // Perform the scroll AFTER setting up the response listener
       await page.evaluate(anchor => {
         const element = document.querySelector(anchor)
         if (element) {
@@ -192,4 +198,6 @@ export default async function fetchAndSaveGoogleReviews (
   }
 
   logger('Review fetching complete.')
+
+  return allReviews
 }

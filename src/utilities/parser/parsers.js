@@ -86,7 +86,14 @@ function parseSubratings ($, element) {
     }
   })
 
-  return Object.keys(subratings).length > 0 ? subratings : null
+  if (Object.keys(subratings).length === 0) return []
+
+  const subratingsList = []
+  for (const [key, value] of Object.entries(subratings)) {
+    subratingsList.push({ key, value })
+  }
+
+  return subratingsList
 }
 function parseExtras ($, element) {
   const extrasContainer = $(element).find('.X4nL7d')
@@ -130,6 +137,13 @@ function extractPreferredBodyText (reviewText) {
 
   return reviewText.trim()
 }
+function validateObjectFields (obj) {
+  if (!obj) return null
+  const isValid = Object.values(obj).every(
+    value => value !== null && value !== ''
+  )
+  return isValid ? obj : null
+}
 export default async function parseGoogleReview ($) {
   try {
     let reviews = []
@@ -166,6 +180,11 @@ export default async function parseGoogleReview ($) {
       const resDate = processResponseDate($, element)
       const formatedResDate = resDate && parseReviewDate(resDate)
 
+      const responseObject = validateObjectFields({
+        body: cleanedResponseBody,
+        responseDate: formatedResDate
+      })
+
       const rating = $(element)
         .find('div.GDWaad')
         .text()
@@ -185,12 +204,9 @@ export default async function parseGoogleReview ($) {
         reviewSiteSlug: siteSlug,
         reviewBody: cleanReviewBody,
         reviewDate: formatedReviewDate,
-        subratings,
-        guest_opinions: highlights,
-        propertyResponse: {
-          body: cleanedResponseBody,
-          responseDate: formatedResDate
-        }
+        subratings: subratings,
+        miscellaneous: highlights,
+        propertyResponse: responseObject
       }
 
       reviews = {
