@@ -1,12 +1,12 @@
 import 'dotenv/config'
 import { launchBrowser } from '../downloader/browserEngine.js'
 import { logger } from '../loggers/logger.js'
-import fetchAndSaveGoogleReviews from '../utilities/parser_tools/browserWorker.js'
+import fetchAndSaveGoogleReviews from '../utilities/browserWorkers/browserWorker.js'
 import { holdOnFor } from '../utilities/utilities.js'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
-import utilityRegistry from '../utilities/parser_tools/htmlToolRegistry.js'
+import utilityRegistry from '../utilities/events/eventHandlers.js'
 const {
   handleGoogleCookieDialogue,
   handleGoogleReviewTabBtn,
@@ -60,15 +60,15 @@ export default async function headlessManager (
       await handleGoogleReviewFIlterSelection(page)
       await holdOnFor(3000)
       await handleRecentReviewFIlterSelection(page)
-      //*********** */
-      const reviewData = await fetchAndSaveGoogleReviews(
+
+      const allReviews = await fetchAndSaveGoogleReviews(
         page,
         totalPagesToFetch,
         user
       )
-      //*********** */
-      reviewsList = reviewData
-      return reviewsList
+
+      reviewsList = allReviews
+      return allReviews
     } catch (error) {
       logger(`Error during review extraction flow: ${error}`, 'warn')
       logger(`ErrorStack: ${error.stack}`, 'error')
