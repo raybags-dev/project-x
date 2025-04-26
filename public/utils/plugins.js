@@ -1349,8 +1349,8 @@ export const PLUGINS = {
       runSpinner(true)
       displayLabel([
         'review_main_wrapper',
-        'alert-danger',
-        `An error occurred while processing your request. Please try again later`
+        'alert-success',
+        `Please check back again later for review data.`
       ])
     } catch (e) {
       console.warn(e)
