@@ -1,33 +1,58 @@
-# Use the official Node.js image as the base image
-FROM node:20-alpine
+FROM node:20
 
-# Set environment variable to skip Puppeteer's Chromium download
-ENV PUPPETEER_SKIP_DOWNLOAD=true
-ENV CHROME_BIN=/usr/bin/chromium-browser
+# Install dependencies and Chromium (not Chrome)
+RUN apt-get update && apt-get install -y \
+    chromium \
+    fonts-liberation \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libc6 \
+    libcairo2 \
+    libcups2 \
+    libdbus-1-3 \
+    libexpat1 \
+    libfontconfig1 \
+    libgbm1 \
+    libgcc1 \
+    libglib2.0-0 \
+    libgtk-3-0 \
+    libnspr4 \
+    libnss3 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libstdc++6 \
+    libx11-6 \
+    libx11-xcb1 \
+    libxcb1 \
+    libxcomposite1 \
+    libxcursor1 \
+    libxdamage1 \
+    libxext6 \
+    libxfixes3 \
+    libxi6 \
+    libxrandr2 \
+    libxrender1 \
+    libxss1 \
+    libxtst6 \
+    lsb-release \
+    xdg-utils \
+    --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
 
-# Set the working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy package.json and install dependencies
 COPY package*.json ./
-
-# Install dependencies (Puppeteer will now skip downloading Chromium)
 RUN npm install
 
-# Install Chromium and related deps
-RUN apk update && apk add --no-cache \
-    chromium \
-    nss \
-    freetype \
-    harfbuzz \
-    ttf-freefont \
-    dumb-init \
-    udev \
-    bash \
-    curl
-
-# Copy the rest of the application code
+# Copy app code
 COPY . .
+
+# Tell Puppeteer to use system Chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # Expose app port
 EXPOSE 3001
@@ -37,7 +62,7 @@ CMD ["npm", "start"]
 
 
 
-# # Use the official Node.js image as the base image
+# #  Use the official Node.js image as the base image
 # FROM node:20
 
 # # Set the working directory inside the container
