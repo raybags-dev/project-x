@@ -15,7 +15,7 @@ export function handleAzureBlobAndPipeline (
     .then(cosmosSaveResult => {
       logger(
         `Pipeline status: ${
-          cosmosSaveResult.success ? '✅ Success' : 'Failure'
+          cosmosSaveResult.success ? '✅ Success' : 'Did not run'
         }`
       )
     })

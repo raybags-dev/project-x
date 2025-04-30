@@ -7,7 +7,8 @@ echo "Removing all unused Docker resources..."
 docker system prune -af --volumes
 
 echo "Building and starting fresh containers..."
-docker compose build --no-cache && docker compose up -d
+# docker compose build --no-cache && docker compose up -d
+docker compose build --no-cache && docker compose up
 
 echo "Cleanup and rebuild complete!"
 echo "You can now access the application at http://localhost:3002"

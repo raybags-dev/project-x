@@ -89,16 +89,8 @@ export const HEADERS = {
     'apollographql-client-version': 'ZDLDAfJQ',
     'content-type': 'application/json',
     cookie:
-      'cors_js=1; px_init=0; bkng_sso_session=e30; FPID=FPID2.2.yBf7glL4dGEEHZZZqDxZH85qKX4A0DfQ7wxLo3hdjCI%3D.1700556835; _yjsu_yjad=1715597843.f9d9ce94-e220-44f1-a4e5-03d21c2017fd; _pin_unauth=dWlkPU5URTFORFV4WWpJdE5ESTRaQzAwWVdNM0xUa3haakl0WkRCbE0yVTFNVFUzWlRnMQ; _ga_SEJWFCBCVM=GS1.1.1715597842.1.1.1715597922.60.0.0; pcm_personalization_disabled=0; _gcl_au=1.1.2145518399.1740875041; OptanonAlertBoxClosed=2025-03-14T22:22:26.665Z; _gcl_aw=GCL.1741990947.CjwKCAjwp8--BhBREiwAj7og1_NOPEIZ3PcC1GmhbRKlmTStwgxxi2e6x9o4x1bAymDMGJwjLHvQ_RoCn0EQAvD_BwE; _gac_UA-116109-18=1.1741990948.CjwKCAjwp8--BhBREiwAj7og1_NOPEIZ3PcC1GmhbRKlmTStwgxxi2e6x9o4x1bAymDMGJwjLHvQ_RoCn0EQAvD_BwE; bkng_sso_ses=eyJib29raW5nX2dsb2JhbCI6W3siYSI6MSwiaCI6IjA3aUZ4ckdJSE9yTi82dFBCeU1kZFhTT2k3bEdxMjF4aGo4T2xLQ3RNRlUifV19; pcm_consent=consentedAt%3D2025-03-14T22%3A22%3A27.853Z%26countryCode%3DNL%26expiresAt%3D2025-09-10T22%3A22%3A27.853Z%26implicit%3Dfalse%26regionCode%3DFL%26regulation%3Dgdpr%26legacyRegulation%3Dgdpr%26consentId%3Db80f9271-ba02-4d8c-832d-dfa9130c2302%26analytical%3Dtrue%26marketing%3Dtrue; FPAU=1.1.2145518399.1740875041; FPGCLAW=2.1.kCjwKCAjwp8--BhBREiwAj7og1_NOPEIZ3PcC1GmhbRKlmTStwgxxi2e6x9o4x1bAymDMGJwjLHvQ_RoCn0EQAvD_BwE$i1742195014; bkng_sso_auth=CAIQ0+WGHxpmtv7NaxPtyrS4MNxeFv2N1ranJ7hQGso8EMqf5eFO2Z37ykBCdcau7wcx37/9wLaPJ8CzzlKbaKs9V7jd3ORvIuR1gdwKMcqATr5VZlaiRwod9KDL9cBUqkeM8gAFXV7dC1wOCAJo; BJS=-; _gid=GA1.2.833473038.1745505299; __eoi=ID=2e369a88c8c30e61:T=1745505299:RT=1745505299:S=AA-AfjYKW-IaVQZVnvjZfsLKRvyC; bkng_prue=1; cgumid=5MKZTV9jeW1rSFhBVSUyRjBrd05VTWdRYUpXdnZpbWlEUzFhblJBY2F4UEFzeTMwWE0lM0Q; FPLC=jYWBRfjmVlSo0gJ8YyhZgfqdKtpFzZjRcMMe4glKAL9XkaLi090EEnw6mMVoq7h6bkdLHuBKT75fnUGXkvx5UFO2PbHUl%2Fhmq5NkQ5gVQlIaGAtN3MPtYPZj0jUP4g%3D%3D; OptanonConsent=isGpcEnabled=0&datestamp=Thu+Apr+24+2025+16%3A35%3A16+GMT%2B0200+(Central+European+Summer+Time)&version=202501.2.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=91b1c845-07ac-44ba-ad84-019b0672182f&interactionCount=1&isAnonUser=1&landingPath=NotLandingPage&AwaitingReconsent=false&groups=C0001%3A1%2CC0002%3A1%2CC0004%3A1&implicitConsentCountry=GDPR&implicitConsentDate=1741990922185&backfilled_at=1741990947878&backfilled_seed=1&geolocation=US%3BNY; _ga_A12345=GS1.1.1745505301.5.1.1745505317.0.0.657411247; _ga=GA1.1.115511342.1700556835; cto_bundle=Ha1IY19QcHJqWWxKMjFGY3ZjbW5FckJ2OSUyQnVsRmwycklCY2Z6c1FTNjBWcWs1TzN0QWNuUnZab08lMkZRYml6WFN1RzI3NlVIdXB3WnFOYTkyWGMlMkZ4eWc4ZXFGVXJuek9Ubmk2U284NWxuemZwRWM0dCUyRk5Ib1hvaERvNDlzeU1BNk1BY0pydzVwcGRiYm9OZVhHblglMkJOWktOVWdUSGV0M1RVem5JWk1FV2VhZFZVYVg4bGVQOWhxWHElMkJycVd6ZERGQ0lUdnBsTCUyQlM2TmxuNGpYeGE3WENFTjNpeXclM0QlM0Q; _uetsid=4e4971d0211911f09424eb50013fee74; _uetvid=9340e240111711ef9f850be65c0f9817; _gat=1; bkng=11UmFuZG9tSVYkc2RlIyh9Yaa29%2F3xUOLblgO%2Fz4BDP5uY8wnFL9TzDfa0DktKrOyWbANThrxPeYhUtLj38TmMePQx%2FECkXpy40XBYjgy832hjvD2hnnm6dhRhVyZDFxmUqpapk%2ByvuDv43jaA4BreJmUIp7jbsA02OKo%2B3pmZIUqKpJXgniNbLQaSej12OCAzFIV3zXI0j4Xs%2BE%2F%2FyaU3DQ%3D%3D; aws-waf-token=b73ba657-da2c-4d90-9b5f-b463dbabd983:CQoAqYVljTYyBAAA:Ltwgrg+st1ZEHiMyXKLT14Yq2xx0cNlwXUsmlrYdPennUTDFmTk2bfQ2AnrPgb/Z8/lFTCIzhAfb573R+Lrf4qV+Qb3pHnZjySA16z0meWMLoLtTdAKyGle7O5VOOeTA/8+qeGBkvUNBODzTpip24OjIHgFGH57K8ynvNHJOw4bU+KODur5oo4mihqMXgcYfTUXP2/VlPHwn8BtQ8vl5Z7+yxswOrTvHwy1/C5zEjXPfq324dlHfUCUqzEovXsaX0nU=; lastSeen=0',
+      'bkng=11UmFuZG9tSVYkc2RlIyh9YSvtNSM2ADX0BnR0tqAEmjsiPtWqgVsVXalafLSBZqWqWnmYUZp8ODxY2KfrG4dDiNyupkhwiri4NiqfyPRKSJoTtTZaLFvSW2LqF5Rj%2B9ipLjx2vALJuSHzeVRs1WCAnd8tZlLjmUWbXQN1Rp8MEmhDAQQaChCsbF1kiHPu3g2YS5%2FeK30gxzDr%2FXpZiscUSw%3D%3D; bkng_sso_auth=CAIQ0+WGHxpoGtzM7MO8h2vrqP3omEPPEKCTfCiv7IYlca84NctJNdfRz1e8xZFQo32NQ0DylbPnk54P7N2lvU/zFeFJS+GdWdHwMgfn7khPmsVxE3DUVflLsuMjwb7c1YUJIbEjzjqVpHwZ7lV26hQ=; pcm_consent=analytical%3Dtrue%26countryCode%3DUS%26consentId%3D29bddfb2-e0fe-4065-9e22-fe9617c56c4c%26consentedAt%3D2025-04-17T18%3A33%3A21.689Z%26expiresAt%3D2025-10-14T18%3A33%3A21.689Z%26implicit%3Dtrue%26marketing%3Dtrue%26regionCode%3DNY%26regulation%3Dnone%26legacyRegulation%3Dnone; pcm_personalization_disabled=0',
     origin: 'https://www.booking.com',
-    priority: 'u=1, i',
-    'sec-ch-ua':
-      '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
-    'sec-ch-ua-mobile': '?0',
-    'sec-ch-ua-platform': '"macOS"',
-    'sec-fetch-dest': 'empty',
-    'sec-fetch-mode': 'cors',
-    'sec-fetch-site': 'same-origin',
     'user-agent':
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
     'x-apollo-operation-name': 'ReviewList',
@@ -173,24 +165,34 @@ export const HEADERS = {
   opentableHeadersGenProfile: {
     accept:
       'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+    'accept-language': 'en-US,en;q=0.9,nl-NL;q=0.8,nl;q=0.7',
     'cache-control': 'max-age=0',
+    cookie:
+      'otuvid=6E951AF7-E78D-4D2F-9F32-0ADFFB6F2E43; otuvid_f=b9285a82-c571-4950-a587-7ad633d57473; otuvid_p=07ee8883-29a9-48f2-87f8-13335d23ed85; otuvid_t=c129b796-b2d4-44b7-973d-8849f68dc897; _ga=GA1.1.262968021.1743084996; _gcl_au=1.1.417624341.1743084997; lvCKE=lvmreg=87%2C0&histmreg=87%2C0; OT-Interactive-SessionId=3e9947f2-3e04-485a-a10e-dd19e56f8aa1; ftc=x=2025-04-30T07%3A03%3A32&c=1&pt1=1&pt2=1&er=72223&p1ca=restaurant%2Fprofile%2F72223; OT-SessionId=3e9947f2-3e04-485a-a10e-dd19e56f8aa1; ha_userSession=lastModified=2025-04-22T12%3A14%3A03.000Z&origin=prod-sc2; ak_bmsc=1D990D92AD6CC957968D59B860C3F56B~000000000000000000000000000000~YAAQCgcQAms3R4SWAQAARBxLhRsFK4Tuq9T5ucOD5SyoLRDsBUzGBlNCmSo6On7dB2Dnf9F8taizDV1VndAnBFIi/ObPGOOeq78VsDCJMWIfQiJU8qbQBZo1sNlI/feV62I3jKfBx1pd2VkhfoHiKobkW0r4LVxnkZINH5HOSiaPKdPHBXZ2iWJt2zQr/Yi5qXvrVj0vb2a9VJRd8uublUzzZ1YIJHNOgWymHG4NFKabLIbGT8NEdVmRBxosnE/p9nVzzGXe3TrutgM8k6QMIzVQAi4bY49T8Y7ZfhyDnmixderSdP2oRY2UjtZoDA+1Q3/3m7t+C3KWu2dNA6fG8M+75lPiw6bfwJzZBmxLquoWGJA5SIASM6D7jzDVoWZSQMZUpM3mDw+BI3eHB0t2wpbzMcmkFrR/Uf3BXK4YVvk5hP+zEpj/KeHA8E1r9aWxOzqoJFSD64NUUX1ssfZdRw==; _fbp=fb.1.1745993014600.233793082796594; _tt_enable_cookie=1; _ttp=01JT2MP7HYJKSR0F5PYCFR597J_.tt.1; ttcsid=1745993014849::USYlnUsbiYocmwoI5siN.1.1745993014849; ttcsid_D0550FBC77UD5RFHGA50=1745993014847::XIhRewjrs_gJ1WV2u9pV.1.1745993015206; _ga_Y77FR7F6XF=GS1.1.1745993013.4.1.1745993020.0.0.0; OptanonAlertBoxClosed=2025-04-30T06:09:02.295Z; OptanonConsent=isGpcEnabled=0&datestamp=Wed+Apr+30+2025+08%3A09%3A02+GMT%2B0200+(Central+European+Summer+Time)&version=202503.1.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=49b2b30c-ec3d-4da8-b40c-d651872fe5f8&interactionCount=2&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A1%2CC0003%3A1%2CC0004%3A1&AwaitingReconsent=false&intType=1; OT-Session-Update-Date=1745993342; bm_sv=35DAFEDC4A02B8879876066C91289989~YAAQDQcQAlkB/4GWAQAAKR5QhRsoCzwxPZXkUHriyFQ6KdAJTHaGuUQBSr0g7Sc96QB0/XXKNMPWmT4i4ff8tYyeZsDUE2PL00d7Bx9b2YNDLsH7FJQ6Zs+gSQT55h/iQgyH4WE3Oko6qG4Bb6MwaFt5oExQps5QV1Wil6dfeU1tuBKxFh1yYlp5ieLLAa8x5e34k0+KW19bfrXKmkDUOatl198i7nyV93BLKpxrdx0pufTmttLq396ggO1zzgGMz3T7~1',
+    priority: 'u=0, i',
+    'sec-ch-ua':
+      '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"macOS"',
+    'sec-fetch-dest': 'document',
+    'sec-fetch-mode': 'navigate',
+    'sec-fetch-site': 'none',
+    'sec-fetch-user': '?1',
     'upgrade-insecure-requests': '1',
     'user-agent':
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
-    cookie:
-      'bm_sv=149AE9E85BDC66ADADEE53D1DDCDBE55~YAAQo0Y5F+kRy6qVAQAARSSZsBvuJ+eWLHEGXmL0UvkceTJ6TqaFODg0ZX0KLwSy6RkaUNAzavakmD2DEHHG0jSbktwlcos3UdweMZu5gkmnpshEdrcY38Uu0MyOAUcT6EYKrzwdi24d/WDkI1IobZjTvjGuq466sKvWlzH4E2l3KIk0yr555AWfcGrNhizxrSoBNr5FxwEh6SS78t+R4z6+cK9PytC3eluCUXj67bMe6HerRVnosH0W1UhiNKzyMFU/sg==~1; ftc=x=2025-03-19T23%3A49%3A41&c=1&pt1=1&pt2=1&er=151951; ha_userSession=lastModified=2025-03-18T11%3A41%3A36.000Z&origin=prod-sc2'
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36'
   },
   opentableHeadersGenReviews: {
     accept: '*/*',
-    'accept-language': 'en-US,en;q=0.9',
+    'accept-language': 'en-US,en;q=0.9,nl-NL;q=0.8,nl;q=0.7',
     'content-type': 'application/json',
     cookie:
-      'otuvid=7702AFAC-F203-465B-9387-DD48CBD0AB12; otuvid_f=514658d3-1a70-4d7d-991b-66e4e6ff156c; otuvid_p=cd7f24d4-3d03-4ba1-b399-2f02e769f1d2; otuvid_t=19c2df34-8f60-4ed1-920a-64e1a02c4624; OT-Interactive-SessionId=498c0465-d756-4358-83c7-877c6a044c78; OT-SessionId=498c0465-d756-4358-83c7-877c6a044c78; ha_userSession=lastModified=2025-04-22T12%3A14%3A03.000Z&origin=prod-sc2; _ga=GA1.1.279662475.1745504935; ak_bmsc=9A3DD0E69D5B07D17790ED69EEF81977~000000000000000000000000000000~YAAQr0RnaO3Z8mWWAQAAuaEzaBse3qlmPNV+LHiOimyLRX8F9fxuYGBkT5aZmY9x13UKVHUyjTAyzlXFxpSsXJOuNm0EX0GM1oh3JTJnN13sPju+G0i0/ERSSAyB48cCcs3NG71gU+SZuSopAJtmC+T+rbJnoglu8WGXTNKRVphC6bzsn8SEyGdI8mdCZGer4SnjnKOTN6P/SxwuztO4s9CEJPgcOjlljWB0I+qnrEuGbUUoFd8bPKjYy/7QPzoDNaynPwxyG/n5g/Mj3RisPtwqkpVleOzLMxmxLUmgjVPbboInjjd/vOGiLCdsx7nvtm6eRGph9dhr3KEOjBcORSCmrymxaMYor0M84mT14OcVsQkRr6lDdXNmyG+hG568iYZSOxU/EMO5nni5KwRCW1b8V3jerHLKA+DfdueeU+MdfSWEoTqs4FTYYw2aM1lX2InDtlv6t0L89d1B1NcpIg==; OptanonAlertBoxClosed=2025-04-24T14:28:56.292Z; _fbp=fb.1.1745504936659.7449479737744788; _gcl_au=1.1.1269293310.1745504937; ftc=x=2025-04-24T15%3A28%3A58&c=1&pt1=1&pt2=1&er=265365; OptanonConsent=isGpcEnabled=0&datestamp=Thu+Apr+24+2025+16%3A28%3A58+GMT%2B0200+(Central+European+Summer+Time)&version=202503.1.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=3d3df5b8-001b-4936-9c1e-9684df1207f4&interactionCount=2&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A1%2CC0003%3A1%2CC0004%3A1&AwaitingReconsent=false&intType=1&geolocation=NL%3BFL; OT-Session-Update-Date=1745505040; bm_sv=84272B87AC1BE036CFEF9BC4DFFCE09F~YAAQr0RnaAbm8mWWAQAAVDg1aBvMQN9C0Mg6qc1DGAkEHneus/ccxwaoI4io3ChsqTDlbshYty+ALwareT9Jq3+b1TOExTcsFA7/m/degQFcvGD6p33MQcC6n3GheifxiyBydA9HambVWR9pzhxWZ8TvwqIcxVQaMniXWLhiKrqQ/4Ky2JHtulhuIOvNMRns4kHC1yxGPi+CE8MEgltAzklMYcCZCnUASzhI6Aoac+uPH8UHXo3GgztrZmjifNlRnG6utQ==~1; _ga_Y77FR7F6XF=GS1.1.1745504935.1.1.1745505043.0.0.0',
+      'otuvid=6E951AF7-E78D-4D2F-9F32-0ADFFB6F2E43; otuvid_f=b9285a82-c571-4950-a587-7ad633d57473; otuvid_p=07ee8883-29a9-48f2-87f8-13335d23ed85; otuvid_t=c129b796-b2d4-44b7-973d-8849f68dc897; _ga=GA1.1.262968021.1743084996; _gcl_au=1.1.417624341.1743084997; lvCKE=lvmreg=87%2C0&histmreg=87%2C0; OT-Interactive-SessionId=3e9947f2-3e04-485a-a10e-dd19e56f8aa1; OT-SessionId=3e9947f2-3e04-485a-a10e-dd19e56f8aa1; ha_userSession=lastModified=2025-04-22T12%3A14%3A03.000Z&origin=prod-sc2; ak_bmsc=1D990D92AD6CC957968D59B860C3F56B~000000000000000000000000000000~YAAQCgcQAms3R4SWAQAARBxLhRsFK4Tuq9T5ucOD5SyoLRDsBUzGBlNCmSo6On7dB2Dnf9F8taizDV1VndAnBFIi/ObPGOOeq78VsDCJMWIfQiJU8qbQBZo1sNlI/feV62I3jKfBx1pd2VkhfoHiKobkW0r4LVxnkZINH5HOSiaPKdPHBXZ2iWJt2zQr/Yi5qXvrVj0vb2a9VJRd8uublUzzZ1YIJHNOgWymHG4NFKabLIbGT8NEdVmRBxosnE/p9nVzzGXe3TrutgM8k6QMIzVQAi4bY49T8Y7ZfhyDnmixderSdP2oRY2UjtZoDA+1Q3/3m7t+C3KWu2dNA6fG8M+75lPiw6bfwJzZBmxLquoWGJA5SIASM6D7jzDVoWZSQMZUpM3mDw+BI3eHB0t2wpbzMcmkFrR/Uf3BXK4YVvk5hP+zEpj/KeHA8E1r9aWxOzqoJFSD64NUUX1ssfZdRw==; _fbp=fb.1.1745993014600.233793082796594; _tt_enable_cookie=1; _ttp=01JT2MP7HYJKSR0F5PYCFR597J_.tt.1; OptanonAlertBoxClosed=2025-04-30T06:09:02.295Z; ftc=x=2025-04-30T07%3A09%3A10&c=1&pt1=1&pt2=1&er=72223&p1ca=restaurant%2Fprofile%2F72223; OptanonConsent=isGpcEnabled=0&datestamp=Wed+Apr+30+2025+08%3A09%3A11+GMT%2B0200+(Central+European+Summer+Time)&version=202503.1.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=49b2b30c-ec3d-4da8-b40c-d651872fe5f8&interactionCount=2&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A1%2CC0003%3A1%2CC0004%3A1&AwaitingReconsent=false&intType=1&geolocation=NL%3BFL; ttcsid=1745993014849::USYlnUsbiYocmwoI5siN.1.1745993352161; ttcsid_D0550FBC77UD5RFHGA50=1745993014847::XIhRewjrs_gJ1WV2u9pV.1.1745993353207; OT-Session-Update-Date=1745993506; bm_sv=35DAFEDC4A02B8879876066C91289989~YAAQCgcQAg2QR4SWAQAAdJ1ShRveKzk62dRDeLJaEYT+5onIWM+V1cUMgM+M4ESNIVDDv1jmetXJfCO2nxbFlM9vcw0Em5+bdcHMelRS0mmvMZaAUiH6KhBKOyOqCwk2KE7P1OEzgE3CC/MLyTQLiDkBDw/oNqdRczxmHbiTYXDdwPIUgmNBpn9XjmdiMTtCEgI7WVDFUYwKNwmAvfzhQkQh/imhVOjdxg4mrGA8vYKns6F+CpHB1mu9gVBbCLt7HzEtug==~1; _ga_Y77FR7F6XF=GS1.1.1745993013.4.1.1745993509.0.0.0',
     origin: 'https://www.opentable.com',
     'ot-page-group': 'rest-profile',
     'ot-page-type': 'restprofilepage',
     priority: 'u=1, i',
+    referer: 'https://www.opentable.com/renaissance-cafe?page=2',
     'sec-ch-ua':
       '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
     'sec-ch-ua-mobile': '?0',
@@ -200,7 +202,7 @@ export const HEADERS = {
     'sec-fetch-site': 'same-origin',
     'user-agent':
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
-    'x-csrf-token': '95a77f26-71fc-4237-a717-704f0c821069',
+    'x-csrf-token': '3554fb65-e950-4150-b588-d3cf0bbe39a8',
     'x-query-timeout': '150'
   }
 }
