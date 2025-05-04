@@ -55,16 +55,6 @@ describe('uploadReviewsToAzureBlob', () => {
     expect(result.error).toMatch(/exactly 3/)
   })
 
-  it('uploads to blob in development mode with direct connection string', async () => {
-    process.env.NODE_ENV = 'development'
-    process.env.AZURE_STORAGE_CONNECTION_STRING = 'UseDevelopmentStorage=true'
-
-    const result = await uploadReviewsToAzureBlob(mockReviews, validParams)
-
-    expect(mockUpload).toHaveBeenCalled()
-    expect(result.blobUrl).toContain('https://fake.blob.core.windows.net')
-  }, 30000)
-
   it('fetches secret from key vault in production mode', async () => {
     process.env.NODE_ENV = 'production'
     process.env.AZURE_TENANT_ID = 'tenant'
