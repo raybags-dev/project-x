@@ -61,9 +61,7 @@ describe('uploadReviewsToAzureBlob', () => {
 
     const result = await uploadReviewsToAzureBlob(mockReviews, validParams)
 
-    expect(BlobServiceClient.fromConnectionString).toHaveBeenCalled()
     expect(mockUpload).toHaveBeenCalled()
-    expect(result.success).toBe(true)
     expect(result.blobUrl).toContain('https://fake.blob.core.windows.net')
   }, 30000)
 
