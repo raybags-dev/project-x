@@ -6,7 +6,6 @@ import winston from 'winston'
 const { NODE_ENV } = process.env
 
 const { existsSync, mkdirSync } = fs
-
 export async function logger (message, level = 'info') {
   const logsDirectory = 'logs'
 
