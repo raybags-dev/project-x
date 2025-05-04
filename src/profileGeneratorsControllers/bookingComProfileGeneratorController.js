@@ -33,15 +33,23 @@ export async function generateBookingComProfile (req, res) {
     if (!hotelId)
       return res.status(404).json({ failed: true, response: response.data })
 
-    const mainUrl = $('a.bui_breadcrumb__link_masked[itemprop="item"]').attr(
-      'href'
+    const mainUrl1 = $(
+      'a[data-testid="breadcrumb-link"][aria-current="page"]'
+    ).attr('href')
+    const mainUrl2 = $('link[rel="canonical"]').attr('href')
+    const mainUrl3 = $('meta[property="og:url"]').attr('content')
+
+    const mainUrl4Regexp = /"url"\s*:\s*"([^"]+)"/
+    const mainUrl4 = (mainUrl4Regexp[1] && mainUrl4Regexp[1]) || null
+
+    const updatedFrontfacingUrl = extractMainReviewUrl(
+      mainUrl1,
+      mainUrl2,
+      mainUrl3,
+      mainUrl4
     )
-
-    const updatedFrontfacingUrl = `http://www.booking.com${
-      mainUrl || null
-    }#tab-reviews`
-
-    const bookingCrawlerUrl = buildBackendUrl(mainUrl)
+    const bookingCrawlerUrl = buildBackendUrl(updatedFrontfacingUrl)
+    console.log('>>>>> bookingCrawlerUrl:', bookingCrawlerUrl)
 
     const hotelName1 = $('h2.pp-header__title').text().trim()
     const hotelName2 = getScriptData($, /"name"\s*:\s*"([^"]+)"/)
@@ -74,7 +82,10 @@ export async function generateBookingComProfile (req, res) {
     const dest_ufi2 = ufi_extract ? ufi_extract.replace(/\D/g, '') : null
     const dest_ufi = dest_ufi1 || dest_ufi2 || null
 
-    const code_default = extractData(mainUrl, /\/hotel\/([^/]+)\//)
+    const code_default = extractData(
+      updatedFrontfacingUrl,
+      /\/hotel\/([^/]+)\//
+    )
     const code_altString = $('link[rel="canonical"]').attr('href')
     const code_alt1Match = code_altString.match(/hotel\/([a-z]{2})\//)
     const code_alt2 = getScriptData($, /b_countrycode"\s*:\s*'([^/]+)'/)
@@ -164,23 +175,33 @@ export async function generateBookingComProfile (req, res) {
     res.status(500).json({ status: 'failed', message: 'Internal server error' })
   }
 }
-
 function buildBackendUrl (url) {
-  if (!url) return null
+  try {
+    if (!url)
+      throw new Error('booking.com Backend endpoint build failed: no URL')
 
-  let match = url.match(/([?&]label=[^&]+&sid=[^&]+)/)
-  if (match && match[1]) {
-    return `https://www.booking.com/dml/graphql${match[1]}&dist=0&keep_landing=1&sb_price_type=total&tab=4&type=total&lang=en-gb`
+    // Extract label (required)
+    const labelMatch = url.match(/(?:\?|&)label=([^&#]+)/)
+    if (!labelMatch || !labelMatch[1]) {
+      throw new Error(
+        'booking.com Backend endpoint build failed: label missing'
+      )
+    }
+
+    const labelParam = `label=${labelMatch[1]}`
+
+    // Extract sid (optional)
+    const sidMatch = url.match(/(?:\?|&)sid=([^&#]+)/)
+    const sidParam = sidMatch && sidMatch[1] ? `&sid=${sidMatch[1]}` : ''
+
+    // Build final URL
+    return `https://www.booking.com/dml/graphql?${labelParam}${sidParam}&dist=0&keep_landing=1&sb_price_type=total&tab=4&type=total&lang=en-gb`
+  } catch (error) {
+    logger(`failed in <buildBackendUrl> - ${error.message}`, 'error')
+    return null
   }
-
-  // Fallback attempt: extract just the label (no sid)
-  match = url.match(/\?label=[^#&]+/)
-  if (match && match[0]) {
-    return `https://www.booking.com/dml/graphql${match[0]}&dist=0&keep_landing=1&sb_price_type=total&tab=4&type=total&lang=en-gb`
-  }
-
-  return null
 }
+
 function extractData (str, regex) {
   if (!str || regex) return null
   const match = str.match(regex)
@@ -216,4 +237,12 @@ function extractAlternateLinks ($) {
   })
 
   return linksObj
+}
+function extractMainReviewUrl (...urls) {
+  for (const url of urls) {
+    if (typeof url === 'string' && url.trim() !== '') {
+      return `${url}#tab-reviews`
+    }
+  }
+  return null
 }

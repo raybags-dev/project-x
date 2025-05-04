@@ -1,39 +1,35 @@
 import rateLimit from 'express-rate-limit'
 
 export const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 10 minutes
-  max: 100,
-  handler: (req, res) => {
-    res.status(429).json({
-      error: 'Too many requests. Please slow down and try again later.'
-    })
-  },
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
   standardHeaders: true,
-  legacyHeaders: false
-})
-export const loginRateLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 5,
+  legacyHeaders: false,
+  keyGenerator: req => req.ip || '127.0.0.1',
   handler: (req, res) => {
-    res.status(429).json({
-      error: 'Too many login attempts. Please try again later.'
-    })
+    res.status(429).json({ error: 'Too many requests, please try again later' })
   }
 })
-export const customRateLimiter = (options = {}) => {
-  const {
-    windowMs = 15 * 60 * 1000,
-    max = 100,
-    message = 'Too many requests'
-  } = options
 
-  return rateLimit({
-    windowMs, // default: 15 minutes
-    max,
+export const loginRateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour window
+  max: 5, // start blocking after 5 requests
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: req => req.ip || '127.0.0.1',
+  handler: (req, res) => {
+    res.status(429).json({ error: 'Too many login attempts' })
+  }
+})
+
+export const customRateLimiter = ({ message }) =>
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: req => req.ip || '127.0.0.1',
     handler: (req, res) => {
       res.status(429).json({ error: message })
-    },
-    standardHeaders: true,
-    legacyHeaders: false
+    }
   })
-}

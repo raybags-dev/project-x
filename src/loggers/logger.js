@@ -6,7 +6,6 @@ import winston from 'winston'
 const { NODE_ENV } = process.env
 
 const { existsSync, mkdirSync } = fs
-
 export async function logger (message, level = 'info') {
   const logsDirectory = 'logs'
 
@@ -43,8 +42,6 @@ export async function logger (message, level = 'info') {
   }
 
   try {
-    const chalk = await import('chalk')
-
     let logMessage = `[${timestamp}] [${level.toUpperCase()}]: `
 
     if (Array.isArray(message)) {
@@ -57,15 +54,15 @@ export async function logger (message, level = 'info') {
 
     switch (level.toLowerCase()) {
       case 'info':
-        console.log(chalk.default.greenBright(logMessage))
+        console.log(logMessage)
         winston.info(logMessage)
         break
       case 'warn':
-        console.log(chalk.default.yellow(logMessage))
+        console.log(logMessage)
         winston.warn(logMessage)
         break
       case 'error':
-        console.log(chalk.default.red(logMessage))
+        console.log(logMessage)
         winston.error(logMessage)
         break
       default:

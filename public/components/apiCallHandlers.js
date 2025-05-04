@@ -272,25 +272,35 @@ export async function sendCreateProfileRequest () {
       const { status, data } = response
 
       // Handle "User is unsubscribed" error
-      if (status === 400 && data.message.includes('User is unsubscribed')) {
+      if (
+        status === 400 &&
+        (data.message.includes('user is unsubscribed') ||
+          data.message.includes('requires active subscription'))
+      ) {
         removeElementFromDOM('#uploadForm')
         runSpinner(true)
         displayLabel([
           'review_main_wrapper',
           'alert-warning',
-          `Your account is innactive - Contact admin to activate your subscription!`
+          `Your account is innactive - Contact raymond baguma.github@gmail.com to activate your subscription`
         ])
+        setTimeout(() => location.reload(), 5000)
         return
       }
 
-      // Handle "Account already has a profile" error
       if (status === 400) {
         removeElementFromDOM('#uploadForm')
         runSpinner(true)
+        if (data.message.includes('requires active subscription'))
+          return displayLabel([
+            'review_main_wrapper',
+            'alert-warning',
+            `Active subscription is required to create a ${slug} profile!`
+          ])
         displayLabel([
           'review_main_wrapper',
           'alert-warning',
-          `This account already has a ${slug} profile!`
+          `This account already has a ${slug} profile>>>>>>>>!`
         ])
         runSpinner('Running...')
         await runCrawlerHandler(slug)

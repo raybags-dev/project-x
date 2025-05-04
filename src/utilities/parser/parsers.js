@@ -118,25 +118,31 @@ function extractUserIdFromUrl (url) {
 function extractPreferredBodyText (reviewText) {
   if (!reviewText || typeof reviewText !== 'string') return ''
 
-  const originalMatch = reviewText.match(/\(Original\)(.*)$/s)
-  if (originalMatch) {
-    return originalMatch[1].trim()
+  const lowerText = reviewText.toLowerCase()
+
+  // Step 1: If '(Original)' exists with text before it
+  const originalIndex = lowerText.indexOf('(original)')
+  if (originalIndex > 0) {
+    const afterOriginal = reviewText.slice(originalIndex + '(Original)'.length)
+    return afterOriginal.trim()
   }
 
-  const translatedMatch = reviewText.match(/…\s*Read more(.*)$/s)
-  if (translatedMatch) {
-    return translatedMatch[1]
-      .replace(/^\(Translated by Google\)\s*/i, '')
-      .trim()
+  // Step 2: If '… Read more' or variations exist, remove all before it
+  const readMoreMatch = reviewText.match(/…\s*read more(.*)$/i)
+  if (readMoreMatch) {
+    return readMoreMatch[1].trim()
   }
 
-  const shortMatch = reviewText.match(/^(.*?…\s*Read more)/s)
-  if (shortMatch) {
-    return shortMatch[1].trim()
+  // Step 3: If it ends with '… Read more', remove that ending
+  const readMoreEnding = /…\s*read more\s*$/i
+  if (readMoreEnding.test(reviewText)) {
+    return reviewText.replace(readMoreEnding, '').trim()
   }
 
+  //Fallback
   return reviewText.trim()
 }
+
 function validateObjectFields (obj) {
   if (!obj) return null
   const isValid = Object.values(obj).every(
