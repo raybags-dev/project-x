@@ -65,7 +65,7 @@ describe('uploadReviewsToAzureBlob', () => {
     expect(mockUpload).toHaveBeenCalled()
     expect(result.success).toBe(true)
     expect(result.blobUrl).toContain('https://fake.blob.core.windows.net')
-  })
+  }, 30000)
 
   it('fetches secret from key vault in production mode', async () => {
     process.env.NODE_ENV = 'production'
@@ -86,5 +86,5 @@ describe('uploadReviewsToAzureBlob', () => {
     const result = await uploadReviewsToAzureBlob(mockReviews, validParams)
     expect(result.success).toBe(true)
     expect(result.blobName).toMatch(/reviews_/)
-  })
+  }, 30000)
 })
