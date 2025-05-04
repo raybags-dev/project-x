@@ -58,7 +58,9 @@ export function handleStandardErrors (fn) {
     try {
       return await fn(...args)
     } catch (error) {
-      console(`Error in function ${fn.name}: ${error.message}`)
+      console.error(
+        `Error in function ${fn.name || 'anonymous'}: ${error.message}`
+      )
       return null
     }
   }

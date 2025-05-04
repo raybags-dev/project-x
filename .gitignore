@@ -26,3 +26,6 @@ loaderV.mp4
 
 # scripts
 rename-files.sh
+
+# tests
+coverage

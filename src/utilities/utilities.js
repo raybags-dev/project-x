@@ -1,13 +1,5 @@
 import 'dotenv/config'
-import fs from 'fs'
 import helmet from 'helmet'
-import path from 'path'
-import { launchBrowser } from '../downloader/browserEngine.js'
-
-import { fileURLToPath } from 'url'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 import { HEADERS } from '../data/headers/headers.js'
 import { logger } from '../loggers/logger.js'
@@ -17,6 +9,11 @@ import { googleReviewUpdateHandler } from './updateGoogle.js'
 import { validateEndpointDomain } from './validateBaseUrl.js'
 
 import axiosInstance from '../downloader/HTTPEngine.js'
+
+export function extractData (str, regex) {
+  const match = str.match(regex)
+  return match ? match[1] : null
+}
 
 export function generateMessage (savedReviews, reviewsData) {
   if (!savedReviews || !reviewsData) return
@@ -163,12 +160,18 @@ export async function validateAndAuthorizeUser (
     ? cleanUpBaseUrl(req.body.frontFacingUrl)
     : req.body.frontFacingUrl
 
+  if (!frontFacingUrl)
+    return res.status(400).json('Error: Bad request - Invalid baseUrl!')
+
   const isValid = validateEndpointDomain(frontFacingUrl, req)
   if (!isValid) {
     return {
       error: res.status(400).json('Error: Bad request - Invalid baseUrl!')
     }
   }
+
+  if (!req.headers['authorization'])
+    return res.status(401).json({ error: 'Unauthorized' })
 
   const { email, isAdmin, userId } = await req.locals.user
   if (!isAdmin) {
@@ -286,130 +289,14 @@ export function handleCSP (app) {
 }
 export function sanitizeUser (user) {
   if (!user) return null
+  const userObject =
+    typeof user.toObject === 'function' ? user.toObject() : user
+
   return {
-    ...user.toObject(),
+    ...userObject,
     superUserToken: 'retracted',
     password: 'retracted',
     __v: 'retracted'
-  }
-}
-export async function refreshHeaders (req, res) {
-  let browser
-  try {
-    const slug = req.query.slug
-    logger(`Updating headers process for <${slug}> is underway...`)
-
-    if (!slug) {
-      logger(`Slug is missing`, 'warn')
-      return res.status(400).json({ error: 'Missing slug query parameter' })
-    }
-
-    const user = req.locals.user
-    if (!user || !user.profiles) {
-      logger(`User profiles not found`, 'warn')
-      return res.status(400).json({ error: 'User profiles not found' })
-    }
-
-    const profile = user.profiles.find(p => p.slug === slug)
-    if (!profile || !profile.originalUrl) {
-      logger(`Profile with the specified slug not found`, 'warn')
-      return res
-        .status(404)
-        .json({ error: 'Profile with the specified slug not found' })
-    }
-
-    browser = await launchBrowser(true)
-    const page = await browser.newPage()
-    const capturedHeaders = {}
-
-    // Capture request headers
-    page.on('request', request => {
-      Object.assign(capturedHeaders, request.headers())
-    })
-
-    let response
-    try {
-      response = await page.goto(profile.originalUrl, {
-        waitUntil: 'domcontentloaded',
-        timeout: 30000
-      })
-    } catch (navErr) {
-      throw new Error(
-        `Navigation to ${profile.originalUrl} failed: ${navErr.message}`
-      )
-    }
-
-    if (!response || !response.ok()) {
-      logger(`Failed to load the original URL`, 'warn')
-      return res.status(500).json({ error: 'Failed to load the original URL' })
-    }
-
-    const cookies = await page.cookies()
-    capturedHeaders['cookie'] = cookies
-      .map(c => `${c.name}=${c.value}`)
-      .join('; ')
-
-    const { HEADERS } = await import('../data/headers/headers.js')
-
-    const normalizedSlug = slug.split('-')[0].toLowerCase()
-
-    const headerKey = Object.keys(HEADERS).find(key => {
-      return key.startsWith(normalizedSlug) && key.endsWith('Profile')
-    })
-
-    if (!headerKey) {
-      logger(`No matching headers key found`, 'warn')
-      return res.status(404).json({ error: 'No matching headers key found' })
-    }
-
-    const cleanedCapturedHeaders = sanitizeHeaderValues(capturedHeaders)
-    const updatedHEADERS = { ...HEADERS, [headerKey]: cleanedCapturedHeaders }
-
-    const headersFilePath = path.resolve(
-      __dirname,
-      '../data/headers/headers.js'
-    )
-
-    const updatedHeadersContent = `export const HEADERS = {
-      ${Object.entries(updatedHEADERS)
-        .map(([headerSetName, headerObj]) => {
-          return `  '${headerSetName}': {
-      ${Object.entries(headerObj)
-        .map(([key, value]) => {
-          // Format value based on type
-          let formattedValue = value
-          if (typeof value === 'string') {
-            formattedValue = `'${value.replace(/'/g, "\\'")}'`
-          } else if (Array.isArray(value)) {
-            formattedValue = JSON.stringify(value)
-          } else if (value !== null && typeof value === 'object') {
-            formattedValue = JSON.stringify(value)
-          }
-          return `    '${key}': ${formattedValue}`
-        })
-        .join(',\n')}
-        }`
-        })
-        .join(',\n')}
-      };\n`
-
-    fs.writeFileSync(headersFilePath, updatedHeadersContent, 'utf8')
-
-    return res.status(200).json({
-      message: 'Headers updated successfully',
-      headers: cleanedCapturedHeaders
-    })
-  } catch (error) {
-    logger(`Error refreshing headers: ${error}`, 'error')
-    return res.status(500).json({ error: 'Internal server error' })
-  } finally {
-    if (browser) {
-      try {
-        await browser.close()
-      } catch (closeErr) {
-        logger(`Error closing browser: ${closeErr}`, 'error')
-      }
-    }
   }
 }
 export function sanitizeHeaderValues (headers) {

@@ -165,18 +165,19 @@ export const HEADERS = {
   opentableHeadersGenProfile: {
     accept:
       'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-    'accept-language': 'en-US,en;q=0.9,nl-NL;q=0.8,nl;q=0.7',
+    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
     'cache-control': 'max-age=0',
     cookie:
-      'otuvid=6E951AF7-E78D-4D2F-9F32-0ADFFB6F2E43; otuvid_f=b9285a82-c571-4950-a587-7ad633d57473; otuvid_p=07ee8883-29a9-48f2-87f8-13335d23ed85; otuvid_t=c129b796-b2d4-44b7-973d-8849f68dc897; _ga=GA1.1.262968021.1743084996; _gcl_au=1.1.417624341.1743084997; lvCKE=lvmreg=87%2C0&histmreg=87%2C0; OT-Interactive-SessionId=3e9947f2-3e04-485a-a10e-dd19e56f8aa1; ftc=x=2025-04-30T07%3A03%3A32&c=1&pt1=1&pt2=1&er=72223&p1ca=restaurant%2Fprofile%2F72223; OT-SessionId=3e9947f2-3e04-485a-a10e-dd19e56f8aa1; ha_userSession=lastModified=2025-04-22T12%3A14%3A03.000Z&origin=prod-sc2; ak_bmsc=1D990D92AD6CC957968D59B860C3F56B~000000000000000000000000000000~YAAQCgcQAms3R4SWAQAARBxLhRsFK4Tuq9T5ucOD5SyoLRDsBUzGBlNCmSo6On7dB2Dnf9F8taizDV1VndAnBFIi/ObPGOOeq78VsDCJMWIfQiJU8qbQBZo1sNlI/feV62I3jKfBx1pd2VkhfoHiKobkW0r4LVxnkZINH5HOSiaPKdPHBXZ2iWJt2zQr/Yi5qXvrVj0vb2a9VJRd8uublUzzZ1YIJHNOgWymHG4NFKabLIbGT8NEdVmRBxosnE/p9nVzzGXe3TrutgM8k6QMIzVQAi4bY49T8Y7ZfhyDnmixderSdP2oRY2UjtZoDA+1Q3/3m7t+C3KWu2dNA6fG8M+75lPiw6bfwJzZBmxLquoWGJA5SIASM6D7jzDVoWZSQMZUpM3mDw+BI3eHB0t2wpbzMcmkFrR/Uf3BXK4YVvk5hP+zEpj/KeHA8E1r9aWxOzqoJFSD64NUUX1ssfZdRw==; _fbp=fb.1.1745993014600.233793082796594; _tt_enable_cookie=1; _ttp=01JT2MP7HYJKSR0F5PYCFR597J_.tt.1; ttcsid=1745993014849::USYlnUsbiYocmwoI5siN.1.1745993014849; ttcsid_D0550FBC77UD5RFHGA50=1745993014847::XIhRewjrs_gJ1WV2u9pV.1.1745993015206; _ga_Y77FR7F6XF=GS1.1.1745993013.4.1.1745993020.0.0.0; OptanonAlertBoxClosed=2025-04-30T06:09:02.295Z; OptanonConsent=isGpcEnabled=0&datestamp=Wed+Apr+30+2025+08%3A09%3A02+GMT%2B0200+(Central+European+Summer+Time)&version=202503.1.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=49b2b30c-ec3d-4da8-b40c-d651872fe5f8&interactionCount=2&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A1%2CC0003%3A1%2CC0004%3A1&AwaitingReconsent=false&intType=1; OT-Session-Update-Date=1745993342; bm_sv=35DAFEDC4A02B8879876066C91289989~YAAQDQcQAlkB/4GWAQAAKR5QhRsoCzwxPZXkUHriyFQ6KdAJTHaGuUQBSr0g7Sc96QB0/XXKNMPWmT4i4ff8tYyeZsDUE2PL00d7Bx9b2YNDLsH7FJQ6Zs+gSQT55h/iQgyH4WE3Oko6qG4Bb6MwaFt5oExQps5QV1Wil6dfeU1tuBKxFh1yYlp5ieLLAa8x5e34k0+KW19bfrXKmkDUOatl198i7nyV93BLKpxrdx0pufTmttLq396ggO1zzgGMz3T7~1',
+      'OT-Interactive-SessionId=635b926b-fff5-404e-b6cd-29a225194be5; otuvid=58FB74B5-9C92-45D0-BF4E-681D99199E2C; OT-SessionId=635b926b-fff5-404e-b6cd-29a225194be5; ak_bmsc=580E544F6A20D0BF739CF20A0B59945C~000000000000000000000000000000~YAAQSw3eFyehiIWWAQAAxIYQmBt51/dQHSx3xROhqy70HRBdl3YE5Q3Uic2vzBqaKz4XajS7tnVj/xfWcJi91CWA6DWnHc+5JS/qaIgyIxayvx+Sdypq81Rpzqb8+La7kCLEh4cwX4y0eQoyAAbymHOGt/FRJSC8XfU8y+4aYni5LyvRn0v5CazqM+wngn9+I1TBP6p1e18R6W4dzjSjO/PuJ7Kg0hZe2ZRIShbkqfn017PEAr2Q331UrpB24buVzUrrdDXp9t15r4h6z6WZB4UXlFsbreSNoHWfyKm2hx9nJ5lmt/Gpguw3NpnPvxNMAqr6FvOKA2wqaKp9bygBkbwCa+N+F75BObx3iMyfdT511piZYM6wQfALWrpcVpn3UnVt0C7evGcuB5HO8A==; ftc=x=2025-05-03T22%3A32%3A24&c=1&pt1=1&pt2=1&er=139665&p1ca=r%2Ftap-and-dine-at-the-waterhole-amsterdam; otuvid_f=a9d58281-4d02-4a38-8c9d-ecb1a5205b7d; otuvid_p=6b7027b0-aab4-47eb-8335-ebe0a92ac69d; otuvid_t=35f52f62-af59-49b4-988e-1fef8f7b423a; _fbp=fb.1.1746307945610.2518471863151063; OT-Session-Update-Date=1746307949; bm_sv=93D0426F789F2FA468DDB807D99AC082~YAAQmEY5FwQ0rXuWAQAAmKUQmBv6lwERF7pN/pLnLNq02+r1q7Qehg7dslKa/qkCWikTBx2YFExVrn1clmkwQoAWVn31XX+XeJ0BWkVTLh9efie4/49qJMQ+ySfcgE1OPRkmDi99+35+DBuvMUdOWVyo5h58wGvPT2Fy9AfoUUK6QRs+OOB6MOcAeee0Eyl6xloCijbN/uRltkawREz0kEXe6cHgTmRKNhwCvTdndBXYD7oyENk+cmkzqxEYBMaS68zH~1; OptanonConsent=isGpcEnabled=0&datestamp=Sat+May+03+2025+23%3A34%3A13+GMT%2B0200+(Central+European+Summer+Time)&version=202503.1.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=862ce030-7038-4c60-8bc4-26a50ad832f5&interactionCount=1&isAnonUser=1&landingPath=https%3A%2F%2Fwww.opentable.com%2Fr%2Ftap-and-dine-at-the-waterhole-amsterdam&groups=C0001%3A1%2CC0002%3A1%2CC0003%3A1%2CC0004%3A1',
     priority: 'u=0, i',
+    referer: 'https://www.google.com/',
     'sec-ch-ua':
       '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"macOS"',
     'sec-fetch-dest': 'document',
     'sec-fetch-mode': 'navigate',
-    'sec-fetch-site': 'none',
+    'sec-fetch-site': 'cross-site',
     'sec-fetch-user': '?1',
     'upgrade-insecure-requests': '1',
     'user-agent':
@@ -184,15 +185,16 @@ export const HEADERS = {
   },
   opentableHeadersGenReviews: {
     accept: '*/*',
-    'accept-language': 'en-US,en;q=0.9,nl-NL;q=0.8,nl;q=0.7',
+    'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
     'content-type': 'application/json',
     cookie:
-      'otuvid=6E951AF7-E78D-4D2F-9F32-0ADFFB6F2E43; otuvid_f=b9285a82-c571-4950-a587-7ad633d57473; otuvid_p=07ee8883-29a9-48f2-87f8-13335d23ed85; otuvid_t=c129b796-b2d4-44b7-973d-8849f68dc897; _ga=GA1.1.262968021.1743084996; _gcl_au=1.1.417624341.1743084997; lvCKE=lvmreg=87%2C0&histmreg=87%2C0; OT-Interactive-SessionId=3e9947f2-3e04-485a-a10e-dd19e56f8aa1; OT-SessionId=3e9947f2-3e04-485a-a10e-dd19e56f8aa1; ha_userSession=lastModified=2025-04-22T12%3A14%3A03.000Z&origin=prod-sc2; ak_bmsc=1D990D92AD6CC957968D59B860C3F56B~000000000000000000000000000000~YAAQCgcQAms3R4SWAQAARBxLhRsFK4Tuq9T5ucOD5SyoLRDsBUzGBlNCmSo6On7dB2Dnf9F8taizDV1VndAnBFIi/ObPGOOeq78VsDCJMWIfQiJU8qbQBZo1sNlI/feV62I3jKfBx1pd2VkhfoHiKobkW0r4LVxnkZINH5HOSiaPKdPHBXZ2iWJt2zQr/Yi5qXvrVj0vb2a9VJRd8uublUzzZ1YIJHNOgWymHG4NFKabLIbGT8NEdVmRBxosnE/p9nVzzGXe3TrutgM8k6QMIzVQAi4bY49T8Y7ZfhyDnmixderSdP2oRY2UjtZoDA+1Q3/3m7t+C3KWu2dNA6fG8M+75lPiw6bfwJzZBmxLquoWGJA5SIASM6D7jzDVoWZSQMZUpM3mDw+BI3eHB0t2wpbzMcmkFrR/Uf3BXK4YVvk5hP+zEpj/KeHA8E1r9aWxOzqoJFSD64NUUX1ssfZdRw==; _fbp=fb.1.1745993014600.233793082796594; _tt_enable_cookie=1; _ttp=01JT2MP7HYJKSR0F5PYCFR597J_.tt.1; OptanonAlertBoxClosed=2025-04-30T06:09:02.295Z; ftc=x=2025-04-30T07%3A09%3A10&c=1&pt1=1&pt2=1&er=72223&p1ca=restaurant%2Fprofile%2F72223; OptanonConsent=isGpcEnabled=0&datestamp=Wed+Apr+30+2025+08%3A09%3A11+GMT%2B0200+(Central+European+Summer+Time)&version=202503.1.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=49b2b30c-ec3d-4da8-b40c-d651872fe5f8&interactionCount=2&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A1%2CC0003%3A1%2CC0004%3A1&AwaitingReconsent=false&intType=1&geolocation=NL%3BFL; ttcsid=1745993014849::USYlnUsbiYocmwoI5siN.1.1745993352161; ttcsid_D0550FBC77UD5RFHGA50=1745993014847::XIhRewjrs_gJ1WV2u9pV.1.1745993353207; OT-Session-Update-Date=1745993506; bm_sv=35DAFEDC4A02B8879876066C91289989~YAAQCgcQAg2QR4SWAQAAdJ1ShRveKzk62dRDeLJaEYT+5onIWM+V1cUMgM+M4ESNIVDDv1jmetXJfCO2nxbFlM9vcw0Em5+bdcHMelRS0mmvMZaAUiH6KhBKOyOqCwk2KE7P1OEzgE3CC/MLyTQLiDkBDw/oNqdRczxmHbiTYXDdwPIUgmNBpn9XjmdiMTtCEgI7WVDFUYwKNwmAvfzhQkQh/imhVOjdxg4mrGA8vYKns6F+CpHB1mu9gVBbCLt7HzEtug==~1; _ga_Y77FR7F6XF=GS1.1.1745993013.4.1.1745993509.0.0.0',
+      'OT-Interactive-SessionId=635b926b-fff5-404e-b6cd-29a225194be5; otuvid=58FB74B5-9C92-45D0-BF4E-681D99199E2C; OT-SessionId=635b926b-fff5-404e-b6cd-29a225194be5; ha_userSession=lastModified=2025-04-22T12%3A14%3A03.000Z&origin=prod-sc2; otuvid_f=a9d58281-4d02-4a38-8c9d-ecb1a5205b7d; otuvid_p=6b7027b0-aab4-47eb-8335-ebe0a92ac69d; otuvid_t=35f52f62-af59-49b4-988e-1fef8f7b423a; _fbp=fb.1.1746307945610.2518471863151063; bm_mi=517A7D5AC304177E408CB963F7EF4059~YAAQn0Y5F9UonWuWAQAA9jwSmBu+5/J8HoVyqkTk9G378nnCw2p6wJ3y4paH/EQlWJHQa4MoklutPFiFm6EeTzLLeU1WhFcEGyPpnfmeDgMiAKg0hfL9mP8gdIqBDUnem7BkhdGBuU3fgaj2WjJqQFAgRYmqw/yQEDpTUCGNTvLrlrtwnfkSvkm2lCVXXjACkFidg+u/QQlb8V+FWc8RfHdAJgcn1xv9u0QwKEiUy3adB9AzPqUiZzMrMbJnVcKU4+j+PXOEeLEp+bfifFRFAG0qZnKPH/t2YRqDbbAUmg1BZe2n4EuvOc6rexWr6rFz979jCXoYarPk8hNVtniue+iy1Pv1JearJaTbK8pNzuejCte0dk0zJ7k=~1; OptanonConsent=isGpcEnabled=0&datestamp=Sat+May+03+2025+23%3A34%3A14+GMT%2B0200+(Central+European+Summer+Time)&version=202503.1.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=862ce030-7038-4c60-8bc4-26a50ad832f5&interactionCount=1&isAnonUser=1&landingPath=https%3A%2F%2Fwww.opentable.com%2Fr%2Ftap-and-dine-at-the-waterhole-amsterdam&groups=C0001%3A1%2CC0002%3A1%2CC0003%3A1%2CC0004%3A1; ftc=x=2025-05-03T22%3A34%3A15&c=1&pt1=1&pt2=1&er=139665&p1ca=r%2Ftap-and-dine-at-the-waterhole-amsterdam; ak_bmsc=0D2AF3CCEB933850127AD06902ED0CA0~000000000000000000000000000000~YAAQn0Y5F/0onWuWAQAAQ0ISmBvFK94xLVEfNnvk0QV3WnWEn0KXLeM82+CakHZ5rDCcDeTfHrVxDJnWq7Jhx2iRkb4Zll/VUGMayBsBXtbzSkAFokP8FtkUzXGemsNonV9DhsgYQuJ7afKbCEc3Sr3svrInv8Y4CB6PWrK6hH2dXu4N+jWT/+ZPkd7U5oei/GCI2bJ1JsN5uDpcb4JiCu7rvVHUawDMEK5NnoAPifpqnmgpDja+kzFoo8HZ36K0YGXup5Ugp9ruQ8ywY3diouMvUqxsIk6jexagYGL9vWy1SUXySsz1wnpe5ZCOkr8GARHo7IdK1a2zG/4+Ej3rUR4kW7p4i+lkQshUxnHZGB15+jHuavZlh0Gup3yHvO//nljF6fQd9TWIOH57wBffIgj3B1Gf+zbx+x/0SezkRDaPGJ69ZmkIq7LmQQ1RLb+WF9vLnqji+VpP4Gr9G8BmlIQGu9ewfWIovoO3xlv+PfmN27amC++nlH2a1wbI+Sy2NDR/uP+ZumeqqGZVR/8ZZm/HGeusZLZPwbb4VTGEYp4=; OT-Session-Update-Date=1746308414; bm_sv=93D0426F789F2FA468DDB807D99AC082~YAAQo0Y5FwmN6ISWAQAAx7sXmBvgkmf0M6pea/Uc4shqjwnRahv7a70i5qjvs8v/zVG4Po8tYU93O6RsBzYlGjvMnoNs2nNYwcSm4ATGYWYDYWHj0X8z6D6uMj4JiUSd9H3KXb4TTpPfUF5UQ6mynaPu/GEwPHOEkgicwnXmbjVEyQrf8JKAipY2bROE5uwlpBV4kUUmgMPhUEz7jXu7eQfdSuG7xp8cfagap66n1qpaLXXB1TDjadSOvQDf59JI3T61Tg==~1',
     origin: 'https://www.opentable.com',
     'ot-page-group': 'rest-profile',
     'ot-page-type': 'restprofilepage',
     priority: 'u=1, i',
-    referer: 'https://www.opentable.com/renaissance-cafe?page=2',
+    referer:
+      'https://www.opentable.com/r/tap-and-dine-at-the-waterhole-amsterdam?page=1',
     'sec-ch-ua':
       '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
     'sec-ch-ua-mobile': '?0',
@@ -202,7 +204,7 @@ export const HEADERS = {
     'sec-fetch-site': 'same-origin',
     'user-agent':
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
-    'x-csrf-token': '3554fb65-e950-4150-b588-d3cf0bbe39a8',
+    'x-csrf-token': '18744f23-8de8-4c74-9c09-fe5ececaba21',
     'x-query-timeout': '150'
   }
 }

@@ -26,6 +26,7 @@ export async function FindOneDocController (req, res) {
     }
 
     try {
+      // Simulate finding the document (to trigger catch for invalid ObjectId)
       const document = await REVIEW.findOne({ _id: itemId })
 
       if (!document) {
@@ -40,6 +41,7 @@ export async function FindOneDocController (req, res) {
 
       res.status(403).json({ message: 'Access denied' })
     } catch (error) {
+      console.log('Error in FindOneDocController catch block:', error) // Add logging
       if (
         error.message.includes(
           'Argument passed in must be a string of 12 bytes'
