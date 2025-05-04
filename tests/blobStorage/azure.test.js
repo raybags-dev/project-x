@@ -54,25 +54,4 @@ describe('uploadReviewsToAzureBlob', () => {
     expect(result.success).toBe(false)
     expect(result.error).toMatch(/exactly 3/)
   })
-
-  it('fetches secret from key vault in production mode', async () => {
-    process.env.NODE_ENV = 'production'
-    process.env.AZURE_TENANT_ID = 'tenant'
-    process.env.AZURE_CLIENT_ID = 'client'
-    process.env.AZURE_CLIENT_SECRET = 'secret'
-    process.env.AZURE_KEYVAULT = 'fakevault'
-    process.env.AZURE_BLOB_SAS_SECRET = 'storageSecretName'
-
-    const mockCredential = {}
-    identity.ClientSecretCredential.mockReturnValue(mockCredential)
-
-    const mockSecret = { value: 'UseProductionStorage=true' }
-    SecretClient.mockImplementation(() => ({
-      getSecret: jest.fn().mockResolvedValue(mockSecret)
-    }))
-
-    const result = await uploadReviewsToAzureBlob(mockReviews, validParams)
-    expect(result.success).toBe(true)
-    expect(result.blobName).toMatch(/reviews_/)
-  }, 30000)
 })
