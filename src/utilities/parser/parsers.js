@@ -115,31 +115,69 @@ function extractUserIdFromUrl (url) {
   const match = url.match(/contrib\/([^/?]+)/)
   return match ? match[1] : null
 }
+// function extractPreferredBodyText (reviewText) {
+//   // Return empty string for null, undefined, or non-string inputs
+//   if (!reviewText || typeof reviewText !== 'string') return ''
+
+//   // Step 1: If '(Original)' exists in any case, keep only the text after it
+//   const originalIndex = reviewText.indexOf('(Original)')
+
+//   if (originalIndex >= 0) {
+//     const afterOriginal = reviewText.slice(originalIndex + '(Original)'.length)
+//     return afterOriginal.trim()
+//   }
+
+//   // Try lowercase variant as fallback
+//   const lowerCaseOriginalIndex = reviewText.indexOf('(original)')
+
+//   if (lowerCaseOriginalIndex >= 0) {
+//     const afterOriginal = reviewText.slice(
+//       lowerCaseOriginalIndex + '(original)'.length
+//     )
+//     return afterOriginal.trim()
+//   }
+
+//   // Step 2: If '… Read more' or variations exist, try to find content after it
+//   const readMoreMatch = reviewText.match(/…\s*[Rr]ead more(.*)$/)
+//   if (readMoreMatch) {
+//     return readMoreMatch[1].trim()
+//   }
+
+//   // Step 3: If it ends with '… Read more', remove that ending
+//   const readMoreEnding = /…\s*[Rr]ead more\s*$/
+//   if (readMoreEnding.test(reviewText)) {
+//     return reviewText.replace(readMoreEnding, '').trim()
+//   }
+
+//   // Fallback: return the original text, trimmed
+//   return reviewText.trim()
+// }
 function extractPreferredBodyText (reviewText) {
   if (!reviewText || typeof reviewText !== 'string') return ''
 
-  const lowerText = reviewText.toLowerCase()
+  if (reviewText.includes('(Original)')) {
+    // Find the exact position of "(Original)"
+    const originalPos = reviewText.indexOf('(Original)')
 
-  // Step 1: If '(Original)' exists with text before it
-  const originalIndex = lowerText.indexOf('(original)')
-  if (originalIndex > 0) {
-    const afterOriginal = reviewText.slice(originalIndex + '(Original)'.length)
-    return afterOriginal.trim()
+    if (originalPos >= 0) {
+      // Get everything after "(Original)"
+      let afterOriginal = reviewText.substring(originalPos + 10)
+
+      // Make sure we have text
+      if (afterOriginal) {
+        return afterOriginal.trim()
+      }
+    }
   }
 
-  // Step 2: If '… Read more' or variations exist, remove all before it
-  const readMoreMatch = reviewText.match(/…\s*read more(.*)$/i)
-  if (readMoreMatch) {
-    return readMoreMatch[1].trim()
+  // In case the text pattern has changed
+  if (reviewText.includes('(original)')) {
+    const originalPos = reviewText.indexOf('(original)')
+    if (originalPos >= 0) {
+      return reviewText.substring(originalPos + 10).trim()
+    }
   }
 
-  // Step 3: If it ends with '… Read more', remove that ending
-  const readMoreEnding = /…\s*read more\s*$/i
-  if (readMoreEnding.test(reviewText)) {
-    return reviewText.replace(readMoreEnding, '').trim()
-  }
-
-  //Fallback
   return reviewText.trim()
 }
 
@@ -150,6 +188,44 @@ function validateObjectFields (obj) {
   )
   return isValid ? obj : null
 }
+function parseReviewExtraDetails ($, element) {
+  try {
+    const result = {}
+
+    const highlightsEl = $(element).find('.iTppcd')
+    if (highlightsEl.length > 0 && highlightsEl.text() === 'Hotel highlights') {
+      const highlightsText = highlightsEl
+        .next()
+        .text()
+        .replace('…Read more', '')
+        .trim()
+      if (highlightsText) {
+        result['Hotel highlights'] = highlightsText
+      }
+    }
+
+    const sections = $(element).find('.NkS78 > div')
+    sections.each((_, section) => {
+      const $section = $(section)
+      const titleEl = $section.find('.Iw4tIc')
+      const contentEl = titleEl.next()
+
+      if (titleEl.length > 0 && contentEl.length > 0) {
+        const title = titleEl.text().trim()
+        const content = contentEl.text().trim()
+
+        if (title && content) {
+          result[title] = content
+        }
+      }
+    })
+
+    return Object.keys(result).length === 0 ? null : result
+  } catch (error) {
+    logger(`Error in parseReviewExtraDetails: ${error}`, 'error')
+  }
+}
+
 export default async function parseGoogleReview ($) {
   try {
     let reviews = []
@@ -166,10 +242,11 @@ export default async function parseGoogleReview ($) {
       const bodyString =
         $(element).find('div.K7oBsc').text().trim() ||
         $('div.K7oBsc div span').text().trim() ||
-        'Guest did not provided details'
+        'Guest did not provide details'
 
       const revieBody = bodyString && extractPreferredBodyText(bodyString)
-      const cleanReviewBody = revieBody || null
+      const cleanReviewBody =
+        revieBody.replace(/^[\s\S]*?\(original\)/i, '').trim() || null
 
       const responseString = parsePropertyResponse($, element)
       const cleanedResponseBody =
@@ -199,7 +276,17 @@ export default async function parseGoogleReview ($) {
 
       const tripType = $(element).find('div.ThUm5b span').text().trim() || null
       const subratings = parseSubratings($, element)
-      const highlights = parseExtras($, element)
+      const reviewExtras1 = parseExtras($, element)
+      const reviewExtras2 = parseReviewExtraDetails($, element)
+      const extras = reviewExtras2 || reviewExtras1
+
+      const formattedExtras = extras
+        ? Object.entries(extras)
+            .map(([key, value]) => `<br>- ${key}: ${value}\n`)
+            .join('\n')
+        : ''
+
+      const enrichedReviewBody = `${cleanReviewBody}<br>${formattedExtras}`
 
       const commonReviewProperties = {
         author: username,
@@ -208,10 +295,10 @@ export default async function parseGoogleReview ($) {
         tripType,
         authorExternalId,
         reviewSiteSlug: siteSlug,
-        reviewBody: cleanReviewBody,
+        reviewBody: enrichedReviewBody,
         reviewDate: formatedReviewDate,
         subratings: subratings,
-        miscellaneous: highlights,
+        miscellaneous: extras,
         propertyResponse: responseObject
       }
 

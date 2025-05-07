@@ -13,14 +13,12 @@ const router = express.Router()
 router.post(
   '/raybags/v1/review-crawler/user/forgot-password',
   authRateLimiter,
-
   asyncMiddleware(ForgotPasswordController)
 )
 router.post(
   '/raybags/v1/review-crawler/user/update/password',
   loginUser,
   authRateLimiter,
-
   UpdatePasswordController
 )
 export default router
