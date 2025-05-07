@@ -1,6 +1,8 @@
 import express from 'express'
 import { loginUser } from '../../middleware/auth.js'
+import isSubscribed from '../../middleware/generalUtils.js'
 import { authRateLimiter, loginRateLimiter } from '../../middleware/limiters.js'
+
 import {
   CreateUserController,
   GetAllUsersController,
@@ -30,6 +32,7 @@ router.post(
   '/raybags/v1/review-crawler/get-users',
   authMiddleware,
   isAdmin,
+  isSubscribed,
   asyncMiddleware(GetAllUsersController)
 )
 router.post(
@@ -48,7 +51,7 @@ router.put(
   '/raybags/v1/review-crawler/user/update-subscription/:userId',
   authMiddleware,
   isAdmin,
-
+  isSubscribed,
   asyncMiddleware(UpdateSubscriptionController)
 )
 

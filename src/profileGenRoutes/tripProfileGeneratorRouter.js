@@ -1,4 +1,5 @@
 import express from 'express'
+import isSubscribed from '../../middleware/generalUtils.js'
 import { generateTripProfile } from '../profileGeneratorsControllers/tripProfileGeneratorController.js'
 
 import { asyncMiddleware } from '../../middleware/asyncErros.js'
@@ -10,7 +11,7 @@ router.post(
   '/raybags/v1/review-crawler/user/create-trip-review-profile',
   authMiddleware,
   isAdmin,
-
+  isSubscribed,
   asyncMiddleware(generateTripProfile)
 )
 

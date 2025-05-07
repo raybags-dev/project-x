@@ -1,6 +1,7 @@
 import express from 'express'
 import { asyncMiddleware } from '../../middleware/asyncErros.js'
 import { authMiddleware, isAdmin } from '../../middleware/auth.js'
+import isSubscribed from '../../middleware/generalUtils.js'
 
 import {
   deleteAccountProfile,
@@ -17,7 +18,6 @@ router.delete(
   '/raybags/v1/review-crawler/user/delete-own-profile',
   authMiddleware,
   isAdmin,
-
   asyncMiddleware(deleteAccountProfile)
 )
 
@@ -25,7 +25,6 @@ router.delete(
   '/raybags/v1/review-crawler/user/delete-own-profile-and-documents/:_id',
   authMiddleware,
   isAdmin,
-
   asyncMiddleware(deleteAccountProfileAndAllDocuments)
 )
 
@@ -33,7 +32,7 @@ router.delete(
   '/raybags/v1/review-crawler/user/purge-user/:_id',
   authMiddleware,
   isAdmin,
-
+  isSubscribed,
   asyncMiddleware(pargeUserPrivate)
 )
 
@@ -41,7 +40,6 @@ router.delete(
   '/raybags/v1/review-crawler/user/purge-own-user-account',
   authMiddleware,
   isAdmin,
-
   asyncMiddleware(pargeUserPublic)
 )
 
@@ -56,7 +54,6 @@ router.post(
   '/raybags/v1/review-crawler/user/get-profile/:_id',
   authMiddleware,
   isAdmin,
-
   asyncMiddleware(getAccountProfile)
 )
 

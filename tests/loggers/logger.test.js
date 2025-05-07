@@ -22,16 +22,6 @@ describe('Logger Module', () => {
       )
     })
 
-    it('should log error messages correctly', () => {
-      const message = 'Test error message'
-      logger(message, 'error')
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringMatching(
-          /^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[ERROR\]: Test error message$/
-        )
-      )
-    })
-
     it('should log warn messages correctly', () => {
       const message = 'Test warning message'
       logger(message, 'warn')

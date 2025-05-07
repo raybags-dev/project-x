@@ -1,4 +1,5 @@
 import express from 'express'
+import isSubscribed from '../../middleware/generalUtils.js'
 import { generateGoogleProfile } from '../profileGeneratorsControllers/googleProfileGeneratorController.js'
 
 import { asyncMiddleware } from '../../middleware/asyncErros.js'
@@ -10,6 +11,7 @@ router.post(
   '/raybags/v1/review-crawler/user/create-google-review-profile',
   authMiddleware,
   isAdmin,
+  isSubscribed,
   asyncMiddleware(generateGoogleProfile)
 )
 

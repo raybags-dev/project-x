@@ -49,7 +49,6 @@ export async function generateBookingComProfile (req, res) {
       mainUrl4
     )
     const bookingCrawlerUrl = buildBackendUrl(updatedFrontfacingUrl)
-    console.log('>>>>> bookingCrawlerUrl:', bookingCrawlerUrl)
 
     const hotelName1 = $('h2.pp-header__title').text().trim()
     const hotelName2 = getScriptData($, /"name"\s*:\s*"([^"]+)"/)
@@ -201,7 +200,6 @@ function buildBackendUrl (url) {
     return null
   }
 }
-
 function extractData (str, regex) {
   if (!str || regex) return null
   const match = str.match(regex)

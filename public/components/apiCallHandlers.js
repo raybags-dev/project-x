@@ -300,7 +300,7 @@ export async function sendCreateProfileRequest () {
         displayLabel([
           'review_main_wrapper',
           'alert-warning',
-          `This account already has a ${slug} profile>>>>>>>>!`
+          `Failed to create ${slug} profile!`
         ])
         runSpinner('Running...')
         await runCrawlerHandler(slug)

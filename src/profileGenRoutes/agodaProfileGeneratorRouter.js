@@ -1,4 +1,5 @@
 import express from 'express'
+import isSubscribed from '../../middleware/generalUtils.js'
 import { generateAgodaProfile } from '../profileGeneratorsControllers/agodaProfileGeneratorController.js'
 
 import { asyncMiddleware } from '../../middleware/asyncErros.js'
@@ -10,7 +11,7 @@ router.post(
   '/raybags/v1/review-crawler/user/create-agoda-review-profile',
   authMiddleware,
   isAdmin,
-
+  isSubscribed,
   asyncMiddleware(generateAgodaProfile)
 )
 
