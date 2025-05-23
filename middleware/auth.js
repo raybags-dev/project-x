@@ -1,17 +1,19 @@
 import 'dotenv/config'
 import jwt from 'jsonwebtoken'
-const { MY_SECRET } = process.env
-import { USER_MODEL } from '../src/models/user.js'
-import { REVIEW } from '../src/models/documentModel.js'
 import { logger } from '../src/loggers/logger.js'
+import { REVIEW } from '../src/models/documentModel.js'
+import { USER_MODEL } from '../src/models/user.js'
+const { MY_SECRET } = process.env
 
-export const generateToken = payload => {
+export const generateToken = (payload, isSuperUser = false) => {
   return new Promise((resolve, reject) => {
-    jwt.sign(payload, MY_SECRET, { expiresIn: '24h' }, (err, token) => {
-      if (err) reject(err)
-      resolve(token)
-    })
-  })
+    const expiryOptions = isSuperUser ? { expiresIn: '365d' } : { expiresIn: '24h' };
+    
+    jwt.sign(payload, MY_SECRET, expiryOptions, (err, token) => {
+      if (err) reject(err);
+      resolve(token);
+    });
+  });
 }
 export const generateJWTToken = async user => {
   const payload = {
@@ -22,7 +24,7 @@ export const generateJWTToken = async user => {
     isSuperUser: user.isSuperUser || false,
     superUserToken: user.isSuperUser ? user.superUserToken : null
   }
-  return generateToken(payload)
+  return generateToken(payload, user.isSuperUser);
 }
 export const loginUser = async (req, res, next) => {
   const {

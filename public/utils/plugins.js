@@ -1,266 +1,402 @@
 import {
   API_CLIENT,
   displayLabel,
-  handleProfileGenerator
-} from '../components/apiCallHandlers.js'
+  handleProfileGenerator,
+} from "../components/apiCallHandlers.js";
 import {
   fetchCurrentUserUpdateSeesionStorage,
   getAuthHandler,
-  validateSuperAdmin
-} from '../components/auth.js'
-import { LOGIN_HTML } from '../components/login.js'
-import { SIGNUP_HTML } from '../components/signup.js'
+  validateSuperAdmin,
+} from "../components/auth.js";
+import { LOGIN_HTML } from "../components/login.js";
+import { SIGNUP_HTML } from "../components/signup.js";
 import {
   ReviewHTML,
   confirmAction,
   mountAdminPageHandler,
   removeChildElementsFromDOM,
-  runSpinner
-} from './utilities.js'
+  runSpinner,
+} from "./utilities.js";
 
 export const PLUGINS = {
   previousTextContent: null,
   simpleLoader: async function (anchor, isLoading) {
     if (!anchor && !isLoading) {
-      const shouldBeRemoved = document.getElementById('spinner-container')
-      shouldBeRemoved && shouldBeRemoved?.remove()
+      const shouldBeRemoved = document.getElementById("spinner-container");
+      shouldBeRemoved && shouldBeRemoved?.remove();
     }
-    const containerId = 'spinner-container'
+    const containerId = "spinner-container";
     if (isLoading) {
       if (!document.getElementById(containerId)) {
-        const spinnerContainer = document.createElement('div')
-        spinnerContainer.id = containerId
-        spinnerContainer.style.position = 'absolute'
-        spinnerContainer.style.top = '0'
-        spinnerContainer.style.left = '0'
-        spinnerContainer.style.width = '100%'
-        spinnerContainer.style.height = '100%'
-        spinnerContainer.style.display = 'flex'
-        spinnerContainer.style.justifyContent = 'center'
-        spinnerContainer.style.alignItems = 'center'
-        spinnerContainer.style.zIndex = '1000'
-        spinnerContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.02)'
-        spinnerContainer.style.backdropFilter = 'blur(1px)'
+        const spinnerContainer = document.createElement("div");
+        spinnerContainer.id = containerId;
+        spinnerContainer.style.position = "absolute";
+        spinnerContainer.style.top = "0";
+        spinnerContainer.style.left = "0";
+        spinnerContainer.style.width = "100%";
+        spinnerContainer.style.height = "100%";
+        spinnerContainer.style.display = "flex";
+        spinnerContainer.style.justifyContent = "center";
+        spinnerContainer.style.alignItems = "center";
+        spinnerContainer.style.zIndex = "1000";
+        spinnerContainer.style.backgroundColor = "rgba(255, 255, 255, 0.02)";
+        spinnerContainer.style.backdropFilter = "blur(1px)";
 
-        const spinner = document.createElement('div')
+        const spinner = document.createElement("div");
 
-        spinner.className = 'spinner-border'
-        spinner.style.width = '1.5rem'
-        spinner.style.height = '1.5rem'
-        spinner.setAttribute('role', 'status')
+        spinner.className = "spinner-border";
+        spinner.style.width = "1.5rem";
+        spinner.style.height = "1.5rem";
+        spinner.setAttribute("role", "status");
 
-        const spinnerText = document.createElement('span')
-        spinnerText.className = 'visually-hidden'
-        spinnerText.textContent = 'Loading...'
+        const spinnerText = document.createElement("span");
+        spinnerText.className = "visually-hidden";
+        spinnerText.textContent = "Loading...";
 
-        spinner.appendChild(spinnerText)
-        spinnerContainer.appendChild(spinner)
+        spinner.appendChild(spinnerText);
+        spinnerContainer.appendChild(spinner);
 
-        const anchorContainer = document.querySelector(anchor)
+        const anchorContainer = document.querySelector(anchor);
 
         if (anchorContainer) {
-          anchorContainer.style.position = 'relative'
-          anchorContainer.appendChild(spinnerContainer)
+          anchorContainer.style.position = "relative";
+          anchorContainer.appendChild(spinnerContainer);
         }
-        anchorContainer?.setAttribute('disabled', 'true')
+        anchorContainer?.setAttribute("disabled", "true");
       }
     } else {
-      const anchorContainer = document.querySelector(anchor)
+      const anchorContainer = document.querySelector(anchor);
       if (anchorContainer) {
-        anchorContainer.removeAttribute('disabled')
+        anchorContainer.removeAttribute("disabled");
       }
 
-      const spinnerContainer = document.getElementById(containerId)
+      const spinnerContainer = document.getElementById(containerId);
       if (spinnerContainer) {
-        spinnerContainer?.remove()
+        spinnerContainer?.remove();
       }
     }
   },
   addSuperAdminLinkToNavbar: async function () {
-    const navUl = document.getElementById('__nav')
-    const userString = await getAuthHandler()
-    const isSuperUser = await validateSuperAdmin()
+    const navUl = document.getElementById("__nav");
+    const userString = await getAuthHandler();
+    const isSuperUser = await validateSuperAdmin();
 
     if (userString && isSuperUser) {
-      const { superUserToken, isSuperUser } = userString
+      const { superUserToken, isSuperUser } = userString;
 
       if (superUserToken && isSuperUser) {
-        const adminLi = document.createElement('li')
-        adminLi.classList.add('nav-item', 'dropdown')
+        const adminLi = document.createElement("li");
+        adminLi.classList.add("nav-item", "dropdown");
 
-        const adminLink = document.createElement('a')
+        const adminLink = document.createElement("a");
         adminLink.classList.add(
-          'nav-link',
-          'dropdown-toggle',
-          'text-uppercase',
-          'text-dark'
-        )
-        adminLink.href = '#'
-        adminLink.setAttribute('role', 'button')
-        adminLink.setAttribute('data-bs-toggle', 'dropdown')
-        adminLink.setAttribute('aria-expanded', 'false')
-        adminLink.textContent = 'Super admin'
+          "nav-link",
+          "dropdown-toggle",
+          "text-uppercase",
+          "text-dark"
+        );
+        adminLink.href = "#";
+        adminLink.setAttribute("role", "button");
+        adminLink.setAttribute("data-bs-toggle", "dropdown");
+        adminLink.setAttribute("aria-expanded", "false");
+        adminLink.textContent = "Super admin";
 
-        const dropdownMenu = document.createElement('ul')
+        const dropdownMenu = document.createElement("ul");
         dropdownMenu.classList.add(
-          'dropdown-menu',
-          'border-3',
-          'rounded',
-          'shadow',
-          'border-secondary'
-        )
+          "dropdown-menu",
+          "border-3",
+          "rounded",
+          "shadow",
+          "border-secondary"
+        );
 
-        const accountsAdminTab = document.createElement('li')
+        const accountsAdminTab = document.createElement("li");
         accountsAdminTab.innerHTML =
-          '<a class="dropdown-item dropdown-item-dark text-dark accounts-admin-tab text-uppercase" href="#">user accounts</a>'
+          '<a class="dropdown-item dropdown-item-dark text-dark accounts-admin-tab text-uppercase" href="#">user accounts</a>';
 
-        dropdownMenu.appendChild(accountsAdminTab)
-        adminLi.appendChild(adminLink)
-        adminLi.appendChild(dropdownMenu)
+        dropdownMenu.appendChild(accountsAdminTab);
+        adminLi.appendChild(adminLink);
+        adminLi.appendChild(dropdownMenu);
 
-        navUl?.insertBefore(adminLi, navUl.firstChild)
+        navUl?.insertBefore(adminLi, navUl.firstChild);
       }
-      return true
+      return true;
     }
   },
   superManHandle: async function () {
     try {
-      const linkTabAvailable = await PLUGINS.addSuperAdminLinkToNavbar()
+      const linkTabAvailable = await PLUGINS.addSuperAdminLinkToNavbar();
       if (linkTabAvailable) {
         document
-          .querySelector('.accounts-admin-tab')
-          .addEventListener('click', async e => {
-            e.preventDefault()
-            runSpinner(false, 'Fetching...')
+          .querySelector(".accounts-admin-tab")
+          .addEventListener("click", async (e) => {
+            e.preventDefault();
+            runSpinner(false, "Fetching...");
 
-            const user = getAuthHandler()
-            if (!user) return
-            const { 'auth-token': token, isSuperUser, isAdmin } = user
+            const user = getAuthHandler();
+            if (!user) return;
 
-            const apiClient = await API_CLIENT()
-
-            const baseUrl = `/get-users`
-            const query = `?page=1`
+            const { "auth-token": token, isSuperUser, isAdmin } = user;
 
             if (!isSuperUser && !isAdmin) {
               displayLabel([
-                'review_main_wrapper',
-                'alert-danger',
-                `Unauthorized action!`
-              ])
-              setTimeout(() => location.reload(), 5000)
-              return false
+                "review_main_wrapper",
+                "alert-danger",
+                `Unauthorized action!`,
+              ]);
+              setTimeout(() => location.reload(), 5000);
+              return false;
             }
 
+            // Initialize pagination variables
+            let currentPage = 1;
+            let isLoading = false;
+            let hasMorePages = true;
+            let observer = null;
+
+            const apiClient = await API_CLIENT();
+            const baseUrl = `/get-users`;
             const headers = {
               Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-            const url = `${baseUrl}${query}`
+              "Content-Type": "application/json",
+            };
 
-            try {
-              const response = await apiClient.post(url, {}, { headers })
+            // Function to fetch users for a specific page
+            const fetchUsersPage = async (page) => {
+              if (isLoading || !hasMorePages) return;
 
-              // Ensure response is valid before proceeding
-              if (response.status === 200 && response.statusText === 'OK') {
-                await removeChildElementsFromDOM('.admin-card')
-                await removeChildElementsFromDOM('.review-container')
-                const data = response.data?.user_profiles || []
-                mountAdminPageHandler('#review_main_wrapper', data)
-                runSpinner(true)
-                return true
-              }
-            } catch (error) {
-              if (error.response) {
-                // Handle 404 error
-                if (error.response.status === 404) {
-                  displayLabel([
-                    'review_main_wrapper',
-                    'alert-warning',
-                    `Nothing found - There are no accounts in the database!`
-                  ])
-                  runSpinner(true)
-                  return
+              isLoading = true;
+
+              // Show spinner for all pages
+              runSpinner(false, "Fetching...");
+
+              const query = `?page=${page}`;
+              const url = `${baseUrl}${query}`;
+
+              try {
+                const response = await apiClient.post(url, {}, { headers });
+
+                if (response.status === 200 && response.statusText === "OK") {
+                  const data = response.data?.user_profiles || [];
+
+                  // Check if this is the last page
+                  if (data.length < 10) {
+                    hasMorePages = false;
+                    // Remove observer and show completion message
+                    if (observer) {
+                      observer.disconnect();
+                      observer = null;
+                    }
+                    if (data.length > 0) {
+                      displayLabel([
+                        "review_main_wrapper",
+                        "alert-success",
+                        `All ${
+                          (page - 1) * 10 + data.length
+                        } accounts loaded successfully!`,
+                      ]);
+                    }
+                  }
+
+                  // Mount the data (clear only for first page, append for subsequent pages)
+                  if (page === 1) {
+                    await removeChildElementsFromDOM(".admin-card");
+                    await removeChildElementsFromDOM(".review-container");
+                    mountAdminPageHandler("#review_main_wrapper", data);
+                  } else {
+                    const adminPageOuter =
+                      document.querySelector(".admin_page_outer");
+                    if (adminPageOuter) {
+                      const tempWrapper = document.createElement("div");
+                      tempWrapper.id = "temp_review_wrapper";
+                      document.body.appendChild(tempWrapper);
+
+                      mountAdminPageHandler("#temp_review_wrapper", data);
+
+                      // Move new cards from temp wrapper to actual container
+                      const newCards =
+                        tempWrapper.querySelectorAll(".user_accountcard");
+                      newCards.forEach((card) => {
+                        adminPageOuter.appendChild(card);
+                      });
+
+                      // Clean up temp wrapper
+                      document.body.removeChild(tempWrapper);
+                    } else {
+                      // Fallback if admin_page_outer not found
+                      mountAdminPageHandler("#review_main_wrapper", data);
+                    }
+                  }
+
+                  // Set up intersection observer after first page load
+                  if (page === 1 && hasMorePages) {
+                    setupIntersectionObserver();
+                  }
+
+                  currentPage++;
+                  return true;
+                }
+              } catch (error) {
+                hasMorePages = false;
+                if (observer) {
+                  observer.disconnect();
+                  observer = null;
                 }
 
-                // Handle other errors
-                displayLabel([
-                  'review_main_wrapper',
-                  'alert-warning',
-                  `Request could not be fulfilled. Please try again later`
-                ])
-              } else {
-                console.error('Unexpected error:', error)
-                displayLabel([
-                  'review_main_wrapper',
-                  'alert-danger',
-                  `An unexpected error occurred.`
-                ])
-                runSpinner(true)
+                if (error.response) {
+                  if (error.response.status === 404) {
+                    displayLabel([
+                      "review_main_wrapper",
+                      "alert-warning",
+                      `Nothing found - There are no accounts in the database!`,
+                    ]);
+                    return;
+                  }
+                  displayLabel([
+                    "review_main_wrapper",
+                    "alert-warning",
+                    `Request could not be fulfilled. Please try again later`,
+                  ]);
+                } else {
+                  console.error("Unexpected error:", error);
+                  displayLabel([
+                    "review_main_wrapper",
+                    "alert-danger",
+                    `An unexpected error occurred.`,
+                  ]);
+                }
+              } finally {
+                isLoading = false;
+                // Always remove spinner after request completes
+                runSpinner(true);
               }
-            }
+            };
 
-            runSpinner(true)
-          })
+            // Function to set up intersection observer
+            const setupIntersectionObserver = () => {
+              const adminPageOuter =
+                document.querySelector(".admin_page_outer");
+              if (!adminPageOuter) {
+                console.warn("admin_page_outer container not found");
+                return;
+              }
+
+              observer = new IntersectionObserver(
+                (entries) => {
+                  entries.forEach((entry) => {
+                    if (entry.isIntersecting && hasMorePages && !isLoading) {
+                      // Remove the info label before starting new request
+                      const existingLabels =
+                        document.querySelectorAll(".alert-info");
+                      existingLabels.forEach((label) => label.remove());
+
+                      fetchUsersPage(currentPage);
+                    }
+                  });
+                },
+                {
+                  threshold: 0.1,
+                  rootMargin: "50px",
+                }
+              );
+
+              // Observer setup function to watch the last user card
+              const observeLastUserCard = () => {
+                const userCards =
+                  adminPageOuter.querySelectorAll(".user_accountcard");
+                if (userCards.length > 0 && observer) {
+                  const lastCard = userCards[userCards.length - 1];
+                  observer.observe(lastCard);
+                }
+              };
+
+              // Use MutationObserver to watch for new user cards being added
+              const mutationObserver = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                  if (
+                    mutation.type === "childList" &&
+                    mutation.addedNodes.length > 0
+                  ) {
+                    // Disconnect from previous last card and observe new last card
+                    if (observer) {
+                      observer.disconnect();
+                      observeLastUserCard();
+                    }
+                  }
+                });
+              });
+
+              mutationObserver.observe(adminPageOuter, {
+                childList: true,
+                subtree: true,
+              });
+
+              // Initial observation
+              observeLastUserCard();
+            };
+
+            // Start fetching the first page
+            await fetchUsersPage(1);
+          });
       }
     } catch (e) {
-      console.error(e)
-      runSpinner(true)
+      console.error(e);
+      runSpinner(true);
     }
   },
   clearStorage: function (storage) {
-    if (!storage) return
+    if (!storage) return;
 
-    if (storage === 'sessionStorage') {
-      sessionStorage.clear()
-      return true
+    if (storage === "sessionStorage") {
+      sessionStorage.clear();
+      return true;
     }
-    if (storage === 'localStorage') {
-      localStorage.clear()
-      return true
+    if (storage === "localStorage") {
+      localStorage.clear();
+      return true;
     }
-    return false
+    return false;
   },
   logOutUser: async function (selector) {
-    const cookieRef = await PLUGINS.handleCookieAcceptance()
-    if (!cookieRef) return
+    const cookieRef = await PLUGINS.handleCookieAcceptance();
+    if (!cookieRef) return;
 
-    const BTNs = Array.from(document.querySelectorAll(selector))
+    const BTNs = Array.from(document.querySelectorAll(selector));
 
     if (BTNs.length) {
-      BTNs.forEach(async btn => {
-        btn.addEventListener('click', async () => {
-          const user = sessionStorage.getItem('user')
+      BTNs.forEach(async (btn) => {
+        btn.addEventListener("click", async () => {
+          const user = sessionStorage.getItem("user");
           if (user) {
             displayLabel([
-              'review_main_wrapper',
-              'alert-secondary',
-              'Logout successful!'
-            ])
+              "review_main_wrapper",
+              "alert-secondary",
+              "Logout successful!",
+            ]);
 
             setTimeout(() => {
-              sessionStorage.removeItem('user')
-              sessionStorage.removeItem('redirected')
-            }, 500)
+              sessionStorage.removeItem("user");
+              sessionStorage.removeItem("redirected");
+            }, 500);
           }
-          LOGIN_HTML()
-        })
-      })
+          LOGIN_HTML();
+        });
+      });
     }
   },
   formatEmail: function (email) {
-    const atIndex = email.indexOf('@')
+    const atIndex = email.indexOf("@");
     if (atIndex !== -1) {
-      const username = email.slice(0, atIndex)
-      return `@${username}`
+      const username = email.slice(0, atIndex);
+      return `@${username}`;
     }
-    return ''
+    return "";
   },
   handleCookieAcceptance: async function () {
     try {
-      const isCookiesAccepted = localStorage.getItem('isCookiesAccepted')
+      const isCookiesAccepted = localStorage.getItem("isCookiesAccepted");
 
-      if (isCookiesAccepted === 'false' || isCookiesAccepted === null) {
+      if (isCookiesAccepted === "false" || isCookiesAccepted === null) {
         const modalHTML = `
             <div class="modal fade text-dark bg-light" id="cookieModal"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="cookieModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -278,302 +414,313 @@ export const PLUGINS = {
               </div>
             </div>
           </div>
-        `
+        `;
 
-        document.body.insertAdjacentHTML('beforeend', modalHTML)
+        document.body.insertAdjacentHTML("beforeend", modalHTML);
         const cookieModal = new bootstrap.Modal(
-          document.getElementById('cookieModal')
-        )
-        cookieModal.show()
+          document.getElementById("cookieModal")
+        );
+        cookieModal.show();
 
         document
-          .getElementById('acceptCookies')
-          .addEventListener('click', () => {
-            localStorage.setItem('isCookiesAccepted', 'true')
-            localStorage.setItem('userGuideShown', 'false')
-            cookieModal.hide()
-            window.location.reload()
-          })
+          .getElementById("acceptCookies")
+          .addEventListener("click", () => {
+            localStorage.setItem("isCookiesAccepted", "true");
+            localStorage.setItem("userGuideShown", "false");
+            cookieModal.hide();
+            window.location.reload();
+          });
 
         document
-          .getElementById('rejectCookies')
-          .addEventListener('click', () => {
-            localStorage.setItem('isCookiesAccepted', 'false')
+          .getElementById("rejectCookies")
+          .addEventListener("click", () => {
+            localStorage.setItem("isCookiesAccepted", "false");
             displayLabel([
-              'body',
-              'alert-danger',
-              "Unfortunately, you can't use this application without consenting to the Terms of Service."
-            ])
+              "body",
+              "alert-danger",
+              "Unfortunately, you can't use this application without consenting to the Terms of Service.",
+            ]);
 
-            cookieModal.hide()
-            setTimeout(() => window.location.reload(), 5000)
-          })
+            cookieModal.hide();
+            setTimeout(() => window.location.reload(), 5000);
+          });
 
         document
-          .querySelector('.c--iie-c-btn')
-          ?.addEventListener('click', () => {
-            localStorage.setItem('isCookiesAccepted', 'false')
+          .querySelector(".c--iie-c-btn")
+          ?.addEventListener("click", () => {
+            localStorage.setItem("isCookiesAccepted", "false");
             displayLabel([
-              'body',
-              'alert-danger',
-              "Unfortunately, you can't use this application without consenting to the Terms of Service."
-            ])
-            cookieModal.hide()
-            setTimeout(() => window.location.reload(), 5000)
-          })
+              "body",
+              "alert-danger",
+              "Unfortunately, you can't use this application without consenting to the Terms of Service.",
+            ]);
+            cookieModal.hide();
+            setTimeout(() => window.location.reload(), 5000);
+          });
       }
-      return localStorage.getItem('isCookiesAccepted') === 'true'
+      return localStorage.getItem("isCookiesAccepted") === "true";
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
   },
   handleAsyncErrors: function (callback) {
     return async function (event) {
       try {
-        await callback(event)
+        await callback(event);
       } catch (error) {
-        console.log('An error occurred from handleAsyncErrors:', error.message)
+        console.log("An error occurred from handleAsyncErrors:", error.message);
       }
-    }
+    };
   },
 
   setupDropdownHover: async function () {
-    const dropdownItems = document.querySelectorAll('li.nav-item.dropdown')
+    const dropdownItems = document.querySelectorAll("li.nav-item.dropdown");
 
-    if (!dropdownItems.length) return
-    const eventListeners = new Map()
+    if (!dropdownItems.length) return;
+    const eventListeners = new Map();
 
-    const showDropdown = dropdownItem => {
-      const navLink = dropdownItem.querySelector('a.nav-link')
-      const dropdownMenu = dropdownItem.querySelector('ul.dropdown-menu')
-
-      if (navLink && dropdownMenu) {
-        navLink.setAttribute('aria-expanded', 'true')
-        dropdownMenu.classList.add('show')
-      }
-    }
-    const hideDropdown = dropdownItem => {
-      const navLink = dropdownItem.querySelector('a.nav-link')
-      const dropdownMenu = dropdownItem.querySelector('ul.dropdown-menu')
+    const showDropdown = (dropdownItem) => {
+      const navLink = dropdownItem.querySelector("a.nav-link");
+      const dropdownMenu = dropdownItem.querySelector("ul.dropdown-menu");
 
       if (navLink && dropdownMenu) {
-        navLink.setAttribute('aria-expanded', 'false')
-        dropdownMenu.classList.remove('show')
+        navLink.setAttribute("aria-expanded", "true");
+        dropdownMenu.classList.add("show");
       }
-    }
+    };
+    const hideDropdown = (dropdownItem) => {
+      const navLink = dropdownItem.querySelector("a.nav-link");
+      const dropdownMenu = dropdownItem.querySelector("ul.dropdown-menu");
+
+      if (navLink && dropdownMenu) {
+        navLink.setAttribute("aria-expanded", "false");
+        dropdownMenu.classList.remove("show");
+      }
+    };
 
     const clickNavbarToggle = () => {
-      const navbarToggle = document.querySelector('.navbar_btn')
+      const navbarToggle = document.querySelector(".navbar_btn");
       if (navbarToggle && window.innerWidth <= 991) {
-        navbarToggle.click()
+        navbarToggle.click();
       }
-    }
+    };
     const fixUserAccountModal = () => {
-      const userAccountModal = document.getElementById('userAccount')
+      const userAccountModal = document.getElementById("userAccount");
       if (
         userAccountModal &&
-        userAccountModal.getAttribute('aria-hidden') === 'true'
+        userAccountModal.getAttribute("aria-hidden") === "true"
       ) {
-        const hasFocus = userAccountModal.contains(document.activeElement)
+        const hasFocus = userAccountModal.contains(document.activeElement);
 
         if (hasFocus) {
-          userAccountModal.removeAttribute('aria-hidden')
-          const observer = new MutationObserver(mutations => {
-            mutations.forEach(mutation => {
+          userAccountModal.removeAttribute("aria-hidden");
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
               if (
-                mutation.type === 'attributes' &&
-                mutation.attributeName === 'aria-hidden' &&
+                mutation.type === "attributes" &&
+                mutation.attributeName === "aria-hidden" &&
                 userAccountModal.contains(document.activeElement)
               ) {
-                userAccountModal.removeAttribute('aria-hidden')
+                userAccountModal.removeAttribute("aria-hidden");
               }
-            })
-          })
-          observer.observe(userAccountModal, { attributes: true })
+            });
+          });
+          observer.observe(userAccountModal, { attributes: true });
 
-          userAccountModal.dataset.ariaObserver = true
+          userAccountModal.dataset.ariaObserver = true;
           userAccountModal.addEventListener(
-            'hidden.bs.modal',
+            "hidden.bs.modal",
             () => {
               if (userAccountModal.dataset.ariaObserver) {
-                observer.disconnect()
-                delete userAccountModal.dataset.ariaObserver
+                observer.disconnect();
+                delete userAccountModal.dataset.ariaObserver;
               }
             },
             { once: true }
-          )
+          );
         }
       }
-    }
-    document.addEventListener('click', PLUGINS.handleModleActiveStates)
-    document.addEventListener('focus', PLUGINS.handleModleActiveStates, true)
+    };
+    document.addEventListener("click", PLUGINS.handleModleActiveStates);
+    document.addEventListener("focus", PLUGINS.handleModleActiveStates, true);
     const modalFixOnInteraction = () => {
-      fixUserAccountModal()
-      PLUGINS.handleModleActiveStates()
-    }
+      fixUserAccountModal();
+      PLUGINS.handleModleActiveStates();
+    };
 
-    const applyDropdownBehavior = screenWidth => {
-      const isSmallScreen = screenWidth <= 991
+    const applyDropdownBehavior = (screenWidth) => {
+      const isSmallScreen = screenWidth <= 991;
 
-      dropdownItems.forEach(dropdownItem => {
-        if (!(dropdownItem instanceof HTMLElement)) return
+      dropdownItems.forEach((dropdownItem) => {
+        if (!(dropdownItem instanceof HTMLElement)) return;
 
-        const navLink = dropdownItem.querySelector('a.nav-link')
-        const dropdownMenu = dropdownItem.querySelector('ul.dropdown-menu')
+        const navLink = dropdownItem.querySelector("a.nav-link");
+        const dropdownMenu = dropdownItem.querySelector("ul.dropdown-menu");
 
-        if (!navLink || !dropdownMenu) return
+        if (!navLink || !dropdownMenu) return;
         if (eventListeners.has(dropdownItem)) {
-          const listeners = eventListeners.get(dropdownItem)
+          const listeners = eventListeners.get(dropdownItem);
           if (listeners.mouseenter) {
-            dropdownItem.removeEventListener('mouseenter', listeners.mouseenter)
+            dropdownItem.removeEventListener(
+              "mouseenter",
+              listeners.mouseenter
+            );
           }
           if (listeners.mouseleave) {
-            dropdownItem.removeEventListener('mouseleave', listeners.mouseleave)
+            dropdownItem.removeEventListener(
+              "mouseleave",
+              listeners.mouseleave
+            );
           }
           if (listeners.clickListeners && listeners.clickListeners.length) {
             listeners.clickListeners.forEach(({ element, listener }) => {
-              element.removeEventListener('click', listener)
-            })
+              element.removeEventListener("click", listener);
+            });
           }
         }
         const newListeners = {
           mouseenter: null,
           mouseleave: null,
-          clickListeners: []
-        }
+          clickListeners: [],
+        };
 
         if (isSmallScreen) {
           // For small screens, set the dropdown to be hidden initially
           // It will be shown when the navbar toggle is clicked
-          navLink.setAttribute('aria-expanded', 'false')
-          dropdownMenu.classList.remove('show')
+          navLink.setAttribute("aria-expanded", "false");
+          dropdownMenu.classList.remove("show");
 
-          const dropdownLinks = dropdownMenu.querySelectorAll('a.dropdown-item')
-          dropdownLinks.forEach(link => {
+          const dropdownLinks =
+            dropdownMenu.querySelectorAll("a.dropdown-item");
+          dropdownLinks.forEach((link) => {
             const clickHandler = () => {
               setTimeout(() => {
-                clickNavbarToggle()
-                modalFixOnInteraction()
-              }, 50)
-            }
-            link.addEventListener('click', clickHandler)
+                clickNavbarToggle();
+                modalFixOnInteraction();
+              }, 50);
+            };
+            link.addEventListener("click", clickHandler);
             newListeners.clickListeners.push({
               element: link,
-              listener: clickHandler
-            })
-          })
+              listener: clickHandler,
+            });
+          });
         } else {
           // Always ensure dropdowns are hidden on page load for large screens
-          navLink.setAttribute('aria-expanded', 'false')
-          dropdownMenu.classList.remove('show')
+          navLink.setAttribute("aria-expanded", "false");
+          dropdownMenu.classList.remove("show");
 
           const mouseenterHandler = () => {
-            showDropdown(dropdownItem)
-            modalFixOnInteraction()
-          }
-          dropdownItem.addEventListener('mouseenter', mouseenterHandler)
-          newListeners.mouseenter = mouseenterHandler
+            showDropdown(dropdownItem);
+            modalFixOnInteraction();
+          };
+          dropdownItem.addEventListener("mouseenter", mouseenterHandler);
+          newListeners.mouseenter = mouseenterHandler;
           const mouseleaveHandler = () => {
-            hideDropdown(dropdownItem)
-            modalFixOnInteraction()
-          }
-          dropdownItem.addEventListener('mouseleave', mouseleaveHandler)
-          newListeners.mouseleave = mouseleaveHandler
-          const dropdownLinks = dropdownMenu.querySelectorAll('a.dropdown-item')
-          dropdownLinks.forEach(link => {
+            hideDropdown(dropdownItem);
+            modalFixOnInteraction();
+          };
+          dropdownItem.addEventListener("mouseleave", mouseleaveHandler);
+          newListeners.mouseleave = mouseleaveHandler;
+          const dropdownLinks =
+            dropdownMenu.querySelectorAll("a.dropdown-item");
+          dropdownLinks.forEach((link) => {
             const clickHandler = () => {
-              hideDropdown(dropdownItem)
-              modalFixOnInteraction()
-            }
-            link.addEventListener('click', clickHandler)
+              hideDropdown(dropdownItem);
+              modalFixOnInteraction();
+            };
+            link.addEventListener("click", clickHandler);
             newListeners.clickListeners.push({
               element: link,
-              listener: clickHandler
-            })
-          })
+              listener: clickHandler,
+            });
+          });
         }
-        eventListeners.set(dropdownItem, newListeners)
-      })
-    }
+        eventListeners.set(dropdownItem, newListeners);
+      });
+    };
     const initModalFix = () => {
-      fixUserAccountModal()
-      const userAccountModal = document.getElementById('userAccount')
+      fixUserAccountModal();
+      const userAccountModal = document.getElementById("userAccount");
       if (userAccountModal) {
-        userAccountModal.addEventListener('show.bs.modal', fixUserAccountModal)
-        userAccountModal.addEventListener('shown.bs.modal', fixUserAccountModal)
+        userAccountModal.addEventListener("show.bs.modal", fixUserAccountModal);
+        userAccountModal.addEventListener(
+          "shown.bs.modal",
+          fixUserAccountModal
+        );
 
-        const modalButtons = userAccountModal.querySelectorAll('button')
-        modalButtons.forEach(button => {
-          button.addEventListener('focus', () => {
-            fixUserAccountModal()
-          })
-          button.addEventListener('click', () => {
-            fixUserAccountModal()
-          })
-        })
+        const modalButtons = userAccountModal.querySelectorAll("button");
+        modalButtons.forEach((button) => {
+          button.addEventListener("focus", () => {
+            fixUserAccountModal();
+          });
+          button.addEventListener("click", () => {
+            fixUserAccountModal();
+          });
+        });
       }
-    }
-    initModalFix()
+    };
+    initModalFix();
 
     // Add a handler for navbar toggle button to show dropdowns on small screens
-    const navbarToggle = document.querySelector('.navbar_btn')
+    const navbarToggle = document.querySelector(".navbar_btn");
     if (navbarToggle) {
-      navbarToggle.addEventListener('click', () => {
-        const currentWidth = window.innerWidth
+      navbarToggle.addEventListener("click", () => {
+        const currentWidth = window.innerWidth;
         if (currentWidth <= 991) {
           // When navbar toggle is clicked on small screens, show all dropdowns
-          dropdownItems.forEach(item => {
-            const navLink = item.querySelector('a.nav-link')
-            const dropdownMenu = item.querySelector('ul.dropdown-menu')
+          dropdownItems.forEach((item) => {
+            const navLink = item.querySelector("a.nav-link");
+            const dropdownMenu = item.querySelector("ul.dropdown-menu");
             if (navLink && dropdownMenu) {
-              navLink.setAttribute('aria-expanded', 'true')
-              dropdownMenu.classList.add('show')
+              navLink.setAttribute("aria-expanded", "true");
+              dropdownMenu.classList.add("show");
             }
-          })
+          });
         }
-      })
+      });
     }
 
     // Apply dropdown behavior based on current screen width, not saved width
-    const currentScreenWidth = window.innerWidth
-    applyDropdownBehavior(currentScreenWidth)
+    const currentScreenWidth = window.innerWidth;
+    applyDropdownBehavior(currentScreenWidth);
 
     // Save the current screen width for future reference
-    await PLUGINS.saveToLocalStorage('screenWidth', currentScreenWidth)
+    await PLUGINS.saveToLocalStorage("screenWidth", currentScreenWidth);
 
-    window.addEventListener('resize', async () => {
-      const newScreenWidth = window.innerWidth
-      await PLUGINS.saveToLocalStorage('screenWidth', newScreenWidth)
-      applyDropdownBehavior(newScreenWidth)
+    window.addEventListener("resize", async () => {
+      const newScreenWidth = window.innerWidth;
+      await PLUGINS.saveToLocalStorage("screenWidth", newScreenWidth);
+      applyDropdownBehavior(newScreenWidth);
 
-      fixUserAccountModal()
-      PLUGINS.handleModleActiveStates()
-    })
+      fixUserAccountModal();
+      PLUGINS.handleModleActiveStates();
+    });
   },
   fetchFromLocalStorage: async function (key) {
     try {
-      const serializedData = localStorage.getItem(key)
-      return serializedData ? JSON.parse(serializedData) : null
+      const serializedData = localStorage.getItem(key);
+      return serializedData ? JSON.parse(serializedData) : null;
     } catch (error) {
-      console.log('Error fetching from localStorage:', error)
-      return null
+      console.log("Error fetching from localStorage:", error);
+      return null;
     }
   },
   saveToLocalStorage: async function (key, data) {
     try {
-      const serializedData = JSON.stringify(data)
-      localStorage.setItem(key, serializedData)
+      const serializedData = JSON.stringify(data);
+      localStorage.setItem(key, serializedData);
     } catch (error) {
-      console.log('Error saving to localStorage:', error)
+      console.log("Error saving to localStorage:", error);
     }
   },
   handleModleActiveStates: function () {
-    const modals = document.querySelectorAll('.modal[aria-hidden="true"]')
-    modals.forEach(modal => {
+    const modals = document.querySelectorAll('.modal[aria-hidden="true"]');
+    modals.forEach((modal) => {
       if (modal.contains(document.activeElement)) {
-        modal.removeAttribute('aria-hidden')
+        modal.removeAttribute("aria-hidden");
       }
-    })
+    });
   },
   userGuideModel: async function () {
     const userGuideServiceModal = `
@@ -660,758 +807,765 @@ export const PLUGINS = {
             </div>
           </div>
         </div>
-      `
+      `;
     //check if guide has been shown already
-    const userGuideShown = await PLUGINS.fetchFromLocalStorage('userGuideShown')
+    const userGuideShown = await PLUGINS.fetchFromLocalStorage(
+      "userGuideShown"
+    );
     const cookieAccepted = await PLUGINS.fetchFromLocalStorage(
-      'isCookiesAccepted'
-    )
+      "isCookiesAccepted"
+    );
 
     if (!userGuideShown && cookieAccepted) {
-      const container = document.getElementById('innerBody')
-      container?.insertAdjacentHTML('afterbegin', userGuideServiceModal)
+      const container = document.getElementById("innerBody");
+      container?.insertAdjacentHTML("afterbegin", userGuideServiceModal);
       setTimeout(async () => {
-        const modal_btn = document.querySelector('.modaal_cont')
-        modal_btn?.click()
-      }, 200)
-      PLUGINS.saveToLocalStorage('userGuideShown', true)
+        const modal_btn = document.querySelector(".modaal_cont");
+        modal_btn?.click();
+      }, 200);
+      PLUGINS.saveToLocalStorage("userGuideShown", true);
     }
   },
   hasBeenClicked: function (element) {
-    let isClicked = false
-    element?.addEventListener('click', e => {
-      if (e.type == 'click') return true
-      return false
-    })
+    let isClicked = false;
+    element?.addEventListener("click", (e) => {
+      if (e.type == "click") return true;
+      return false;
+    });
 
-    return isClicked
+    return isClicked;
   },
   setUpBackToTop: async function (mainContainerId) {
-    const buttonTopInnerHTML = `<a href="#" class="back-to-top shadow shadow-sm border-secondary" aria-label="Back to Top">&uarr;</a>`
+    const buttonTopInnerHTML = `<a href="#" class="back-to-top shadow shadow-sm border-secondary" aria-label="Back to Top">&uarr;</a>`;
 
-    const mainContainer = document.getElementById(mainContainerId)
-    mainContainer?.insertAdjacentHTML('beforeend', buttonTopInnerHTML)
-    const backToTopButton = document.querySelector('.back-to-top')
+    const mainContainer = document.getElementById(mainContainerId);
+    mainContainer?.insertAdjacentHTML("beforeend", buttonTopInnerHTML);
+    const backToTopButton = document.querySelector(".back-to-top");
 
-    mainContainer?.addEventListener('scroll', function () {
+    mainContainer?.addEventListener("scroll", function () {
       if (mainContainer.scrollTop > 0) {
-        backToTopButton.classList.add('show-to-top-btn')
+        backToTopButton.classList.add("show-to-top-btn");
       } else {
-        backToTopButton.classList.remove('show-to-top-btn')
+        backToTopButton.classList.remove("show-to-top-btn");
       }
-    })
+    });
 
-    backToTopButton?.addEventListener('click', function (e) {
-      e.preventDefault()
+    backToTopButton?.addEventListener("click", function (e) {
+      e.preventDefault();
       if (mainContainer) {
-        mainContainer.scrollTo({ top: 0, behavior: 'auto' })
+        mainContainer.scrollTo({ top: 0, behavior: "auto" });
       }
-    })
+    });
 
-    if (mainContainer && mainContainer.innerHTML.trim() === '') {
-      backToTopButton?.classList.remove('show-to-top-btn')
+    if (mainContainer && mainContainer.innerHTML.trim() === "") {
+      backToTopButton?.classList.remove("show-to-top-btn");
     }
   },
-  handleContainerScrollEffect: mainContainerId => {
+  handleContainerScrollEffect: (mainContainerId) => {
     try {
-      const parentReviewContainer = document.getElementById(mainContainerId)
-      if (!parentReviewContainer) return
+      const parentReviewContainer = document.getElementById(mainContainerId);
+      if (!parentReviewContainer) return;
 
       const isInViewport = (el, buffer = 0) => {
-        const rect = el.getBoundingClientRect()
+        const rect = el.getBoundingClientRect();
         return (
           rect.top < window.innerHeight + buffer &&
           rect.bottom > -buffer &&
           rect.left < window.innerWidth + buffer &&
           rect.right > -buffer
-        )
-      }
+        );
+      };
 
       const observer = new IntersectionObserver(
-        entries => {
-          entries.forEach(entry => {
-            const { target, intersectionRatio, isIntersecting } = entry
+        (entries) => {
+          entries.forEach((entry) => {
+            const { target, intersectionRatio, isIntersecting } = entry;
             if (isIntersecting && intersectionRatio > 0.1) {
-              target.classList.add('review-incoming')
+              target.classList.add("review-incoming");
             } else if (!isIntersecting || intersectionRatio < 0.05) {
-              target.classList.remove('review-incoming')
+              target.classList.remove("review-incoming");
             }
-          })
+          });
         },
         {
           threshold: [0.05, 0.1, 0.2],
-          rootMargin: '200px 0px'
+          rootMargin: "200px 0px",
         }
-      )
+      );
 
       const setupInitialVisibility = () => {
         const reviewContainers =
-          parentReviewContainer.querySelectorAll('.review-container')
-        reviewContainers.forEach(container => {
+          parentReviewContainer.querySelectorAll(".review-container");
+        reviewContainers.forEach((container) => {
           // Check if element is already in viewport with a generous buffer
           if (isInViewport(container, 300)) {
-            container.classList.add('review-incoming')
+            container.classList.add("review-incoming");
           } else {
-            container.classList.remove('review-incoming')
+            container.classList.remove("review-incoming");
           }
-          observer.observe(container)
-        })
-      }
+          observer.observe(container);
+        });
+      };
 
       const observeNewElements = () => {
         const reviewContainers = parentReviewContainer.querySelectorAll(
-          '.review-container:not([data-observed])'
-        )
-        reviewContainers.forEach(container => {
-          container.setAttribute('data-observed', 'true')
+          ".review-container:not([data-observed])"
+        );
+        reviewContainers.forEach((container) => {
+          container.setAttribute("data-observed", "true");
           if (isInViewport(container, 300)) {
-            container.classList.add('review-incoming')
+            container.classList.add("review-incoming");
           }
-          observer.observe(container)
-        })
-      }
+          observer.observe(container);
+        });
+      };
 
       if (
-        document.readyState === 'complete' ||
-        document.readyState === 'interactive'
+        document.readyState === "complete" ||
+        document.readyState === "interactive"
       ) {
-        setupInitialVisibility()
+        setupInitialVisibility();
       } else {
-        document.addEventListener('DOMContentLoaded', setupInitialVisibility)
+        document.addEventListener("DOMContentLoaded", setupInitialVisibility);
       }
 
-      window.addEventListener('load', setupInitialVisibility)
+      window.addEventListener("load", setupInitialVisibility);
 
-      setTimeout(setupInitialVisibility, 100)
+      setTimeout(setupInitialVisibility, 100);
 
       const mutationObserver = new MutationObserver(() => {
-        observeNewElements()
-      })
+        observeNewElements();
+      });
       mutationObserver.observe(parentReviewContainer, {
         childList: true,
-        subtree: true
-      })
+        subtree: true,
+      });
 
-      window.addEventListener('resize', () => {
-        setupInitialVisibility()
-      })
+      window.addEventListener("resize", () => {
+        setupInitialVisibility();
+      });
 
       return () => {
-        observer.disconnect()
-        mutationObserver.disconnect()
-      }
+        observer.disconnect();
+        mutationObserver.disconnect();
+      };
     } catch (e) {
-      console.warn('Error in handleContainerScrollEffect:', e)
+      console.warn("Error in handleContainerScrollEffect:", e);
     }
   },
   deleteReviewDocument: async function (documentId) {
     try {
       if (!documentId) {
-        throw new Error('Invalid document ID')
+        throw new Error("Invalid document ID");
       }
 
-      runSpinner(false, 'Deleting...')
+      runSpinner(false, "Deleting...");
 
-      const auth = getAuthHandler()
-      const { 'auth-token': authToken, isAdmin, isSubscribed } = auth
+      const auth = getAuthHandler();
+      const { "auth-token": authToken, isAdmin, isSubscribed } = auth;
 
       if (isAdmin && isSubscribed) {
         const headers = {
           Authorization: `Bearer ${authToken}`,
-          'Content-Type': 'application/json'
-        }
+          "Content-Type": "application/json",
+        };
 
-        const baseUrl = '/document/delete-one'
-        const url = `${baseUrl}/${documentId}`
+        const baseUrl = "/document/delete-one";
+        const url = `${baseUrl}/${documentId}`;
 
-        const apiClient = await API_CLIENT()
-        const response = await apiClient.delete(url, { headers })
+        const apiClient = await API_CLIENT();
+        const response = await apiClient.delete(url, { headers });
 
         if (response.status !== 200) {
-          throw new Error(`Failed to delete review: ${response.data}`)
+          throw new Error(`Failed to delete review: ${response.data}`);
         }
 
         displayLabel([
-          'review_main_wrapper',
-          'alert-success',
-          `Review deleted successfully`
-        ])
-        runSpinner(true)
-        return true
+          "review_main_wrapper",
+          "alert-success",
+          `Review deleted successfully`,
+        ]);
+        runSpinner(true);
+        return true;
       }
     } catch (error) {
-      console.log('Error deleting document:', error.message)
+      console.log("Error deleting document:", error.message);
       displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        `An error occurred: ${error.message}`
-      ])
+        "review_main_wrapper",
+        "alert-danger",
+        `An error occurred: ${error.message}`,
+      ]);
     } finally {
-      runSpinner(true)
+      runSpinner(true);
     }
   },
   getHeaders: function () {
-    const auth = getAuthHandler()
-    const { 'auth-token': authToken, isAdmin, isSubscribed } = auth
+    const auth = getAuthHandler();
+    const { "auth-token": authToken, isAdmin, isSubscribed } = auth;
 
     if (isAdmin && isSubscribed)
       return {
         Authorization: `Bearer ${authToken}`,
-        'Content-Type': 'application/json'
-      }
-    return {}
+        "Content-Type": "application/json",
+      };
+    return {};
   },
   updateReview: async function (documentId, authorExternalId, reviewSiteSlug) {
     try {
       if (!documentId || !authorExternalId || !reviewSiteSlug) {
-        throw new Error('Invalid payload')
+        throw new Error("Invalid payload");
       }
 
-      runSpinner(false)
-      const headers = PLUGINS.getHeaders()
+      runSpinner(false);
+      const headers = PLUGINS.getHeaders();
 
       if (headers) {
-        const baseUrl = '/update-review'
+        const baseUrl = "/update-review";
 
-        const apiClient = await API_CLIENT()
+        const apiClient = await API_CLIENT();
         const response = await apiClient.post(
           baseUrl,
           { reviewId: documentId, authorExternalId, reviewSiteSlug },
           { headers }
-        )
+        );
 
         if (response.status == 200) {
-          let reviewObj = response.data.data[0]
+          let reviewObj = response.data.data[0];
           displayLabel([
-            'review_main_wrapper',
-            'alert-success',
-            `Review updated successfully`
-          ])
-          runSpinner(true)
-          return reviewObj
+            "review_main_wrapper",
+            "alert-success",
+            `Review updated successfully`,
+          ]);
+          runSpinner(true);
+          return reviewObj;
         }
-        return false
+        return false;
       }
-      throw new Error(`Failed to update review: ${response.data}`)
+      throw new Error(`Failed to update review: ${response.data}`);
     } catch (error) {
       if (
         error.response.status === 501 &&
-        error.response.statusText === 'Not Implemented'
+        error.response.statusText === "Not Implemented"
       ) {
-        PLUGINS.simpleLoader(false)
+        PLUGINS.simpleLoader(false);
 
         return displayLabel([
-          'review_main_wrapper',
-          'alert-secondary',
-          `This feature has not yet been implimented: We are working in it! `
-        ])
+          "review_main_wrapper",
+          "alert-secondary",
+          `This feature has not yet been implimented: We are working in it! `,
+        ]);
       }
 
       displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        `An error occurred: ${error.message}`
-      ])
-      console.log(error.message)
+        "review_main_wrapper",
+        "alert-danger",
+        `An error occurred: ${error.message}`,
+      ]);
+      console.log(error.message);
     } finally {
-      runSpinner(true)
+      runSpinner(true);
     }
   },
   handleReviewButtonsEvents: async function () {
-    const reviewContainer = document.getElementById('review_main_wrapper')
+    const reviewContainer = document.getElementById("review_main_wrapper");
     if (!reviewContainer) {
-      console.log('Review container not found')
-      return
+      console.log("Review container not found");
+      return;
     }
-    reviewContainer.addEventListener('click', async event => {
-      const clickedButton = event.target.closest('button')
+    reviewContainer.addEventListener("click", async (event) => {
+      const clickedButton = event.target.closest("button");
       if (clickedButton) {
-        if (clickedButton.classList.contains('action_3')) {
-          const reviewId = PLUGINS.getOutermostReviewId(clickedButton)
+        if (clickedButton.classList.contains("action_3")) {
+          const reviewId = PLUGINS.getOutermostReviewId(clickedButton);
           if (reviewId) {
             try {
-              PLUGINS.simpleLoader(`[del-revie-data="${reviewId}"]`, true)
+              PLUGINS.simpleLoader(`[del-revie-data="${reviewId}"]`, true);
 
               setTimeout(async () => {
-                const isDeleted = await PLUGINS.deleteReviewDocument(reviewId)
+                const isDeleted = await PLUGINS.deleteReviewDocument(reviewId);
 
                 if (isDeleted) {
-                  const deletedCard = document.getElementById(`${reviewId}`)
-                  deletedCard?.classList.add('delete_item')
-                  setTimeout(() => deletedCard?.remove(), 80)
+                  const deletedCard = document.getElementById(`${reviewId}`);
+                  deletedCard?.classList.add("delete_item");
+                  setTimeout(() => deletedCard?.remove(), 80);
                 }
-              }, 100)
+              }, 100);
             } catch (error) {
-              PLUGINS.simpleLoader(`[del-review-data="${reviewId}"]`, false)
-              console.log('Error handling button click:', error.message)
+              PLUGINS.simpleLoader(`[del-review-data="${reviewId}"]`, false);
+              console.log("Error handling button click:", error.message);
             }
           }
-          return
+          return;
         }
-        if (clickedButton.classList.contains('action_4')) {
-          const reviewId = PLUGINS.getOutermostReviewId(clickedButton)
-          const authorExternalId = PLUGINS.getAuthorExternalIdId(clickedButton)
-          const reviewSiteSlug = PLUGINS.getSiteSlug(reviewId)
+        if (clickedButton.classList.contains("action_4")) {
+          const reviewId = PLUGINS.getOutermostReviewId(clickedButton);
+          const authorExternalId = PLUGINS.getAuthorExternalIdId(clickedButton);
+          const reviewSiteSlug = PLUGINS.getSiteSlug(reviewId);
 
           if (reviewId) {
             try {
-              PLUGINS.simpleLoader(`[pageid-data="${reviewId}"]`, true)
+              PLUGINS.simpleLoader(`[pageid-data="${reviewId}"]`, true);
 
               setTimeout(async () => {
                 const updatedReview = await PLUGINS.updateReview(
                   reviewId,
                   authorExternalId,
                   reviewSiteSlug
-                )
+                );
 
                 if (updatedReview) {
-                  const deletedCard = document.getElementById(`${reviewId}`)
-                  deletedCard?.classList.add('delete_item')
-                  setTimeout(() => deletedCard?.remove(), 20)
-                  await ReviewHTML(updatedReview, true)
+                  const deletedCard = document.getElementById(`${reviewId}`);
+                  deletedCard?.classList.add("delete_item");
+                  setTimeout(() => deletedCard?.remove(), 20);
+                  await ReviewHTML(updatedReview, true);
                   const newCard = document.querySelector(
                     `.__${authorExternalId}`
-                  )
+                  );
                   const parentWrapper = document.querySelector(
-                    '#review_main_wrapper'
-                  )
+                    "#review_main_wrapper"
+                  );
 
                   if (newCard && parentWrapper) {
                     newCard.scrollIntoView({
-                      behavior: 'smooth',
-                      block: 'center'
-                    })
+                      behavior: "smooth",
+                      block: "center",
+                    });
                   }
                 }
-              }, 800)
+              }, 800);
             } catch (error) {
-              PLUGINS.simpleLoader(`[del-review-data="${reviewId}"]`, false)
-              console.log('Error handling button click:', error.message)
+              PLUGINS.simpleLoader(`[del-review-data="${reviewId}"]`, false);
+              console.log("Error handling button click:", error.message);
             }
           }
-          return
+          return;
         }
       }
-    })
+    });
   },
   formatDBDate: function (date) {
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   },
   getOutermostReviewId: function (buttonElement) {
-    const reviewContainer = buttonElement.closest('.review-container')
+    const reviewContainer = buttonElement.closest(".review-container");
     if (reviewContainer) {
-      return reviewContainer.id
+      return reviewContainer.id;
     }
-    return null
+    return null;
   },
   getSiteSlug: function (reviewID) {
-    const targetElement = document.getElementById(reviewID)
+    const targetElement = document.getElementById(reviewID);
     if (targetElement) {
-      const slug = targetElement.dataset.slug
-      return slug
+      const slug = targetElement.dataset.slug;
+      return slug;
     } else {
-      console.log('Target element not found')
-      return null
+      console.log("Target element not found");
+      return null;
     }
   },
   getAuthorExternalIdId: function (buttonElement) {
-    const reviewContainer = buttonElement.closest('.review-container')
+    const reviewContainer = buttonElement.closest(".review-container");
     if (reviewContainer) {
       const authorExternalIdAttribute =
-        buttonElement.getAttribute('authorexternalid')
+        buttonElement.getAttribute("authorexternalid");
 
       if (authorExternalIdAttribute) {
-        return authorExternalIdAttribute.trim()
+        return authorExternalIdAttribute.trim();
       }
     }
-    return null
+    return null;
   },
-  fetchData: async function (page = 1, slug = '') {
+  fetchData: async function (page = 1, slug = "") {
     try {
-      runSpinner(false, 'loading...')
+      runSpinner(false, "loading...");
 
-      const user = getAuthHandler()
+      const user = getAuthHandler();
       if (!user) {
         return displayLabel([
-          'review_main_wrapper',
-          'alert-danger',
-          `An error occurred while processing your request. Please try again later`
-        ])
+          "review_main_wrapper",
+          "alert-danger",
+          `An error occurred while processing your request. Please try again later`,
+        ]);
       }
 
-      const apiClient = await API_CLIENT()
-      const baseUrl = '/get-user-account-review-docs'
-      const perPage = 20
-      const { 'auth-token': token } = user
+      const apiClient = await API_CLIENT();
+      const baseUrl = "/get-user-account-review-docs";
+      const perPage = 20;
+      const { "auth-token": token } = user;
 
       const headers = {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      };
 
       const knownSubbrands = {
         expedia: [
-          'Hotels',
-          'Waltz',
-          'Travelocity',
-          'Expedia',
-          'Cheaptickets',
-          'Trivago'
+          "Hotels",
+          "Waltz",
+          "Travelocity",
+          "Expedia",
+          "Cheaptickets",
+          "Trivago",
         ],
-        trip: ['Trip', 'Ctrip']
-      }
+        trip: ["Trip", "Ctrip"],
+      };
 
-      const lookupMap = {}
+      const lookupMap = {};
       for (const [mainBrand, subbrands] of Object.entries(knownSubbrands)) {
-        subbrands.forEach(subbrand => {
+        subbrands.forEach((subbrand) => {
           lookupMap[subbrand.toLowerCase()] = {
             mainBrand,
-            originalSubbrand: subbrand
-          }
-        })
+            originalSubbrand: subbrand,
+          };
+        });
       }
 
-      let brandtype = ''
-      let modifiedSlug = slug
+      let brandtype = "";
+      let modifiedSlug = slug;
 
       if (modifiedSlug) {
-        const slugParts = modifiedSlug.split('-')
-        const firstPart = slugParts[0]
-        const firstPartLower = firstPart.toLowerCase()
+        const slugParts = modifiedSlug.split("-");
+        const firstPart = slugParts[0];
+        const firstPartLower = firstPart.toLowerCase();
 
         if (Object.keys(knownSubbrands).includes(firstPartLower)) {
           if (slugParts.length > 1) {
-            brandtype = slugParts[1] === 'com' ? '' : slugParts[1]
+            brandtype = slugParts[1] === "com" ? "" : slugParts[1];
           }
         } else if (lookupMap[firstPartLower]) {
-          const { mainBrand, originalSubbrand } = lookupMap[firstPartLower]
-          modifiedSlug = `${mainBrand}-com`
-          brandtype = originalSubbrand
+          const { mainBrand, originalSubbrand } = lookupMap[firstPartLower];
+          modifiedSlug = `${mainBrand}-com`;
+          brandtype = originalSubbrand;
         }
       }
 
-      const params = { page, slug: modifiedSlug }
+      const params = { page, slug: modifiedSlug };
       if (brandtype) {
-        params.brandtype = brandtype
+        params.brandtype = brandtype;
       }
       const res = await apiClient.post(
         baseUrl,
         {},
         {
           headers,
-          params
+          params,
         }
-      )
+      );
 
-      if (res.statusText === 'OK') {
-        setTimeout(() => runSpinner(true), 500)
-        const data = res.data.data || []
+      if (res.statusText === "OK") {
+        setTimeout(() => runSpinner(true), 500);
+        const data = res.data.data || [];
 
         if (data.length < perPage) {
           displayLabel([
-            'review_main_wrapper',
-            'alert-success',
-            `This is the last page: ${page}`
-          ])
-          return data
+            "review_main_wrapper",
+            "alert-success",
+            `This is the last page: ${page}`,
+          ]);
+          return data;
         }
 
-        if (slug === '') {
+        if (slug === "") {
           displayLabel([
-            'review_main_wrapper',
-            'alert-success',
-            `Page: ${page}`
-          ])
+            "review_main_wrapper",
+            "alert-success",
+            `Page: ${page}`,
+          ]);
         }
-        return data
+        return data;
       }
     } catch (error) {
       if (error.response) {
         if (error.response.status === 400) {
           return displayLabel([
-            'review_main_wrapper',
-            'alert-warning',
-            `Nothing found.`
-          ])
+            "review_main_wrapper",
+            "alert-warning",
+            `Nothing found.`,
+          ]);
         }
         if (error.response.status === 404) {
-          handleProfileGenerator(null, false)
-          runSpinner(true)
+          handleProfileGenerator(null, false);
+          runSpinner(true);
           return displayLabel([
-            'review_main_wrapper',
-            'alert-warning',
-            `No profile associated with the selected option found. \nYou need to create a ${slug} review profile first!`
-          ])
+            "review_main_wrapper",
+            "alert-warning",
+            `No profile associated with the selected option found. \nYou need to create a ${slug} review profile first!`,
+          ]);
         }
       }
-      console.warn('Error fetching data:', error)
-      runSpinner(true)
+      console.warn("Error fetching data:", error);
+      runSpinner(true);
     }
   },
   PaginateData: async function (slug) {
-    runSpinner(false)
-    PLUGINS.removeAdminContainer()
-    let page = 1
-    const container = document.getElementById('review_main_wrapper')
+    runSpinner(false);
+    PLUGINS.removeAdminContainer();
+    let page = 1;
+    const container = document.getElementById("review_main_wrapper");
 
-    if (!container) return
-    const user = getAuthHandler()
-    if (!user) return
+    if (!container) return;
+    const user = getAuthHandler();
+    if (!user) return;
 
     try {
-      const data = await PLUGINS.fetchData(page, slug)
+      const data = await PLUGINS.fetchData(page, slug);
       if (data && data.length) {
         for (const obj of data) {
           try {
-            await ReviewHTML(obj)
+            await ReviewHTML(obj);
           } catch (e) {
-            console.log(e)
+            console.log(e);
           }
         }
 
         setTimeout(async () => {
-          let loading = false
-          let target = container?.children[container.children.length - 2]
+          let loading = false;
+          let target = container?.children[container.children.length - 2];
           const observer = new IntersectionObserver(
             async (entries, observer) => {
-              const lastEntry = entries[entries.length - 1]
+              const lastEntry = entries[entries.length - 1];
               if (lastEntry.isIntersecting && !loading) {
-                loading = true
-                const data = await PLUGINS.fetchData(++page, slug)
+                loading = true;
+                const data = await PLUGINS.fetchData(++page, slug);
                 if (data && data.length) {
-                  data.forEach(async obj => {
-                    await ReviewHTML(obj)
-                  })
+                  data.forEach(async (obj) => {
+                    await ReviewHTML(obj);
+                  });
 
                   if (data.length < 20) {
-                    observer.unobserve(target)
+                    observer.unobserve(target);
                   } else {
-                    loading = false
-                    observer.unobserve(target)
-                    target = container.children[container.children.length - 2]
-                    observer.observe(target)
+                    loading = false;
+                    observer.unobserve(target);
+                    target = container.children[container.children.length - 2];
+                    observer.observe(target);
                   }
                 }
               }
             },
-            { rootMargin: '0px 0px 100% 0px' }
-          )
+            { rootMargin: "0px 0px 100% 0px" }
+          );
 
-          const responses = document.querySelectorAll('.review-container')
+          const responses = document.querySelectorAll(".review-container");
           if (responses && responses.length >= 20) {
-            observer.observe(target)
+            observer.observe(target);
           }
-        }, 1000)
+        }, 1000);
       }
     } catch (error) {
       if (error instanceof TypeError) {
         displayLabel([
-          'review_main_wrapper',
-          'alert-danger',
-          `Sorry, an error occurred while processing your request.`
-        ])
-        return await LOGIN_HTML()
+          "review_main_wrapper",
+          "alert-danger",
+          `Sorry, an error occurred while processing your request.`,
+        ]);
+        return await LOGIN_HTML();
       }
-      console.warn(error)
-      runSpinner(true)
+      console.warn(error);
+      runSpinner(true);
     }
   },
   removeAdminContainer: function () {
-    const container = document.querySelector('#admin_page')
-    if (container) return container?.remove()
+    const container = document.querySelector("#admin_page");
+    if (container) return container?.remove();
+  },
+  removeSuperInnerContainer: function () {
+    const container = document.querySelector(".admin_page_outer");
+    if (container) return container?.remove();
   },
   handlePaginatedDataClick: async function (event) {
     try {
-      PLUGINS.removeAdminContainer()
-      const textContent = event.target.textContent
+      PLUGINS.removeAdminContainer();
+      PLUGINS.removeSuperInnerContainer();
+      const textContent = event.target.textContent;
       try {
-        runSpinner(false, 'Fetching...')
-        const reviews = document.querySelectorAll('.review-container')
+        runSpinner(false, "Fetching...");
+        const reviews = document.querySelectorAll(".review-container");
         if (reviews.length) {
-          reviews.forEach(reviewContainer => reviewContainer?.remove())
-          await PLUGINS.PaginateData(textContent)
-          return
+          reviews.forEach((reviewContainer) => reviewContainer?.remove());
+          await PLUGINS.PaginateData(textContent);
+          return;
         }
-        await PLUGINS.PaginateData(textContent)
-        runSpinner(true, 'Done')
+        await PLUGINS.PaginateData(textContent);
+        runSpinner(true, "Done");
       } catch (e) {
-        console.log(e.message)
+        console.log(e.message);
       }
     } catch (e) {
-      console.log(e.message)
+      console.log(e.message);
     }
   },
   handlePaginatedDataAllAccounts: async function () {
-    runSpinner(false)
+    runSpinner(false);
     const cookieAccepted = await PLUGINS.fetchFromLocalStorage(
-      'isCookiesAccepted'
-    )
-    if (!cookieAccepted) return
-    const dropdownMenu = document.querySelector('._inner_dropdown_canvas')
-    const links = dropdownMenu?.querySelectorAll('a')
-    links?.forEach(link => {
-      link.addEventListener('click', PLUGINS.handlePaginatedDataClick)
-    })
+      "isCookiesAccepted"
+    );
+    if (!cookieAccepted) return;
+    const dropdownMenu = document.querySelector("._inner_dropdown_canvas");
+    const links = dropdownMenu?.querySelectorAll("a");
+    links?.forEach((link) => {
+      link.addEventListener("click", PLUGINS.handlePaginatedDataClick);
+    });
   },
   handleCustomCrawlers: async function (e) {
-    runSpinner(false, 'Crawling...')
+    runSpinner(false, "Crawling...");
     try {
-      e.preventDefault()
+      e.preventDefault();
 
-      const parentLi = e.target.closest('li')
-      if (!parentLi) return
+      const parentLi = e.target.closest("li");
+      if (!parentLi) return;
 
-      const fullCrawlCheckbox = parentLi.querySelector('.form-check-input')
-      const pagesInput = parentLi.querySelector('.pagesInput')
+      const fullCrawlCheckbox = parentLi.querySelector(".form-check-input");
+      const pagesInput = parentLi.querySelector(".pagesInput");
 
-      const isFullCrawlChecked = fullCrawlCheckbox?.checked || false
-      const pagesValue = pagesInput?.value.trim() || null
+      const isFullCrawlChecked = fullCrawlCheckbox?.checked || false;
+      const pagesValue = pagesInput?.value.trim() || null;
 
-      const depth = isFullCrawlChecked ? 'full' : pagesValue
+      const depth = isFullCrawlChecked ? "full" : pagesValue;
 
-      let { slug, user } = await PLUGINS.getSlugForProfile(e)
-      if (!slug) return false
-      slug = slug.replace(/-.*/, '').trim()
+      let { slug, user } = await PLUGINS.getSlugForProfile(e);
+      if (!slug) return false;
+      slug = slug.replace(/-.*/, "").trim();
 
-      if (!depth || depth === '0' || (!isFullCrawlChecked && depth === '0')) {
-        runSpinner(false, 'Invalid')
+      if (!depth || depth === "0" || (!isFullCrawlChecked && depth === "0")) {
+        runSpinner(false, "Invalid");
         displayLabel([
-          'review_main_wrapper',
-          'alert-danger',
-          `Invalid input - depth cannot be <0>`
-        ])
-        setTimeout(() => runSpinner(true), 4000)
-        return
+          "review_main_wrapper",
+          "alert-danger",
+          `Invalid input - depth cannot be <0>`,
+        ]);
+        setTimeout(() => runSpinner(true), 4000);
+        return;
       }
-      const { 'auth-token': token, isSubscribed } = user
+      const { "auth-token": token, isSubscribed } = user;
 
-      const apiClient = await API_CLIENT()
+      const apiClient = await API_CLIENT();
 
-      const baseUrl = `/user/generate-${slug}-reviews`
-      const query = `?depth=${depth}`
+      const baseUrl = `/user/generate-${slug}-reviews`;
+      const query = `?depth=${depth}`;
 
       if (!isSubscribed) {
         displayLabel([
-          'review_main_wrapper',
-          'alert-warning',
-          `Subscription innactive - Please contact admin to renew your subscription!`
-        ])
-        setTimeout(() => location.reload(), 5000)
-        return false
+          "review_main_wrapper",
+          "alert-warning",
+          `Subscription innactive - Please contact admin to renew your subscription!`,
+        ]);
+        setTimeout(() => location.reload(), 5000);
+        return false;
       }
 
       const headers = {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-      const url = `${baseUrl}${query}`
-      const res = await apiClient.post(url, {}, { headers })
+        "Content-Type": "application/json",
+      };
+      const url = `${baseUrl}${query}`;
+      const res = await apiClient.post(url, {}, { headers });
 
-      if (res.data?.statusText == 'OK') {
-        runSpinner(false, 'Refreshing...')
+      if (res.data?.statusText == "OK") {
+        runSpinner(false, "Refreshing...");
         displayLabel([
-          'review_main_wrapper',
-          'alert-success',
-          `Extraction completed, fetching updated data...`
-        ])
-        setTimeout(() => location.reload(), 5000)
-        return
+          "review_main_wrapper",
+          "alert-success",
+          `Extraction completed, fetching updated data...`,
+        ]);
+        setTimeout(() => location.reload(), 5000);
+        return;
       }
-      if (res.data?.message?.includes('new objects were saved')) {
-        const msg = res.data.message
-        const match = msg.match(/\(?(\d+)\)?\s+new objects/)
-        const extractedNumber = match ? match[1] : 'no'
+      if (res.data?.message?.includes("new objects were saved")) {
+        const msg = res.data.message;
+        const match = msg.match(/\(?(\d+)\)?\s+new objects/);
+        const extractedNumber = match ? match[1] : "no";
 
-        runSpinner(false, 'Done')
+        runSpinner(false, "Done");
         displayLabel([
-          'review_main_wrapper',
-          'alert-success',
-          `Reviews collected successfully`
-        ])
-        runSpinner(true)
-        setTimeout(() => location.reload(), 5000)
-        return
+          "review_main_wrapper",
+          "alert-success",
+          `Reviews collected successfully`,
+        ]);
+        runSpinner(true);
+        setTimeout(() => location.reload(), 5000);
+        return;
       }
 
-      if (res.status == 200 && res.data?.message.includes('nothing new')) {
-        runSpinner(true)
+      if (res.status == 200 && res.data?.message.includes("nothing new")) {
+        runSpinner(true);
         displayLabel([
-          'review_main_wrapper',
-          'alert-warning',
-          `The process completed but no new reviews data was collected`
-        ])
-        setTimeout(() => location.reload(), 5000)
-        return
+          "review_main_wrapper",
+          "alert-warning",
+          `The process completed but no new reviews data was collected`,
+        ]);
+        setTimeout(() => location.reload(), 5000);
+        return;
       }
-      runSpinner(true)
+      runSpinner(true);
       displayLabel([
-        'review_main_wrapper',
-        'alert-success',
-        `Please check back again later for review data.`
-      ])
+        "review_main_wrapper",
+        "alert-success",
+        `Please check back again later for review data.`,
+      ]);
     } catch (e) {
-      console.warn(e)
-      runSpinner(true)
+      console.warn(e);
+      runSpinner(true);
     }
   },
   getSlugForProfile: async function (e) {
     try {
       if (!e || !e.target) {
-        console.warn('getSlugForProfile requires an event parameter')
-        return null
+        console.warn("getSlugForProfile requires an event parameter");
+        return null;
       }
 
-      const clickedElement = e.target
+      const clickedElement = e.target;
 
-      const adminCard = clickedElement.closest('.admin-card')
+      const adminCard = clickedElement.closest(".admin-card");
       if (!adminCard) {
-        console.warn('Could not find parent admin-card element')
-        return null
+        console.warn("Could not find parent admin-card element");
+        return null;
       }
 
-      const profileId = adminCard.id
+      const profileId = adminCard.id;
       if (!profileId) {
-        console.warn('Admin card does not have an ID attribute')
-        return null
+        console.warn("Admin card does not have an ID attribute");
+        return null;
       }
 
       // Get user data and find the matching profile
-      const user = getAuthHandler()
-      const { 'auth-token': token } = user
+      const user = getAuthHandler();
+      const { "auth-token": token } = user;
 
       if (user && user.userProfiles) {
-        const profile = user.userProfiles.find(p => p._id === profileId)
+        const profile = user.userProfiles.find((p) => p._id === profileId);
         return profile
           ? {
               slug: profile.reviewSiteSlug,
               userProfiles: user.userProfiles,
               profileId,
-              user
+              user,
             }
-          : null
+          : null;
       }
 
-      return null
+      return null;
     } catch (error) {
-      console.error('Error getting slug for profile:', error)
-      return null
+      console.error("Error getting slug for profile:", error);
+      return null;
     }
   },
   roadRunners: async function () {
-    await PLUGINS.PaginateData()
+    await PLUGINS.PaginateData();
   },
   createAdminProfileCard: async function (userObject, rest) {
-    if (!userObject) return
+    if (!userObject) return;
     const {
       name: propertyName,
       reviewSiteSlug,
       originalUrl,
       propertyType,
-      _id: profile_id
-    } = userObject
+      _id: profile_id,
+    } = userObject;
 
     const {
       email,
@@ -1420,13 +1574,13 @@ export const PLUGINS = {
       name: accountName,
       userId,
       _id: account_id,
-      'auth-token': authToken
-    } = rest
+      "auth-token": authToken,
+    } = rest;
 
     const profileCardHTML = `
         <div id="${profile_id}" data-profileid="${userId}" draggable="true" class="card admin-card bg-light-custom shadow  user-${account_id}" style="width:60vw; height:40vh">
         <div class="card-header d-grid justify-content align-content-center">
-            <h4 class="lead text-uppercase">${reviewSiteSlug || ''}</h4>
+            <h4 class="lead text-uppercase">${reviewSiteSlug || ""}</h4>
           </div>
           <div class="card-body shadow overflow-auto shadow-lg d-block justify-content-around align-content-center">
               <div class="container d-flex justify-content-between align-content-between">
@@ -1457,7 +1611,7 @@ export const PLUGINS = {
               <div class="container d-flex justify-content-between align-content-between">
                   <span class="text-success d-block text-uppercase ">Administrator:</span>
                     <span class="text-uppercase text-secondary">${
-                      (isAdmin && 'Yes') || 'No'
+                      (isAdmin && "Yes") || "No"
                     }
                     </span>
               </div>
@@ -1465,7 +1619,7 @@ export const PLUGINS = {
               <div class="container d-flex justify-content-between align-content-between">
                   <span class="text-success d-block text-uppercase ">Subscription active:</span>
                   <span class="text-uppercase text-secondary _subscription">${
-                    (isSubscribed && 'Yes') || 'No'
+                    (isSubscribed && "Yes") || "No"
                   }</span>
               </div>
         </div>
@@ -1508,343 +1662,343 @@ export const PLUGINS = {
             </div>
         </div>
       </div>  
-    `
+    `;
 
-    const parent_wrapper = document.querySelector('#admin_page')
-    parent_wrapper?.insertAdjacentHTML('beforeend', profileCardHTML)
+    const parent_wrapper = document.querySelector("#admin_page");
+    parent_wrapper?.insertAdjacentHTML("beforeend", profileCardHTML);
 
-    const checkbox = document.querySelector(`[data-full="${profile_id}"]`)
-    const numberInput = document.querySelector(`[data-page="${profile_id}"]`)
-    const runner_link = document.querySelector(`[data-clink="${profile_id}"]`)
+    const checkbox = document.querySelector(`[data-full="${profile_id}"]`);
+    const numberInput = document.querySelector(`[data-page="${profile_id}"]`);
+    const runner_link = document.querySelector(`[data-clink="${profile_id}"]`);
 
     // page input && run crawler controls
     if (checkbox && numberInput && runner_link) {
-      checkbox.addEventListener('change', function () {
+      checkbox.addEventListener("change", function () {
         if (checkbox.checked) {
-          numberInput.disabled = true
-          numberInput.value = 0
+          numberInput.disabled = true;
+          numberInput.value = 0;
         } else {
-          numberInput.disabled = false
+          numberInput.disabled = false;
         }
-        toggleRunnerLink()
-      })
+        toggleRunnerLink();
+      });
 
-      numberInput.addEventListener('input', function () {
-        let pageCount = parseInt(numberInput.value, 10) || 0
+      numberInput.addEventListener("input", function () {
+        let pageCount = parseInt(numberInput.value, 10) || 0;
 
         if (pageCount > 0) {
-          checkbox.checked = false
+          checkbox.checked = false;
         }
 
-        checkbox.disabled = pageCount > 0
-        numberInput.disabled = checkbox.checked
+        checkbox.disabled = pageCount > 0;
+        numberInput.disabled = checkbox.checked;
 
-        toggleRunnerLink()
-      })
+        toggleRunnerLink();
+      });
 
-      function toggleRunnerLink () {
-        const pageCount = parseInt(numberInput.value, 10) || 0
-        const isCheckboxChecked = checkbox.checked
-        const isValidPageCount = pageCount > 0
+      function toggleRunnerLink() {
+        const pageCount = parseInt(numberInput.value, 10) || 0;
+        const isCheckboxChecked = checkbox.checked;
+        const isValidPageCount = pageCount > 0;
 
-        const shouldEnableLink = isCheckboxChecked || isValidPageCount
+        const shouldEnableLink = isCheckboxChecked || isValidPageCount;
 
-        runner_link.style.pointerEvents = shouldEnableLink ? 'auto' : 'none'
-        runner_link.style.opacity = shouldEnableLink ? '1' : '0.5'
+        runner_link.style.pointerEvents = shouldEnableLink ? "auto" : "none";
+        runner_link.style.opacity = shouldEnableLink ? "1" : "0.5";
       }
-      toggleRunnerLink()
+      toggleRunnerLink();
     }
 
-    const del_only_reviews_btns = document.querySelectorAll('.only_reviews')
-    const del_review_btns = document.querySelectorAll('.del_all_reviews')
-    const del_account = document.querySelectorAll('.del_entire_account')
+    const del_only_reviews_btns = document.querySelectorAll(".only_reviews");
+    const del_review_btns = document.querySelectorAll(".del_all_reviews");
+    const del_account = document.querySelectorAll(".del_entire_account");
 
-    del_review_btns.forEach(btn => {
-      btn.addEventListener('click', async e => {
+    del_review_btns.forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
         try {
-          const card = e.target.closest('.admin-card')
-          const h4 = card.querySelector('.card-header h4')
-          const slug = (h4 && h4.innerText).toLowerCase()
-          const cardId = card && card.getAttribute('id')
+          const card = e.target.closest(".admin-card");
+          const h4 = card.querySelector(".card-header h4");
+          const slug = (h4 && h4.innerText).toLowerCase();
+          const cardId = card && card.getAttribute("id");
 
           const confirmation = await confirmAction(
-            '#body',
+            "#body",
             `Caution: You are about to delete your account. By confirming account deletion with button 'Proceed', you acknowledge that all your account details, including account data, profiles and associated reviews, will be permanently erased. This irreversible action is not recoverable. Once confirmed, you will lose access to your account, and all data will be unrecoverable. Are you certain you want to proceed with the deletion?`
-          )
-          if (confirmation === 'confirmed!') {
+          );
+          if (confirmation === "confirmed!") {
             const deletedProfile =
-              await PLUGINS.deletProfileAndAssociatedReviews(slug, cardId)
+              await PLUGINS.deletProfileAndAssociatedReviews(slug, cardId);
             if (deletedProfile) {
-              await fetchCurrentUserUpdateSeesionStorage()
-              const deletedProfileCard = document.getElementById(`${cardId}`)
-              deletedProfileCard?.remove()
-              runSpinner(true)
+              await fetchCurrentUserUpdateSeesionStorage();
+              const deletedProfileCard = document.getElementById(`${cardId}`);
+              deletedProfileCard?.remove();
+              runSpinner(true);
             }
           }
         } catch (e) {
-          console.log(e.message)
+          console.log(e.message);
         }
-      })
-    })
-    del_account.forEach(btn => {
-      btn.addEventListener('click', async e => {
+      });
+    });
+    del_account.forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
         try {
           const confirmation = await confirmAction(
-            '#body',
+            "#body",
             `Caution: You are about to delete your account. By confirming account deletion with button 'Proceed', you acknowledge that all your account details, including account data, profiles and associated reviews, will be permanently erased. This irreversible action is not recoverable. Once confirmed, you will lose access to your account, and all data will be unrecoverable. Are you certain you want to proceed with the deletion?`
-          )
-          if (confirmation === 'confirmed!') {
-            const accountIsDeleted = await PLUGINS.deletEntireAccount()
+          );
+          if (confirmation === "confirmed!") {
+            const accountIsDeleted = await PLUGINS.deletEntireAccount();
             if (accountIsDeleted) {
               displayLabel([
-                'review_main_wrapper',
-                'alert-secondary',
-                `Sad to see you go. If you wish to use our service, you can always signup`
-              ])
+                "review_main_wrapper",
+                "alert-secondary",
+                `Sad to see you go. If you wish to use our service, you can always signup`,
+              ]);
               setTimeout(async () => {
-                await SIGNUP_HTML()
-                runSpinner(true)
-              }, 3000)
+                await SIGNUP_HTML();
+                runSpinner(true);
+              }, 3000);
             }
           }
         } catch (e) {
-          console.log(e.message)
+          console.log(e.message);
         }
-      })
-    })
-    del_only_reviews_btns.forEach(btn => {
-      btn.addEventListener('click', async e => {
+      });
+    });
+    del_only_reviews_btns.forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
         try {
-          const card = e.target.closest('.admin-card')
-          const h4 = card.querySelector('.card-header h4')
-          const slug = (h4 && h4.innerText).toLowerCase()
-          const cardId = card && card.getAttribute('data-profileid')
+          const card = e.target.closest(".admin-card");
+          const h4 = card.querySelector(".card-header h4");
+          const slug = (h4 && h4.innerText).toLowerCase();
+          const cardId = card && card.getAttribute("data-profileid");
           const confirmation = await confirmAction(
-            '#body',
+            "#body",
             `Caution: You are about to delete All reviews associated with this account. Once confirmed, Are you certain you want to proceed with the deletion?`
-          )
-          if (confirmation !== 'confirmed!') return
-          runSpinner(false, 'Deleting...')
+          );
+          if (confirmation !== "confirmed!") return;
+          runSpinner(false, "Deleting...");
 
-          const response = await PLUGINS.deleteOnlyReviews(slug, cardId)
+          const response = await PLUGINS.deleteOnlyReviews(slug, cardId);
 
           if (!response) {
-            runSpinner(true)
+            runSpinner(true);
             return displayLabel([
-              'review_main_wrapper',
-              'alert-warning',
-              `Request could not be completed at the moment - try again later`
-            ])
+              "review_main_wrapper",
+              "alert-warning",
+              `Request could not be completed at the moment - try again later`,
+            ]);
           }
 
           if (response.status === 200) {
-            runSpinner(false, '200')
-            const res = response.data
+            runSpinner(false, "200");
+            const res = response.data;
 
             displayLabel([
-              'review_main_wrapper',
-              'alert-success',
-              `Total of (${res.count}) reviews from ${slug} have been deleted successfully.`
-            ])
-            await fetchCurrentUserUpdateSeesionStorage()
-            setTimeout(() => runSpinner(true), 4000)
-            return
+              "review_main_wrapper",
+              "alert-success",
+              `Total of (${res.count}) reviews from ${slug} have been deleted successfully.`,
+            ]);
+            await fetchCurrentUserUpdateSeesionStorage();
+            setTimeout(() => runSpinner(true), 4000);
+            return;
           }
 
           if (response.status === 404) {
-            runSpinner(false, '404')
+            runSpinner(false, "404");
             displayLabel([
-              'review_main_wrapper',
-              'alert-warning',
-              `Acknowledged: No reviews found for ${slug}.`
-            ])
-            setTimeout(() => runSpinner(true), 4000)
-            return
+              "review_main_wrapper",
+              "alert-warning",
+              `Acknowledged: No reviews found for ${slug}.`,
+            ]);
+            setTimeout(() => runSpinner(true), 4000);
+            return;
           }
 
           console.log(
-            'Redandant outcome. Unexpected server behaviour - see logs.'
-          )
+            "Redandant outcome. Unexpected server behaviour - see logs."
+          );
         } catch (error) {
-          console.error('Delete Reviews Error:', error.message)
-          console.log(error.response)
+          console.error("Delete Reviews Error:", error.message);
+          console.log(error.response);
         }
-      })
-    })
+      });
+    });
   },
   deletProfileAndAssociatedReviews: async function (slug, profile_Id) {
     try {
-      if (!slug) return
-      runSpinner(false, 'Deleting...')
+      if (!slug) return;
+      runSpinner(false, "Deleting...");
 
-      const user = getAuthHandler()
-      const { 'auth-token': token } = user
+      const user = getAuthHandler();
+      const { "auth-token": token } = user;
 
-      const baseUrl = `/user/delete-own-profile-and-documents/${profile_Id}?slug=${slug}`
+      const baseUrl = `/user/delete-own-profile-and-documents/${profile_Id}?slug=${slug}`;
 
       const headers = {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-      const apiClient = await API_CLIENT()
-      const response = await apiClient.delete(baseUrl, { headers })
+        "Content-Type": "application/json",
+      };
+      const apiClient = await API_CLIENT();
+      const response = await apiClient.delete(baseUrl, { headers });
 
       if (response.status === 200) {
-        runSpinner(true)
+        runSpinner(true);
 
         displayLabel([
-          'review_main_wrapper',
-          'alert-success',
-          `Profile and all reviews associated with it have been deleted successfully`
-        ])
-        await fetchCurrentUserUpdateSeesionStorage()
-        return true
+          "review_main_wrapper",
+          "alert-success",
+          `Profile and all reviews associated with it have been deleted successfully`,
+        ]);
+        await fetchCurrentUserUpdateSeesionStorage();
+        return true;
       } else {
         displayLabel([
-          'review_main_wrapper',
-          'alert-danger',
-          `Something went wrong! Profile could not be deleted. `
-        ])
-        return false
+          "review_main_wrapper",
+          "alert-danger",
+          `Something went wrong! Profile could not be deleted. `,
+        ]);
+        return false;
       }
     } catch (e) {
-      console.log(e)
+      console.log(e);
     } finally {
-      runSpinner(true)
+      runSpinner(true);
     }
   },
   deletEntireAccount: async function () {
     try {
-      runSpinner(false, 'Deleting...')
+      runSpinner(false, "Deleting...");
 
-      const user = getAuthHandler()
-      const { 'auth-token': token } = user
+      const user = getAuthHandler();
+      const { "auth-token": token } = user;
 
-      const baseUrl = '/user/purge-own-user-account'
+      const baseUrl = "/user/purge-own-user-account";
       const headers = {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-      const apiClient = await API_CLIENT()
-      const response = await apiClient.delete(baseUrl, { headers })
+        "Content-Type": "application/json",
+      };
+      const apiClient = await API_CLIENT();
+      const response = await apiClient.delete(baseUrl, { headers });
       if (response.status === 200) {
-        runSpinner(true)
+        runSpinner(true);
 
         displayLabel([
-          'review_main_wrapper',
-          'alert-success',
-          `Your account has been deleted.`
-        ])
-        PLUGINS.clearStorage('sessionStorage')
-        PLUGINS.clearStorage('localStorage')
-        return true
+          "review_main_wrapper",
+          "alert-success",
+          `Your account has been deleted.`,
+        ]);
+        PLUGINS.clearStorage("sessionStorage");
+        PLUGINS.clearStorage("localStorage");
+        return true;
       } else {
         displayLabel([
-          'review_main_wrapper',
-          'alert-danger',
-          `Something went wrong! Profile could not be deleted. `
-        ])
-        return false
+          "review_main_wrapper",
+          "alert-danger",
+          `Something went wrong! Profile could not be deleted. `,
+        ]);
+        return false;
       }
     } catch (e) {
-      console.log(e)
+      console.log(e);
     } finally {
-      runSpinner(true)
+      runSpinner(true);
     }
   },
   deleteOnlyReviews: async function (slug, profile_Id) {
     try {
-      runSpinner(false, 'Deleting...')
+      runSpinner(false, "Deleting...");
 
-      const user = getAuthHandler()
-      if (!user || !user['auth-token']) {
-        throw new Error('Authentication token missing. Please log in again.')
+      const user = getAuthHandler();
+      if (!user || !user["auth-token"]) {
+        throw new Error("Authentication token missing. Please log in again.");
       }
 
-      const token = user['auth-token']
-      const baseUrl = `/document/delete-profile-documents/${profile_Id}?slug=${slug}`
+      const token = user["auth-token"];
+      const baseUrl = `/document/delete-profile-documents/${profile_Id}?slug=${slug}`;
 
       const headers = {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      };
 
-      const apiClient = await API_CLIENT()
-      const response = await apiClient.delete(baseUrl, { headers })
+      const apiClient = await API_CLIENT();
+      const response = await apiClient.delete(baseUrl, { headers });
 
       if (response.status === 200) {
-        return response
+        return response;
       }
 
-      console.warn(`Unexpected response:`, response)
-      return null
+      console.warn(`Unexpected response:`, response);
+      return null;
     } catch (error) {
-      runSpinner(true)
+      runSpinner(true);
 
       if (error.response) {
         if (error.response.status === 404) {
           displayLabel([
-            'review_main_wrapper',
-            'alert-warning',
-            `Acknowledged: No reviews found for ${slug}.`
-          ])
-          return error.response
+            "review_main_wrapper",
+            "alert-warning",
+            `Acknowledged: No reviews found for ${slug}.`,
+          ]);
+          return error.response;
         }
       }
-      if (error.request) return error
-      console.error('Error in <deleteOnlyReviews>:', error.message)
+      if (error.request) return error;
+      console.error("Error in <deleteOnlyReviews>:", error.message);
 
-      return error
+      return error;
     }
   },
   createAdminPage: async function () {
-    const pageAlreadyExists = document.querySelector('#admin_page')
+    const pageAlreadyExists = document.querySelector("#admin_page");
     if (pageAlreadyExists)
       return displayLabel([
-        'review_main_wrapper',
-        'alert-success',
-        `You are already on the admin page.`
-      ])
+        "review_main_wrapper",
+        "alert-success",
+        `You are already on the admin page.`,
+      ]);
 
     const adminHTMLContent = `
     <div id="admin_page" class="container d-flex justify-content-center pt-3 flex-grow-1 align-content-center flex-wrap gap-2"></div>
-    `
-    const parent_wrapper = document.querySelector('#review_main_wrapper')
+    `;
+    const parent_wrapper = document.querySelector("#review_main_wrapper");
     if (parent_wrapper) {
-      parent_wrapper.innerHTML = adminHTMLContent
+      parent_wrapper.innerHTML = adminHTMLContent;
     }
-    await fetchCurrentUserUpdateSeesionStorage()
-    const { userProfiles, ...rest } = (await getAuthHandler()) || {}
+    await fetchCurrentUserUpdateSeesionStorage();
+    const { userProfiles, ...rest } = (await getAuthHandler()) || {};
 
     if (!userProfiles?.length)
       return displayLabel([
-        'review_main_wrapper',
-        'alert-warning',
-        `No profiles could be found. You can create a site profile  via the menu tab`
-      ])
+        "review_main_wrapper",
+        "alert-warning",
+        `No profiles could be found. You can create a site profile  via the menu tab`,
+      ]);
     for (let i = 0; i < userProfiles.length; i++) {
-      const userObject = userProfiles[i]
-      const delay = i * 100
+      const userObject = userProfiles[i];
+      const delay = i * 100;
 
-      await new Promise(resolve => setTimeout(resolve, delay))
-      await PLUGINS.createAdminProfileCard(userObject, rest)
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      await PLUGINS.createAdminProfileCard(userObject, rest);
     }
 
-    document.querySelectorAll('._run_crawlerr_').forEach(element => {
-      element?.addEventListener('click', e => {
-        PLUGINS.handleCustomCrawlers(e)
-      })
-    })
+    document.querySelectorAll("._run_crawlerr_").forEach((element) => {
+      element?.addEventListener("click", (e) => {
+        PLUGINS.handleCustomCrawlers(e);
+      });
+    });
   },
   createAccountPage: async function () {
-    const isContainerInDOM = document.querySelector('#userAccount')
-    if (isContainerInDOM) isContainerInDOM?.remove()
+    const isContainerInDOM = document.querySelector("#userAccount");
+    if (isContainerInDOM) isContainerInDOM?.remove();
     try {
-      let user = {}
-      const userLocalStorage = await getAuthHandler()
-      const userDB = await fetchCurrentUserUpdateSeesionStorage()
+      let user = {};
+      const userLocalStorage = await getAuthHandler();
+      const userDB = await fetchCurrentUserUpdateSeesionStorage();
 
-      userLocalStorage ? (user = userLocalStorage) : (user = userDB)
+      userLocalStorage ? (user = userLocalStorage) : (user = userDB);
 
       if (user && Object.keys(user).length > 0) {
         const {
@@ -1853,10 +2007,10 @@ export const PLUGINS = {
           email,
           isAdmin,
           isSubscribed,
-          userProfiles: profiles
-        } = user
+          userProfiles: profiles,
+        } = user;
 
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
           const userAccountModal = `
         <div class="modal fade" id="userAccount" tabindex="-1" data-bs-backdrop="static" aria-labelledby="userAccountLabel" aria-hidden="true" style="backdrop-filter:blur(2px);">
           <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered bg-transparent">
@@ -1867,10 +2021,10 @@ export const PLUGINS = {
                       <p class="card-title">ID: ${_id}</p>
                       <p class="card-title">Email Address: ${email}</p>
                       <p class="card-title">Is Administrator: ${
-                        (isAdmin && 'Yes') || 'No'
+                        (isAdmin && "Yes") || "No"
                       }</p>
                       <p class="card-text">Subscription status:  ${
-                        (isSubscribed && 'Active') || 'Innactive'
+                        (isSubscribed && "Active") || "Innactive"
                       }</p>
                       <div class="row profile__container gap-3"></div>
                     </div>
@@ -1881,117 +2035,119 @@ export const PLUGINS = {
                   </div>
             </div>
           </div>
-        </div>`
-          const container = document.querySelector('body')
-          container?.insertAdjacentHTML('beforeend', userAccountModal)
+        </div>`;
+          const container = document.querySelector("body");
+          container?.insertAdjacentHTML("beforeend", userAccountModal);
 
           const modal = new bootstrap.Modal(
-            document.getElementById('userAccount')
-          )
-          runSpinner(false, 'Fetching...')
+            document.getElementById("userAccount")
+          );
+          runSpinner(false, "Fetching...");
           setTimeout(() => {
-            modal.show()
-            runSpinner(true)
-            runSpinner(false, 'Finishing...')
+            modal.show();
+            runSpinner(true);
+            runSpinner(false, "Finishing...");
             setTimeout(() => {
-              runSpinner(true)
+              runSpinner(true);
               displayLabel([
-                'review_main_wrapper',
-                'alert-success',
-                `These are the profiles available in your account`
-              ])
-            }, 1000)
-          }, 1000)
-          const profileContainer = document.querySelector('.profile__container')
+                "review_main_wrapper",
+                "alert-success",
+                `These are the profiles available in your account`,
+              ]);
+            }, 1000);
+          }, 1000);
+          const profileContainer = document.querySelector(
+            ".profile__container"
+          );
 
           if (!profileContainer) {
-            console.error(`container "${containerSelector}" not found.`)
-            return
+            console.error(`container "${containerSelector}" not found.`);
+            return;
           }
           profiles &&
-            profiles.forEach(object => {
-              const card = createCard(object)
-              profileContainer.appendChild(card)
-            })
+            profiles.forEach((object) => {
+              const card = createCard(object);
+              profileContainer.appendChild(card);
+            });
 
-          function createCard (object) {
+          function createCard(object) {
             if (!object)
               return displayLabel([
-                'review_main_wrapper',
-                'alert-danger',
-                `You dont have any profiles sofur!`
-              ])
+                "review_main_wrapper",
+                "alert-danger",
+                `You dont have any profiles sofur!`,
+              ]);
             const {
               _id: profileId,
               name: profileName,
               propertyType,
               metadata,
-              reviewSiteSlug
-            } = object
+              reviewSiteSlug,
+            } = object;
 
-            const card = document.createElement('div')
-            card.classList.add('card', 'w-100', 'inset_shadow')
-            card.setAttribute('draggable', true)
+            const card = document.createElement("div");
+            card.classList.add("card", "w-100", "inset_shadow");
+            card.setAttribute("draggable", true);
 
-            const cardBody = document.createElement('div')
-            cardBody.classList.add('bg-light', 'rounded')
+            const cardBody = document.createElement("div");
+            cardBody.classList.add("bg-light", "rounded");
 
             const cardContent = `
                 <div class="card-body bg-light-custom2">
                     <p class="card-title text-decoration-underline">${
-                      profileName || 'Unknown'
+                      profileName || "Unknown"
                     }</p>
                     <p class="card-text">Review Site: (${reviewSiteSlug}) </p>
                     <p class="card-text">Star Rating: (${
-                      metadata?.starRating || 'Not Available.'
+                      metadata?.starRating || "Not Available."
                     }) </p>
                     <p class="card-text">Property Type: ${propertyType} </p>
                     <p class="card-text">Address: ${
-                      metadata?.propertyAddress || 'Not Available.'
+                      metadata?.propertyAddress || "Not Available."
                     } </p>
                     <p class="card-text">Description: ${
-                      metadata?.propertyDescription || 'Not Available.'
+                      metadata?.propertyDescription || "Not Available."
                     }</p>
-                </div>`
-            cardBody.innerHTML = cardContent
-            card.appendChild(cardBody)
-            return card
+                </div>`;
+            cardBody.innerHTML = cardContent;
+            card.appendChild(cardBody);
+            return card;
           }
 
-          const profDelbtn = document.querySelector('.del_account__btn')
+          const profDelbtn = document.querySelector(".del_account__btn");
           profDelbtn &&
-            profDelbtn.addEventListener('click', async e => {
+            profDelbtn.addEventListener("click", async (e) => {
               const confirmation = await confirmAction(
-                '#body',
+                "#body",
                 `Caution: You are about to delete your account. By confirming account deletion with button 'Proceed', you acknowledge that all your account details, including account data, profiles and associated reviews, will be permanently erased. This irreversible action is not recoverable. Once confirmed, you will lose access to your account, and all data will be unrecoverable. Are you certain you want to proceed with the deletion?`
-              )
-              if (confirmation === 'confirmed!') {
-                const isDeleted = await PLUGINS.deletEntireAccount()
+              );
+              if (confirmation === "confirmed!") {
+                const isDeleted = await PLUGINS.deletEntireAccount();
                 if (isDeleted) {
-                  document.querySelector('.modal-backdrop')?.remove()
-                  document.querySelector('#userAccount')?.remove()
+                  document.querySelector(".modal-backdrop")?.remove();
+                  document.querySelector("#userAccount")?.remove();
                   displayLabel([
-                    'review_main_wrapper',
-                    'alert-secondary',
-                    `Sad to see you go. If you wish to use our service, you can always signup`
-                  ])
+                    "review_main_wrapper",
+                    "alert-secondary",
+                    `Sad to see you go. If you wish to use our service, you can always signup`,
+                  ]);
                   setTimeout(async () => {
-                    await SIGNUP_HTML()
-                    runSpinner(true)
-                  }, 3000)
+                    await SIGNUP_HTML();
+                    runSpinner(true);
+                  }, 3000);
                 }
               }
-            })
-        })
+            });
+        });
       }
 
       displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        `You dont see to have any profiles currently. `
-      ])
+        "review_main_wrapper",
+        "alert-danger",
+        `You dont see to have any profiles currently. `,
+      ]);
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
-  }
-}
+  },
+};

@@ -1,12 +1,12 @@
-import bcrypt from 'bcryptjs'
-import { randomBytes } from 'crypto'
-import 'dotenv/config'
-import mongoose from 'mongoose'
-import { generateToken } from '../../middleware/auth.js'
-import { logger } from '../loggers/logger.js'
+import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
+import "dotenv/config";
+import mongoose from "mongoose";
+import { generateToken } from "../../middleware/auth.js";
+import { logger } from "../loggers/logger.js";
 
-const { SUPER_USER_TOKEN } = process.env
-const userIdSchema = new mongoose.Schema({}, { timestamps: true })
+const { SUPER_USER_TOKEN } = process.env;
+const userIdSchema = new mongoose.Schema({}, { timestamps: true });
 
 const userModel = {
   name: {
@@ -15,7 +15,7 @@ const userModel = {
     unique: true,
     trim: true,
     minlength: 5,
-    maxlength: 50
+    maxlength: 50,
   },
   email: {
     type: String,
@@ -23,30 +23,30 @@ const userModel = {
     trim: true,
     minlength: 5,
     maxlength: 255,
-    unique: true
+    unique: true,
   },
   password: {
     type: String,
     required: true,
     trim: true,
     minlength: 5,
-    maxlength: 1024
+    maxlength: 1024,
   },
   isAdmin: {
     type: Boolean,
-    default: false
+    default: false,
   },
   isSuperUser: {
     type: Boolean,
-    default: false
+    default: false,
   },
   superUserToken: {
     type: String,
-    default: null
+    default: null,
   },
   isSubscribed: {
     type: Boolean,
-    default: false
+    default: false,
   },
   profiles: {
     type: [
@@ -58,117 +58,122 @@ const userModel = {
         originalUrl: String,
         propertyType: String,
         uuid: String,
-        propertyEndpoints: [mongoose.Schema.Types.Mixed]
-      }
+        propertyEndpoints: [mongoose.Schema.Types.Mixed],
+      },
     ],
-    default: null
+    default: null,
   },
   version: {
     type: Number,
-    default: 0
+    default: 0,
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'UserId',
-    required: true
+    ref: "UserId",
+    required: true,
   },
   hasReviewProfile: {
     type: Boolean,
-    default: false
+    default: false,
   },
   password_reset_token: {
-    type: String
-  }
-}
+    type: String,
+  },
+};
 const userSchema = new mongoose.Schema(userModel, {
   timestamps: true,
-  toJSON: { virtuals: true }
-})
-userSchema.virtual('passwordResetToken').get(function () {
-  return generatePasswordResetToken()
-})
+  toJSON: { virtuals: true },
+});
+userSchema.virtual("passwordResetToken").get(function () {
+  return generatePasswordResetToken();
+});
 userSchema.methods.setPasswordResetToken = async function () {
-  this.password_reset_token = await generatePasswordResetToken()
-  await this.save()
-  return this.password_reset_token
-}
+  this.password_reset_token = await generatePasswordResetToken();
+  await this.save();
+  return this.password_reset_token;
+};
+
 userSchema.methods.generateAuthToken = function () {
   const payload = {
     _id: this._id,
+    email: this.email,
     isAdmin: this.isAdmin,
+    isSuperUser: this.isSuperUser || false,
     version: this.version,
-    superUserToken: this.superUserToken || null
-  }
-  return generateToken(payload)
-}
+    superUserToken: this.superUserToken || null,
+  };
+
+  return generateToken(payload, this.isSuperUser);
+};
+
 userSchema.methods.comparePassword = async function (password) {
-  return bcrypt.compare(password, this.password)
-}
+  return bcrypt.compare(password, this.password);
+};
 userSchema.statics.findByCredentials = async function (email, password) {
-  const user = await this.findOne({ email })
+  const user = await this.findOne({ email });
   if (!user) {
-    throw new Error('Invalid login credentials')
+    throw new Error("Invalid login credentials");
   }
 
-  const isMatch = await user.comparePassword(password)
+  const isMatch = await user.comparePassword(password);
   if (!isMatch) {
-    throw new Error('Invalid login credentials')
+    throw new Error("Invalid login credentials");
   }
-  return user
-}
+  return user;
+};
 userSchema.statics.isSuperUser = async function (superUserToken) {
-  if (!superUserToken) return false
-  const user = await this.findOne({ superUserToken })
+  if (!superUserToken) return false;
+  const user = await this.findOne({ superUserToken });
   if (
     !user ||
     !user.isSuperUser ||
     superUserToken !== user.superUserToken ||
     SUPER_USER_TOKEN !== superUserToken
   ) {
-    return false
+    return false;
   }
-  return true
-}
+  return true;
+};
 userSchema.statics.getSubscriptionStatus = async function (userId) {
-  const user = await this.findOne({ userId })
-  return user ? user.isSubscribed : null
-}
+  const user = await this.findOne({ userId });
+  return user ? user.isSubscribed : null;
+};
 userSchema.statics.setSubStatus = async function (user, subStatus) {
   try {
     if (user) {
-      user.isSubscribed = subStatus
-      await user.save()
-      const statusMessage = subStatus ? 'subscribed' : 'unsubscribed'
-      return { success: true, message: `User ${statusMessage} successfully` }
+      user.isSubscribed = subStatus;
+      await user.save();
+      const statusMessage = subStatus ? "subscribed" : "unsubscribed";
+      return { success: true, message: `User ${statusMessage} successfully` };
     }
   } catch (error) {
-    logger(`Error updating subscription status: ${error.message}`, 'error')
-    return { success: false, message: 'Subscription status update failed' }
+    logger(`Error updating subscription status: ${error.message}`, "error");
+    return { success: false, message: "Subscription status update failed" };
   }
-}
+};
 userSchema.statics.isOwner = async function (userId, targetId) {
-  const user = await this.findById(userId)
-  return user && user.userId.toString() === targetId.toString()
-}
-userSchema.pre('save', async function (next) {
-  if (this.isModified('password')) {
-    this.password = bcrypt.hashSync(this.password, 8)
+  const user = await this.findById(userId);
+  return user && user.userId.toString() === targetId.toString();
+};
+userSchema.pre("save", async function (next) {
+  if (this.isModified("password")) {
+    this.password = bcrypt.hashSync(this.password, 8);
   }
-  if (this.isModified('password') || this.isNew) {
-    this.version = this.version + 1
+  if (this.isModified("password") || this.isNew) {
+    this.version = this.version + 1;
   }
   if (this.superUserToken) {
-    const isSuperUser = await USER_MODEL.isSuperUser(this.superUserToken)
+    const isSuperUser = await USER_MODEL.isSuperUser(this.superUserToken);
     if (isSuperUser) {
-      this.isSubscribed = true
+      this.isSubscribed = true;
     }
   }
-  next()
-})
-export async function generatePasswordResetToken () {
-  const token = randomBytes(64).toString('hex')
-  return token
+  next();
+});
+export async function generatePasswordResetToken() {
+  const token = randomBytes(64).toString("hex");
+  return token;
 }
-const USER_MODEL = mongoose.model('User', userSchema)
-const USER_ID_MODEL = mongoose.model('UserId', userIdSchema)
-export { USER_ID_MODEL, USER_MODEL }
+const USER_MODEL = mongoose.model("User", userSchema);
+const USER_ID_MODEL = mongoose.model("UserId", userIdSchema);
+export { USER_ID_MODEL, USER_MODEL };

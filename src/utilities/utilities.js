@@ -243,7 +243,7 @@ export function validateRequest ({ name, email, password, superUserToken }) {
   if (email.length > 255) return { error: 'Email cannot exceed 255 characters' }
   return null
 }
-export function handleCSP (app) {
+export function handleCSP(app) {
   if (process.env.NODE_ENV === 'production') {
     app.use(
       helmet({
@@ -252,9 +252,9 @@ export function handleCSP (app) {
             defaultSrc: ["'self'"],
             scriptSrc: [
               "'self'",
+              (req, res) => `'nonce-${res.locals.nonce}'`,
               'https://cdn.jsdelivr.net',
-              'https://cdnjs.cloudflare.com',
-              "'unsafe-inline'"
+              'https://cdnjs.cloudflare.com'
             ],
             styleSrc: [
               "'self'",
@@ -284,7 +284,7 @@ export function handleCSP (app) {
         crossOriginOpenerPolicy: { policy: 'same-origin' },
         referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
       })
-    )
+    );
   }
 }
 export function sanitizeUser (user) {
