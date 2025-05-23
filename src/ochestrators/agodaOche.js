@@ -1,55 +1,55 @@
-import { saveObjectToS3 } from '../blobStorage/aws/s3BucketUtility.js'
-import { handleAzureBlobAndPipeline } from '../blobStorage/azure/pipelines/azureOchestrator.js'
-import { logger } from '../loggers/logger.js'
-import { REVIEW } from '../models/documentModel.js'
-import { PROFILE_MODEL } from '../models/profileModel.js'
-import { USER_MODEL } from '../models/user.js'
-import { fetchAgodaReviews } from '../spiders/agodaSpider.js'
+import { saveObjectToS3 } from "../blobStorage/aws/s3BucketUtility.js";
+import { handleAzureBlobAndPipeline } from "../blobStorage/azure/pipelines/azureOchestrator.js";
+import { logger } from "../loggers/logger.js";
+import { REVIEW } from "../models/documentModel.js";
+import { PROFILE_MODEL } from "../models/profileModel.js";
+import { USER_MODEL } from "../models/user.js";
+import { fetchAgodaReviews } from "../spiders/agodaSpider.js";
 import {
   extractISODate,
   formatReviewBodyString,
-  generateMessage
-} from '../utilities/utilities.js'
+  generateMessage,
+} from "../utilities/utilities.js";
 
-export async function generateAgodaReviews (req, res) {
+export async function generateAgodaReviews(req, res) {
   try {
-    const { email, isAdmin, userId, _id } = await req.locals.user
-    const isSubscribed = await USER_MODEL.getSubscriptionStatus(userId)
-    let depth = req.query.depth
+    const { email, isAdmin, userId, _id } = await req.locals.user;
+    const isSubscribed = await USER_MODEL.getSubscriptionStatus(userId);
+    let depth = req.query.depth;
 
-    if (depth === 'full') {
-      depth = Infinity
+    if (depth === "full") {
+      depth = Infinity;
     }
 
     if (!isSubscribed)
       return res.status(403).json({
-        status: 'failed',
-        message: 'trial period expired'
-      })
+        status: "failed",
+        message: "trial period expired",
+      });
 
     if (!isAdmin) {
       return res.status(401).json({
-        error: 'Something went wrong',
-        message: 'Reviews could not be generated from generateAgodaReviews'
-      })
+        error: "Something went wrong",
+        message: "Reviews could not be generated from generateAgodaReviews",
+      });
     }
-    const savedReviews = []
-    const user = await USER_MODEL.findOne({ email })
+    const savedReviews = [];
+    const user = await USER_MODEL.findOne({ email });
 
     if (!user) {
-      return res.status(404).json('User not found!')
+      return res.status(404).json("User not found!");
     }
 
     const userProfile = await PROFILE_MODEL.findOne({
       userId: user.userId,
-      reviewSiteSlug: 'agoda-com'
-    })
+      reviewSiteSlug: "agoda-com",
+    });
 
     if (!userProfile || !userProfile.url) {
       return res.status(400).json({
-        status: 'failed',
-        message: 'URL is required to complete this task'
-      })
+        status: "failed",
+        message: "URL is required to complete this task",
+      });
     }
 
     const {
@@ -60,19 +60,19 @@ export async function generateAgodaReviews (req, res) {
       originalUrl,
       _id: profile_id,
       reviewSiteSlug,
-      reviewPageUrl
-    } = userProfile
+      reviewPageUrl,
+    } = userProfile;
 
     const reviewData = await fetchAgodaReviews(
       depth,
       propertyExternalId,
       userProfile
-    )
+    );
 
     if (!reviewData.length) {
-      logger('Review list is empty', 'warn')
+      logger("Review list is empty", "warn");
       return res.status(404).json({
-        state: 'nothing found',
+        state: "nothing found",
         isCompleted: false,
         reviewSiteName: reviewSiteSlug,
         reviewDocumentCount: null,
@@ -81,15 +81,15 @@ export async function generateAgodaReviews (req, res) {
         endpoint: originalUrl,
         siteId: internalId,
         reviewPage: baseUrl,
-        message: []
-      })
+        message: [],
+      });
     }
 
     for (const review of reviewData) {
       const existingReview = await REVIEW.findOne({
         authorExternalId: review.hotelReviewId,
-        author: review.reviewerInfo.displayMemberName
-      })
+        author: review.reviewerInfo.displayMemberName,
+      });
 
       const {
         hotelReviewId,
@@ -112,9 +112,9 @@ export async function generateAgodaReviews (req, res) {
           roomTypeName,
           lengthOfStay,
           reviewerReviewedCount,
-          isExpertReviewer
-        }
-      } = review
+          isExpertReviewer,
+        },
+      } = review;
 
       if (!existingReview) {
         const savedReview = await REVIEW.create({
@@ -132,7 +132,7 @@ export async function generateAgodaReviews (req, res) {
             reviewPositives,
             reviewComments
           ),
-          title: `${ratingText && ratingText + '. '}${reviewTitle}`,
+          title: `${ratingText && ratingText + ". "}${reviewTitle}`,
           propertyProfileUrl: originalUrl || baseUrl,
           originalEndpoint: originalUrl,
           reviewDate: extractISODate(reviewDate),
@@ -143,27 +143,27 @@ export async function generateAgodaReviews (req, res) {
           propertyResponse: {
             body: responseText,
             responseDate: extractISODate(responseDate),
-            author: responderName
+            author: responderName,
           },
           miscellaneous: {
             roomTypeName,
             lengthOfStay,
-            isExpertReviewer
+            isExpertReviewer,
           },
           rating,
           tripType: reviewGroupName,
-          subratings: review.subratings
-        })
-        savedReviews.push(savedReview)
+          subratings: review.subratings,
+        });
+        savedReviews.push(savedReview);
       }
     }
 
-    logger('All pages fetched. Process completed.', 'info')
-    let ownershipId = userId || req.locals.user.userId
-    const totalCount = await REVIEW.countDocuments({ userId: ownershipId })
+    logger("All pages fetched. Process completed.", "info");
+    let ownershipId = userId || req.locals.user.userId;
+    const totalCount = await REVIEW.countDocuments({ userId: ownershipId });
 
     res.status(200).json({
-      state: 'success',
+      state: "success",
       isCompleted: res.statusCode >= 200 && res.statusCode < 300,
       reviewSiteName: reviewSiteSlug,
       reviewDocumentCount: totalCount,
@@ -172,21 +172,21 @@ export async function generateAgodaReviews (req, res) {
       endpoint: originalUrl,
       siteId: internalId,
       reviewPage: `${
-        (reviewPageUrl && 'https://www.agoda.com/en-gb' + reviewPageUrl) ||
+        (reviewPageUrl && "https://www.agoda.com/en-gb" + reviewPageUrl) ||
         originalUrl
       }`,
-      message: generateMessage(savedReviews, reviewData)
-    })
+      message: generateMessage(savedReviews, reviewData),
+    });
 
     //****** Save buckets *** */
-    saveObjectToS3(savedReviews)
+    saveObjectToS3(savedReviews);
     handleAzureBlobAndPipeline(savedReviews, [
-      'agoda-com',
+      "agoda-com",
       profile_id,
-      propertyExternalId
-    ])
+      propertyExternalId,
+    ]);
     //******* Save buckets ********* */
   } catch (error) {
-    logger(`Error generating Agoda reviews: ${error.message}`, 'error')
+    logger(`Error generating Agoda reviews: ${error.message}`, "error");
   }
 }

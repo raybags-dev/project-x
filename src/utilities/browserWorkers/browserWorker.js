@@ -42,15 +42,13 @@ async function extractAllFromElements (
     }
   }
 
-  saveObjectToS3(newReviews, false)
-  handleAzureBlobAndPipeline(newReviews, [slug, userId, id], false)
+  saveObjectToS3(newReviews, true)
+  handleAzureBlobAndPipeline(newReviews, [slug, userId, id])
   return {
     hasNew: newReviews.length > 0,
     reviews: newReviews
   }
 }
-
-// For subsequent review extractions, use the original tracking approach
 async function extractNewFromElements (
   page,
   reviewElementSelector,
@@ -87,14 +85,13 @@ async function extractNewFromElements (
     }
   }
 
-  saveObjectToS3(newReviews, false)
-  handleAzureBlobAndPipeline(newReviews, [slug, userId, id], false)
+  saveObjectToS3(newReviews, true)
+  handleAzureBlobAndPipeline(newReviews, [slug, userId, id])
   return {
     hasNew: newReviews.length > 0,
     reviews: newReviews
   }
 }
-
 export default async function fetchAndSaveGoogleReviews (
   page,
   totalPagesToFetch,
@@ -109,9 +106,7 @@ export default async function fetchAndSaveGoogleReviews (
 
   // Make sure reviews are visible first
   await page.waitForSelector(reviewElementSelector, { timeout: 10000 })
-  logger(
-    'Reviews are loaded. Taking time to extract ALL reviews from the first page.'
-  )
+  logger( 'Extractiing reviews from the first page...')
 
   // Pause to ensure the page is fully loaded and stable
   await new Promise(resolve => setTimeout(resolve, 2000))

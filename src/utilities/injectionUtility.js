@@ -16,18 +16,32 @@ export function setupNoncedRoute (app) {
     next()
   })
 }
-export function injectNonceToLocalScripts (app) {
+
+export function injectNonceToLocalScripts(app) {
   app.use((req, res, next) => {
     const originalSend = res.send
-    res.send = function (body) {
+    
+    res.send = function(body) {
       if (typeof body === 'string' && body.includes('<script')) {
         body = body.replace(
           /<script([^>]*)src="([^"]*)"([^>]*)>/g,
           `<script ${addNonceToScript(res.locals.nonce)}$1 src="$2"$3>`
-        )
+        );
+        
+        body = body.replace(
+          /<script([^>]*)>(?!<\/script>)/g,
+          (match, p1) => {
+            if (p1 && !p1.includes('nonce=')) {
+              return `<script${p1} ${addNonceToScript(res.locals.nonce)}>`
+            }
+            return match;
+          }
+        );
       }
+      
       originalSend.call(this, body)
-    }
+    };
+    
     next()
   })
 }

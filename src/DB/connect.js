@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { checkEnvFile } from '../../middleware/generalHandlers.js'
 import { devLogger } from '../loggers/devLogger.js'
 
 export default async function connectToDB (
@@ -37,20 +38,28 @@ export default async function connectToDB (
       return connection
     } catch (error) {
       attempts++
-      devLogger(`Database connection error: ${error.message}`, 'error')
+      if(error.message.includes('ECONNREFUSED')) {
+        devLogger('Connection refused. Please check if MongoDB is running.', 'error')
+        return 
+      }
+      if(error.message.includes('Make sure the first parameter to')) {
+        devLogger('Invalid connection string. Please check your MongoDB URI.\n> ❌ Its also possible the .env file ie empty...', 'error')
+        checkEnvFile()
+        return
+      }
+
+       devLogger(`Database connection error: ${error.message}`, 'error')
 
       if (attempts >= maxRetries) {
         devLogger(
-          'Max retries reached. Failed to connect to the database.',
-          'error'
-        )
-        throw new Error(
-          'Failed to connect to the database after multiple attempts.'
-        )
+          'Max retries reached. Failed to connect to the database','error' )
+        devLogger('\n============ \nDatabase connection failed!.\n=========\n','error')
+        return 
       }
 
       devLogger(`Retrying in ${delay / 1000} seconds...`, 'warn')
       await new Promise(resolve => setTimeout(resolve, delay))
     }
   }
+
 }
