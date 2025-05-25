@@ -1,6 +1,10 @@
 import { GetAllUsersController } from "../controllers/userController.js";
 import { logger } from "../loggers/logger.js";
+import agodaWorker from "./subArgents/agodaSubArgent/agodaWorker.js";
 import bookingWorker from "./subArgents/bookingSubArgent/bookingWorker.js";
+import expediaWorker from "./subArgents/expediaSubArgent/expediaWorker.js";
+import opentableWorker from "./subArgents/opentableSubArgent/opentableWorker.js";
+import tripeWorker from "./subArgents/tripSubArgent/tripWorker.js";
 
 export default async function runAutoReviewAggregator() {
   try {
@@ -49,9 +53,15 @@ export default async function runAutoReviewAggregator() {
       return logger("No subscribed users to process", "warn");
 
     //*======== BOOKING WORKER ========= */
-    await bookingWorker(allSubscribedUsers);
-    //*======== GOOGLE WORKER ========= */
-    // await googleWorker(allSubscribedUsers);
+    await bookingWorker(allSubscribedUsers, undefined, true);
+    //*======== AGODA WORKER ========= */
+    await agodaWorker(allSubscribedUsers, undefined, true);
+    //*======== EXPEDIA WORKER ========= */
+    await expediaWorker(allSubscribedUsers, undefined, true);
+    //*======== OPENTABLE WORKER ========= */
+    await opentableWorker(allSubscribedUsers, undefined, true);
+    //*======== TRIP WORKER ========= */
+    await tripeWorker(allSubscribedUsers, undefined, true);
   } catch (err) {
     logger(`runAutoReviewAggregator error: ${err.message}`, "error");
   }

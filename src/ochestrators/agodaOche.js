@@ -11,33 +11,55 @@ import {
   generateMessage,
 } from "../utilities/utilities.js";
 
-export async function generateAgodaReviews(req, res) {
+export async function generateAgodaReviews(
+  req = null,
+  res = null,
+  contextuser = null
+) {
   try {
-    const { email, isAdmin, userId, _id } = await req.locals.user;
-    const isSubscribed = await USER_MODEL.getSubscriptionStatus(userId);
-    let depth = req.query.depth;
+    logger("Starting generateAgodaReviews...", "info");
 
-    if (depth === "full") {
-      depth = Infinity;
+    const context_user = contextuser || req?.locals?.user;
+    const { email, isAdmin, userId } = await context_user;
+
+    const isSubscribed = context_user
+      ? true
+      : await USER_MODEL.getSubscriptionStatus(userId);
+
+    let depth = context_user ? 3 : req.query.depth;
+    if (depth === "full") depth = Infinity;
+
+    if (!isSubscribed) {
+      logger("User subscription expired", "info");
+      if (!context_user && res) {
+        return res.status(403).json({
+          status: "failed",
+          message: "trial period expired",
+        });
+      }
+      return;
     }
-
-    if (!isSubscribed)
-      return res.status(403).json({
-        status: "failed",
-        message: "trial period expired",
-      });
 
     if (!isAdmin) {
-      return res.status(401).json({
-        error: "Something went wrong",
-        message: "Reviews could not be generated from generateAgodaReviews",
-      });
+      logger("User is not an admin", "info");
+      if (!context_user && res) {
+        return res.status(401).json({
+          error: "Something went wrong",
+          message: "Reviews could not be generated from generateAgodaReviews",
+        });
+      }
+      return;
     }
+
     const savedReviews = [];
     const user = await USER_MODEL.findOne({ email });
 
     if (!user) {
-      return res.status(404).json("User not found!");
+      logger("User not found", "info");
+      if (!context_user && res) {
+        return res.status(404).json("User not found!");
+      }
+      return;
     }
 
     const userProfile = await PROFILE_MODEL.findOne({
@@ -46,10 +68,14 @@ export async function generateAgodaReviews(req, res) {
     });
 
     if (!userProfile || !userProfile.url) {
-      return res.status(400).json({
-        status: "failed",
-        message: "URL is required to complete this task",
-      });
+      logger("User profile or URL not found", "info");
+      if (!context_user && res) {
+        return res.status(400).json({
+          status: "failed",
+          message: "URL is required to complete this task",
+        });
+      }
+      return;
     }
 
     const {
@@ -60,7 +86,6 @@ export async function generateAgodaReviews(req, res) {
       originalUrl,
       _id: profile_id,
       reviewSiteSlug,
-      reviewPageUrl,
     } = userProfile;
 
     const reviewData = await fetchAgodaReviews(
@@ -71,18 +96,21 @@ export async function generateAgodaReviews(req, res) {
 
     if (!reviewData.length) {
       logger("Review list is empty", "warn");
-      return res.status(404).json({
-        state: "nothing found",
-        isCompleted: false,
-        reviewSiteName: reviewSiteSlug,
-        reviewDocumentCount: null,
-        accountName: property_name,
-        profile_id: profile_id,
-        endpoint: originalUrl,
-        siteId: internalId,
-        reviewPage: baseUrl,
-        message: [],
-      });
+      if (!context_user && res) {
+        return res.status(404).json({
+          state: "nothing found",
+          isCompleted: false,
+          reviewSiteName: reviewSiteSlug,
+          reviewDocumentCount: null,
+          accountName: property_name,
+          profile_id: profile_id,
+          endpoint: originalUrl,
+          siteId: internalId,
+          reviewPage: baseUrl,
+          message: [],
+        });
+      }
+      return;
     }
 
     for (const review of reviewData) {
@@ -91,102 +119,84 @@ export async function generateAgodaReviews(req, res) {
         author: review.reviewerInfo.displayMemberName,
       });
 
-      const {
-        hotelReviewId,
-        rating,
-        ratingText,
-        responderName,
-        responseText,
-        reviewComments,
-        reviewNegatives,
-        reviewPositives,
-        reviewTitle,
-        checkInDate,
-        checkOutDate,
-        responseDate,
-        reviewDate,
-        reviewerInfo: {
-          countryName,
-          displayMemberName,
-          reviewGroupName,
-          roomTypeName,
-          lengthOfStay,
-          reviewerReviewedCount,
-          isExpertReviewer,
-        },
-      } = review;
-
       if (!existingReview) {
         const savedReview = await REVIEW.create({
-          author: displayMemberName,
-          country: countryName,
+          author: review.reviewerInfo.displayMemberName,
+          country: review.reviewerInfo.countryName,
           userId: userId,
           uuid: profile_id,
           siteId: internalId,
-          authorExternalId: hotelReviewId,
+          authorExternalId: review.hotelReviewId,
           authorProfileUrl: originalUrl,
-          authorReviewCount: reviewerReviewedCount,
+          authorReviewCount: review.reviewerInfo.reviewerReviewedCount,
           reviewSiteSlug: reviewSiteSlug,
           reviewBody: formatReviewBodyString(
-            reviewNegatives,
-            reviewPositives,
-            reviewComments
+            review.reviewNegatives,
+            review.reviewPositives,
+            review.reviewComments
           ),
-          title: `${ratingText && ratingText + ". "}${reviewTitle}`,
+          title: `${review.ratingText || ""}${review.ratingText ? ". " : ""}${
+            review.reviewTitle
+          }`,
           propertyProfileUrl: originalUrl || baseUrl,
           originalEndpoint: originalUrl,
-          reviewDate: extractISODate(reviewDate),
-          checkInDate: extractISODate(checkInDate),
-          checkOutDate: extractISODate(checkOutDate),
           urlAgent: baseUrl,
+          reviewDate: extractISODate(review.reviewDate),
+          checkInDate: extractISODate(review.checkInDate),
+          checkOutDate: extractISODate(review.checkOutDate),
+          stayDate: extractISODate(review.checkInDate),
           propertyName: property_name,
           propertyResponse: {
-            body: responseText,
-            responseDate: extractISODate(responseDate),
-            author: responderName,
+            responder: review.responderName,
+            body: review.responseText,
+            responseDate: extractISODate(review.responseDate),
           },
           miscellaneous: {
-            roomTypeName,
-            lengthOfStay,
-            isExpertReviewer,
+            roomTypeName: review.reviewerInfo.roomTypeName,
+            lengthOfStay: review.reviewerInfo.lengthOfStay,
+            isExpertReviewer: review.reviewerInfo.isExpertReviewer,
+            reviewGroupName: review.reviewerInfo.reviewGroupName,
           },
-          rating,
-          tripType: reviewGroupName,
-          subratings: review.subratings,
+          rating: to_base_rating(review.rating),
         });
+
         savedReviews.push(savedReview);
       }
     }
 
     logger("All pages fetched. Process completed.", "info");
-    let ownershipId = userId || req.locals.user.userId;
+    const ownershipId = userId || req.locals.user.userId;
     const totalCount = await REVIEW.countDocuments({ userId: ownershipId });
 
-    res.status(200).json({
+    const responseDataObject = {
       state: "success",
-      isCompleted: res.statusCode >= 200 && res.statusCode < 300,
+      isCompleted: res ? res.statusCode >= 200 && res.statusCode < 300 : 200,
       reviewSiteName: reviewSiteSlug,
       reviewDocumentCount: totalCount,
       accountName: property_name,
       profile_id: profile_id,
       endpoint: originalUrl,
       siteId: internalId,
-      reviewPage: `${
-        (reviewPageUrl && "https://www.agoda.com/en-gb" + reviewPageUrl) ||
-        originalUrl
-      }`,
+      reviewPage: baseUrl,
       message: generateMessage(savedReviews, reviewData),
-    });
+    };
 
-    //****** Save buckets *** */
+    if (!context_user && res) res.status(200).json(responseDataObject);
+
     saveObjectToS3(savedReviews);
     handleAzureBlobAndPipeline(savedReviews, [
       "agoda-com",
       profile_id,
       propertyExternalId,
     ]);
-    //******* Save buckets ********* */
   } catch (error) {
     logger(`Error generating Agoda reviews: ${error.message}`, "error");
   }
+}
+
+function to_base_rating(rating) {
+  const numericRating =
+    typeof rating === "string" ? parseFloat(rating) : rating;
+  if (isNaN(numericRating)) return null;
+  return (numericRating / 2).toFixed(1);
 }

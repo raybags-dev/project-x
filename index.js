@@ -58,9 +58,7 @@ startUp(app);
 handleNotSupported(app);
 dynoActivator();
 
-scheduleAutomationTask(
-  runAutoReviewAggregator,
-  CRON_SCHEDULES.every6hrs,
-  RUN_AUTOMATION
-);
+scheduleAutomationTask(runAutoReviewAggregator, CRON_SCHEDULES.every8hrs);
+scheduleAutomationTask(runAutoReviewAggregator, CRON_SCHEDULES.every1month);
+scheduleAutomationTask(runAutoReviewAggregator, CRON_SCHEDULES.every6months);
 export default app;

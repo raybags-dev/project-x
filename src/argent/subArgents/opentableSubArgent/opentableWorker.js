@@ -1,14 +1,16 @@
 import { getAllSubscribedUsers } from "../../../controllers/userUtils.js";
 import { logger } from "../../../loggers/logger.js";
-import { generateAgodaReviews } from "../../../ochestrators/agodaOche.js";
+import { generateOpentableReviews } from "../../../ochestrators/opentableOche.js";
 
-export default async function agodaWorker(
+export default async function opentableWorker(
   options = null,
   concurrencyLimit = 5,
   shouldRun = true
 ) {
-  if (!shouldRun) return logger("Agoda worker is disabled. Exiting.", "info");
+  if (!shouldRun)
+    return logger("opentable worker is disabled. Exiting.", "info");
 
+  logger("Starting opentableWorker...", "info");
   const users =
     options && options.length
       ? options.filter((user) => user.isSubscribed === true)
@@ -25,8 +27,8 @@ export default async function agodaWorker(
         return null;
       }
 
-      const agodaResult = await generateAgodaReviews(null, null, user);
-      return { userId: user.userId, agoda: agodaResult };
+      const opentableResult = await generateOpentableReviews(null, null, user);
+      return { userId: user.userId, opentable: opentableResult };
     } catch (error) {
       logger(
         `Error processing user <${user?.userId}>: ${error.message}`,

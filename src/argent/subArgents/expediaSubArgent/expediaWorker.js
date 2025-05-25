@@ -1,14 +1,15 @@
 import { getAllSubscribedUsers } from "../../../controllers/userUtils.js";
 import { logger } from "../../../loggers/logger.js";
-import { generateAgodaReviews } from "../../../ochestrators/agodaOche.js";
+import { generateExpediaReviews } from "../../../ochestrators/expediaOche.js";
 
-export default async function agodaWorker(
+export default async function expediaWorker(
   options = null,
   concurrencyLimit = 5,
   shouldRun = true
 ) {
-  if (!shouldRun) return logger("Agoda worker is disabled. Exiting.", "info");
+  if (!shouldRun) return logger("expedia worker is disabled. Exiting.", "info");
 
+  logger("Starting expediaWorker...", "info");
   const users =
     options && options.length
       ? options.filter((user) => user.isSubscribed === true)
@@ -25,8 +26,8 @@ export default async function agodaWorker(
         return null;
       }
 
-      const agodaResult = await generateAgodaReviews(null, null, user);
-      return { userId: user.userId, agoda: agodaResult };
+      const expediaResult = await generateExpediaReviews(null, null, user);
+      return { userId: user.userId, expedia: expediaResult };
     } catch (error) {
       logger(
         `Error processing user <${user?.userId}>: ${error.message}`,

@@ -1,55 +1,74 @@
-import { saveObjectToS3 } from '../blobStorage/aws/s3BucketUtility.js'
-import { handleAzureBlobAndPipeline } from '../blobStorage/azure/pipelines/azureOchestrator.js'
+import { saveObjectToS3 } from "../blobStorage/aws/s3BucketUtility.js";
+import { handleAzureBlobAndPipeline } from "../blobStorage/azure/pipelines/azureOchestrator.js";
 
-import { logger } from '../loggers/logger.js'
-import { REVIEW } from '../models/documentModel.js'
-import { PROFILE_MODEL } from '../models/profileModel.js'
-import { USER_MODEL } from '../models/user.js'
-import { fetchTripReviews } from '../spiders/tripSpider.js'
-import { generateMessage } from '../utilities/utilities.js'
+import { logger } from "../loggers/logger.js";
+import { REVIEW } from "../models/documentModel.js";
+import { PROFILE_MODEL } from "../models/profileModel.js";
+import { USER_MODEL } from "../models/user.js";
+import { fetchTripReviews } from "../spiders/tripSpider.js";
+import { generateMessage } from "../utilities/utilities.js";
 
-export async function generateTripReviews (req, res) {
+export async function generateTripReviews(
+  req = null,
+  res = null,
+  contextuser = null
+) {
   try {
-    logger('Starting trip review extraction...', 'info')
-    const { email, isAdmin, userId } = await req.locals.user
-    const isSubscribed = await USER_MODEL.getSubscriptionStatus(userId)
-    let depth = req.query.depth
+    logger("Starting trip review extraction...", "info");
+
+    const context_user = contextuser || req?.locals?.user;
+    const { email, isAdmin, userId } = await context_user;
+
+    const isSubscribed = context_user
+      ? true
+      : await USER_MODEL.getSubscriptionStatus(userId);
+    let depth = context_user ? 3 : req.query.depth;
 
     if (!isSubscribed) {
-      logger('User subscription expired', 'info')
-      return res.status(403).json({
-        status: 'failed',
-        message: 'trial period expired'
-      })
+      logger("User subscription expired", "info");
+      if (!context_user && res) {
+        return res.status(403).json({
+          status: "failed",
+          message: "trial period expired",
+        });
+      }
+      return;
     }
 
     if (!isAdmin) {
-      logger('User is not an admin', 'info')
-      return res.status(401).json({
-        error: 'Something went wrong',
-        message: 'Process failed in <generateTripReviews>'
-      })
+      logger("User is not an admin", "info");
+      if (!context_user && res) {
+        return res.status(401).json({
+          error: "Something went wrong",
+          message: "Process failed in <generateTripReviews>",
+        });
+      }
+      return;
     }
 
-    const savedReviews = []
-    const user = await USER_MODEL.findOne({ email })
+    const savedReviews = [];
+    const user = await USER_MODEL.findOne({ email });
 
     if (!user) {
-      logger('User not found', 'info')
-      return res.status(404).json('User not found!')
+      logger("User not found", "info");
+      if (!context_user && res) return res.status(404).json("User not found!");
+      return;
     }
 
     const userProfile = await PROFILE_MODEL.findOne({
       userId: user.userId,
-      reviewSiteSlug: 'trip-com'
-    })
+      reviewSiteSlug: "trip-com",
+    });
 
     if (!userProfile || !userProfile.url) {
-      logger('User profile or URL not found', 'info')
-      return res.status(400).json({
-        status: 'failed',
-        message: 'URL is required to complete this task'
-      })
+      logger("User profile or URL not found", "info");
+      if (!context_user && res) {
+        return res.status(400).json({
+          status: "failed",
+          message: "URL is required to complete this task",
+        });
+      }
+      return;
     }
 
     const {
@@ -60,62 +79,72 @@ export async function generateTripReviews (req, res) {
       originalUrl,
       _id: profile_id,
       reviewSiteSlug,
-      propertyReviewCount
-    } = userProfile
+      propertyReviewCount,
+    } = userProfile;
 
-    if (depth === 'full') {
-      depth = propertyReviewCount || Infinity
+    if (depth === "full") {
+      depth = propertyReviewCount || Infinity;
     }
 
-    logger('Fetching trip reviews', 'info')
+    logger("Fetching trip reviews", "info");
     const reviewData = await fetchTripReviews(
       depth,
       propertyExternalId,
       userProfile
-    )
+    );
 
     if (!reviewData.length) {
-      logger('Review list is empty', 'warn')
-      return
+      logger("Review list is empty", "warn");
+      if (!context_user && res) {
+        return res.status(404).json({
+          state: "nothing found",
+          isCompleted: false,
+          reviewSiteName: reviewSiteSlug,
+          reviewDocumentCount: null,
+          accountName: property_name,
+          profile_id: profile_id,
+          endpoint: originalUrl,
+          siteId: internalId,
+          reviewPage: baseUrl,
+          message: [],
+        });
+      }
+      return;
     }
 
     for (const review of reviewData) {
       try {
-        if (!review) continue
+        if (!review) continue;
 
-        const auth_name = await extractAuthName(review)
+        const auth_name = await extractAuthName(review);
 
         const existingReview = await REVIEW.findOne({
           authorExternalId: review.id,
-          author: auth_name
-        })
+          author: auth_name,
+        });
 
         if (!existingReview) {
-          const rating = review.ratingInfo?.ratingAll || review.rating
-          const local_language = review.language
-          const checkin_date = review?.checkInDate
-          const create_date = review?.createDate
-          const formattedReviewBody = review.content || review.translatedContent
+          const rating = review.ratingInfo?.ratingAll || review.rating;
+          const local_language = review.language;
+          const checkin_date = review?.checkInDate;
+          const create_date = review?.createDate;
+          const formattedReviewBody =
+            review.content || review.translatedContent;
           const property_response = {
             body: review?.feedbackList[0]?.content || null,
-            responseDate: review.feedbackList[0]?.createDate
-          }
+            responseDate: review.feedbackList[0]?.createDate,
+          };
 
           const miscellaneous = {
-            roomTypeName: extractRoomtype(review)
-          }
+            roomTypeName: extractRoomtype(review),
+          };
 
-          const recommend = review.canMarkUseful
-          const title = review?.commentLevel || review?.ratingInfo?.commentLevel
-          const propertyUrl = originalUrl || baseUrl
-          // 1=ctrip, 34=tripadvisor,
-          // let review_check =
-          //   review?.source === 1
-          //     ? 'Ctrip'
-          //     : review?.source === 34
-          //     ? 'Tripadvisor'
-          //     : 'Trip'
-          let review_check = review?.source === 1 ? 'Ctrip' : 'Trip'
+          const recommend = review.canMarkUseful;
+          const title =
+            review?.commentLevel || review?.ratingInfo?.commentLevel;
+          const propertyUrl = originalUrl || baseUrl;
+
+          const review_check = review?.source === 1 ? "Ctrip" : "Trip";
 
           const savedReview = await REVIEW.create({
             author: auth_name,
@@ -141,27 +170,28 @@ export async function generateTripReviews (req, res) {
             propertyName: property_name,
             propertyResponse: property_response.body ? property_response : null,
             miscellaneous: miscellaneous,
-            rating: rating
-          })
+            rating: rating,
+          });
 
-          savedReviews.push(savedReview)
+          savedReviews.push(savedReview);
         }
       } catch (error) {
         logger(
-          `Error processing review ID ${review?.id || 'unknown'}: ${error}`,
-          'warn'
-        )
-        continue
+          `Error processing review ID ${review?.id || "unknown"}: ${error}`,
+          "warn"
+        );
+        continue;
       }
     }
 
-    logger('All pages fetched. Process completed.', 'info')
-    let ownershipId = userId || req.locals.user.userId
-    const totalCount = await REVIEW.countDocuments({ userId: ownershipId })
+    logger("All pages fetched. Process completed.", "info");
 
-    res.status(200).json({
-      state: 'success',
-      isCompleted: res.statusCode >= 200 && res.statusCode < 300,
+    let ownershipId = userId || req?.locals?.user?.userId;
+    const totalCount = await REVIEW.countDocuments({ userId: ownershipId });
+
+    const responseDataObject = {
+      state: "success",
+      isCompleted: res ? res.statusCode >= 200 && res.statusCode < 300 : 200,
       reviewSiteName: reviewSiteSlug,
       reviewDocumentCount: totalCount,
       accountName: property_name,
@@ -169,36 +199,39 @@ export async function generateTripReviews (req, res) {
       endpoint: originalUrl,
       siteId: internalId,
       reviewPage: baseUrl,
-      message: generateMessage(savedReviews, reviewData)
-    })
-    //****** Save buckets *** */
-    saveObjectToS3(savedReviews)
+      message: generateMessage(savedReviews, reviewData),
+    };
+
+    if (!context_user && res) res.status(200).json(responseDataObject);
+
+    // Save bucket logic
+    saveObjectToS3(savedReviews);
     handleAzureBlobAndPipeline(savedReviews, [
-      'trip-com',
+      "trip-com",
       profile_id,
-      propertyExternalId
-    ])
-    //******* Save buckets ********* */
+      propertyExternalId,
+    ]);
   } catch (error) {
-    logger(`Error generating trip reviews: ${error}`, 'warn')
+    logger(`Error generating Trip reviews: ${error.message}`, "error");
   }
 }
-function extractRoomtype (review) {
-  if (!review || !review.roomTypeName) return
+
+function extractRoomtype(review) {
+  if (!review || !review.roomTypeName) return;
   try {
-    return review?.roomTypeName || null
+    return review?.roomTypeName || null;
   } catch (e) {
-    logger(`from <extractNumberOfStays>: ${e.message}`)
+    logger(`from <extractNumberOfStays>: ${e.message}`);
   }
 }
-function extractAuthName (review) {
+function extractAuthName(review) {
   try {
-    if (!review) return null
-    return review.userInfo?.nickName || 'Anonymous'
+    if (!review) return null;
+    return review.userInfo?.nickName || "Anonymous";
   } catch (e) {
-    logger(`from <extractAuthName>: ${e.message}`)
+    logger(`from <extractAuthName>: ${e.message}`);
   }
 }
-function formatDate (dateTimeString) {
-  return dateTimeString.split(' ')[0]
+function formatDate(dateTimeString) {
+  return dateTimeString.split(" ")[0];
 }

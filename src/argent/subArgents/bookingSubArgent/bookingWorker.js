@@ -4,8 +4,12 @@ import { generateBookingComReviews } from "../../../ochestrators/bookingOche.js"
 
 export default async function bookingWorker(
   options = null,
-  concurrencyLimit = 5
+  concurrencyLimit = 5,
+  shouldRun = true
 ) {
+  if (!shouldRun) return logger("Booking worker is disabled. Exiting.", "info");
+
+  logger("Starting bookingWorker...", "info");
   const users =
     options && options.length
       ? options.filter((user) => user.isSubscribed === true)
