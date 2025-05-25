@@ -55,10 +55,22 @@ describe("getCronScheduleStrings", () => {
   it("should return correct cron strings", () => {
     const result = getCronScheduleStrings();
     expect(result).toEqual({
-      everyDay: "0 0 * * *",
-      every8hrs: "0 */8 * * *",
+      everyMinute: "* * * * *",
+      every5Minutes: "*/5 * * * *",
+      every10Minutes: "*/10 * * * *",
+      every15Minutes: "*/15 * * * *",
+      every30Minutes: "*/30 * * * *",
+      everyHour: "0 * * * *",
+      every2Hours: "0 */2 * * *",
+      every3Hours: "0 */3 * * *",
+      every4Hours: "0 */4 * * *",
       every6hrs: "0 */6 * * *",
+      every8hrs: "0 */8 * * *",
+      every12Hours: "0 */12 * * *",
+      everyDay: "0 0 * * *",
       every1month: "0 0 1 * *",
+      every6months: "0 0 1 */6 *",
+      everyYear: "0 0 1 1 *",
     });
   });
 });
