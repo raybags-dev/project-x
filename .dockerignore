@@ -16,3 +16,5 @@ tests
 __tests__
 coverage
 docs
+logs/**/
+logs/**/*
