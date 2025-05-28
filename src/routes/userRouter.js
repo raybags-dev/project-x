@@ -1,7 +1,10 @@
-import express from 'express'
-import { loginUser } from '../../middleware/auth.js'
-import isSubscribed from '../../middleware/generalUtils.js'
-import { authRateLimiter, loginRateLimiter } from '../../middleware/limiters.js'
+import express from "express";
+import { loginUser } from "../../middleware/auth.js";
+import isSubscribed from "../../middleware/generalUtils.js";
+import {
+  authRateLimiter,
+  loginRateLimiter,
+} from "../../middleware/limiters.js";
 
 import {
   CreateUserController,
@@ -9,50 +12,50 @@ import {
   GetUserController,
   GetUserControllerPrivate,
   LoginController,
-  UpdateSubscriptionController
-} from '../controllers/userController.js'
+  UpdateSubscriptionController,
+} from "../controllers/userController.js";
 
-import { asyncMiddleware } from '../../middleware/asyncErros.js'
-import { authMiddleware, isAdmin } from '../../middleware/auth.js'
+import { asyncMiddleware } from "../../middleware/asyncErros.js";
+import { authMiddleware, isAdmin } from "../../middleware/auth.js";
 
-const router = express.Router()
+const router = express.Router();
 
 router.post(
-  '/raybags/v1/review-crawler/create-user',
+  "/raybags/v1/review-crawler/create-user",
   loginRateLimiter,
   asyncMiddleware(CreateUserController)
-)
+);
 router.post(
-  '/raybags/v1/review-crawler/user/login',
+  "/raybags/v1/review-crawler/user/login",
   loginRateLimiter,
   loginUser,
   asyncMiddleware(LoginController)
-)
+);
 router.post(
-  '/raybags/v1/review-crawler/get-users',
+  "/raybags/v1/review-crawler/get-users",
   authMiddleware,
   isAdmin,
   isSubscribed,
   asyncMiddleware(GetAllUsersController)
-)
+);
 router.post(
-  '/raybags/v1/review-crawler/user/get-guest-user/:id',
+  "/raybags/v1/review-crawler/user/get-guest-user/:id",
   authMiddleware,
   isAdmin,
   asyncMiddleware(GetUserControllerPrivate)
-)
+);
 router.post(
-  '/raybags/v1/review-crawler/get-user',
+  "/raybags/v1/review-crawler/get-user",
   authMiddleware,
   authRateLimiter,
   asyncMiddleware(GetUserController)
-)
+);
 router.put(
-  '/raybags/v1/review-crawler/user/update-subscription/:userId',
+  "/raybags/v1/review-crawler/user/update-subscription/:userId",
   authMiddleware,
   isAdmin,
   isSubscribed,
   asyncMiddleware(UpdateSubscriptionController)
-)
+);
 
-export default router
+export default router;

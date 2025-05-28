@@ -161,15 +161,35 @@ Edit the .env file to match your local environment.
 ### 4. **Build and Run with Docker Compose**
 ```bash
 docker compose build --no-cache
-docker compose up -d
+docker compose up -d # docker compose up d - for terminal output
 ```
 ### 5. **Access the Application**
 ```bash
-  API: http://localhost:3002
-  You can access the UI from the same endpoint. 
-  # You can access the UI from the same endpoint
+  API: http://localhost:8080/ # hginx routes tracking automatically to instances via this port - change this if neccessary via <docker-compose.yml>
 ```
-### 7. **Stopping the Containers**
+### 7. **Stopping all Containers**
 ```bash
   docker compose down -v
+```
+
+## Nginx and Load Balancer Related Routes Handler
+- instance health
+```bash
+  /health
+```
+- instance Info and details
+```bash
+  /instance
+```
+- Load balancer status endpoint (shows all instances from perspective of current instance)
+```bash
+  /lb-status
+```
+- Ready endpoint ( indicates if instance is ready to receive traffic)
+```bash
+  /ready
+```
+- Monitoring | Metrics details
+```bash
+  /metrics
 ```

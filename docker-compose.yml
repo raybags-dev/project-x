@@ -1,14 +1,31 @@
 services:
-  app:
-    build: .
-    container_name: reviewer-x
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-load-balancer
     restart: unless-stopped
     ports:
-      - "3002:3001"
+      - "8080:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app1
+      - app2
+      - app3
+      - app4
+    networks:
+      - app-network
+
+  app1:
+    build: .
+    container_name: reviewer-x-instance-1
+    restart: unless-stopped
     env_file:
       - .env
     environment:
       - NODE_ENV=production
+      - PORT=3001
+      - INSTANCE_ID=1
       - MONGO_URI=${MONGO_URI}
       - ACCESS_TOKEN=${ACCESS_TOKEN}
       - MY_SECRET=${MY_SECRET}
@@ -57,9 +74,203 @@ services:
       - CONTEXT_USERID=${CONTEXT_USERID}
     volumes:
       - ./scripts:/app/scripts
-      - ./logs:/app/logs
+      - ./logs/instance1:/app/logs
     depends_on:
       - mongo
+    networks:
+      - app-network
+
+  app2:
+    build: .
+    container_name: reviewer-x-instance-2
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - INSTANCE_ID=2
+      - MONGO_URI=${MONGO_URI}
+      - ACCESS_TOKEN=${ACCESS_TOKEN}
+      - MY_SECRET=${MY_SECRET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - AWS_REGION=${AWS_REGION}
+      - EMAIL_PROVIDER=${EMAIL_PROVIDER}
+      - SECRET_ADMIN_TOKEN=${SECRET_ADMIN_TOKEN}
+      - SUPER_USER_TOKEN=${SUPER_USER_TOKEN}
+      - WEBSHARE_API_TOKEN=${WEBSHARE_API_TOKEN}
+      - AUTH_ENCRYPTION_KEY=${AUTH_ENCRYPTION_KEY}
+      - PROD_URL=${PROD_URL}
+      - EMAIL_FOR_NOTIFICATION=${EMAIL_FOR_NOTIFICATION}
+      - RECIPIENT_EMAIL=${RECIPIENT_EMAIL}
+      - EMAIL__APP_PASS=${EMAIL__APP_PASS}
+      - SKU=${SKU}
+      - KIND=${KIND}
+      - RESOURCE_GROUP=${RESOURCE_GROUP}
+      - LOCATION=${LOCATION}
+      - AZURE_STORAGE_CONTAINER=${AZURE_STORAGE_CONTAINER}
+      - AZURE_KEYVAULT=${AZURE_KEYVAULT}
+      - AZURE_BLOB_SAS_SECRET=${AZURE_BLOB_SAS_SECRET}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
+      - AZURE_STORAGE_ACCOUNT_NAME=${AZURE_STORAGE_ACCOUNT_NAME}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
+      - COSMOS_DB_ENDPOINT=${COSMOS_DB_ENDPOINT}
+      - COSMOS_DB_KEY=${COSMOS_DB_KEY}
+      - COSMOS_DB_NAME=${COSMOS_DB_NAME}
+      - COSMOS_CONTAINER_NAME=${COSMOS_CONTAINER_NAME}
+      - AZURE_APIM_NAME=${AZURE_APIM_NAME}
+      - AZURE_APIM_ENDPOINT=${AZURE_APIM_ENDPOINT}
+      - AZURE_API_URL=${AZURE_API_URL}
+      - PUPPETEER_EXECUTABLE_PATH=${PUPPETEER_EXECUTABLE_PATH}
+      - PROXY_USERNAME=${PROXY_USERNAME}
+      - PROXY_PASSWORD=${PROXY_PASSWORD}
+      - PROXY_HOST=${PROXY_HOST}
+      - PROXY_PORT=${PROXY_PORT}
+      - CONTEXT_USER_TOKEN=${CONTEXT_USER_TOKEN}
+      - CONTEXT_USER_ID=${CONTEXT_USER_ID}
+      - CONTEXT_USER_EMAIL=${CONTEXT_USER_EMAIL}
+      - CONTEXT_USER_ELEVATED_STATUS=${CONTEXT_USER_ELEVATED_STATUS}
+      - CONTEXT_USERID=${CONTEXT_USERID}
+    volumes:
+      - ./scripts:/app/scripts
+      - ./logs/instance2:/app/logs
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  app3:
+    build: .
+    container_name: reviewer-x-instance-3
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - INSTANCE_ID=3
+      - MONGO_URI=${MONGO_URI}
+      - ACCESS_TOKEN=${ACCESS_TOKEN}
+      - MY_SECRET=${MY_SECRET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - AWS_REGION=${AWS_REGION}
+      - EMAIL_PROVIDER=${EMAIL_PROVIDER}
+      - SECRET_ADMIN_TOKEN=${SECRET_ADMIN_TOKEN}
+      - SUPER_USER_TOKEN=${SUPER_USER_TOKEN}
+      - WEBSHARE_API_TOKEN=${WEBSHARE_API_TOKEN}
+      - AUTH_ENCRYPTION_KEY=${AUTH_ENCRYPTION_KEY}
+      - PROD_URL=${PROD_URL}
+      - EMAIL_FOR_NOTIFICATION=${EMAIL_FOR_NOTIFICATION}
+      - RECIPIENT_EMAIL=${RECIPIENT_EMAIL}
+      - EMAIL__APP_PASS=${EMAIL__APP_PASS}
+      - SKU=${SKU}
+      - KIND=${KIND}
+      - RESOURCE_GROUP=${RESOURCE_GROUP}
+      - LOCATION=${LOCATION}
+      - AZURE_STORAGE_CONTAINER=${AZURE_STORAGE_CONTAINER}
+      - AZURE_KEYVAULT=${AZURE_KEYVAULT}
+      - AZURE_BLOB_SAS_SECRET=${AZURE_BLOB_SAS_SECRET}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
+      - AZURE_STORAGE_ACCOUNT_NAME=${AZURE_STORAGE_ACCOUNT_NAME}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
+      - COSMOS_DB_ENDPOINT=${COSMOS_DB_ENDPOINT}
+      - COSMOS_DB_KEY=${COSMOS_DB_KEY}
+      - COSMOS_DB_NAME=${COSMOS_DB_NAME}
+      - COSMOS_CONTAINER_NAME=${COSMOS_CONTAINER_NAME}
+      - AZURE_APIM_NAME=${AZURE_APIM_NAME}
+      - AZURE_APIM_ENDPOINT=${AZURE_APIM_ENDPOINT}
+      - AZURE_API_URL=${AZURE_API_URL}
+      - PUPPETEER_EXECUTABLE_PATH=${PUPPETEER_EXECUTABLE_PATH}
+      - PROXY_USERNAME=${PROXY_USERNAME}
+      - PROXY_PASSWORD=${PROXY_PASSWORD}
+      - PROXY_HOST=${PROXY_HOST}
+      - PROXY_PORT=${PROXY_PORT}
+      - CONTEXT_USER_TOKEN=${CONTEXT_USER_TOKEN}
+      - CONTEXT_USER_ID=${CONTEXT_USER_ID}
+      - CONTEXT_USER_EMAIL=${CONTEXT_USER_EMAIL}
+      - CONTEXT_USER_ELEVATED_STATUS=${CONTEXT_USER_ELEVATED_STATUS}
+      - CONTEXT_USERID=${CONTEXT_USERID}
+    volumes:
+      - ./scripts:/app/scripts
+      - ./logs/instance3:/app/logs
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  app4:
+    build: .
+    container_name: reviewer-x-instance-4
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - INSTANCE_ID=4
+      - MONGO_URI=${MONGO_URI}
+      - ACCESS_TOKEN=${ACCESS_TOKEN}
+      - MY_SECRET=${MY_SECRET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - AWS_REGION=${AWS_REGION}
+      - EMAIL_PROVIDER=${EMAIL_PROVIDER}
+      - SECRET_ADMIN_TOKEN=${SECRET_ADMIN_TOKEN}
+      - SUPER_USER_TOKEN=${SUPER_USER_TOKEN}
+      - WEBSHARE_API_TOKEN=${WEBSHARE_API_TOKEN}
+      - AUTH_ENCRYPTION_KEY=${AUTH_ENCRYPTION_KEY}
+      - PROD_URL=${PROD_URL}
+      - EMAIL_FOR_NOTIFICATION=${EMAIL_FOR_NOTIFICATION}
+      - RECIPIENT_EMAIL=${RECIPIENT_EMAIL}
+      - EMAIL__APP_PASS=${EMAIL__APP_PASS}
+      - SKU=${SKU}
+      - KIND=${KIND}
+      - RESOURCE_GROUP=${RESOURCE_GROUP}
+      - LOCATION=${LOCATION}
+      - AZURE_STORAGE_CONTAINER=${AZURE_STORAGE_CONTAINER}
+      - AZURE_KEYVAULT=${AZURE_KEYVAULT}
+      - AZURE_BLOB_SAS_SECRET=${AZURE_BLOB_SAS_SECRET}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
+      - AZURE_STORAGE_ACCOUNT_NAME=${AZURE_STORAGE_ACCOUNT_NAME}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
+      - COSMOS_DB_ENDPOINT=${COSMOS_DB_ENDPOINT}
+      - COSMOS_DB_KEY=${COSMOS_DB_KEY}
+      - COSMOS_DB_NAME=${COSMOS_DB_NAME}
+      - COSMOS_CONTAINER_NAME=${COSMOS_CONTAINER_NAME}
+      - AZURE_APIM_NAME=${AZURE_APIM_NAME}
+      - AZURE_APIM_ENDPOINT=${AZURE_APIM_ENDPOINT}
+      - AZURE_API_URL=${AZURE_API_URL}
+      - PUPPETEER_EXECUTABLE_PATH=${PUPPETEER_EXECUTABLE_PATH}
+      - PROXY_USERNAME=${PROXY_USERNAME}
+      - PROXY_PASSWORD=${PROXY_PASSWORD}
+      - PROXY_HOST=${PROXY_HOST}
+      - PROXY_PORT=${PROXY_PORT}
+      - CONTEXT_USER_TOKEN=${CONTEXT_USER_TOKEN}
+      - CONTEXT_USER_ID=${CONTEXT_USER_ID}
+      - CONTEXT_USER_EMAIL=${CONTEXT_USER_EMAIL}
+      - CONTEXT_USER_ELEVATED_STATUS=${CONTEXT_USER_ELEVATED_STATUS}
+      - CONTEXT_USERID=${CONTEXT_USERID}
+    volumes:
+      - ./scripts:/app/scripts
+      - ./logs/instance4:/app/logs
+    depends_on:
+      - mongo
+    networks:
+      - app-network
 
   mongo:
     image: mongo:latest
@@ -72,7 +283,13 @@ services:
     environment:
       - MONGO_INITDB_DATABASE=reviewer-x
     command: ["--quiet", "--logpath", "/dev/null"]
+    networks:
+      - app-network
 
 volumes:
   mongo-data:
     name: reviewer-x-mongo-data
+
+networks:
+  app-network:
+    driver: bridge
