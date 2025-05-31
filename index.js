@@ -6,12 +6,14 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { validateAutomationContextVars } from "./middleware/automationTools.js";
-import scheduleAutomationTask, {
-  getCronScheduleStrings,
-} from "./middleware/cronUtility.js";
-
 import { dynoActivator, wakeupService } from "./middleware/ping_service.js";
 import runAutoReviewAggregator from "./src/argent/automator.js";
+import {
+  getDefaultSchedulerConfig,
+  runScheduler,
+} from "./src/cron/schedulerExec.js";
+import { logger } from "./src/loggers/logger.js";
+
 import startUp from "./src/startup.js";
 import {
   injectNonceToLocalScripts,
@@ -32,12 +34,8 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Get instance ID from environment variable (defaults to 1)
 const INSTANCE_ID = process.env.INSTANCE_ID || "1";
-// Only run automation on instance 1 to avoid conflicts
 const RUN_AUTOMATION = INSTANCE_ID === "1";
-// Get cron schedule strings
-const CRON_SCHEDULES = getCronScheduleStrings();
 
 console.log(`Starting application instance ${INSTANCE_ID}`);
 console.log(
@@ -54,11 +52,10 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(morgan(`tiny :date[iso] [Instance-${INSTANCE_ID}]`));
+app.use(morgan(` :date[iso] [Instance-${INSTANCE_ID}]`));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(wakeupService);
 
-// Load balancer and health check routes
 nginxRoutesHandler(app, INSTANCE_ID, RUN_AUTOMATION);
 
 miscellaneous(app);
@@ -69,13 +66,21 @@ startUp(app);
 handleNotSupported(app);
 dynoActivator();
 
-// Only schedule automation tasks on instance 1
+const schedulerResult = runScheduler({
+  taskFunction: runAutoReviewAggregator,
+  runAutomation: RUN_AUTOMATION,
+  instanceId: INSTANCE_ID,
+  app: app,
+  ...getDefaultSchedulerConfig(),
+});
+
 if (RUN_AUTOMATION) {
-  console.log(`Setting up cron jobs on instance ${INSTANCE_ID}`);
-  scheduleAutomationTask(runAutoReviewAggregator, CRON_SCHEDULES.every8hrs);
-  scheduleAutomationTask(runAutoReviewAggregator, CRON_SCHEDULES.every1month);
-  scheduleAutomationTask(runAutoReviewAggregator, CRON_SCHEDULES.every6months);
-} else {
-  console.log(`Skipping cron jobs setup for instance ${INSTANCE_ID}`);
+  const success = schedulerResult.success;
+  const prefix = success ? "✅ Scheduler" : "❌ Scheduler failed";
+  const message = `${prefix}: ${
+    schedulerResult.message || schedulerResult.error
+  }`;
+  logger(message, success ? "info" : "error");
 }
+
 export default app;

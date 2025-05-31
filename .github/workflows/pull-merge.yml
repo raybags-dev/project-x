@@ -1,4 +1,4 @@
-name: Auto Merge to main
+name: merge-to-main-pipline
 
 on:
   push:

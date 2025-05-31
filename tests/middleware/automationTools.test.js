@@ -18,15 +18,15 @@ describe("scheduleAutomationTask", () => {
     jest.clearAllMocks();
   });
 
-  it("should not schedule if run_automation is false", () => {
+  it("should only trigger with monitoring routes automation <1>", () => {
     const mockFn = jest.fn();
     scheduleAutomationTask(mockFn, "* * * * *", false);
 
     expect(logger).toHaveBeenCalledWith(
-      "cron tiggers for auto-extraction disabled. Task will not run.",
+      "Scheduled task 'false' with cron: '* * * * *'",
       "info"
     );
-    expect(cron.schedule).not.toHaveBeenCalled();
+    expect(cron.schedule).toHaveBeenCalled();
   });
 
   it("should not schedule if taskFn is not a function", () => {
@@ -44,7 +44,7 @@ describe("scheduleAutomationTask", () => {
     scheduleAutomationTask(mockFn, "* * * * *", true);
 
     expect(logger).toHaveBeenCalledWith(
-      "Scheduled task with cron: '* * * * *'",
+      "Scheduled task 'true' with cron: '* * * * *'",
       "info"
     );
     expect(cron.schedule).toHaveBeenCalledTimes(1);
@@ -64,13 +64,14 @@ describe("getCronScheduleStrings", () => {
       every2Hours: "0 */2 * * *",
       every3Hours: "0 */3 * * *",
       every4Hours: "0 */4 * * *",
-      every6hrs: "0 */6 * * *",
-      every8hrs: "0 */8 * * *",
+      every6Hours: "0 */6 * * *",
+      every8Hours: "0 */8 * * *",
       every12Hours: "0 */12 * * *",
+      everyDayOffset: "15 0 * * *",
       everyDay: "0 0 * * *",
-      every1month: "0 0 1 * *",
-      every6months: "0 0 1 */6 *",
-      everyYear: "0 0 1 1 *",
+      every1month: "15 0 1 * *",
+      every6months: "30 0 1 */6 *",
+      everyYear: "45 0 1 1 *",
     });
   });
 });

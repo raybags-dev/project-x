@@ -172,7 +172,7 @@ docker compose up -d # docker compose up d - for terminal output
   docker compose down -v
 ```
 
-## Nginx and Load Balancer Related Routes Handler
+## Nginx and Load Balancer Related health routes.
 - instance health
 ```bash
   /health

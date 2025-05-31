@@ -15,13 +15,18 @@ export function asyncMiddleware(handler) {
             message:
               "Attempted to read a property of a null object. Please check your data and ensure all required fields are present.",
           });
-        } else {
-          console.warn("Headers already sent", ex.message);
         }
-
         // Log the error details
         console.error("TypeError details:", ex.message);
         console.error("Stack Trace:", ex.stack);
+      }
+
+      if (ex.message.includes("TypeError: browser.close is not a function")) {
+        res.status(500).json({
+          status: "__________Invalid Browser Instance___________",
+          message:
+            "It seems that the browser instance is not valid or has already been closed. Please ensure that the browser is properly initialized and not closed before this operation.",
+        });
       }
 
       // Handle specific CastError
