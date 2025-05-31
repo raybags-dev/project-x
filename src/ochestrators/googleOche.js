@@ -1,20 +1,24 @@
-import 'dotenv/config'
-import { launchBrowser } from '../downloader/browserEngine.js'
-import { logger } from '../loggers/logger.js'
-import fetchAndSaveGoogleReviews from '../utilities/browserWorkers/browserWorker.js'
-import { holdOnFor } from '../utilities/utilities.js'
-
-const isProduction = process.env.NODE_ENV === 'production'
-
-import utilityRegistry from '../utilities/events/eventHandlers.js'
+import "dotenv/config";
+import {
+  browserHealthCheck,
+  launchBrowser,
+  testChromeDetection,
+} from "../downloader/browserEngine.js";
+import { logger } from "../loggers/logger.js";
+import fetchAndSaveGoogleReviews from "../utilities/browserWorkers/browserWorker.js";
+import utilityRegistry from "../utilities/events/eventHandlers.js";
+import { holdOnFor } from "../utilities/utilities.js";
 const {
   handleGoogleCookieDialogue,
   handleGoogleReviewTabBtn,
   handleGoogleReviewFIlterSelection,
-  handleRecentReviewFIlterSelection
-} = utilityRegistry
+  handleRecentReviewFIlterSelection,
+} = utilityRegistry;
 
-export default async function headlessManager (
+const isProduction = process.env.NODE_ENV === "production";
+const isHeadlessModeEnabled = true;
+
+export default async function headlessManager(
   originalUrl,
   depth,
   runType,
@@ -22,69 +26,88 @@ export default async function headlessManager (
   user = {}
 ) {
   try {
-    let browser
-    let page
-    let reviewsList = []
+    let browser;
+    let page;
+    let reviewsList = [];
 
     const totalPagesToFetch = depth
       ? parseInt(depth) || 10
-      : runType === 'INITIAL' || depth === 'full'
+      : runType === "INITIAL" || depth === "full"
       ? Infinity
-      : Infinity
+      : Infinity;
 
     try {
-      browser = isProduction
-        ? await launchBrowser(true)
-        : await launchBrowser(false)
-
-      if (!browser || typeof browser.newPage !== 'function') {
-        throw new Error('Browser instance is not valid')
+      // ****************** Testing browser launch in development mode ******************
+      //test browser detection - If the test fails exit
+      const testResult = await testChromeDetection();
+      console.log("Detection result:", testResult);
+      if (!testResult.success) {
+        console.warn("Browser detection failed:", testResult.error);
+        throw new Error(`Browser test! Exiting...: ${testResult.error}`);
       }
 
-      page = await browser.newPage()
-      logger('New page created', 'info')
+      // check browser health checks.
+      const healthCheck = await browserHealthCheck();
+      if (!healthCheck.healthy) {
+        console.warn("Browser system unhealthy:", healthCheck.error);
+        throw new Error(`Browser system unhealthy: ${healthCheck.error}`);
+      }
 
-      await page.setViewport({ width: 1280, height: 800 })
-      await page.setExtraHTTPHeaders(headers)
+      // if test passes, launch the browser
+      browser = isProduction
+        ? await launchBrowser(isHeadlessModeEnabled)
+        : await launchBrowser();
+
+      // ****************** Testing browser launch in development mode ******************
+
+      if (!browser || typeof browser.newPage !== "function") {
+        throw new Error("Browser instance is not valid");
+      }
+
+      page = await browser.newPage();
+      logger("New page created", "info");
+
+      await page.setViewport({ width: 1280, height: 800 });
+      await page.setExtraHTTPHeaders(headers);
 
       await page.goto(originalUrl, {
-        waitUntil: 'domcontentloaded',
-        timeout: 50000
-      })
+        waitUntil: "domcontentloaded",
+        timeout: 50000,
+      });
 
-      await holdOnFor(1000)
-      await handleGoogleCookieDialogue(page)
-      await holdOnFor(1000)
-      await handleGoogleReviewTabBtn(page)
-      await holdOnFor(1000)
-      await handleGoogleReviewFIlterSelection(page)
-      await holdOnFor(3000)
-      await handleRecentReviewFIlterSelection(page)
+      await holdOnFor(1000);
+      await handleGoogleCookieDialogue(page);
+      await holdOnFor(1000);
+      await handleGoogleReviewTabBtn(page);
+      await holdOnFor(1000);
+      await handleGoogleReviewFIlterSelection(page);
+      await holdOnFor(3000);
+      await handleRecentReviewFIlterSelection(page);
 
       const allReviews = await fetchAndSaveGoogleReviews(
         page,
         totalPagesToFetch,
         user
-      )
+      );
 
-      reviewsList = allReviews
-      return allReviews
+      reviewsList = allReviews;
+      return allReviews;
     } catch (error) {
-      logger(`Error during review extraction flow: ${error}`, 'warn')
-      logger(`ErrorStack: ${error.stack}`, 'error')
+      logger(`Error during review extraction flow: ${error}`, "warn");
+      logger(`ErrorStack: ${error.stack}`, "error");
     } finally {
       if (browser) {
         try {
-          await browser.close()
-          logger('Browser closed')
+          await browser.close();
+          logger("Browser closed");
         } catch (closeErr) {
-          logger(`Error closing browser: ${closeErr}`, 'error')
+          logger(`Error closing browser: ${closeErr}`, "error");
         }
       }
     }
-    return reviewsList
+    return reviewsList;
   } catch (error) {
-    logger(`Process failed in <extractReviewsFromBrowser>: ${error}`)
-    return reviewsList
+    logger(`Process failed in <extractReviewsFromBrowser>: ${error}`);
+    return reviewsList;
   }
 }
