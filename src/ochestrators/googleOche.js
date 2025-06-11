@@ -37,7 +37,6 @@ export default async function headlessManager(
       : Infinity;
 
     try {
-      // ****************** Testing browser launch in development mode ******************
       //test browser detection - If the test fails exit
       const testResult = await testChromeDetection();
       console.log("Detection result:", testResult);
@@ -53,12 +52,9 @@ export default async function headlessManager(
         throw new Error(`Browser system unhealthy: ${healthCheck.error}`);
       }
 
-      // if test passes, launch the browser
       browser = isProduction
         ? await launchBrowser(isHeadlessModeEnabled)
         : await launchBrowser();
-
-      // ****************** Testing browser launch in development mode ******************
 
       if (!browser || typeof browser.newPage !== "function") {
         throw new Error("Browser instance is not valid");
