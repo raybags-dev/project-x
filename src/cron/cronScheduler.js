@@ -191,12 +191,10 @@ function setupJobMonitoring() {
 }
 function logJobHealth() {
   const stats = getJobStats();
-  logger("\n[JOB HEALTH REPORT]");
+  logger(">>>>>>>>>>>>> [JOB HEALTH REPORT] <<<<<<<<<<<<<<");
 
-  if (stats.allHistory.length === 0) {
-    logger("No job history available yet.");
-    return;
-  }
+  if (stats.allHistory.length === 0)
+    return logger("No job history available yet.");
 
   stats.allHistory.forEach(([jobId, history]) => {
     const successRate =

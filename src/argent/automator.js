@@ -3,8 +3,17 @@ import { logger } from "../loggers/logger.js";
 import agodaWorker from "./subArgents/agodaSubArgent/agodaWorker.js";
 import bookingWorker from "./subArgents/bookingSubArgent/bookingWorker.js";
 import expediaWorker from "./subArgents/expediaSubArgent/expediaWorker.js";
+import googleWorker from "./subArgents/googleSubArgent/googleWorker.js";
 import opentableWorker from "./subArgents/opentableSubArgent/opentableWorker.js";
 import tripeWorker from "./subArgents/tripSubArgent/tripWorker.js";
+
+/**
+ * Aggregates all subscribed users and runs various workers to process reviews.
+ * This function fetches all subscribed users in a paginated manner and then
+ * invokes different worker functions to handle reviews for each user.
+ *
+ * @returns {Promise<void>}
+ */
 
 export default async function runAutoReviewAggregator() {
   try {
@@ -52,16 +61,23 @@ export default async function runAutoReviewAggregator() {
     if (!allSubscribedUsers)
       return logger("No subscribed users to process", "warn");
 
-    //*======== BOOKING WORKER ========= */
-    await bookingWorker(allSubscribedUsers, undefined, true);
-    //*======== AGODA WORKER ========= */
-    await agodaWorker(allSubscribedUsers, undefined, true);
-    //*======== EXPEDIA WORKER ========= */
-    await expediaWorker(allSubscribedUsers, undefined, true);
-    //*======== OPENTABLE WORKER ========= */
-    await opentableWorker(allSubscribedUsers, undefined, true);
-    //*======== TRIP WORKER ========= */
-    await tripeWorker(allSubscribedUsers, undefined, true);
+    // === GROUP 1: agoda && opentable && trip ===
+    await Promise.all([
+      agodaWorker(allSubscribedUsers, undefined, true),
+      opentableWorker(allSubscribedUsers, undefined, true),
+      tripeWorker(allSubscribedUsers, undefined, true),
+    ]);
+
+    // === GROUP 2: booking && expedia ===
+    await Promise.all([
+      bookingWorker(allSubscribedUsers, undefined, true),
+      expediaWorker(allSubscribedUsers, undefined, true),
+    ]);
+
+    // === GROUP 3: google ===
+    await googleWorker(allSubscribedUsers, undefined, true);
+
+    logger("All workers completed successfully", "info");
   } catch (err) {
     logger(`runAutoReviewAggregator error: ${err.message}`, "error");
   }
