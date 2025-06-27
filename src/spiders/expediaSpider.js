@@ -1,39 +1,38 @@
-import { HEADERS } from '../data/headers/headers.js'
-import axiosInstance from '../downloader/HTTPEngine.js'
-import { logger } from '../loggers/logger.js'
-import { validateResponse } from '../utilities/generalUtilities.js'
+import { HEADERS } from "../data/headers/headers.js";
+import axiosInstance from "../downloader/HTTPEngine.js";
+import { logger } from "../loggers/logger.js";
+import { validateResponse } from "../utilities/generalUtilities.js";
 
-export async function fetchExpediaReviews (
+export async function fetchExpediaReviews(
   depth = 1,
   propertyExternalId,
   userProfile
 ) {
-  const pageSize = 10
+  const pageSize = 10;
   try {
-    const { url, reviewPageUrl, metadata } = await userProfile
+    const { url, metadata } = await userProfile;
 
-    const endpointUrl = reviewPageUrl || url
-    const headers = { ...HEADERS.expediaHeadersGenReviews, method: 'POST' }
+    const headers = { ...HEADERS.expediaHeadersGenReviews, method: "POST" };
 
-    logger(`Fetching reviews with a depth of ${depth}...`, 'info')
+    logger(`Fetching reviews with a depth of ${depth}...`, "info");
 
     const allReviews = await fetchPerPage(
       propertyExternalId,
-      endpointUrl,
+      url,
       headers,
       depth,
       pageSize,
       metadata
-    )
-    logger(`Fetched ${allReviews.length} reviews successfully.`, 'info')
-    return allReviews
+    );
+    logger(`Fetched ${allReviews.length} reviews successfully.`, "info");
+    return allReviews;
   } catch (error) {
-    logger(`Error fetching reviews: ${error.message}`, 'error')
-    return []
+    logger(`Error fetching reviews: ${error.message}`, "error");
+    return [];
   }
 }
 
-async function fetchPerPage (
+async function fetchPerPage(
   propertyExternalId,
   endpointUrl,
   headers,
@@ -41,18 +40,18 @@ async function fetchPerPage (
   pageSize,
   metadata
 ) {
-  const allReviews = []
-  const maxConcurrency = 40 // Increased from 5 to 40
+  const allReviews = [];
+  const maxConcurrency = 40; // Increased from 5 to 40
 
   for (let batchStart = 0; batchStart < depth; batchStart += maxConcurrency) {
     // Calculate how many pages to fetch in this batch (not exceeding depth)
-    const pagesInBatch = Math.min(maxConcurrency, depth - batchStart)
+    const pagesInBatch = Math.min(maxConcurrency, depth - batchStart);
 
     // Create array of promises for concurrent execution
     const batchPromises = Array.from({ length: pagesInBatch }, (_, i) => {
-      logger(`Fetching: ${endpointUrl}`, 'info')
-      const pageIndex = batchStart + i
-      const currentSkip = pageIndex * pageSize
+      logger(`Fetching: ${endpointUrl}`, "info");
+      const pageIndex = batchStart + i;
+      const currentSkip = pageIndex * pageSize;
 
       return fetchPage(
         propertyExternalId,
@@ -62,61 +61,61 @@ async function fetchPerPage (
         pageSize,
         metadata,
         allReviews
-      ).catch(error => {
+      ).catch((error) => {
         logger(
           `Error fetching page at skip=${currentSkip}: ${error.message}`,
-          'error'
-        )
-        return { failed: true }
-      })
-    })
+          "error"
+        );
+        return { failed: true };
+      });
+    });
 
     // Execute batch concurrently
-    const results = await Promise.allSettled(batchPromises)
+    const results = await Promise.allSettled(batchPromises);
 
     // Check for errors and break if needed
-    if (results.some(res => res.status === 'rejected')) {
-      logger('Encountered rejected promises, stopping pagination', 'error')
-      break
+    if (results.some((res) => res.status === "rejected")) {
+      logger("Encountered rejected promises, stopping pagination", "error");
+      break;
     }
 
     // Check if all requests failed
     const allFailed = results.every(
-      res => res.status === 'fulfilled' && res.value && res.value.failed
-    )
+      (res) => res.status === "fulfilled" && res.value && res.value.failed
+    );
 
     if (allFailed) {
-      logger('All requests in batch failed, stopping pagination', 'error')
-      break
+      logger("All requests in batch failed, stopping pagination", "error");
+      break;
     }
   }
 
-  return allReviews
+  return allReviews;
 }
 
-async function fetchPageData (endpointUrl, requestBody, headers) {
+async function fetchPageData(endpointUrl, requestBody, headers) {
   try {
     const response = await axiosInstance.post(endpointUrl, requestBody, {
-      headers
-    })
+      headers,
+    });
 
-    if (!validateResponse(response)) return
+    if (!validateResponse(response)) return;
 
-    const isResponseSuccess = response.status == 200
+    const isResponseSuccess = response.status == 200;
 
     if (isResponseSuccess) {
       const reviewsObj = await response.data?.[0]?.data?.propertyInfo
-        ?.reviewInfo
-      return reviewsObj
+        ?.reviewInfo;
+      return reviewsObj;
     }
-    return null
+    return null;
   } catch (error) {
-    logger(`Error fetching page: ${error.message}`, 'error')
-    return null
+    logger(`Error fetching page: ${error.message}`, "error");
+    return null;
   }
 }
 
-async function fetchPage (
+async function fetchPage(
   propertyExternalId,
   endpointUrl,
   headers,
@@ -125,40 +124,40 @@ async function fetchPage (
   metadata,
   allReviews
 ) {
-  logger(`Fetching reviews from skip=${skip}...`, 'info')
+  logger(`Fetching reviews from skip=${skip}...`, "info");
 
-  const requestBody = createRequestBody(propertyExternalId, skip, metadata)
-  const responseData = await fetchPageData(endpointUrl, requestBody, headers)
+  const requestBody = createRequestBody(propertyExternalId, skip, metadata);
+  const responseData = await fetchPageData(endpointUrl, requestBody, headers);
 
-  if (!responseData) return
+  if (!responseData) return;
 
-  allReviews.push(...responseData.reviews)
-  logger(`Collected ${allReviews.length} reviews`, 'info')
+  allReviews.push(...responseData.reviews);
+  logger(`Collected ${allReviews.length} reviews`, "info");
 }
 
-function createRequestBody (hotelId, skip, metadata) {
-  const { regionalId, locale, duaid } = metadata
+function createRequestBody(hotelId, skip, metadata) {
+  const { regionalId, locale, duaid } = metadata;
   return [
     {
-      operationName: 'PropertyFilteredReviewsQuery',
+      operationName: "PropertyFilteredReviewsQuery",
       variables: {
         context: {
           siteId: 1,
-          locale: locale || 'en_US',
+          locale: locale || "en_US",
           eapid: 0,
           tpid: 1,
-          currency: 'USD',
+          currency: "USD",
           device: {
-            type: 'DESKTOP'
+            type: "DESKTOP",
           },
           identity: {
-            duaid: duaid || '',
-            authState: 'ANONYMOUS'
+            duaid: duaid || "",
+            authState: "ANONYMOUS",
           },
-          privacyTrackingState: 'CAN_TRACK',
+          privacyTrackingState: "CAN_TRACK",
           debugContext: {
-            abacusOverrides: []
-          }
+            abacusOverrides: [],
+          },
         },
         propertyId: hotelId.toString(),
         searchCriteria: {
@@ -166,39 +165,39 @@ function createRequestBody (hotelId, skip, metadata) {
             dateRange: null,
             rooms: [
               {
-                adults: 2
-              }
+                adults: 2,
+              },
             ],
             destination: {
-              regionId: regionalId
-            }
+              regionId: regionalId,
+            },
           },
           secondary: {
             booleans: [
-              { id: 'includeRecentReviews', value: false },
-              { id: 'includeRatingsOnlyReviews', value: true },
-              { id: 'overrideEmbargoForIndividualReviews', value: true },
-              { id: 'isFilteredSummary', value: true }
+              { id: "includeRecentReviews", value: false },
+              { id: "includeRatingsOnlyReviews", value: true },
+              { id: "overrideEmbargoForIndividualReviews", value: true },
+              { id: "isFilteredSummary", value: true },
             ],
             counts: [
-              { id: 'startIndex', value: skip || 0 },
-              { id: 'size', value: 10 }
+              { id: "startIndex", value: skip || 0 },
+              { id: "size", value: 10 },
             ],
             selections: [
-              { id: 'sortBy', value: 'NEWEST_TO_OLDEST' },
-              { id: 'searchTerm', value: '' },
-              { id: 'popularMention', value: '' }
-            ]
-          }
-        }
+              { id: "sortBy", value: "NEWEST_TO_OLDEST" },
+              { id: "searchTerm", value: "" },
+              { id: "popularMention", value: "" },
+            ],
+          },
+        },
       },
       extensions: {
         persistedQuery: {
           version: 1,
           sha256Hash:
-            'd1b8f924e9d87b676ebefbea89ae7a220aea4466d63f5e275ea623b6cc49933a'
-        }
-      }
-    }
-  ]
+            "d1b8f924e9d87b676ebefbea89ae7a220aea4466d63f5e275ea623b6cc49933a",
+        },
+      },
+    },
+  ];
 }

@@ -7,6 +7,7 @@
     "scripts": {
         "dev": "nodemon  index.js",
         "test": "jest",
+        "test:dev": "jest --watch",
         "test:watch": "npm run test -- --watch",
         "test:coverage": "npm run test -- --coverage",
         "start": "NODE_ENV=production bash ./scripts/start.sh",

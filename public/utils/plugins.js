@@ -2150,4 +2150,30 @@ export const PLUGINS = {
       console.log(e);
     }
   },
+  loadeSiteSlugs: async function () {
+    try {
+      runSpinner(false, "Fetching...");
+
+      const user = getAuthHandler();
+      if (!user || !user["auth-token"]) {
+        throw new Error("Authentication token missing");
+      }
+      const { "auth-token": token } = user;
+
+      const apiClient = await API_CLIENT();
+      const baseUrl = `/load-site-slugs`;
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      };
+
+      const response = await apiClient.post(baseUrl, {}, { headers });
+      if (response.status === 200) return response.data;
+      return null;
+    } catch (error) {
+      runSpinner(true);
+      console.error("Error in <loadeSiteSlugs>:", error.message);
+      return error;
+    }
+  },
 };
