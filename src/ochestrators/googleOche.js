@@ -71,13 +71,13 @@ export default async function headlessManager(
         timeout: 5000,
       });
 
-      await holdOnFor(500);
+      await holdOnFor(1000);
       await handleGoogleCookieDialogue(page);
-      await holdOnFor(500);
+      await holdOnFor(1000);
       await handleGoogleReviewTabBtn(page);
-      await holdOnFor(500);
+      await holdOnFor(1000);
       await handleGoogleReviewFIlterSelection(page);
-      await holdOnFor(500);
+      await holdOnFor(1500);
       await handleRecentReviewFIlterSelection(page);
 
       const allReviews = await fetchAndSaveGoogleReviews(
