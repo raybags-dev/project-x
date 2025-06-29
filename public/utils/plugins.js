@@ -472,7 +472,6 @@ export const PLUGINS = {
       }
     };
   },
-
   setupDropdownHover: async function () {
     const dropdownItems = document.querySelectorAll("li.nav-item.dropdown");
 
@@ -708,10 +707,18 @@ export const PLUGINS = {
   },
   saveToLocalStorage: async function (key, data) {
     try {
-      const serializedData = JSON.stringify(data);
-      localStorage.setItem(key, serializedData);
+      const newSerializedData = JSON.stringify(data);
+      const existingData = localStorage.getItem(key);
+
+      if (existingData !== newSerializedData) {
+        localStorage.setItem(key, newSerializedData);
+        return true;
+      }
+
+      return false;
     } catch (error) {
       console.log("Error saving to localStorage:", error);
+      return false;
     }
   },
   handleModleActiveStates: function () {
@@ -2168,7 +2175,11 @@ export const PLUGINS = {
       };
 
       const response = await apiClient.post(baseUrl, {}, { headers });
-      if (response.status === 200) return response.data;
+      if (response.status === 200) {
+        const data = response.data;
+        await PLUGINS.saveToLocalStorage("slugs", data);
+        return data;
+      }
       return null;
     } catch (error) {
       runSpinner(true);

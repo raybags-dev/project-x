@@ -1,78 +1,96 @@
-import { loginUser } from '../components/apiCallHandlers.js'
-import { setAuthHandler } from '../components/auth.js'
-import { justForAMoment, runSpinner } from '../utils/utilities.js'
-import { MAIN_PAGE } from './main_container.js'
-import { SIGNUP_HTML } from './signup.js'
+import {
+  loginUser,
+  saveLoginFormState,
+} from "../components/apiCallHandlers.js";
+import { setAuthHandler } from "../components/auth.js";
+import { UPDATE_PASSWORD_HTML } from "../utils/update.js";
+import { justForAMoment, runSpinner } from "../utils/utilities.js";
+import { displayLabel } from "./apiCallHandlers.js";
+import { MAIN_PAGE } from "./main_container.js";
+import { SIGNUP_HTML } from "./signup.js";
 
-import { displayLabel } from './apiCallHandlers.js'
+async function handleLoginFormSubmit(event) {
+  event.preventDefault();
+  justForAMoment();
 
-async function handleLoginFormSubmit (event) {
-  event.preventDefault()
-  justForAMoment()
-
-  const formData = new FormData(event.target)
-  const email = formData.get('email')
-  const password = formData.get('password')
+  const formData = new FormData(event.target);
+  const email = formData.get("email");
+  const password = formData.get("password");
 
   try {
-    const loginResponse = await loginUser({ email, password })
+    const loginResponse = await loginUser({ email, password });
+
+    const resetMessage = loginResponse?.data?.message;
+    if (
+      loginResponse?.status === 200 &&
+      resetMessage === "Password reset email sent."
+    ) {
+      displayLabel(["review_main_wrapper", "alert-success", resetMessage]);
+      clearLoginFormState();
+      restoreLoginFormState();
+      setTimeout(() => {
+        history.pushState(null, null, "/");
+        UPDATE_PASSWORD_HTML(email);
+      }, 1000);
+      return;
+    }
 
     if (loginResponse.status === 200) {
-      justForAMoment('Almost done')
-      const { user } = loginResponse.data
-      const { headers } = loginResponse
+      justForAMoment("Almost done");
+      const { user } = loginResponse.data;
+      const { headers } = loginResponse;
 
-      const userCreds = await setAuthHandler(user, headers)
-      const { isAdmin } = userCreds
+      const userCreds = await setAuthHandler(user, headers);
+      const { isAdmin } = userCreds;
 
       if (isAdmin) {
-        sessionStorage.setItem('redirected', true)
+        sessionStorage.setItem("redirected", true);
         displayLabel([
-          'review_main_wrapper',
-          'alert-success',
-          'Login was successful'
-        ])
+          "review_main_wrapper",
+          "alert-success",
+          "Login was successful",
+        ]);
         setTimeout(async () => {
-          runSpinner(true)
-          history.pushState(null, null, '/')
+          runSpinner(true);
+          history.pushState(null, null, "/");
 
-          const isDOMReady = await MAIN_PAGE()
-          if (!isDOMReady) return false
-          return true
-        }, 800)
+          const isDOMReady = await MAIN_PAGE();
+          if (!isDOMReady) return false;
+          return true;
+        }, 800);
       }
     } else if (
       loginResponse.status === 429 &&
-      loginResponse.statusText == 'Too Many Requests'
+      loginResponse.statusText == "Too Many Requests"
     ) {
       displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        `Failed: ${loginResponse.data?.error}`
-      ])
+        "review_main_wrapper",
+        "alert-danger",
+        `Failed: ${loginResponse.data?.error}`,
+      ]);
     } else {
       displayLabel([
-        'review_main_wrapper',
-        'alert-danger',
-        'Login failed - Invalid user credentials'
-      ])
+        "review_main_wrapper",
+        "alert-danger",
+        "Login failed - Invalid user credentials",
+      ]);
     }
   } catch (error) {
-    runSpinner(false, 'Failed!')
-    const errorMessage = error?.response?.data?.error || 'An error occurred.'
-    displayLabel(['review_main_wrapper', 'alert-danger', `${errorMessage}`])
-    setTimeout(() => runSpinner(true), 3000)
+    runSpinner(false, "Failed!");
+    const errorMessage = error?.response?.data?.error || "An error occurred.";
+    displayLabel(["review_main_wrapper", "alert-danger", `${errorMessage}`]);
+    setTimeout(() => runSpinner(true), 3000);
   }
 }
-function setupEventListeners () {
-  const navbarBrand = document.querySelector('#to_sigup_p')
-  navbarBrand?.addEventListener('click', async () => {
-    SIGNUP_HTML()
-  })
-  const loginForm = document.querySelector('#login___form')
-  loginForm?.addEventListener('submit', handleLoginFormSubmit)
+function setupEventListeners() {
+  const navbarBrand = document.querySelector("#to_sigup_p");
+  navbarBrand?.addEventListener("click", async () => {
+    SIGNUP_HTML();
+  });
+  const loginForm = document.querySelector("#login___form");
+  loginForm?.addEventListener("submit", handleLoginFormSubmit);
 }
-export async function LOGIN_HTML () {
+export async function LOGIN_HTML() {
   let pageContent = `
   <nav class="navbar navbar-expand-lg shadow shadow-sm bg-light text-dark">
       <div class="container-fluid">
@@ -105,16 +123,170 @@ export async function LOGIN_HTML () {
                   <div class="invalid-feedback">Please enter your password.</div>
             </div>
             <div id="checker" class="form-check form-switch mt-3 mb-3 hide_2">
-                      <input class="form-check-input shadow shadow-sm"  type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                      <input class="form-check-input shadow shadow"  type="checkbox" role="switch" id="flexSwitchCheckDefault">
                       <label class="form-check-label" for="flexSwitchCheckDefault">Forgot password</label>
             </div>
+            
             <div>
-                <button type="submit"  class="btn btn-lg shadow shadow-lg btn-outline-success login_btn">SUBMIT</button>
+                <button type="submit"  class="btn btn shadow shadow-lg btn-outline-success login_btn">SUBMIT</button>
             </div>
         </form>
     </div>
   </main>
-      `
-  document.getElementById('innerBody').innerHTML = pageContent
-  setupEventListeners()
+      `;
+  document.getElementById("innerBody").innerHTML = pageContent;
+  setupEventListeners();
+  restoreLoginFormState();
+  setupLoginFormCheckboxBehavior();
+}
+export function restoreLoginFormState() {
+  const STORAGE_KEY = "loginFormState";
+
+  try {
+    const savedState = localStorage.getItem(STORAGE_KEY);
+    if (!savedState) return;
+
+    const state = JSON.parse(savedState);
+
+    // Restore forgot password section visibility
+    if (state.forgotPasswordVisible || state.checkerDivVisible) {
+      const checkerDiv = document.querySelector("#checker");
+      if (checkerDiv) {
+        checkerDiv.classList.remove("hide_2");
+      }
+    }
+
+    // Restore checkbox state
+    const forgotPasswordCheckbox = document.querySelector(
+      "#flexSwitchCheckDefault"
+    );
+    if (forgotPasswordCheckbox && state.forgotPasswordChecked !== undefined) {
+      forgotPasswordCheckbox.checked = state.forgotPasswordChecked;
+    }
+
+    // Restore password field state
+    const passwordField = document.querySelector("#exampleInputPassword1");
+    if (passwordField) {
+      if (state.passwordFieldDisabled !== undefined) {
+        passwordField.disabled = state.passwordFieldDisabled;
+        passwordField.style.opacity = state.passwordFieldDisabled ? "0.6" : "1";
+      }
+
+      if (state.passwordFieldPlaceholder) {
+        passwordField.placeholder = state.passwordFieldPlaceholder;
+      }
+
+      passwordField.value = "";
+    }
+
+    if (state.forgotPasswordVisible && forgotPasswordCheckbox) {
+      if (!forgotPasswordCheckbox.hasAttribute("data-listener-added")) {
+        forgotPasswordCheckbox.setAttribute("data-listener-added", "true");
+
+        forgotPasswordCheckbox.addEventListener("change", function (event) {
+          const passwordField = document.querySelector(
+            "#exampleInputPassword1"
+          );
+
+          if (event.target.checked) {
+            if (passwordField) {
+              passwordField.disabled = true;
+              passwordField.placeholder =
+                "You have requested a password reset. Please check your email and follow the instructions";
+              passwordField.style.opacity = "0.6";
+              passwordField.value = "";
+            }
+
+            saveLoginFormState({
+              forgotPasswordChecked: true,
+              passwordFieldDisabled: true,
+              passwordFieldPlaceholder:
+                "You have requested a password reset. Please check your email and follow the instructions",
+            });
+          } else {
+            if (passwordField) {
+              passwordField.disabled = false;
+              passwordField.placeholder = "Enter your password";
+              passwordField.style.opacity = "1";
+            }
+
+            saveLoginFormState({
+              forgotPasswordChecked: false,
+              passwordFieldDisabled: false,
+              passwordFieldPlaceholder: "Enter your password",
+            });
+          }
+        });
+      }
+    }
+  } catch (error) {
+    console.log("Error restoring login form state:", error);
+  }
+}
+export function clearLoginFormState() {
+  const STORAGE_KEY = "loginFormState";
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+
+    const checkerDiv = document.querySelector("#checker");
+    const forgotPasswordCheckbox = document.querySelector(
+      "#flexSwitchCheckDefault"
+    );
+    const passwordField = document.querySelector("#exampleInputPassword1");
+
+    if (checkerDiv) {
+      checkerDiv.classList.add("hide_2");
+    }
+
+    // Reset checkbox state
+    if (forgotPasswordCheckbox) {
+      forgotPasswordCheckbox.checked = false;
+      forgotPasswordCheckbox.removeAttribute("data-listener-added");
+    }
+
+    // Reset password field state
+    if (passwordField) {
+      passwordField.disabled = false;
+      passwordField.placeholder = "Enter your password";
+      passwordField.style.opacity = "1";
+      passwordField.value = "";
+    }
+  } catch (error) {
+    console.log("Error clearing login form state:", error);
+  }
+}
+export function setupLoginFormCheckboxBehavior() {
+  const form = document.querySelector("#login___form");
+  if (!form) return;
+
+  const checkboxContainer = document.querySelector("#checker");
+  const checkbox = document.querySelector("#flexSwitchCheckDefault");
+  const submitBtn = form.querySelector(".login_btn");
+
+  if (!checkbox || !submitBtn) return;
+
+  function updateButtonState() {
+    const checkboxVisible = !checkboxContainer.classList.contains("hide_2");
+    const isChecked = checkbox.checked;
+
+    if (checkboxVisible) {
+      submitBtn.textContent = "GET NEW PASSWORD";
+      submitBtn.disabled = !isChecked;
+    } else {
+      submitBtn.textContent = "SUBMIT";
+      submitBtn.disabled = false;
+    }
+  }
+
+  const observer = new MutationObserver(() => {
+    updateButtonState();
+  });
+
+  observer.observe(checkboxContainer, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+
+  updateButtonState();
+  checkbox.addEventListener("change", updateButtonState);
 }

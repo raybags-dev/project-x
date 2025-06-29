@@ -252,6 +252,16 @@ export async function UpdateSubscriptionController(req, res) {
 
     const result = await USER_MODEL.setSubStatus(user, !user.isSubscribed);
 
+    const emailData = {
+      title: "Subscription Status Updated",
+      body: `The subscription status for user ${user?.name} (${
+        user?.email
+      }) has been updated to ${
+        !user.isSubscribed ? "subscribed" : "unsubscribed"
+      }.`,
+    };
+
+    await sendNotificationEmail(emailData, RECIPIENT_EMAIL);
     res.status(200).json({
       state: "Success",
       message: "Subscription status updated!",

@@ -1,19 +1,18 @@
-import 'dotenv/config'
-import nodemailer from 'nodemailer'
-import { logger } from '../src/loggers//logger.js'
-import { generatePasswordResetToken } from '../src/models/user.js'
+import "dotenv/config";
+import nodemailer from "nodemailer";
+import { logger } from "../src/loggers//logger.js";
+import { generatePasswordResetToken } from "../src/models/user.js";
 
-const { EMAIL_PROVIDER, EMAIL_FOR_NOTIFICATION, EMAIL__APP_PASS } = process.env
+const { EMAIL_PROVIDER, EMAIL_FOR_NOTIFICATION, EMAIL__APP_PASS } = process.env;
 
 const transporter = nodemailer.createTransport({
   service: EMAIL_PROVIDER,
   auth: {
     user: EMAIL_FOR_NOTIFICATION,
-    pass: EMAIL__APP_PASS
-  }
-})
-
-export async function sendNotificationEmail (
+    pass: EMAIL__APP_PASS,
+  },
+});
+export async function sendNotificationEmail(
   emailData,
   recipient,
   verificationToken,
@@ -22,50 +21,50 @@ export async function sendNotificationEmail (
   try {
     const verificationLink = verificationToken
       ? `Verification Token: ${verificationToken}`
-      : ''
+      : "";
 
-    const emailBody = `${emailData.body}\n\n${verificationLink}`
+    const emailBody = `${emailData.body}\n\n${verificationLink}`;
 
     const mailOptions = {
       from: EMAIL_FOR_NOTIFICATION,
       to: recipient,
       subject: emailData.title,
-      text: emailBody
-    }
+      text: emailBody,
+    };
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        logger(`Error sending email: ${error.message}`, 'error')
-        if (callback) callback(error.message)
+        logger(`Error sending email: ${error.message}`, "error");
+        if (callback) callback(error.message);
       } else {
-        logger(`Email sent: ${info.response}`, 'info')
-        if (callback) callback(null, info.response)
+        logger(`Email sent: ${info.response}`, "info");
+        if (callback) callback(null, info.response);
       }
-    })
+    });
   } catch (e) {
-    logger(e.message, 'error')
+    logger(e.message, "error");
   }
 }
-export async function generateVerificationLink (verificationToken) {
+export async function generateVerificationLink(verificationToken) {
   try {
     if (verificationToken) {
-      return verificationToken
+      return verificationToken;
     } else {
-      return await generatePasswordResetToken()
+      return await generatePasswordResetToken();
     }
   } catch (error) {
-    logger(`Error generating verification link: ${error}`, 'error')
-    return ''
+    logger(`Error generating verification link: ${error}`, "error");
+    return "";
   }
 }
-export async function emailerhandler (error, response) {
+export async function emailerhandler(error, response) {
   try {
     if (error) {
-      logger(`Email sending failed: ${error}`, 'error')
+      logger(`Email sending failed: ${error}`, "error");
     } else {
-      logger(`@@: ${response}`, 'info')
+      logger(`@@: ${response}`, "info");
     }
   } catch (e) {
-    logger(`Email notification handler failed: ${e.message}`, 'error')
+    logger(`Email notification handler failed: ${e.message}`, "error");
   }
 }

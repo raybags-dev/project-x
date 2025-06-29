@@ -1,9 +1,9 @@
-import { API_CLIENT, displayLabel } from '../components/apiCallHandlers.js'
-import { getAuthHandler } from '../components/auth.js'
-import { siteLogos } from '../components/logoPaths.js'
+import { API_CLIENT, displayLabel } from "../components/apiCallHandlers.js";
+import { getAuthHandler } from "../components/auth.js";
+import { siteLogos } from "../components/logoPaths.js";
 
-export async function runSpinner (isDone, message = '') {
-  const loader = document.querySelector('#main-page-loader')
+export async function runSpinner(isDone, message = "") {
+  const loader = document.querySelector("#main-page-loader");
   if (!isDone) {
     if (!loader) {
       const loaderHTML = `
@@ -16,20 +16,20 @@ export async function runSpinner (isDone, message = '') {
                 <span class="loader text-dark" style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);zindex:1000;"></span>
               </div>
             </div>
-          `
-      const wrapper = document.querySelector('body')
-      wrapper.insertAdjacentHTML('beforeend', loaderHTML)
+          `;
+      const wrapper = document.querySelector("body");
+      wrapper.insertAdjacentHTML("beforeend", loaderHTML);
     }
   } else {
     if (loader) {
-      loader.remove()
+      loader.remove();
     }
   }
 }
-export async function confirmAction (containerId, message) {
+export async function confirmAction(containerId, message) {
   if (message === undefined || null)
-    message = `This action cannot be reversed. Are you sure you want to proceed?`
-  return new Promise(resolve => {
+    message = `This action cannot be reversed. Are you sure you want to proceed?`;
+  return new Promise((resolve) => {
     const modalHTML = `
       <div class="modal fade border-2 border-danger p-1" style="backdrop-filter: blur(15px) !important;" id="exampleModalToggle" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -45,208 +45,212 @@ export async function confirmAction (containerId, message) {
           </div>
         </div>
       </div>
-      <a class="btn btn-transparent" id="modalToggleButton" data-bs-toggle="modal" href="#exampleModalToggle" role="button" style="display:none;"></a>`
+      <a class="btn btn-transparent" id="modalToggleButton" data-bs-toggle="modal" href="#exampleModalToggle" role="button" style="display:none;"></a>`;
 
-    const container = document.querySelector(containerId)
-    container?.insertAdjacentHTML('beforeend', modalHTML)
+    const container = document.querySelector(containerId);
+    container?.insertAdjacentHTML("beforeend", modalHTML);
 
-    const modalElement = document.getElementById('exampleModalToggle')
-    const modal = new bootstrap.Modal(modalElement)
+    const modalElement = document.getElementById("exampleModalToggle");
+    const modal = new bootstrap.Modal(modalElement);
 
-    const confirmBtn = document.querySelector('.proceed_delete')
-    const abortBtn = document.querySelector('.cancel_delete')
+    const confirmBtn = document.querySelector(".proceed_delete");
+    const abortBtn = document.querySelector(".cancel_delete");
 
-    confirmBtn?.addEventListener('click', async () => {
-      modal.hide()
+    confirmBtn?.addEventListener("click", async () => {
+      modal.hide();
       setTimeout(() => {
-        modalElement.remove()
-        resolve('confirmed!')
-      }, 300)
-    })
+        modalElement.remove();
+        resolve("confirmed!");
+      }, 300);
+    });
 
-    abortBtn?.addEventListener('click', async () => {
-      modal.hide()
+    abortBtn?.addEventListener("click", async () => {
+      modal.hide();
       setTimeout(() => {
-        modalElement.remove()
+        modalElement.remove();
         displayLabel([
-          'review_main_wrapper',
-          'alert-secondary',
-          `This process has been aborted.`
-        ])
-        resolve('Aborted.')
-      }, 300)
-    })
+          "review_main_wrapper",
+          "alert-secondary",
+          `This process has been aborted.`,
+        ]);
+        resolve("Aborted.");
+      }, 300);
+    });
 
-    modal.show()
+    modal.show();
 
     setTimeout(() => {
-      abortBtn?.focus()
-    }, 150)
-  })
+      abortBtn?.focus();
+    }, 150);
+  });
 }
-export function validateSlug (slug, url) {
-  let httpOccurrences = (url.match(/http:\/\//g) || []).length
-  let httpsOccurrences = (url.match(/https:\/\//g) || []).length
+export function validateSlug(slug, url) {
+  let httpOccurrences = (url.match(/http:\/\//g) || []).length;
+  let httpsOccurrences = (url.match(/https:\/\//g) || []).length;
 
   if (httpOccurrences + httpsOccurrences > 1) {
     const errorMessage =
-      'Invalid characters detected in the provided URL. Use a valid URL!'
-    displayLabel(['review_main_wrapper', 'alert-danger', errorMessage])
-    justForAMoment('Aborting...')
-    return false
+      "Invalid characters detected in the provided URL. Use a valid URL!";
+    displayLabel(["review_main_wrapper", "alert-danger", errorMessage]);
+    justForAMoment("Aborting...");
+    return false;
   }
-  const normalizedSlug = slug.trim().replace('-', '.')
+  const normalizedSlug = slug.trim().replace("-", ".");
 
-  const urlHostMatch = url.match(/https?:\/\/(?:www\.)?([^\/]+)/)
+  const urlHostMatch = url.match(/https?:\/\/(?:www\.)?([^\/]+)/);
 
   if (!urlHostMatch) {
-    displayLabel(['review_main_wrapper', 'alert-danger', 'Invalid URL format!'])
-    justForAMoment('Aborting...')
-    return false
+    displayLabel([
+      "review_main_wrapper",
+      "alert-danger",
+      "Invalid URL format!",
+    ]);
+    justForAMoment("Aborting...");
+    return false;
   }
 
-  const extractedFullHost = urlHostMatch[1].trim()
-  const extractedMainHost = extractedFullHost.match(/([^\/.]+)\./)
+  const extractedFullHost = urlHostMatch[1].trim();
+  const extractedMainHost = extractedFullHost.match(/([^\/.]+)\./);
   if (
     extractedMainHost &&
-    extractedMainHost[1] === normalizedSlug.split('.')[0]
+    extractedMainHost[1] === normalizedSlug.split(".")[0]
   ) {
-    return true
+    return true;
   }
 
-  const slugBase = normalizedSlug.split('.')[0]
+  const slugBase = normalizedSlug.split(".")[0];
   if (
     extractedFullHost.includes(slugBase) &&
-    extractedFullHost.indexOf(slugBase) < extractedFullHost.lastIndexOf('.')
+    extractedFullHost.indexOf(slugBase) < extractedFullHost.lastIndexOf(".")
   ) {
-    return true
+    return true;
   }
 
   if (url.includes(normalizedSlug)) {
-    return true
+    return true;
   }
 
-  const errorMessage = `URL does not match the selected site name (${slug}).`
-  displayLabel(['review_main_wrapper', 'alert-danger', errorMessage])
-  justForAMoment('Aborting...')
-  return false
+  const errorMessage = `URL does not match the selected site name (${slug}).`;
+  displayLabel(["review_main_wrapper", "alert-danger", errorMessage]);
+  justForAMoment("Aborting...");
+  return false;
 }
-export function justForAMoment (message = 'Loading') {
-  runSpinner(false, message)
-  setTimeout(() => runSpinner(true), 2000)
+export function justForAMoment(message = "Loading") {
+  runSpinner(false, message);
+  setTimeout(() => runSpinner(true), 2000);
 }
-export function shakeAnimation (selector) {
-  return new Promise(resolve => {
+export function shakeAnimation(selector) {
+  return new Promise((resolve) => {
     try {
       const element = document.querySelector(selector),
-        shakeClass = 'shake-animation'
+        shakeClass = "shake-animation";
 
       if (element) {
-        element.classList.add(shakeClass)
+        element.classList.add(shakeClass);
 
         setTimeout(() => {
-          element.classList.remove(shakeClass)
-          resolve()
-        }, 2000)
+          element.classList.remove(shakeClass);
+          resolve();
+        }, 2000);
       } else {
-        resolve()
+        resolve();
       }
     } catch (e) {
-      console.error(e.message)
-      resolve()
+      console.error(e.message);
+      resolve();
     }
-  })
+  });
 }
-export function clearProfileForm () {
-  const selectDropdown = document.getElementById('inputGroupSiteOptions')
-  const textareaInput = document.getElementById('propertUrlInputY')
+export function clearProfileForm() {
+  const selectDropdown = document.getElementById("inputGroupSiteOptions");
+  const textareaInput = document.getElementById("propertUrlInputY");
   if (selectDropdown && textareaInput) {
-    selectDropdown.selectedIndex = 0
-    textareaInput.value = ''
+    selectDropdown.selectedIndex = 0;
+    textareaInput.value = "";
   }
-  return
+  return;
 }
-export async function removeElementFromDOM (elementAnchor) {
+export async function removeElementFromDOM(elementAnchor) {
   try {
-    const element = document.querySelector(elementAnchor)
+    const element = document.querySelector(elementAnchor);
     if (element) {
-      element.remove()
+      element.remove();
     }
   } catch (e) {
-    console.log(e.message)
+    console.log(e.message);
   }
 }
-export async function removeChildElementsFromDOM (elementAnchor) {
+export async function removeChildElementsFromDOM(elementAnchor) {
   try {
-    if (typeof elementAnchor !== 'string' || !elementAnchor.trim()) return
-    const elements = document.querySelectorAll(elementAnchor)
-    elements?.forEach(element => element.remove())
+    if (typeof elementAnchor !== "string" || !elementAnchor.trim()) return;
+    const elements = document.querySelectorAll(elementAnchor);
+    elements?.forEach((element) => element.remove());
   } catch (e) {
-    console.error('Error removing elements:', e.message)
+    console.error("Error removing elements:", e.message);
   }
 }
-export async function finishSetup () {
+export async function finishSetup() {
   try {
-    const userString = sessionStorage.getItem('user')
-    const user = userString ? JSON.parse(userString) : null
+    const userString = sessionStorage.getItem("user");
+    const user = userString ? JSON.parse(userString) : null;
 
-    let propertyName = user?.name?.replace(/_/g, ' ') || ''
-    propertyName = propertyName.split('@')[0]
-    const headingElement = document.querySelector('.subb_head_ing a')
+    let propertyName = user?.name?.replace(/_/g, " ") || "";
+    propertyName = propertyName.split("@")[0];
+    const headingElement = document.querySelector(".subb_head_ing a");
 
-    if (headingElement) headingElement.textContent = propertyName
+    if (headingElement) headingElement.textContent = propertyName;
   } catch (error) {
-    console.error('Error in finishSetup:', error)
+    console.error("Error in finishSetup:", error);
   }
 }
-export function formatDate (timestamp) {
-  const date = new Date(timestamp)
-  const year = date.getUTCFullYear()
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
-  const day = String(date.getUTCDate()).padStart(2, '0')
-  const hours = String(date.getUTCHours()).padStart(2, '0')
-  const minutes = String(date.getUTCMinutes()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+export function formatDate(timestamp) {
+  const date = new Date(timestamp);
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const hours = String(date.getUTCHours()).padStart(2, "0");
+  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
-export function clearContainer (anchorTagOrElement) {
+export function clearContainer(anchorTagOrElement) {
   try {
     const parentElement =
-      typeof anchorTagOrElement === 'string'
+      typeof anchorTagOrElement === "string"
         ? document.querySelector(anchorTagOrElement)
-        : anchorTagOrElement
+        : anchorTagOrElement;
 
-    if (!parentElement) return false
+    if (!parentElement) return false;
 
-    const reviewContainers = parentElement.querySelectorAll('.review-container')
-    if (!reviewContainers.length) return false
+    const reviewContainers =
+      parentElement.querySelectorAll(".review-container");
+    if (!reviewContainers.length) return false;
 
-    reviewContainers.forEach(container => container.remove())
+    reviewContainers.forEach((container) => container.remove());
 
-    return true
+    return true;
   } catch (error) {
-    console.error(`Error clearing review containers: ${error.message}`)
-    return false
+    console.error(`Error clearing review containers: ${error.message}`);
+    return false;
   }
 }
-//*************** FIXES *************** */
-//*************** FIXES *************** */
-export function mountAdminPageHandler (parentSelector, data) {
-  const parentElement = document.querySelector(parentSelector)
-  const is_ready = clearContainer(parentElement)
 
-  if (!parentElement && !is_ready) return
+export function mountAdminPageHandler(parentSelector, data) {
+  const parentElement = document.querySelector(parentSelector);
+  const is_ready = clearContainer(parentElement);
 
-  let container = parentElement.querySelector('.admin_page_outer')
+  if (!parentElement && !is_ready) return;
+
+  let container = parentElement.querySelector(".admin_page_outer");
   if (!container) {
-    container = document.createElement('div')
-    container.className = 'admin_page_outer d-flex flex-wrap  gap-2'
-    parentElement.appendChild(container)
+    container = document.createElement("div");
+    container.className = "admin_page_outer d-flex flex-wrap  gap-2";
+    parentElement.appendChild(container);
   }
 
-  if (!data.length) return false
+  if (!data.length) return false;
 
-  container.innerHTML = ''
-  data.forEach(item => {
+  container.innerHTML = "";
+  data.forEach((item) => {
     const {
       _id: id,
       isAdmin,
@@ -257,34 +261,34 @@ export function mountAdminPageHandler (parentSelector, data) {
       data_size,
       createdAt,
       isSubscribed,
-      profiles: review_profiles
-    } = item
-    let name = item?.name
+      profiles: review_profiles,
+    } = item;
+    let name = item?.name;
 
-    const buttonClass = isSubscribed ? 'btn-success' : 'btn-warning'
+    const buttonClass = isSubscribed ? "btn-success" : "btn-warning";
     const buttonText = isSubscribed
-      ? 'Deactivate subscription'
-      : 'Activate subscription'
+      ? "Deactivate subscription"
+      : "Activate subscription";
 
-    const sanitizeName = name =>
-      name?.replace(/_/g, ' ').replace(/@.*/, '').toUpperCase()
-    name = sanitizeName(name)
+    const sanitizeName = (name) =>
+      name?.replace(/_/g, " ").replace(/@.*/, "").toUpperCase();
+    name = sanitizeName(name);
 
-    const card = document.createElement('div')
-    card.className = `card m-1 shadow-lg rounded user_accountcard _${id}_`
-    card.setAttribute('draggable', true)
+    const card = document.createElement("div");
+    card.className = `card m-1 shadow-lg rounded user_accountcard _${id}_`;
+    card.setAttribute("draggable", true);
     card.style =
-      'max-width: 15rem; min-width: 30%; min-height: 30vh; max-height: auto;'
+      "max-width: 15rem; min-width: 30%; min-height: 30vh; max-height: auto;";
 
-    const buttonState = isSubscribed ? 'true' : 'false'
+    const buttonState = isSubscribed ? "true" : "false";
 
     card.innerHTML = `
               <h5 class="card-header bg-transparent text-center">${name}</h5>
               <div class="card-body text-dark" style="overflow-y: auto;">
                   <ul class="list-group">
                       <li class="list-group-item" data-sub="${id}">${
-      (isSubscribed && 'Subscription Active: true') ||
-      'Subscription Active: false'
+      (isSubscribed && "Subscription Active: true") ||
+      "Subscription Active: false"
     }</li>
                       <li class="list-group-item">Account Email: ${email}</li>
                       <li class="list-group-item" data-admin="${isAdmin}">Is Admin: ${isAdmin}</li>
@@ -295,7 +299,7 @@ export function mountAdminPageHandler (parentSelector, data) {
                       <li class="list-group-item">Storage space: ${data_size}</li>
                       <li class="list-group-item">Review Profile Count: ${
                         (review_profiles?.length && review_profiles.length) ||
-                        '__'
+                        "__"
                       }</li>
                       <li class="list-group-item">Created At: ${createdAt}</li>
                   </ul>
@@ -309,298 +313,295 @@ export function mountAdminPageHandler (parentSelector, data) {
 
 
                   <button type="button" class="btn btn-danger border-danger shadow w-100 delete-btn" data-user-id="${id}">Delete account</button>
-              </div>`
+              </div>`;
 
-    container.appendChild(card)
-  })
-  const subscriptionButtons = container.querySelectorAll('.subscription-btn')
+    container.appendChild(card);
+  });
+  const subscriptionButtons = container.querySelectorAll(".subscription-btn");
 
-  subscriptionButtons.forEach(button => {
-    let userId = button.getAttribute('data-user-id')
-    initializeSubscriptionButtonState(userId, button)
-    button.addEventListener('click', function (e) {
-      userId = e.target.getAttribute('data-user-id')
+  subscriptionButtons.forEach((button) => {
+    let userId = button.getAttribute("data-user-id");
+    initializeSubscriptionButtonState(userId, button);
+    button.addEventListener("click", function (e) {
+      userId = e.target.getAttribute("data-user-id");
       const isCurrentlyActive =
-        e.target.textContent.trim() === 'Deactivate subscription'
+        e.target.textContent.trim() === "Deactivate subscription";
 
-      toggleUserSubscription(userId, isCurrentlyActive, e.target)
-    })
-  })
+      toggleUserSubscription(userId, isCurrentlyActive, e.target);
+    });
+  });
 
-  const deleteButtons = container.querySelectorAll('.delete-btn')
-  deleteButtons.forEach(button => {
-    button.addEventListener('click', function (e) {
-      const userId = this.getAttribute('data-user-id')
-      deleteUserAccount(userId, e)
-    })
-  })
+  const deleteButtons = container.querySelectorAll(".delete-btn");
+  deleteButtons.forEach((button) => {
+    button.addEventListener("click", function (e) {
+      const userId = this.getAttribute("data-user-id");
+      deleteUserAccount(userId, e);
+    });
+  });
 }
-async function toggleUserSubscription (
+async function toggleUserSubscription(
   userId,
   isCurrentlyActive,
   buttonElement
 ) {
   try {
-    const subscriptionKey = `user_subscription_${userId}`
-    runSpinner(false, 'Processing...')
+    const subscriptionKey = `user_subscription_${userId}`;
+    runSpinner(false, "Processing...");
 
-    const user = getAuthHandler()
-    const { 'auth-token': token } = user
+    const user = getAuthHandler();
+    const { "auth-token": token } = user;
 
-    const apiClient = await API_CLIENT()
-    const url = `/user/update-subscription/${userId}`
+    const apiClient = await API_CLIENT();
+    const url = `/user/update-subscription/${userId}`;
     const headers = {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
+      "Content-Type": "application/json",
+    };
 
-    const response = await apiClient.put(url, {}, { headers })
+    const response = await apiClient.put(url, {}, { headers });
 
     if (response.status === 200) {
       // Get the new subscription state from the response
-      const newSubState = response.data.isSubscribed
+      const newSubState = response.data.isSubscribed;
 
       // Find the parent card
-      const parentCard = document.querySelector(`._${userId}_`)
+      const parentCard = document.querySelector(`._${userId}_`);
       if (!parentCard) {
-        console.error(`Parent card for user ${userId} not found.`)
-        return false
+        console.error(`Parent card for user ${userId} not found.`);
+        return false;
       }
 
       // Update the button state (text and class)
-      updateButtonState(buttonElement, newSubState)
+      updateButtonState(buttonElement, newSubState);
 
       // Update the subscription status text in the list
-      updateSubscriptionStatusDisplay(parentCard, userId, newSubState)
+      updateSubscriptionStatusDisplay(parentCard, userId, newSubState);
 
       // Save the current state to localStorage
       sessionStorage.setItem(
         subscriptionKey,
         JSON.stringify({ isSubscribed: newSubState, lastUpdated: Date.now() })
-      )
+      );
 
       displayLabel([
-        'review_main_wrapper',
-        'alert-success',
+        "review_main_wrapper",
+        "alert-success",
         newSubState
-          ? 'Account subscription activated successfully'
-          : 'Account subscription deactivated successfully'
-      ])
+          ? "Account subscription activated successfully"
+          : "Account subscription deactivated successfully",
+      ]);
 
-      runSpinner(true)
-      return true
+      runSpinner(true);
+      return true;
     } else {
       displayLabel([
-        'review_main_wrapper',
-        'alert-warning',
-        'User account subscription update failed!'
-      ])
-      return false
+        "review_main_wrapper",
+        "alert-warning",
+        "User account subscription update failed!",
+      ]);
+      return false;
     }
   } catch (error) {
-    console.error('Error updating subscription:', error)
+    console.error("Error updating subscription:", error);
     displayLabel([
-      'review_main_wrapper',
-      'alert-danger',
-      'Failed to update subscription status'
-    ])
-    runSpinner(true)
-    return false
+      "review_main_wrapper",
+      "alert-danger",
+      "Failed to update subscription status",
+    ]);
+    runSpinner(true);
+    return false;
   }
 }
 
-function updateButtonState (buttonElement, isSubscribed) {
+function updateButtonState(buttonElement, isSubscribed) {
   // Update button text
   buttonElement.textContent = isSubscribed
-    ? 'Deactivate subscription'
-    : 'Activate subscription'
+    ? "Deactivate subscription"
+    : "Activate subscription";
 
   // Update button class
-  buttonElement.classList.remove('btn-success', 'btn-warning')
-  buttonElement.classList.add(isSubscribed ? 'btn-success' : 'btn-warning')
+  buttonElement.classList.remove("btn-success", "btn-warning");
+  buttonElement.classList.add(isSubscribed ? "btn-success" : "btn-warning");
 
   // Update data attribute
-  buttonElement.setAttribute('data-isSubscribed', isSubscribed.toString())
+  buttonElement.setAttribute("data-isSubscribed", isSubscribed.toString());
 }
 
-function updateSubscriptionStatusDisplay (parentCard, userId, isSubscribed) {
+function updateSubscriptionStatusDisplay(parentCard, userId, isSubscribed) {
   // Find the subscription status element by data-sub attribute
   const subscriptionStatusElement = parentCard.querySelector(
     `[data-sub="${userId}"]`
-  )
+  );
 
   if (subscriptionStatusElement) {
     // Update the text content to reflect the new state
-    subscriptionStatusElement.textContent = `Subscription Active: ${isSubscribed}`
+    subscriptionStatusElement.textContent = `Subscription Active: ${isSubscribed}`;
     subscriptionStatusElement.setAttribute(
-      'data-sub-active',
+      "data-sub-active",
       isSubscribed.toString()
-    )
+    );
   } else {
-    console.error(`Subscription status element for user ${userId} not found.`)
+    console.error(`Subscription status element for user ${userId} not found.`);
   }
 }
 
-function initializeSubscriptionButtonState (userId, buttonElement) {
-  const subscriptionKey = `user_subscription_${userId}`
-  const storedSubscription = sessionStorage.getItem(subscriptionKey)
+function initializeSubscriptionButtonState(userId, buttonElement) {
+  const subscriptionKey = `user_subscription_${userId}`;
+  const storedSubscription = sessionStorage.getItem(subscriptionKey);
 
   // Default to the data attribute value
-  let isSubscribed = buttonElement.getAttribute('data-isSubscribed') === 'true'
+  let isSubscribed = buttonElement.getAttribute("data-isSubscribed") === "true";
 
   if (storedSubscription) {
     try {
-      const parsedData = JSON.parse(storedSubscription)
+      const parsedData = JSON.parse(storedSubscription);
       // Update from localStorage if available
-      isSubscribed = parsedData.isSubscribed
+      isSubscribed = parsedData.isSubscribed;
 
       // Find the parent card to update the subscription text as well
-      const parentCard = buttonElement.closest(`.user_accountcard`)
+      const parentCard = buttonElement.closest(`.user_accountcard`);
       if (parentCard) {
-        updateSubscriptionStatusDisplay(parentCard, userId, isSubscribed)
+        updateSubscriptionStatusDisplay(parentCard, userId, isSubscribed);
       }
     } catch (error) {
-      console.error('Error parsing stored subscription state:', error)
+      console.error("Error parsing stored subscription state:", error);
     }
   }
 
   // Update the button state
-  updateButtonState(buttonElement, isSubscribed)
+  updateButtonState(buttonElement, isSubscribed);
 }
 
-// *************** FIXES *************** */
-// *************** FIXES *************** */
-
-async function deleteUserAccount (userId, e) {
+async function deleteUserAccount(userId, e) {
   try {
     const confirmation = await confirmAction(
-      '#body',
+      "#body",
       `Deletion action in progress... This action is irreversible. Are you certain you want to proceed?`
-    )
+    );
 
-    if (confirmation !== 'confirmed!') {
-      console.log('User aborted deletion.')
-      return
+    if (confirmation !== "confirmed!") {
+      console.log("User aborted deletion.");
+      return;
     }
-    runSpinner(false, 'Processing...')
+    runSpinner(false, "Processing...");
 
-    const accountCard = e.target.closest('.user_accountcard')
+    const accountCard = e.target.closest(".user_accountcard");
 
     if (accountCard) {
-      const user = getAuthHandler()
-      const { 'auth-token': token } = user
+      const user = getAuthHandler();
+      const { "auth-token": token } = user;
 
-      const apiClient = await API_CLIENT()
+      const apiClient = await API_CLIENT();
 
-      let page = 1
-      const baseUrl = `/user/purge-user/${userId}`
-      const query = `?page=${page}`
-      const url = `${baseUrl}${query}`
+      let page = 1;
+      const baseUrl = `/user/purge-user/${userId}`;
+      const query = `?page=${page}`;
+      const url = `${baseUrl}${query}`;
 
       const headers = {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      };
 
-      const response = await apiClient.delete(url, { headers })
+      const response = await apiClient.delete(url, { headers });
 
-      if (response.status === 200 && response.statusText === 'OK') {
-        const data = response.data?.user_profiles || []
-        runSpinner(true)
-        accountCard.remove()
+      if (response.status === 200 && response.statusText === "OK") {
+        const data = response.data?.user_profiles || [];
+        runSpinner(true);
+        accountCard.remove();
         displayLabel([
-          'review_main_wrapper',
-          'alert-success',
-          'user account deleted successfully'
-        ])
-        return true
+          "review_main_wrapper",
+          "alert-success",
+          "user account deleted successfully",
+        ]);
+        return true;
       } else {
-        runSpinner(false, 'Acknowledged...')
+        runSpinner(false, "Acknowledged...");
         displayLabel([
-          'review_main_wrapper',
-          'alert-warning',
-          'An error occured: user object could not be deleted'
-        ])
+          "review_main_wrapper",
+          "alert-warning",
+          "An error occured: user object could not be deleted",
+        ]);
       }
     } else {
-      console.log('Could not find the user account card.')
+      console.log("Could not find the user account card.");
     }
   } catch (error) {
-    runSpinner(true)
+    runSpinner(true);
     displayLabel([
-      'review_main_wrapper',
-      'alert-danger',
-      'An error occured: user object could not be deleted'
-    ])
-    console.error('Error deleting user account:', error)
+      "review_main_wrapper",
+      "alert-danger",
+      "An error occured: user object could not be deleted",
+    ]);
+    console.error("Error deleting user account:", error);
   }
 }
-export async function handleSearchFormSubmission (form) {
+export async function handleSearchFormSubmission(form) {
   try {
-    const formData = new FormData(form)
-    const searchParams = new URLSearchParams()
+    const formData = new FormData(form);
+    const searchParams = new URLSearchParams();
 
     // Convert FormData to URLSearchParams
     for (const [key, value] of formData.entries()) {
       if (value) {
-        searchParams.append(key, value)
+        searchParams.append(key, value);
       }
     }
 
     // Validate date range if applicable
-    const rangeFieldValue = formData.get('range_filter_field')
+    const rangeFieldValue = formData.get("range_filter_field");
     if (rangeFieldValue) {
-      const fromDate = new Date(formData.get('range_filter_from'))
-      const toDate = new Date(formData.get('range_filter_to'))
+      const fromDate = new Date(formData.get("range_filter_from"));
+      const toDate = new Date(formData.get("range_filter_to"));
 
       if (fromDate > toDate) {
-        runSpinner(true)
+        runSpinner(true);
         displayLabel([
-          'review_main_wrapper',
-          'alert-warning',
-          'Invalid date range: "From" date must be before "To" date'
-        ])
-        return { error: 'Invalid date range' }
+          "review_main_wrapper",
+          "alert-warning",
+          'Invalid date range: "From" date must be before "To" date',
+        ]);
+        return { error: "Invalid date range" };
       }
     }
 
-    if (searchParams.toString() === '') {
-      console.warn('No search parameters provided')
-      return { error: 'No search parameters provided' }
+    if (searchParams.toString() === "") {
+      console.warn("No search parameters provided");
+      return { error: "No search parameters provided" };
     }
 
     // Get auth information
-    const user = getAuthHandler()
-    const { 'auth-token': token, userId } = user
+    const user = getAuthHandler();
+    const { "auth-token": token, userId } = user;
 
     // Create the API URL with query parameters
-    const baseUrl = `/user/${userId}/search`
-    const searchUrl = `${baseUrl}?${searchParams.toString()}`
+    const baseUrl = `/user/${userId}/search`;
+    const searchUrl = `${baseUrl}?${searchParams.toString()}`;
 
     // Set headers for the request
     const headers = {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
+      "Content-Type": "application/json",
+    };
 
     // Make the API call
-    const apiClient = await API_CLIENT()
-    const response = await apiClient.post(searchUrl, {}, { headers })
+    const apiClient = await API_CLIENT();
+    const response = await apiClient.post(searchUrl, {}, { headers });
 
     if (response.status === 200 && response.data.success) {
-      return { data: response.data.data }
+      return { data: response.data.data };
     } else {
-      console.error('Search failed:', response.data.message)
-      return { error: response.data.message }
+      console.error("Search failed:", response.data.message);
+      return { error: response.data.message };
     }
   } catch (error) {
-    console.error('Error processing search form:', error)
-    return { error: error.message }
+    console.error("Error processing search form:", error);
+    return { error: error.message };
   }
 }
-export async function ReviewHTML (reviewsDataOject = {}, cardIsNew = false) {
+export async function ReviewHTML(reviewsDataOject = {}, cardIsNew = false) {
   try {
-    if (!reviewsDataOject) return
+    if (!reviewsDataOject) return;
     const _id = reviewsDataOject?._id,
       reviewSiteSlug = reviewsDataOject?.reviewSiteSlug,
       reviewPageId = reviewsDataOject?.reviewPageId,
@@ -642,7 +643,7 @@ export async function ReviewHTML (reviewsDataOject = {}, cardIsNew = false) {
       lengthOfStay = miscellaneous?.lengthOfStay,
       language2 = miscellaneous?.languageDetails?.fullLanguage,
       language = (language1 && language1) || language2,
-      isExpertReviewer = miscellaneous?.isExpertReviewer
+      isExpertReviewer = miscellaneous?.isExpertReviewer;
 
     const InnerReviewHTMLContent = `
         <div id="${_id}" class="row review-container shadow shadow-sm  __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
@@ -661,17 +662,17 @@ export async function ReviewHTML (reviewsDataOject = {}, cardIsNew = false) {
                     <div class="d-flex">
                         <a class="text-secondary text-decoration-underline" target="_blank" href="${authorProfileUrl}">
                         <h4 class="card-title review-author">${
-                          (author && author) || '..'
+                          (author && author) || ".."
                         }</h4>
                         </a>
                         </a>
                     </div>
                     <h5 class="card-title review-author d-inline m-1 text-left text-muted">
-                      ${title ? `<q>${title}</q>` : ''}
+                      ${title ? `<q>${title}</q>` : ""}
                     </h5>
                     <p class="review-body">${
                       (reviewBody && reviewBody) ||
-                      'There are no comments available for this review'
+                      "There are no comments available for this review"
                     }</p>
   
                       <span class="card-text review-submitted-date">
@@ -706,132 +707,132 @@ export async function ReviewHTML (reviewsDataOject = {}, cardIsNew = false) {
                         originalEndpoint || propertyProfileUrl
                       }" target="_blank" 
                       class="btn btn-sm btn-transparent btn-outline-secondary action_5 shadow shadow-sm 
-                        ${hasPropertyResponse ? 'd-none' : ''}" 
+                        ${hasPropertyResponse ? "d-none" : ""}" 
                       respond-review-data="${_id}"  
                       type="button" 
-                      ${hasPropertyResponse ? 'disabled' : ''}
+                      ${hasPropertyResponse ? "disabled" : ""}
                     > Respond to review </a>
                     <button class="btn btn-sm btn-transparent btn-outline-danger action_3 shadow shadow-sm" del-revie-data="${_id}"  type="button">Delete review</button>
                   </div>
             </div>
-        </div>`
+        </div>`;
 
-    const parent_wrapper = document.querySelector('#review_main_wrapper')
+    const parent_wrapper = document.querySelector("#review_main_wrapper");
 
     if (cardIsNew) {
-      parent_wrapper?.insertAdjacentHTML('afterbegin', InnerReviewHTMLContent)
+      parent_wrapper?.insertAdjacentHTML("afterbegin", InnerReviewHTMLContent);
     } else {
-      parent_wrapper?.insertAdjacentHTML('beforeend', InnerReviewHTMLContent)
+      parent_wrapper?.insertAdjacentHTML("beforeend", InnerReviewHTMLContent);
     }
-    createSubratings(subratings, `[data-subratings="${authorExternalId}"]`)
-    createRating(rating, `[data-guest-rating="rating-${authorExternalId}"]`)
+    createSubratings(subratings, `[data-subratings="${authorExternalId}"]`);
+    createRating(rating, `[data-guest-rating="rating-${authorExternalId}"]`);
     addReviewResponse(
       propertyResponse,
       `.card-${_id}`,
       hasPropertyResponse,
       _id
-    )
-    responseButtonVisibility(hasPropertyResponse, `.has-response-${uuid}`)
-    reviewCount(authorReviewCount, `[data-subratings="${authorExternalId}"]`)
+    );
+    responseButtonVisibility(hasPropertyResponse, `.has-response-${uuid}`);
+    reviewCount(authorReviewCount, `[data-subratings="${authorExternalId}"]`);
     getSiteLogoPath(
       reviewSiteSlug,
       brandCheck,
       `.review-logo-${uuid}-${internalId}`
-    )
+    );
     generateLeftContainerContent(
       [
-        { key: 'Posted', value: reviewDate },
-        { key: 'Checkin', value: checkInDate },
-        { key: 'Checkout', value: checkOutDate },
-        { key: 'Guest stayed', value: `${(stayStatus && 'Yes') || ''}` },
-        { key: 'Recommended', value: `${(recommended && 'Yes') || ''}` },
-        { key: 'Trip type', value: tripType },
-        { key: 'Room type', value: roomTypeName },
-        { key: 'Nights stayed', value: lengthOfStay },
-        { key: 'Country', value: country },
-        { key: 'Professional Reviewer', value: isExpertReviewer }
+        { key: "Posted", value: reviewDate },
+        { key: "Checkin", value: checkInDate },
+        { key: "Checkout", value: checkOutDate },
+        { key: "Guest stayed", value: `${(stayStatus && "Yes") || ""}` },
+        { key: "Recommended", value: `${(recommended && "Yes") || ""}` },
+        { key: "Trip type", value: tripType },
+        { key: "Room type", value: roomTypeName },
+        { key: "Nights stayed", value: lengthOfStay },
+        { key: "Country", value: country },
+        { key: "Professional Reviewer", value: isExpertReviewer },
       ],
       authorExternalId
-    )
-    return InnerReviewHTMLContent
+    );
+    return InnerReviewHTMLContent;
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 }
-export async function createSubratings (subratingsArray, selector) {
-  const cardBody = document.querySelector(selector)
+export async function createSubratings(subratingsArray, selector) {
+  const cardBody = document.querySelector(selector);
 
   if (subratingsArray && subratingsArray?.length > 0) {
-    subratingsArray.forEach(subrating => {
-      const { key, value } = subrating
-      const totalStars = 5
+    subratingsArray.forEach((subrating) => {
+      const { key, value } = subrating;
+      const totalStars = 5;
 
-      const spanElement = document.createElement('small')
-      spanElement.classList.add('text-warning')
+      const spanElement = document.createElement("small");
+      spanElement.classList.add("text-warning");
 
-      const smallElement = document.createElement('small')
-      smallElement.classList.add('text-dark', 'text-muted')
-      smallElement.textContent = `${key}: `
+      const smallElement = document.createElement("small");
+      smallElement.classList.add("text-dark", "text-muted");
+      smallElement.textContent = `${key}: `;
 
-      const starsElement = document.createElement('span')
+      const starsElement = document.createElement("span");
 
       // Loop through all 5 stars
       for (let i = 1; i <= totalStars; i++) {
-        const star = document.createElement('span')
-        star.style.opacity = '0.8'
+        const star = document.createElement("span");
+        star.style.opacity = "0.8";
 
         if (i <= value) {
-          star.innerHTML = '&bigstar;'
-          star.style.color = '#29cf00'
+          star.innerHTML = "&bigstar;";
+          star.style.color = "#29cf00";
         } else {
-          star.innerHTML = '&bigstar;'
-          star.style.color = '#29cf0080'
+          star.innerHTML = "&bigstar;";
+          star.style.color = "#29cf0080";
         }
 
-        starsElement.appendChild(star)
+        starsElement.appendChild(star);
       }
 
-      spanElement.appendChild(smallElement)
-      spanElement.appendChild(starsElement)
+      spanElement.appendChild(smallElement);
+      spanElement.appendChild(starsElement);
 
-      cardBody?.appendChild(spanElement)
-    })
+      cardBody?.appendChild(spanElement);
+    });
   }
 }
-export async function createRating (ratingValue, selector) {
-  const smallElement = document.querySelector(selector)
+export async function createRating(ratingValue, selector) {
+  const smallElement = document.querySelector(selector);
   if (smallElement) {
-    const totalStars = 5
+    const totalStars = 5;
 
-    const containerElement = document.createElement('span')
-    containerElement.classList.add('text-muted')
-    const textElement = document.createElement('small')
-    textElement.textContent = 'Rating: '
+    const containerElement = document.createElement("span");
+    containerElement.classList.add("text-muted");
+    const textElement = document.createElement("small");
+    textElement.textContent = "Rating: ";
 
-    const starsElement = document.createElement('small')
+    const starsElement = document.createElement("small");
 
     for (let i = 1; i <= totalStars; i++) {
-      const star = document.createElement('span')
+      const star = document.createElement("span");
 
       if (i <= ratingValue) {
-        star.innerHTML = '&bigstar;'
-        star.style.color = '#29cf00'
+        star.innerHTML = "&bigstar;";
+        star.style.color = "#29cf00";
       } else {
-        star.innerHTML = '&bigstar;'
-        star.style.color = '#C1F2B0;'
+        star.innerHTML = "&bigstar;";
+        star.style.color = "#C1F2B0;";
       }
 
-      starsElement.appendChild(star)
+      starsElement.appendChild(star);
     }
 
-    containerElement.appendChild(textElement)
-    containerElement.appendChild(starsElement)
+    containerElement.appendChild(textElement);
+    containerElement.appendChild(starsElement);
 
-    smallElement.innerHTML = ''
-    smallElement.appendChild(containerElement)
+    smallElement.innerHTML = "";
+    smallElement.appendChild(containerElement);
   }
 }
-export function addReviewResponse (
+export function addReviewResponse(
   responseObject = {},
   response_anchor,
   hasPropertyResponse,
@@ -839,170 +840,173 @@ export function addReviewResponse (
 ) {
   try {
     if (responseObject && responseObject.body?.length !== null) {
-      const { body: responseBody, responseDate, author } = responseObject
+      const { body: responseBody, responseDate, author } = responseObject;
 
-      const reviewContainer = document.querySelector(response_anchor)
+      const reviewContainer = document.querySelector(response_anchor);
       if (reviewContainer) {
-        const accordionElement = document.createElement('div')
+        const accordionElement = document.createElement("div");
         accordionElement.className =
-          'accordion accordion-flush bg-light  res_body'
-        accordionElement.id = _id
+          "accordion accordion-flush bg-light  res_body";
+        accordionElement.id = _id;
 
-        const accordionItem = document.createElement('div')
-        accordionItem.className = 'accordion-item bg-light'
-        accordionItem.dataset.parent = `#${_id}`
+        const accordionItem = document.createElement("div");
+        accordionItem.className = "accordion-item bg-light";
+        accordionItem.dataset.parent = `#${_id}`;
 
-        const accordionHeader = document.createElement('h2')
-        accordionHeader.className = 'accordion-header'
-        accordionHeader.id = `flush-heading-${_id}`
+        const accordionHeader = document.createElement("h2");
+        accordionHeader.className = "accordion-header";
+        accordionHeader.id = `flush-heading-${_id}`;
 
-        const accordionButton = document.createElement('button')
+        const accordionButton = document.createElement("button");
         accordionButton.className =
-          'accordion-button  text-dark shadow-sm collapsed text-center'
-        accordionButton.type = 'button'
-        accordionButton.setAttribute('data-bs-toggle', 'collapse')
-        accordionButton.setAttribute('data-bs-target', `#flush-collapse-${_id}`)
-        accordionButton.setAttribute('aria-expanded', 'false')
-        accordionButton.setAttribute('aria-controls', `flush-collapse-${_id}`)
-        accordionButton.innerHTML = 'Response from the owner'
+          "accordion-button  text-dark shadow-sm collapsed text-center";
+        accordionButton.type = "button";
+        accordionButton.setAttribute("data-bs-toggle", "collapse");
+        accordionButton.setAttribute(
+          "data-bs-target",
+          `#flush-collapse-${_id}`
+        );
+        accordionButton.setAttribute("aria-expanded", "false");
+        accordionButton.setAttribute("aria-controls", `flush-collapse-${_id}`);
+        accordionButton.innerHTML = "Response from the owner";
 
-        accordionHeader.appendChild(accordionButton)
+        accordionHeader.appendChild(accordionButton);
 
-        const accordionBody = document.createElement('div')
-        accordionBody.id = `flush-collapse-${_id}`
-        accordionBody.className = 'accordion-collapse collapse show'
-        accordionBody.setAttribute('aria-labelledby', `flush-heading-${_id}`)
+        const accordionBody = document.createElement("div");
+        accordionBody.id = `flush-collapse-${_id}`;
+        accordionBody.className = "accordion-collapse collapse show";
+        accordionBody.setAttribute("aria-labelledby", `flush-heading-${_id}`);
 
-        const accordionBodyContent = document.createElement('div')
-        accordionBodyContent.className = 'accordion-body bg-light shadow'
-        accordionBodyContent.innerHTML = responseBody
+        const accordionBodyContent = document.createElement("div");
+        accordionBodyContent.className = "accordion-body bg-light shadow";
+        accordionBodyContent.innerHTML = responseBody;
 
-        const response_date = document.createElement('p')
-        response_date.className = 'container bg-light text-muted'
+        const response_date = document.createElement("p");
+        response_date.className = "container bg-light text-muted";
         response_date.innerHTML = responseDate
           ? `Response posted on: ${responseDate}`
-          : ''
+          : "";
 
-        accordionBody.appendChild(accordionBodyContent)
-        accordionBody.appendChild(response_date)
+        accordionBody.appendChild(accordionBodyContent);
+        accordionBody.appendChild(response_date);
 
-        accordionItem.appendChild(accordionHeader)
-        accordionItem.appendChild(accordionBody)
+        accordionItem.appendChild(accordionHeader);
+        accordionItem.appendChild(accordionBody);
 
-        accordionElement.appendChild(accordionItem)
+        accordionElement.appendChild(accordionItem);
 
         hasPropertyResponse &&
           reviewContainer?.insertBefore(
             accordionElement,
             reviewContainer.firstChild
-          )
+          );
 
-        const existingElement = document.getElementById(`#${_id}`)
+        const existingElement = document.getElementById(`#${_id}`);
         if (existingElement) {
           const accordionInstance = new bootstrap.Collapse(accordionItem, {
             parent: `#${_id}`,
-            toggle: false
-          })
-          accordionInstance.show()
+            toggle: false,
+          });
+          accordionInstance.show();
         }
       }
     }
   } catch (error) {
-    console.log('Error in addReviewResponse:', error.message)
+    console.log("Error in addReviewResponse:", error.message);
   }
 }
-export function responseButtonVisibility (hasPropertyResponse, selector) {
-  const button = document.querySelector(selector)
+export function responseButtonVisibility(hasPropertyResponse, selector) {
+  const button = document.querySelector(selector);
   if (button) {
     if (hasPropertyResponse) {
-      button.classList.add('hide')
+      button.classList.add("hide");
     } else {
-      button.classList.remove('hide')
+      button.classList.remove("hide");
     }
   }
 }
-export async function reviewCount (countTotal, selector) {
-  const container = document.querySelector(selector)
+export async function reviewCount(countTotal, selector) {
+  const container = document.querySelector(selector);
 
   if (container && countTotal !== undefined && countTotal !== null) {
-    const spanElement = document.createElement('small')
-    spanElement.classList.add('text-muted')
+    const spanElement = document.createElement("small");
+    spanElement.classList.add("text-muted");
 
-    const displayedCount = countTotal == 0 ? 1 : countTotal
+    const displayedCount = countTotal == 0 ? 1 : countTotal;
 
-    spanElement.innerHTML = `Review count: <small style="color: green; font-weight: 700">${displayedCount}</small>`
-    container.insertBefore(spanElement, container.querySelector('br'))
+    spanElement.innerHTML = `Review count: <small style="color: green; font-weight: 700">${displayedCount}</small>`;
+    container.insertBefore(spanElement, container.querySelector("br"));
   }
 }
-export async function getSiteLogoPath (reviewSiteSlug, brandCheck, uuid) {
-  const defaultPath = '../images/fallback.png'
-  const extractBaseDomain = slug => (slug ? slug.split('-')[0] : null)
+export async function getSiteLogoPath(reviewSiteSlug, brandCheck, uuid) {
+  const defaultPath = "../images/fallback.png";
+  const extractBaseDomain = (slug) => (slug ? slug.split("-")[0] : null);
 
   const baseDomain = brandCheck
     ? extractBaseDomain(brandCheck.toLowerCase())
-    : extractBaseDomain(reviewSiteSlug)
+    : extractBaseDomain(reviewSiteSlug);
 
   const siteLogo = Object.values(siteLogos).find(
-    logo => extractBaseDomain(logo.slug) === baseDomain
-  )
+    (logo) => extractBaseDomain(logo.slug) === baseDomain
+  );
 
   if (siteLogo) {
-    const cardLogo = await document.querySelector(uuid)
+    const cardLogo = await document.querySelector(uuid);
     if (cardLogo) {
-      cardLogo.src = siteLogo.logopath || defaultPath
+      cardLogo.src = siteLogo.logopath || defaultPath;
 
       cardLogo.onerror = function () {
-        this.src = defaultPath
-        this.onerror = null
-      }
+        this.src = defaultPath;
+        this.onerror = null;
+      };
     }
   }
 }
-export async function generateLeftContainerContent (
+export async function generateLeftContainerContent(
   dataArray,
   authorExternalId
 ) {
   const container = document.querySelector(
     `.left__body[data-subratings="${authorExternalId}"]`
-  )
-  if (!container) return console.log('Container not found')
+  );
+  if (!container) return console.log("Container not found");
 
   dataArray.forEach((dataObject, index) => {
     try {
-      if (!dataObject || typeof dataObject !== 'object') {
-        console.log(`Invalid object at index ${index}. Skipping append.`)
-        return
+      if (!dataObject || typeof dataObject !== "object") {
+        console.log(`Invalid object at index ${index}. Skipping append.`);
+        return;
       }
-      const { key, value } = dataObject
-      if (!key || !value) return
+      const { key, value } = dataObject;
+      if (!key || !value) return;
 
-      const displayValue = value === false ? 'No' : value
-      const spanElement = document.createElement('span')
-      spanElement.className = 'text text-muted'
-      spanElement.innerHTML = `<small>${key}: <a href="#" style="cursor:pointer;" class="sub_link text-success" data-datatype="${value}">${displayValue}</a></small>`
+      const displayValue = value === false ? "No" : value;
+      const spanElement = document.createElement("span");
+      spanElement.className = "text text-muted";
+      spanElement.innerHTML = `<small>${key}: <a href="#" style="cursor:pointer;" class="sub_link text-success" data-datatype="${value}">${displayValue}</a></small>`;
 
-      const brEle = container.querySelector('.linner')
-      container.insertBefore(spanElement, brEle)
+      const brEle = container.querySelector(".linner");
+      container.insertBefore(spanElement, brEle);
     } catch (error) {
-      console.log(`Error appending element at index ${index}:`, error)
+      console.log(`Error appending element at index ${index}:`, error);
     }
-  })
+  });
 }
-export function normalizeTravelType (input) {
-  if (!input) return
+export function normalizeTravelType(input) {
+  if (!input) return;
   return input
-    .replace(/[_-]/g, ' ')
+    .replace(/[_-]/g, " ")
     .toLowerCase()
-    .replace(/\b\w/g, char => char.toUpperCase())
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 }
-export async function handleSearchPannel (anchorSelector) {
-  const anchorElement = document.querySelector(anchorSelector)
+export async function handleSearchPannel(anchorSelector) {
+  const anchorElement = document.querySelector(anchorSelector);
 
   if (!anchorElement)
-    return console.error(`Element '${anchorSelector}' not found.`)
+    return console.error(`Element '${anchorSelector}' not found.`);
 
-  const form = document.createElement('form')
-  form.className = 'w-100 main_search__container border'
+  const form = document.createElement("form");
+  form.className = "w-100 main_search__container border";
 
   form.innerHTML = `
       <fieldset class="bg-info _innter_search_cont p-1">
@@ -1037,107 +1041,110 @@ export async function handleSearchPannel (anchorSelector) {
                   <input type="text" data-search="t_search_box" placeholder="Type here..." value="" class="form-control shadow" name="q">
               </div>                      
           </div>
-      </fieldset>`
+      </fieldset>`;
 
-  anchorElement.prepend(form)
+  anchorElement.prepend(form);
 
-  const searchIcon = document.querySelector('.search_icon_cont')
+  const searchIcon = document.querySelector(".search_icon_cont");
   if (searchIcon) {
-    searchIcon.addEventListener('click', e => {
-      e.preventDefault()
-      const searchPanel = document.querySelector('.main_search__container')
+    searchIcon.addEventListener("click", (e) => {
+      e.preventDefault();
+      const searchPanel = document.querySelector(".main_search__container");
       if (searchPanel) {
-        const isVisible = searchPanel.classList.contains('show_searchpannel')
-        searchPanel.classList.toggle('show_searchpannel')
+        const isVisible = searchPanel.classList.contains("show_searchpannel");
+        searchPanel.classList.toggle("show_searchpannel");
 
         if (isVisible) {
-          form.dispatchEvent(new Event('submit'))
+          form.dispatchEvent(new Event("submit"));
         }
       }
-    })
+    });
   } else {
-    console.warn('Search icon not found')
+    console.warn("Search icon not found");
   }
-  const searchInput = form.querySelector('input[name="q"]')
+  const searchInput = form.querySelector('input[name="q"]');
   if (searchInput) {
-    searchInput.addEventListener('keypress', e => {
-      if (e.key === 'Enter') {
-        e.preventDefault()
-        form.dispatchEvent(new Event('submit'))
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        form.dispatchEvent(new Event("submit"));
       }
-    })
+    });
   }
-  document.body.addEventListener('click', e => {
-    const searchPanel = document.querySelector('.main_search__container')
+  document.body.addEventListener("click", (e) => {
+    const searchPanel = document.querySelector(".main_search__container");
     if (
       searchPanel &&
-      !e.target.closest('.main_search__container') &&
-      !e.target.closest('.search_icon_cont')
+      !e.target.closest(".main_search__container") &&
+      !e.target.closest(".search_icon_cont")
     ) {
-      searchPanel.classList.remove('show_searchpannel')
+      searchPanel.classList.remove("show_searchpannel");
     }
-  })
+  });
 
   document
-    .querySelector('#review_main_wrapper')
-    .addEventListener('scroll', () => {
-      const searchPanel = document.querySelector('.main_search__container')
+    .querySelector("#review_main_wrapper")
+    .addEventListener("scroll", () => {
+      const searchPanel = document.querySelector(".main_search__container");
       if (searchPanel) {
-        setTimeout(() => searchPanel.classList.remove('show_searchpannel'), 800)
+        setTimeout(
+          () => searchPanel.classList.remove("show_searchpannel"),
+          800
+        );
       }
-    })
-  const selectElements = form.querySelectorAll('select')
-  selectElements.forEach(select => {
-    select.addEventListener('change', () => {
-      form.dispatchEvent(new Event('submit'))
-    })
-  })
+    });
+  const selectElements = form.querySelectorAll("select");
+  selectElements.forEach((select) => {
+    select.addEventListener("change", () => {
+      form.dispatchEvent(new Event("submit"));
+    });
+  });
 
-  const dateInputs = form.querySelectorAll('input[type="date"]')
-  dateInputs.forEach(input => {
-    input.addEventListener('change', () => {
+  const dateInputs = form.querySelectorAll('input[type="date"]');
+  dateInputs.forEach((input) => {
+    input.addEventListener("change", () => {
       setTimeout(() => {
-        form.dispatchEvent(new Event('submit'))
-      }, 300)
-    })
-  })
+        form.dispatchEvent(new Event("submit"));
+      }, 300);
+    });
+  });
 
-  form.addEventListener('submit', async e => {
-    e.preventDefault()
-    runSpinner(false, 'Searching...')
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    runSpinner(false, "Searching...");
 
-    const { data, error } = await handleSearchFormSubmission(e.target)
-    const reviewData = data?.reviews
+    const { data, error } = await handleSearchFormSubmission(e.target);
+    const reviewData = data?.reviews;
 
     if (error) {
-      runSpinner(true)
-      if (error !== 'No search parameters provided') {
+      runSpinner(true);
+      if (error !== "No search parameters provided") {
         displayLabel([
-          'review_main_wrapper',
-          'alert-warning',
-          `Search error: ${error}`
-        ])
+          "review_main_wrapper",
+          "alert-warning",
+          `Search error: ${error}`,
+        ]);
       }
     }
-    runSpinner(true)
+    runSpinner(true);
     displayLabel([
-      'review_main_wrapper',
-      'alert-success',
-      `Success: Here are your search results`
-    ])
+      "review_main_wrapper",
+      "alert-success",
+      `Success: Here are your search results`,
+    ]);
 
     if (!reviewData?.length)
       return displayLabel([
-        'review_main_wrapper',
-        'alert-warning',
-        `There are no results for this search`
-      ])
-    await removeChildElementsFromDOM('.review-container')
+        "review_main_wrapper",
+        "alert-warning",
+        `There are no results for this search`,
+      ]);
+    await removeChildElementsFromDOM(".review-container");
 
-    reviewData.forEach(async review => {
-      await ReviewHTML(review, true)
-    })
-  })
+    reviewData.forEach(async (review) => {
+      await ReviewHTML(review, true);
+    });
+  });
 
-  return form
+  return form;
 }
