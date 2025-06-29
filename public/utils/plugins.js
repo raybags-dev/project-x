@@ -472,7 +472,6 @@ export const PLUGINS = {
       }
     };
   },
-
   setupDropdownHover: async function () {
     const dropdownItems = document.querySelectorAll("li.nav-item.dropdown");
 
@@ -708,10 +707,18 @@ export const PLUGINS = {
   },
   saveToLocalStorage: async function (key, data) {
     try {
-      const serializedData = JSON.stringify(data);
-      localStorage.setItem(key, serializedData);
+      const newSerializedData = JSON.stringify(data);
+      const existingData = localStorage.getItem(key);
+
+      if (existingData !== newSerializedData) {
+        localStorage.setItem(key, newSerializedData);
+        return true;
+      }
+
+      return false;
     } catch (error) {
       console.log("Error saving to localStorage:", error);
+      return false;
     }
   },
   handleModleActiveStates: function () {
@@ -2148,6 +2155,36 @@ export const PLUGINS = {
       ]);
     } catch (e) {
       console.log(e);
+    }
+  },
+  loadeSiteSlugs: async function () {
+    try {
+      runSpinner(false, "Fetching...");
+
+      const user = getAuthHandler();
+      if (!user || !user["auth-token"]) {
+        throw new Error("Authentication token missing");
+      }
+      const { "auth-token": token } = user;
+
+      const apiClient = await API_CLIENT();
+      const baseUrl = `/load-site-slugs`;
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      };
+
+      const response = await apiClient.post(baseUrl, {}, { headers });
+      if (response.status === 200) {
+        const data = response.data;
+        await PLUGINS.saveToLocalStorage("slugs", data);
+        return data;
+      }
+      return null;
+    } catch (error) {
+      runSpinner(true);
+      console.error("Error in <loadeSiteSlugs>:", error.message);
+      return error;
     }
   },
 };

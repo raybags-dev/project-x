@@ -6,138 +6,126 @@ import { logger } from "../loggers/logger.js";
 import { getExecutablePath } from "../utilities/chromiumExecPath.js";
 
 const isProduction = process.env.NODE_ENV === "production";
-const envExecPath = "/usr/bin/chromium"; // Production fallback
-
+const envExecPath = "/usr/bin/chromium";
 let stealthApplied = false;
 
+const commonLaunchArgs = [
+  "--no-sandbox",
+  "--disable-setuid-sandbox",
+  "--disable-dev-shm-usage",
+  "--disable-gpu",
+  "--no-first-run",
+  "--no-default-browser-check",
+  "--disable-default-apps",
+  "--disable-features=IsolateOrigins,site-per-process",
+  "--disable-http2",
+  "--disable-blink-features=AutomationControlled",
+  "--disable-background-timer-throttling",
+  "--disable-backgrounding-occluded-windows",
+  "--disable-renderer-backgrounding",
+  "--disable-features=TranslateUI",
+  "--disable-ipc-flooding-protection",
+];
+
 async function testChromeExecutable(executablePath) {
+  if (!fs.existsSync(executablePath)) {
+    throw new Error(`Chrome not found at: ${executablePath}`);
+  }
+
   try {
-    // Check if file exists
-    if (!fs.existsSync(executablePath)) {
-      throw new Error(`Chrome executable not found at: ${executablePath}`);
-    }
+    await fs.promises.access(executablePath, fs.constants.X_OK);
+  } catch {
+    logger(`⚠️ Chrome at ${executablePath} is not executable`, "warn");
+  }
 
-    // Check if file is executable (Unix-like systems)
-    try {
-      await fs.promises.access(
-        executablePath,
-        fs.constants.F_OK | fs.constants.X_OK
-      );
-    } catch (accessError) {
-      logger(
-        `Warning: Chrome executable may not have proper permissions: ${executablePath}`,
-        "warn"
-      );
-    }
-
-    logger(`Testing Chrome executable: ${executablePath}`, "info");
-
-    const testBrowser = await puppeteer.launch({
+  try {
+    logger(`Testing Chrome at: ${executablePath}`, "info");
+    const browser = await puppeteer.launch({
       headless: true,
       executablePath,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--no-first-run",
-        "--no-default-browser-check",
-        "--disable-default-apps",
-      ],
+      args: commonLaunchArgs,
       timeout: 30000,
     });
 
-    const testPage = await testBrowser.newPage();
-    await testPage.goto("data:text/html,<h1>Test</h1>", {
+    const page = await browser.newPage();
+    await page.goto("data:text/html,<h1>Test</h1>", {
       waitUntil: "domcontentloaded",
     });
-    const title = await testPage.evaluate(
+
+    const title = await page.evaluate(
       () => document.querySelector("h1")?.textContent
     );
-
-    await testPage.close();
-    await testBrowser.close();
+    await browser.close();
 
     if (title !== "Test") {
-      throw new Error("Chrome test page failed to load properly");
+      throw new Error("Test page did not load correctly");
     }
 
-    logger(`✅ Chrome executable test passed: ${executablePath}`, "info");
+    logger(`✅ Chrome test passed at: ${executablePath}`, "info");
     return true;
-  } catch (error) {
-    logger(`Chrome executable test failed: ${error.message}`, "error");
-    throw error;
+  } catch (err) {
+    logger(
+      `❌ Chrome test failed at ${executablePath}: ${err.message}`,
+      "error"
+    );
+    throw err;
   }
 }
+
 async function resolveAndTestChromePath() {
-  let executablePath;
-  let pathSource;
-  let testedPaths = [];
+  const testedPaths = [];
 
-  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
-    const envPath = process.env.PUPPETEER_EXECUTABLE_PATH;
-    logger(`Testing environment-specified Chrome path: ${envPath}`, "info");
-    testedPaths.push(envPath);
-
-    try {
-      await testChromeExecutable(envPath);
-      logger(`Environment Chrome path test passed: ${envPath}`, "info");
-      return envPath;
-    } catch (testError) {
-      logger(
-        `Environment Chrome path test failed: ${testError.message}`,
-        "warn"
-      );
-    }
-  }
-
-  try {
-    executablePath = await getExecutablePath(puppeteer);
-    pathSource = "auto-detection";
-    logger(`Auto-detected Chrome path: ${executablePath}`, "info");
-
-    if (executablePath && !testedPaths.includes(executablePath)) {
-      testedPaths.push(executablePath);
+  const tryPath = async (path, label) => {
+    if (!testedPaths.includes(path)) {
+      testedPaths.push(path);
       try {
-        await testChromeExecutable(executablePath);
-        logger(
-          `✅ Auto-detected Chrome path test passed: ${executablePath}`,
-          "info"
-        );
-        return executablePath;
-      } catch (testError) {
-        logger(
-          `Auto-detected Chrome path test failed: ${testError.message}`,
-          "warn"
-        );
+        await testChromeExecutable(path);
+        logger(`✅ ${label} test passed: ${path}`, "info");
+        return path;
+      } catch (err) {
+        logger(`❌ ${label} test failed: ${err.message}`, "warn");
       }
     }
-  } catch (detectionError) {
-    logger(`Chrome auto-detection failed: ${detectionError.message}`, "warn");
+    return null;
+  };
+
+  // 1. Environment variable
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    const result = await tryPath(
+      process.env.PUPPETEER_EXECUTABLE_PATH,
+      "Env-specified path"
+    );
+    if (result) return result;
   }
 
-  if (isProduction && !testedPaths.includes(envExecPath)) {
-    logger(`Testing production fallback: ${envExecPath}`, "info");
-    try {
-      await testChromeExecutable(envExecPath);
-      logger(`✅ Production fallback test passed: ${envExecPath}`, "info");
-      return envExecPath;
-    } catch (testError) {
-      logger(`Production fallback test failed: ${testError.message}`, "error");
-      throw new Error(
-        `No working Chrome executable found in production. Tested: ${testedPaths.join(
-          ", "
-        )}`
-      );
+  // 2. Auto-detection
+  try {
+    const autoPath = await getExecutablePath(puppeteer);
+    if (autoPath) {
+      const result = await tryPath(autoPath, "Auto-detected path");
+      if (result) return result;
     }
+  } catch (err) {
+    logger(`⚠️ Auto-detection failed: ${err.message}`, "warn");
+  }
+
+  // 3. Production fallback
+  if (isProduction) {
+    const result = await tryPath(envExecPath, "Production fallback path");
+    if (result) return result;
+
+    throw new Error(
+      `No working Chrome executable found. Tried: ${testedPaths.join(", ")}`
+    );
   }
 
   logger(
-    "No working Chrome found, letting Puppeteer use bundled Chromium",
+    "⚠️ No custom Chrome found, Puppeteer will use bundled Chromium",
     "info"
   );
   return null;
 }
+
 export async function launchBrowser(headless = false) {
   try {
     if (!stealthApplied) {
@@ -155,54 +143,38 @@ export async function launchBrowser(headless = false) {
 
     const launchOptions = {
       headless,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-features=IsolateOrigins,site-per-process",
-        "--disable-http2",
-        "--disable-blink-features=AutomationControlled",
-        "--disable-dev-shm-usage", // Additional stability
-        "--disable-gpu", // Helps in headless mode
-        "--no-first-run",
-        "--no-default-browser-check",
-      ],
-      timeout: 60000, // 60 second launch timeout
+      args: commonLaunchArgs,
+      timeout: 60000,
+      ...(executablePath && { executablePath }),
     };
 
-    // Only set executablePath if we have one (let Puppeteer use default otherwise)
-    if (executablePath) {
-      launchOptions.executablePath = executablePath;
-    }
-
-    logger("Launching browser with tested configuration...", "info");
+    logger("🚀 Launching browser...", "info");
     const browser = await puppeteer.launch(launchOptions);
 
-    // Additional verification that browser is working
+    // Optional browser check
     try {
       const pages = await browser.pages();
       if (pages.length === 0) {
-        const testPage = await browser.newPage();
-        await testPage.close();
+        const page = await browser.newPage();
+        await page.close();
       }
-    } catch (verificationError) {
-      logger(
-        `Browser verification warning: ${verificationError.message}`,
-        "warn"
-      );
+    } catch (err) {
+      logger(`⚠️ Browser verification failed: ${err.message}`, "warn");
     }
 
     logger(
-      `✅ Browser launched successfully${
-        executablePath ? ` using: ${executablePath}` : " with Puppeteer default"
+      `✅ Browser launched${
+        executablePath ? ` with: ${executablePath}` : " using Puppeteer default"
       }`,
       "info"
     );
     return browser;
-  } catch (error) {
-    logger(`Browser launch failed: ${error.message}`, "error");
-    return { isBrowserReady: false, error: error.message };
+  } catch (err) {
+    logger(`❌ Browser launch failed: ${err.message}`, "error");
+    return { isBrowserReady: false, error: err.message };
   }
 }
+
 export async function testChromeDetection() {
   try {
     const executablePath = await resolveAndTestChromePath();
@@ -219,8 +191,9 @@ export async function testChromeDetection() {
     };
   }
 }
+
 export async function browserHealthCheck() {
-  logger("Running browser health check...", "info");
+  logger("🔍 Running browser health check...", "info");
 
   try {
     const testResult = await testChromeDetection();
@@ -233,21 +206,20 @@ export async function browserHealthCheck() {
       return { healthy: false, error: browser.error };
     }
 
-    // Quick functionality test
     const page = await browser.newPage();
-    await page.goto("data:text/html,<h1>Health Check</h1>");
+    await page.goto("data:text/html,<title>Health Check</title>");
     const title = await page.evaluate(() => document.title);
     await page.close();
     await browser.close();
 
-    logger("Browser health check passed", "info");
+    logger("✅ Browser health check passed", "info");
     return {
       healthy: true,
       chromePath: testResult.path,
       tested: true,
     };
-  } catch (error) {
-    logger(`Browser health check failed: ${error.message}`, "error");
-    return { healthy: false, error: error.message };
+  } catch (err) {
+    logger(`❌ Browser health check failed: ${err.message}`, "error");
+    return { healthy: false, error: err.message };
   }
 }

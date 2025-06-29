@@ -66,19 +66,7 @@ export async function MAIN_PAGE() {
                   sites
                 </a>
                 <ul class="dropdown-menu bg-light overflow-auto _inner_dropdown_canvas shadow shadow-lg" style="max-height: 350px;">
-                  <li class="p-2"><a class="dropdown-item btn btn-outline-success text-dark text-uppercase google-com" href="#">google-com</a></li>
-                  <li class="p-2"><a class="dropdown-item btn btn-outline-success text-dark text-uppercase agoda-com" href="#">agoda-com</a></li>
-                  <li class="p-2"><a class="dropdown-item btn btn-outline-success text-dark text-uppercase booking-com" href="#">booking-com</a></li>
-                  <li class="p-2"><a class="dropdown-item btn btn-outline-success text-dark text-uppercase opentable-com" href="#">opentable-com</a></li>
-                  <li class="p-2"><a class="dropdown-item text-dark text-uppercase expedia-com" href="#">expedia-com</a></li>
-                  <li class="p-2"><a class="dropdown-item text-dark text-uppercase trip-com" href="#">trip-com</a></li>
-                  <li class="p-2"><a class="dropdown-item text-dark text-uppercase ctrip-com" href="#">ctrip-com</a></li>
-                  <li class="p-2"><a class="dropdown-item text-dark text-uppercase hotels-com" href="#">hotels-com</a></li>
-                  <li class="p-2"><a class="dropdown-item text-dark text-uppercase travelocity-com" href="#">travelocity-com</a></li>
-                  <li class="p-2"><a class="dropdown-item text-dark text-uppercase trivago-com" href="#">trivago-com</a></li>
-                  <li class="p-2"><a class="dropdown-item text-dark text-uppercase cheaptickets-com" href="#">cheaptickets-com</a></li>
-                  <li class="p-2"><a class="dropdown-item text-dark text-uppercase orbitz-com" href="#">orbitz-com</a></li>
-                  <li class="p-2"><a class="dropdown-item text-dark text-uppercase wotif-com" href="#">wotif-com</a></li>
+                  
                 </ul>
               </li>
             </ul>
@@ -103,6 +91,7 @@ export async function MAIN_PAGE() {
     document.getElementById("innerBody").innerHTML = pageContent;
 
     // IMPORTANT: Setup event listeners AFTER setting innerHTML
+    await loadAvailableSites();
     await setupEventListeners();
     await handlePaginatedDataAllAccounts();
     await handleReviewButtonsEvents();
@@ -112,7 +101,7 @@ export async function MAIN_PAGE() {
     await finishSetup();
     await handleProfileGenerator(".create_profile");
     await handleSearchPannel(".navbar__default");
-    handleModleActiveStates();
+    await handleModleActiveStates();
 
     return true;
   } catch (e) {
@@ -286,4 +275,31 @@ function renderStars(rating) {
     }
   }
   return stars;
+}
+async function loadAvailableSites() {
+  try {
+    const data = await PLUGINS.loadeSiteSlugs();
+
+    if (!Array.isArray(data.slugs)) {
+      throw new Error("Invalid slug response");
+    }
+
+    const ul = document.querySelector("._inner_dropdown_canvas");
+    ul.innerHTML = "";
+
+    data.slugs.forEach((slug) => {
+      const li = document.createElement("li");
+      li.className = "p-2";
+
+      const a = document.createElement("a");
+      a.className = `dropdown-item btn btn-outline-success text-dark text-uppercase ${slug}`;
+      a.href = "#";
+      a.textContent = slug;
+
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+  } catch (error) {
+    console.error("Error loading site slugs:", error);
+  }
 }

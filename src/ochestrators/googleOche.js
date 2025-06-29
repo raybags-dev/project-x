@@ -68,16 +68,16 @@ export default async function headlessManager(
 
       await page.goto(originalUrl, {
         waitUntil: "domcontentloaded",
-        timeout: 50000,
+        timeout: 5000,
       });
 
-      await holdOnFor(1000);
+      await holdOnFor(500);
       await handleGoogleCookieDialogue(page);
-      await holdOnFor(1000);
+      await holdOnFor(500);
       await handleGoogleReviewTabBtn(page);
-      await holdOnFor(1000);
+      await holdOnFor(500);
       await handleGoogleReviewFIlterSelection(page);
-      await holdOnFor(3000);
+      await holdOnFor(500);
       await handleRecentReviewFIlterSelection(page);
 
       const allReviews = await fetchAndSaveGoogleReviews(
