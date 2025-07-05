@@ -37,7 +37,7 @@ const app = express();
 const INSTANCE_ID = process.env.INSTANCE_ID || "1";
 const RUN_AUTOMATION = INSTANCE_ID === "1";
 
-console.log(`Starting application instance ${INSTANCE_ID}`);
+console.log(`Starting application instance: ${INSTANCE_ID}`);
 console.log(
   `Automation ${RUN_AUTOMATION ? "ENABLED" : "DISABLED"} for this instance`
 );
@@ -52,7 +52,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(morgan(` :date[iso] [Instance-${INSTANCE_ID}]`));
+app.use(morgan(` :date[iso] [Instance-${INSTANCE_ID}] running...`));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(wakeupService);
 
