@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { sendNotificationEmail } from "../../middleware/emailer.js";
+import EmailTemplates from "../data/email/emailTemplates.js";
 import { logger } from "../loggers/logger.js";
 import { REVIEW } from "../models/documentModel.js";
 import { PROFILE_MODEL } from "../models/profileModel.js";
@@ -71,13 +72,26 @@ export async function CreateUserController(req, res) {
     const sanitizedUser = sanitizeUser(user);
     const token = user.generateAuthToken();
 
-    const userEmailData = {
-      title: "User account created successfully",
-      body: `A user:\n=========\n\n(${JSON.stringify(
-        sanitizedUser
-      )})\n==========\n\nhas successfully been created in the database".`,
-    };
-    await sendNotificationEmail(userEmailData, RECIPIENT_EMAIL);
+    const adminEmailData = EmailTemplates.userCreationAdminNotification({
+      userName: sanitizedUser.name,
+      userEmail: sanitizedUser.email,
+      userId: sanitizedUser.userId,
+      isAdmin: sanitizedUser.isAdmin,
+      isSuperUser: sanitizedUser.isSuperUser,
+      isSubscribed: sanitizedUser.isSubscribed,
+    });
+
+    // For user welcome email (optional)
+    const welcomeEmailData = EmailTemplates.userWelcomeEmail({
+      userName: sanitizedUser.name,
+      userEmail: sanitizedUser.email,
+      isAdmin: sanitizedUser.isAdmin,
+      isSuperUser: sanitizedUser.isSuperUser,
+    });
+
+    // Send notifications
+    await sendNotificationEmail(adminEmailData, RECIPIENT_EMAIL);
+    await sendNotificationEmail(welcomeEmailData, sanitizedUser.email);
 
     res.status(201).send({
       state: "successful",
@@ -252,16 +266,23 @@ export async function UpdateSubscriptionController(req, res) {
 
     const result = await USER_MODEL.setSubStatus(user, !user.isSubscribed);
 
-    const emailData = {
-      title: "Subscription Status Updated",
-      body: `The subscription status for user ${user?.name} (${
-        user?.email
-      }) has been updated to ${
-        !user.isSubscribed ? "subscribed" : "unsubscribed"
-      }.`,
-    };
+    const adminEmailData = EmailTemplates.subscriptionUpdateAdminNotification({
+      userName: user.name,
+      userEmail: user.email,
+      userId: user._id,
+      newSubscriptionStatus: !user.isSubscribed,
+      previousSubscriptionStatus: user.isSubscribed,
+      updatedByAdmin: req.locals?.user?.name || req.locals.user.email,
+    });
 
-    await sendNotificationEmail(emailData, RECIPIENT_EMAIL);
+    const userEmailData = EmailTemplates.subscriptionUpdateUserNotification({
+      userName: user.name,
+      newSubscriptionStatus: !user.isSubscribed,
+    });
+
+    await sendNotificationEmail(adminEmailData, RECIPIENT_EMAIL);
+    await sendNotificationEmail(userEmailData, user.email);
+
     res.status(200).json({
       state: "Success",
       message: "Subscription status updated!",

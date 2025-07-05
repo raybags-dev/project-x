@@ -191,7 +191,7 @@ function setupJobMonitoring() {
 }
 function logJobHealth() {
   const stats = getJobStats();
-  logger(">>>>>>>>>>>>> [JOB HEALTH REPORT] <<<<<<<<<<<<<<");
+  logger("\n[JOB HEALTH REPORT]\n");
 
   if (stats.allHistory.length === 0)
     return logger("No job history available yet.");

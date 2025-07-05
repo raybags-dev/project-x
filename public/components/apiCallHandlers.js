@@ -33,7 +33,7 @@ export async function API_CLIENT() {
           displayLabel([
             "review_main_wrapper",
             "alert-danger",
-            `Your session has exπired. Please login again!`,
+            `Your session has expired. Please login again!`,
           ]);
           runSpinner(false, "Aborting...");
         }
@@ -541,7 +541,7 @@ function showForgotPasswordOption() {
           if (passwordField) {
             passwordField.disabled = true;
             passwordField.placeholder =
-              "You have requested a password reset. Please check your email and follow the instructions.";
+              "Password reset mode enabled. Submit your request, check your email and follow the instructions.";
             passwordField.style.opacity = "0.6";
             passwordField.value = "";
           }
@@ -550,7 +550,7 @@ function showForgotPasswordOption() {
             forgotPasswordChecked: true,
             passwordFieldDisabled: true,
             passwordFieldPlaceholder:
-              "You have requested a password reset. Please check your email and follow the instructions.",
+              "Password reset mode enabled. Submit your request, check your email and follow the instructions.",
           });
         } else {
           if (passwordField) {
