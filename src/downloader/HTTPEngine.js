@@ -13,7 +13,6 @@ const {
   MAX_RETRIES = 3,
 } = process.env;
 
-// Create axios instance with default configuration
 const axiosInstance = axios.create({
   timeout: parseInt(REQUEST_TIMEOUT, 10),
 });
@@ -63,12 +62,9 @@ const safelyLogRequestBody = (data, maxLength = 1000) => {
  * @returns {boolean} Whether the request should be retried
  */
 const isRetryableError = (error) => {
-  // Network errors are generally retryable
   if (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT") {
     return true;
   }
-
-  // Some HTTP status codes are worth retrying
   const status = error.response?.status;
   return (
     status === 408 ||
@@ -89,11 +85,10 @@ const isRetryableError = (error) => {
 const calculateBackoff = (retryCount, baseDelayMs = 300) => {
   return Math.min(
     Math.pow(2, retryCount) * baseDelayMs + Math.random() * 100,
-    10000 // Max delay of 10 seconds for normal retries
+    10000
   );
 };
 
-// Request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
     const method = config.method?.toUpperCase() || "UNKNOWN";
@@ -102,12 +97,10 @@ axiosInstance.interceptors.request.use(
     logger(`${method} REQUEST to ${url}`, "info");
     safelyLogRequestBody(config.data);
 
-    // Initialize retry count if not set
     if (config.__retryCount === undefined) {
       config.__retryCount = 0;
     }
 
-    // Use proxy for initial attempts
     const maxRetries = parseInt(MAX_RETRIES, 10);
     if (config.__retryCount < maxRetries) {
       const agent = getProxyAgent();
@@ -124,9 +117,7 @@ axiosInstance.interceptors.request.use(
         }
       }
     } else {
-      // Fall back to direct connection after max retries with proxy
       logger("Using direct connection (no proxy) after failed retries", "warn");
-      // Ensure proxy settings are removed
       delete config.httpAgent;
       delete config.httpsAgent;
       config.proxy = false;
@@ -139,14 +130,12 @@ axiosInstance.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
 // Response interceptor
 axiosInstance.interceptors.response.use(
   (response) => {
     const url = response.config.url || "Unknown URL";
     logger(`${url}: ${response.status} ${response.statusText}`, "info");
 
-    // Log summary of response data for debugging if needed
     if (process.env.NODE_ENV === "development") {
       try {
         const contentType = response.headers["content-type"] || "";

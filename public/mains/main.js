@@ -4,33 +4,29 @@ import { MAIN_PAGE } from "../components/main_container.js";
 import { PLUGINS } from "../utils/plugins.js";
 const { handleCookieAcceptance } = PLUGINS;
 
-window.addEventListener("error", function (e) {
-  if (e.message && e.message.includes("runtime.lastError")) {
+const handleRuntimeError = (errorMessage) =>
+  errorMessage?.includes("runtime.lastError");
+
+window.addEventListener("error", (e) => {
+  if (handleRuntimeError(e.message)) {
     e.preventDefault();
     return true;
   }
 });
 
-window.addEventListener("unhandledrejection", function (e) {
-  if (
-    e.reason &&
-    e.reason.message &&
-    e.reason.message.includes("runtime.lastError")
-  ) {
+window.addEventListener("unhandledrejection", (e) => {
+  if (handleRuntimeError(e.reason?.message)) {
     e.preventDefault();
   }
 });
 
-const DOMWorker = async () => {
-  const cookieConcent = await handleCookieAcceptance();
-  if (!cookieConcent) return;
-
+(async () => {
   try {
+    if (!(await handleCookieAcceptance())) return;
+
     const user = await getAuthHandler();
-    if (user?.isAdmin) return await MAIN_PAGE();
-    LOGIN_HTML();
+    user?.isAdmin ? await MAIN_PAGE() : LOGIN_HTML();
   } catch (error) {
-    console.log((error.message && error.message) || error);
+    console.error("Initialization error:", error);
   }
-};
-DOMWorker();
+})();

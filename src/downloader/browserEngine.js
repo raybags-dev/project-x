@@ -151,7 +151,6 @@ export async function launchBrowser(headless = false) {
     logger("🚀 Launching browser...", "info");
     const browser = await puppeteer.launch(launchOptions);
 
-    // Optional browser check
     try {
       const pages = await browser.pages();
       if (pages.length === 0) {
@@ -191,7 +190,6 @@ export async function testChromeDetection() {
     };
   }
 }
-
 export async function browserHealthCheck() {
   logger("🔍 Running browser health check...", "info");
 
