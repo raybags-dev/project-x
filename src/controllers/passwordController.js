@@ -1,4 +1,5 @@
 import { sendNotificationEmail } from "../../middleware/emailer.js";
+import EmailTemplates from "../data/email/emailTemplates.js";
 import { logger } from "../loggers/logger.js";
 import { USER_MODEL } from "../models/user.js";
 
@@ -14,12 +15,10 @@ export async function ForgotPasswordController(req, res) {
   }
 
   const resetToken = await the_user.setPasswordResetToken();
-  // send email to user for token.
-  const emailData = {
-    title: "Important: Request to update password",
-    body: `A request to update password for account associated with email:${email} was received successfully. 
-    This is your token to update your password.\nVerification Token: ${resetToken}\n\nUsage:\n- Copy the token string and paste it in the appropriate field.\n- The Token will remain active for only 24hrs.`,
-  };
+  const emailData = EmailTemplates.forgotPassword({
+    email,
+    resetToken,
+  });
 
   try {
     await sendNotificationEmail(emailData, email);
@@ -60,10 +59,10 @@ export async function UpdatePasswordController(req, res) {
     const userObject = user.toObject();
     delete userObject.password;
 
-    const emailData = {
-      title: "Important: Password Updated Successfully",
-      body: `Your password for the account associated with email: ${email} has been updated successfully. If you did not initiate this change, please contact support immediately.`,
-    };
+    const emailData = EmailTemplates.passwordChangedNotification({
+      email,
+    });
+
     await sendNotificationEmail(emailData, email);
     res.status(200).json({ user: userObject, token });
   } catch (error) {

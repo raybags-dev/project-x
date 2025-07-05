@@ -192,7 +192,7 @@ export function restoreLoginFormState() {
             if (passwordField) {
               passwordField.disabled = true;
               passwordField.placeholder =
-                "You have requested a password reset. Please check your email and follow the instructions";
+                "Password reset mode enabled. Submit your request, check your email and follow the instructions.";
               passwordField.style.opacity = "0.6";
               passwordField.value = "";
             }
@@ -201,7 +201,7 @@ export function restoreLoginFormState() {
               forgotPasswordChecked: true,
               passwordFieldDisabled: true,
               passwordFieldPlaceholder:
-                "You have requested a password reset. Please check your email and follow the instructions",
+                "Password reset mode enabled. Submit your request, check your email and follow the instructions.",
             });
           } else {
             if (passwordField) {

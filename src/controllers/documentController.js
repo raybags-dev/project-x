@@ -2,6 +2,8 @@ import dateFns from "date-fns";
 import "dotenv/config";
 import mongoose from "mongoose";
 import { sendNotificationEmail } from "../../middleware/emailer.js";
+import EmailTemplates from "../data/email/emailTemplates.js";
+
 import {
   deleteReviewsByProfileFromS3,
   deleteReviewsFromS3,
@@ -149,12 +151,22 @@ export async function DeleteAllUserProfileDocumentsController(req, res) {
         message: "No matching documents found to delete",
       });
     }
-    const emailData = {
-      title: "Profile and documents deletion notification",
-      body: `The user account with ID: ${userProfile.userId} and email: ${localUser?.email} has successfully deleted all documents associated with the profile slug: ${reviewSiteSlug}. If this was a mistake, please contact support immediately.`,
-    };
-    await sendNotificationEmail(emailData, RECIPIENT_EMAIL);
-    await sendNotificationEmail(emailData, localUser.email);
+
+    const adminEmailData = EmailTemplates.profileDeletionAdminNotification({
+      userId: userProfile.userId,
+      userEmail: localUser.email,
+      reviewSiteSlug,
+      deletedCount: deleteResult.deletedCount,
+    });
+
+    const userEmailData = EmailTemplates.profileDeletionUserConfirmation({
+      userEmail: localUser?.email,
+      reviewSiteSlug,
+      deletedCount: deleteResult.deletedCount,
+    });
+
+    await sendNotificationEmail(adminEmailData, RECIPIENT_EMAIL);
+    await sendNotificationEmail(userEmailData, localUser.email);
 
     return res.status(200).json({
       status: "success",
