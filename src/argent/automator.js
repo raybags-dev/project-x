@@ -1,4 +1,7 @@
+import "dotenv/config";
+import { sendNotificationEmail } from "../../middleware/emailer.js";
 import { GetAllUsersController } from "../controllers/userController.js";
+import EmailTemplates from "../data/email/emailTemplates.js";
 import { logger } from "../loggers/logger.js";
 import agodaWorker from "./subArgents/agodaSubArgent/agodaWorker.js";
 import bookingWorker from "./subArgents/bookingSubArgent/bookingWorker.js";
@@ -6,6 +9,8 @@ import expediaWorker from "./subArgents/expediaSubArgent/expediaWorker.js";
 import googleWorker from "./subArgents/googleSubArgent/googleWorker.js";
 import opentableWorker from "./subArgents/opentableSubArgent/opentableWorker.js";
 import tripeWorker from "./subArgents/tripSubArgent/tripWorker.js";
+
+const { RECIPIENT_EMAIL } = process.env;
 
 /**
  * Aggregates all subscribed users and runs various workers to process reviews.
@@ -47,9 +52,25 @@ export default async function runAutoReviewAggregator() {
         page++;
       } catch (pageError) {
         logger(`Fatal error on page ${page}: ${pageError.message}`, "error");
+
+        const errorEmailData = EmailTemplates.automationErrorNotification({
+          totalSubscribedUsers: allSubscribedUsers.length,
+          errorMessage: pageError.message,
+          errorPage: page,
+          startTime,
+        });
+        await sendNotificationEmail(errorEmailData, RECIPIENT_EMAIL);
         break;
       }
     }
+    const totalPages = page - 1;
+
+    const startEmailData = EmailTemplates.automationStartNotification({
+      totalSubscribedUsers: allSubscribedUsers.length,
+      totalPages,
+      startTime,
+    });
+    await sendNotificationEmail(startEmailData, RECIPIENT_EMAIL);
 
     logger(
       `Completed aggregation. Found ${
@@ -78,7 +99,23 @@ export default async function runAutoReviewAggregator() {
     await googleWorker(allSubscribedUsers, undefined, true);
 
     logger("All workers completed successfully", "info");
+
+    const completionEmailData = EmailTemplates.automationCompletionNotification(
+      {
+        totalSubscribedUsers: allSubscribedUsers.length,
+        totalPages,
+        startTime,
+        endTime: new Date(),
+      }
+    );
+    await sendNotificationEmail(completionEmailData, RECIPIENT_EMAIL);
   } catch (err) {
     logger(`runAutoReviewAggregator error: ${err.message}`, "error");
+    const errorEmailData = EmailTemplates.automationErrorNotification({
+      totalSubscribedUsers: allSubscribedUsers.length,
+      errorMessage: err.message,
+      startTime,
+    });
+    await sendNotificationEmail(errorEmailData, RECIPIENT_EMAIL);
   }
 }
