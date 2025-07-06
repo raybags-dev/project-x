@@ -292,4 +292,125 @@ The ${companyName} Team
     `.trim(),
     };
   }
+  static automationStartNotification({
+    totalSubscribedUsers,
+    totalPages,
+    startTime = new Date(),
+    companyName = "raybags.com",
+  }) {
+    return {
+      title: "🚀 Auto Review Aggregation Started",
+      body: `
+Auto Review Aggregation Process Initiated
+
+**Process Details:**
+- Start Time: ${startTime.toLocaleString()}
+- Total Subscribed Users: ${totalSubscribedUsers}
+- Pages Processed: ${totalPages}
+- Process ID: ${Date.now()}
+
+**Scheduled Workers:**
+📊 Group 1: Agoda, OpenTable, TripAdvisor
+📊 Group 2: Booking.com, Expedia  
+📊 Group 3: Google Reviews
+
+**Expected Duration:**
+Estimated completion time: 15-30 minutes (depending on data volume)
+
+**Status:**
+✅ User aggregation completed
+🔄 Review workers starting...
+
+You will receive another notification when the process completes.
+
+---
+System Automation from ${companyName}
+Process Started: ${startTime.toLocaleString()}
+    `.trim(),
+    };
+  }
+  static automationCompletionNotification({
+    totalSubscribedUsers,
+    totalPages,
+    startTime,
+    endTime = new Date(),
+    companyName = "raybags.com",
+  }) {
+    const durationMs = endTime.getTime() - startTime.getTime();
+    const durationMinutes = Math.round(durationMs / (1000 * 60));
+
+    return {
+      title: "✅ Auto Review Aggregation Completed Successfully",
+      body: `
+Auto Review Aggregation Process Completed Successfully
+
+**Process Summary:**
+- Start Time: ${startTime.toLocaleString()}
+- End Time: ${endTime.toLocaleString()}
+- Duration: ${durationMinutes} minutes
+- Total Users Processed: ${totalSubscribedUsers}
+- Pages Processed: ${totalPages}
+
+**Completed Workers:**
+✅ Group 1: Agoda, OpenTable, TripAdvisor
+✅ Group 2: Booking.com, Expedia
+✅ Group 3: Google Reviews
+
+**Status:**
+🎉 All workers completed successfully
+📊 Review data updated for all subscribed users
+🔄 System ready for next scheduled run
+
+**Next Steps:**
+- Review aggregated data is now available to users
+- Next automated run scheduled as per configuration
+- Monitor system performance and user engagement
+
+---
+System Automation from ${companyName}
+Process Completed: ${endTime.toLocaleString()}
+    `.trim(),
+    };
+  }
+  static automationErrorNotification({
+    totalSubscribedUsers,
+    errorMessage,
+    errorPage,
+    startTime,
+    endTime = new Date(),
+    companyName = "raybags.com",
+  }) {
+    return {
+      title: "🚨 Auto Review Aggregation Failed",
+      body: `
+ALERT: Auto Review Aggregation Process Failed
+
+**Error Details:**
+- Error Time: ${endTime.toLocaleString()}
+- Start Time: ${startTime.toLocaleString()}
+- Error Page: ${errorPage || "Unknown"}
+- Error Message: ${errorMessage}
+
+**Process Summary:**
+- Users Found: ${totalSubscribedUsers || "N/A"}
+- Status: ❌ FAILED
+
+**Immediate Actions Required:**
+1. Check system logs for detailed error information
+2. Verify database connectivity and external API status
+3. Review worker processes for any stuck operations
+4. Consider manual intervention if critical
+
+**Impact:**
+⚠️  Review data may not be updated for subscribed users
+⚠️  Users may experience stale data until next successful run
+
+Please investigate and resolve the issue promptly.
+
+---
+System Alert from ${companyName}
+Error Occurred: ${endTime.toLocaleString()}
+    `.trim(),
+    };
+  }
 }
