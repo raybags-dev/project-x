@@ -1,4 +1,6 @@
+import * as cheerio from "cheerio";
 import "dotenv/config";
+import fs from "fs/promises";
 import helmet from "helmet";
 
 import { HEADERS } from "../data/headers/headers.js";
@@ -326,4 +328,56 @@ export function sanitizeHeaderValues(headers) {
 }
 export async function holdOnFor(timer = 2000) {
   await new Promise((res) => setTimeout(res, Number.parseInt(timer)));
+}
+export async function loadSupportedSlugs(filePath) {
+  try {
+    const text = await fs.readFile(filePath, "utf-8");
+    return text
+      .split(",")
+      .map((slug) => slug.trim().toLowerCase())
+      .filter(Boolean);
+  } catch (err) {
+    logger(`Error reading slugs file: ${err.message}`, "error");
+    return [];
+  }
+}
+export function filterUrlsBySlug(urls, slugs) {
+  return urls.filter((url) => {
+    try {
+      const host = new URL(url).hostname.replace(/\./g, "-").toLowerCase();
+      return slugs.some((slug) => host.includes(slug));
+    } catch {
+      return false;
+    }
+  });
+}
+export function extractUrlsFromPage(html) {
+  const $ = cheerio.load(html);
+  const scripts = $('script[type="speculationrules"]');
+  const urls = [];
+
+  scripts.each((_, el) => {
+    try {
+      const scriptContent = $(el).html();
+      if (!scriptContent) return;
+
+      const json = JSON.parse(scriptContent);
+      if (Array.isArray(json.prefetch)) {
+        json.prefetch.forEach((entry) => {
+          if (Array.isArray(entry.urls)) {
+            urls.push(
+              ...entry.urls.filter((url) => url && typeof url === "string")
+            );
+          }
+        });
+      }
+    } catch (err) {
+      logger(
+        `Failed to parse speculationrules script JSON: ${err.message}`,
+        "warn"
+      );
+    }
+  });
+
+  return [...new Set(urls)];
 }
