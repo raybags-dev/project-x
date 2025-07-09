@@ -2183,7 +2183,18 @@ export const PLUGINS = {
       return null;
     } catch (error) {
       runSpinner(true);
-      console.error("Error in <loadeSiteSlugs>:", error.message);
+      const is401 =
+        error.message &&
+        error.message.includes("Request failed with status code 401");
+      if (is401) {
+        displayLabel([
+          "review_main_wrapper",
+          "alert-danger",
+          `Authentication error - please login again.`,
+        ]);
+        return;
+      }
+      console.warn("Could not load sites:", error.message);
       return error;
     }
   },

@@ -300,6 +300,20 @@ async function loadAvailableSites() {
       ul.appendChild(li);
     });
   } catch (error) {
-    console.error("Error loading site slugs:", error);
+    const isLoginRequired =
+      error.message && error.message.includes("Invalid slug response");
+    if (isLoginRequired) {
+      setTimeout(() => {
+        displayLabel([
+          "review_main_wrapper",
+          "alert-danger",
+          `Please login again.`,
+        ]);
+      }, 3000);
+
+      return;
+    }
+    console.warn("Error loading site slugs:", error);
+    return error;
   }
 }

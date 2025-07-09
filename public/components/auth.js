@@ -6,6 +6,16 @@ export async function validateSuperAdmin() {
     runSpinner(false, "validating...");
 
     const user = getAuthHandler();
+    if (!user || !user["auth-token"]) {
+      runSpinner(true);
+      displayLabel([
+        "review_main_wrapper",
+        "alert-warning",
+        "Session expired. You are not logged in.",
+      ]);
+      throw new Error("User not authenticated");
+    }
+
     const { "auth-token": token, isAdmin, superUserToken, isSuperUser } = user;
 
     if (!token || !isSuperUser || !isAdmin) return false;
@@ -41,6 +51,9 @@ export async function validateSuperAdmin() {
         "Your session has expired.",
       ]);
     }
+    if (error.message.includes("User not authenticated"))
+      return runSpinner(true);
+
     console.warn(error);
   }
 }
