@@ -4,9 +4,6 @@ import { logger } from "../src/loggers/logger.js";
 const jobLocks = new Map();
 const jobHistory = new Map();
 
-/**
- * Enhanced scheduler with job locking and conflict prevention
- */
 export default function scheduleAutomationTask(
   taskFn,
   cronExpression,
@@ -28,8 +25,8 @@ export default function scheduleAutomationTask(
   }
 
   const {
-    gracePeriodMinutes = 30, // Grace period
-    skipIfRecentRun = true, // Skip if job ran recently
+    gracePeriodMinutes = 30,
+    skipIfRecentRun = true,
     recentRunThresholdMinutes = 60,
     maxRetries = 3,
     retryDelayMs = 5000,
@@ -52,7 +49,7 @@ export default function scheduleAutomationTask(
           `Job ${jobName} ran recently (within ${recentRunThresholdMinutes}min). Skipping execution.`,
           "info"
         );
-        return;
+        return false;
       }
 
       if (hasConflictingJobs(jobId, gracePeriodMinutes)) {
@@ -74,7 +71,6 @@ export default function scheduleAutomationTask(
         }
       }
 
-      // Execute job with retry logic
       await executeJobWithRetry(
         taskFn,
         jobId,

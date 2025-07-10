@@ -21,6 +21,7 @@ const { RECIPIENT_EMAIL } = process.env;
  */
 
 export default async function runAutoReviewAggregator() {
+  const startTime = new Date();
   try {
     const userItemsPerPage = 10;
     let page = 1;

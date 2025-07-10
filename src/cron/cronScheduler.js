@@ -1,22 +1,10 @@
 import scheduleAutomationTask, {
   cleanupJobHistory,
-  getCronScheduleStrings,
   getJobStats,
 } from "../../middleware/cronUtility.js";
 
 import { logger } from "../loggers/logger.js";
 
-/**
- * Sets up all cron jobs with conflict prevention and intelligent scheduling
- *
- * @param {Object} config - Configuration object
- * @param {Function} config.taskFunction - The main task function to run
- * @param {boolean} config.runAutomation - Whether to enable automation
- * @param {string} config.instanceId - Instance identifier for logging
- * @param {Object} config.schedules - Custom schedule overrides (optional)
- * @param {Object} config.jobOptions - Global job options (optional)
- * @param {boolean} config.enableMonitoring - Enable job monitoring (optional)
- */
 export function setupCronJobs({
   taskFunction,
   runAutomation = true,
@@ -29,6 +17,8 @@ export function setupCronJobs({
     throw new Error("taskFunction is required and must be a function");
   }
 
+  const isTestMode = process.env.TEST_MODE === "true";
+
   if (!runAutomation) {
     logger(`Skipping cron jobs setup for instance ${instanceId}`);
     return {
@@ -40,22 +30,15 @@ export function setupCronJobs({
 
   logger(`Setting up cron jobs on instance ${instanceId}`);
 
-  const CRON_SCHEDULES = getCronScheduleStrings();
+  const finalSchedules = { ...schedules };
   const scheduledJobs = [];
 
-  // Merge custom schedules with defaults
-  const finalSchedules = {
-    every8Hours: CRON_SCHEDULES.every8Hours,
-    everyDayOffset: CRON_SCHEDULES.everyDayOffset,
-    every1month: CRON_SCHEDULES.every1month,
-    every6months: CRON_SCHEDULES.every6months,
-    ...schedules,
-  };
+  const jobConfigs = [];
 
-  // Default job configurations with conflict prevention
-  const jobConfigs = [
-    {
+  if (finalSchedules.every8Hours) {
+    jobConfigs.push({
       name: "reviewAggregator8h",
+      key: "every8Hours",
       schedule: finalSchedules.every8Hours,
       options: {
         gracePeriodMinutes: 30,
@@ -64,45 +47,76 @@ export function setupCronJobs({
         maxRetries: 2,
         ...jobOptions.every8Hours,
       },
-    },
-    {
+    });
+  }
+
+  if (finalSchedules.everyDayOffset) {
+    jobConfigs.push({
       name: "reviewAggregatorDaily",
+      key: "everyDayOffset",
       schedule: finalSchedules.everyDayOffset,
       options: {
         gracePeriodMinutes: 45,
         skipIfRecentRun: true,
-        recentRunThresholdMinutes: 480, // 8 hours
+        recentRunThresholdMinutes: 480,
         maxRetries: 3,
         ...jobOptions.daily,
       },
-    },
-    {
+    });
+  }
+
+  if (finalSchedules.every1month) {
+    jobConfigs.push({
       name: "reviewAggregatorMonthly",
+      key: "every1month",
       schedule: finalSchedules.every1month,
       options: {
         gracePeriodMinutes: 60,
         skipIfRecentRun: true,
-        recentRunThresholdMinutes: 1440, // 24 hours
+        recentRunThresholdMinutes: 1440,
         maxRetries: 3,
         ...jobOptions.monthly,
       },
-    },
-    {
+    });
+  }
+
+  if (finalSchedules.every6months) {
+    jobConfigs.push({
       name: "reviewAggregator6Monthly",
+      key: "every6months",
       schedule: finalSchedules.every6months,
       options: {
         gracePeriodMinutes: 120,
         skipIfRecentRun: true,
-        recentRunThresholdMinutes: 2880, // 48 hours
+        recentRunThresholdMinutes: 2880,
         maxRetries: 5,
         ...jobOptions.sixMonthly,
       },
-    },
-  ];
+    });
+  }
 
-  // Schedule all jobs
+  if (isTestMode && finalSchedules.every5Minutes) {
+    jobConfigs.push({
+      name: "reviewAggregatorTestJob",
+      key: "every5Minutes",
+      schedule: finalSchedules.every5Minutes,
+      options: {
+        gracePeriodMinutes: 2,
+        skipIfRecentRun: false,
+        maxRetries: 1,
+        ...jobOptions.every5Minutes,
+      },
+    });
+  }
+
   try {
-    jobConfigs.forEach(({ name, schedule, options }) => {
+    jobConfigs.forEach(({ name, key, options }) => {
+      const schedule = finalSchedules[key];
+      if (!schedule) {
+        logger(`Skipping job ${name} because schedule is not defined`, "info");
+        return;
+      }
+
       scheduleAutomationTask(taskFunction, schedule, name, true, options);
 
       scheduledJobs.push({
@@ -115,27 +129,39 @@ export function setupCronJobs({
     });
 
     // Schedule cleanup job
-    scheduleAutomationTask(
-      () => cleanupJobHistory(7),
-      "0 2 * * 0", // Every Sunday at 2 AM
-      "historyCleanup",
-      true,
-      {
-        gracePeriodMinutes: 10,
-        skipIfRecentRun: false,
-        maxRetries: 1,
-      }
-    );
+    const cleanupSchedule = "0 2 * * 0"; // Every Sunday at 2 AM
 
-    scheduledJobs.push({
-      name: "historyCleanup",
-      schedule: "0 2 * * 0",
-      options: { gracePeriodMinutes: 10 },
-    });
+    if (!process.env.TEST_MODE) {
+      scheduleAutomationTask(
+        () => cleanupJobHistory(7),
+        cleanupSchedule,
+        "historyCleanup",
+        true,
+        {
+          gracePeriodMinutes: 10,
+          skipIfRecentRun: false,
+          maxRetries: 1,
+        }
+      );
 
-    logger(`✓ All ${scheduledJobs.length} cron jobs scheduled...`);
+      scheduledJobs.push({
+        name: "historyCleanup",
+        schedule: cleanupSchedule,
+        options: { gracePeriodMinutes: 10 },
+      });
+    }
 
-    // Optional monitoring setup
+    if (process.env.TEST_MODE === "true") {
+      const expected = 1;
+      const actual = scheduledJobs.length;
+
+      logger(
+        actual === expected
+          ? `🧪 [TEST_MODE] ✓ ${actual} test job scheduled for instance ${instanceId}`
+          : `🧪 [TEST_MODE] ⚠ Expected ${expected} test job, but found ${actual}`
+      );
+    }
+
     if (enableMonitoring) {
       setupJobMonitoring();
     }

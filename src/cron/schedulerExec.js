@@ -53,7 +53,9 @@ export function runScheduler({
   }
 
   if (!runAutomation) {
-    console.log(`Skipping cron jobs setup for instance ${instanceId}`);
+    console.log(
+      `Skipping cron jobs setup - Automation disabled on instance ${instanceId}`
+    );
     return {
       success: false,
       message: "Automation disabled",
@@ -62,50 +64,32 @@ export function runScheduler({
     };
   }
 
+  const testMode = process.env.TEST_MODE === "true";
+
+  if (testMode) {
+    console.log(`🚨 TEST MODE ENABLED: Only scheduling 5-minute test job.`);
+  }
+
   console.log(`Setting up automation scheduler for instance ${instanceId}`);
 
   try {
-    // Default schedules with conflict prevention
-    const defaultSchedules = {
-      every8Hours: "0 */8 * * *", // Keep default: 00:00, 08:00, 16:00
-      everyDayOffset: "30 0 * * *", // Run at 00:30 instead of 00:15
-      every1month: "0 1 1 * *", // Run at 01:00 on 1st of month
-      every6months: "0 2 1 */6 *", // Run at 02:00 on 1st of every 6th month
-    };
+    const defaultConfig = getDefaultSchedulerConfig();
+    const defaultSchedules = defaultConfig.schedules;
+    const defaultJobOptions = defaultConfig.jobOptions;
 
-    // Default job options with intelligent conflict prevention
-    const defaultJobOptions = {
-      every8Hours: {
-        gracePeriodMinutes: 45,
-        maxRetries: 3,
-      },
-      daily: {
-        recentRunThresholdMinutes: 360,
-        maxRetries: 2,
-      },
-      monthly: {
-        gracePeriodMinutes: 90,
-        maxRetries: 5,
-      },
-      sixMonthly: {
-        gracePeriodMinutes: 180,
-        maxRetries: 7,
-      },
-    };
+    // Inject test-only schedule if TEST_MODE is true
+    const injectedSchedules = testMode
+      ? { every5Minutes: defaultSchedules.every5Minutes }
+      : schedules;
 
-    // Merge user options with defaults
-    const finalSchedules = { ...defaultSchedules, ...schedules };
-    const finalJobOptions = {
-      every8Hours: {
-        ...defaultJobOptions.every8Hours,
-        ...jobOptions.every8Hours,
-      },
-      daily: { ...defaultJobOptions.daily, ...jobOptions.daily },
-      monthly: { ...defaultJobOptions.monthly, ...jobOptions.monthly },
-      sixMonthly: { ...defaultJobOptions.sixMonthly, ...jobOptions.sixMonthly },
-    };
+    const { finalSchedules, finalJobOptions } = getMergedSchedulesAndOptions({
+      defaultSchedules,
+      defaultJobOptions,
+      schedules: injectedSchedules,
+      jobOptions,
+      testMode,
+    });
 
-    // Setup cron jobs
     const result = setupCronJobs({
       taskFunction,
       runAutomation,
@@ -122,6 +106,7 @@ export function runScheduler({
 
     console.log(`✅ ${result.message}`);
     console.log(`Cron jobs setup result:`, JSON.stringify(result));
+
     if (app && enableEndpoints) {
       setupMonitoringEndpoints(app, instanceId, endpointOptions);
       console.log(`✅ Monitoring endpoints enabled for instance ${instanceId}`);
@@ -321,8 +306,14 @@ export function getDefaultSchedulerConfig() {
       everyDayOffset: "30 0 * * *",
       every1month: "0 1 1 * *",
       every6months: "0 2 1 */6 *",
+      every5Minutes: "*/5 * * * *", // Test job for quick checks
     },
     jobOptions: {
+      every5Minutes: {
+        gracePeriodMinutes: 2,
+        skipIfRecentRun: false,
+        maxRetries: 1,
+      },
       every8Hours: {
         gracePeriodMinutes: 45,
         maxRetries: 3,
@@ -349,6 +340,49 @@ export function getDefaultSchedulerConfig() {
       enableCleanup: true,
       enableJobControl: true,
       authMiddleware: [authMiddleware, userIsSuper, isSubscribed],
+    },
+  };
+}
+function getMergedSchedulesAndOptions({
+  defaultSchedules,
+  defaultJobOptions,
+  schedules,
+  jobOptions,
+  testMode = false,
+}) {
+  if (testMode) {
+    logger(
+      "TEST_MODE enabled → only scheduling 'every5Minutes' test job",
+      "info"
+    );
+    return {
+      finalSchedules: {
+        every5Minutes: defaultSchedules.every5Minutes,
+      },
+      finalJobOptions: {
+        every5Minutes: defaultJobOptions.every5Minutes,
+      },
+    };
+  }
+
+  if (!testMode) {
+    delete schedules.every5Minutes;
+    delete jobOptions.every5Minutes;
+  }
+
+  return {
+    finalSchedules: { ...defaultSchedules, ...schedules },
+    finalJobOptions: {
+      every8Hours: {
+        ...defaultJobOptions.every8Hours,
+        ...(jobOptions.every8Hours ?? {}),
+      },
+      daily: { ...defaultJobOptions.daily, ...(jobOptions.daily ?? {}) },
+      monthly: { ...defaultJobOptions.monthly, ...(jobOptions.monthly ?? {}) },
+      sixMonthly: {
+        ...defaultJobOptions.sixMonthly,
+        ...(jobOptions.sixMonthly ?? {}),
+      },
     },
   };
 }

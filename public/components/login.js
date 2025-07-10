@@ -17,6 +17,25 @@ async function handleLoginFormSubmit(event) {
   const email = formData.get("email");
   const password = formData.get("password");
 
+  const LOGIN_ATTEMPTS_KEY = "login_attempted_emails";
+  const maxAttempts = 3;
+
+  const forgotCheckbox = document.querySelector("#flexSwitchCheckDefault");
+  const isForgotMode = forgotCheckbox?.checked;
+
+  if (isForgotMode) {
+    const allowedEmails =
+      JSON.parse(localStorage.getItem(LOGIN_ATTEMPTS_KEY)) || [];
+    if (!allowedEmails.includes(email)) {
+      displayLabel([
+        "review_main_wrapper",
+        "alert-danger",
+        "Only previously attempted emails can be used to reset the password.",
+      ]);
+      return;
+    }
+  }
+
   try {
     const loginResponse = await loginUser({ email, password });
 
@@ -36,6 +55,20 @@ async function handleLoginFormSubmit(event) {
     }
 
     if (loginResponse.status === 200) {
+      // ✅ Save login email only for successful normal logins
+      if (!isForgotMode) {
+        let attemptedEmails =
+          JSON.parse(localStorage.getItem(LOGIN_ATTEMPTS_KEY)) || [];
+        attemptedEmails = [
+          email,
+          ...attemptedEmails.filter((e) => e !== email),
+        ].slice(0, maxAttempts);
+        localStorage.setItem(
+          LOGIN_ATTEMPTS_KEY,
+          JSON.stringify(attemptedEmails)
+        );
+      }
+
       justForAMoment("Almost done");
       const { user } = loginResponse.data;
       const { headers } = loginResponse;
@@ -82,6 +115,7 @@ async function handleLoginFormSubmit(event) {
     setTimeout(() => runSpinner(true), 3000);
   }
 }
+
 function setupEventListeners() {
   const navbarBrand = document.querySelector("#to_sigup_p");
   navbarBrand?.addEventListener("click", async () => {
@@ -184,30 +218,50 @@ export function restoreLoginFormState() {
         forgotPasswordCheckbox.setAttribute("data-listener-added", "true");
 
         forgotPasswordCheckbox.addEventListener("change", function (event) {
+          const emailField = document.querySelector("#exampleInputEmail1");
+
           const passwordField = document.querySelector(
             "#exampleInputPassword1"
           );
 
           if (event.target.checked) {
-            if (passwordField) {
+            if (passwordField && emailField) {
+              // Lock input
               passwordField.disabled = true;
-              passwordField.placeholder =
-                "Password reset mode enabled. Submit your request, check your email and follow the instructions.";
+              emailField.disabled = true;
+
+              // Get most recent attempted email
+              const emailAttempts =
+                JSON.parse(localStorage.getItem("login_attempted_emails")) ||
+                [];
+              const lockedEmail = emailAttempts[0] || "";
+
+              emailField.value = lockedEmail;
+              passwordField.placeholder = "Password reset mode enabled.";
+              emailField.placeholder = `Using previous login: ${
+                lockedEmail || "unknown"
+              }`;
+
               passwordField.style.opacity = "0.6";
+              emailField.style.opacity = "0.6";
+
               passwordField.value = "";
             }
 
             saveLoginFormState({
               forgotPasswordChecked: true,
               passwordFieldDisabled: true,
-              passwordFieldPlaceholder:
-                "Password reset mode enabled. Submit your request, check your email and follow the instructions.",
+              passwordFieldPlaceholder: "Password reset mode enabled.",
             });
           } else {
             if (passwordField) {
               passwordField.disabled = false;
               passwordField.placeholder = "Enter your password";
               passwordField.style.opacity = "1";
+
+              emailField.disabled = false;
+              emailField.placeholder = `${emailField.value}`;
+              emailField.style.opacity = "1";
             }
 
             saveLoginFormState({
