@@ -23,7 +23,7 @@ import {
   handleNotSupported,
   miscellaneous,
 } from "./src/utilities/miscellaneous.js";
-import { handleCSP } from "./src/utilities/utilities.js";
+import { handleCSP, handleSchedulerResult } from "./src/utilities/utilities.js";
 import generalRoutesHandler from "./src/workers/generalRoutesHandler.js";
 import nginxRoutesHandler from "./src/workers/nginxRoutesHandler.js";
 import profileGeneratorHandler from "./src/workers/profileGenRoutesHandler.js";
@@ -74,13 +74,6 @@ const schedulerResult = runScheduler({
   ...getDefaultSchedulerConfig(),
 });
 
-if (RUN_AUTOMATION) {
-  const success = schedulerResult.success;
-  const prefix = success ? "✅ Scheduler" : "❌ Scheduler failed";
-  const message = `${prefix}: ${
-    schedulerResult.message || schedulerResult.error
-  }`;
-  logger(message, success ? "info" : "error");
-}
+handleSchedulerResult(schedulerResult, RUN_AUTOMATION, logger);
 
 export default app;

@@ -381,3 +381,12 @@ export function extractUrlsFromPage(html) {
 
   return [...new Set(urls)];
 }
+export function handleSchedulerResult(schedulerResult, run_automation, logger) {
+  if (!run_automation) return logger("All cron jobs turned off", "warn");
+  const success = schedulerResult.success;
+  const prefix = success ? "✅ Scheduler" : "❌ Scheduler failed";
+  const message = `${prefix}: ${
+    schedulerResult.message || schedulerResult.error
+  }`;
+  logger(message, success ? "info" : "error");
+}
