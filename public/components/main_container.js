@@ -70,7 +70,7 @@ export async function MAIN_PAGE() {
                 </ul>
               </li>
             </ul>
-            <div class="container subb_head_ing d-flex justify-content-center align-content-center">
+            <div class="container subb_head_ing">
               <a class="lead btn btn-outline-secondary btn-lg text-uppercase" href="/" 
                  style="border-color: transparent !important;"></a>
             </div>

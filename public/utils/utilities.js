@@ -645,8 +645,30 @@ export async function ReviewHTML(reviewsDataOject = {}, cardIsNew = false) {
       language = (language1 && language1) || language2,
       isExpertReviewer = miscellaneous?.isExpertReviewer;
 
+    const trimmedReviewBody =
+      (reviewBody && reviewBody) ||
+      "No guest review comment provided. This review has no comments.";
+
+    const needsExpansion = trimmedReviewBody.length > 700;
+    const reviewTextPreview = needsExpansion
+      ? trimmedReviewBody.slice(0, 700)
+      : trimmedReviewBody;
+
+    const reviewBodyHTML = `
+        <p class="review-body ${
+          needsExpansion ? "collapsed" : ""
+        }" id="review-body-${_id}">
+          <span class="review-text">${reviewTextPreview}</span>
+          ${
+            needsExpansion
+              ? `<span class="expand-toggle" data-review-id="${_id}">...Read more</span>`
+              : ""
+          }
+        </p>
+      `;
+
     const InnerReviewHTMLContent = `
-        <div id="${_id}" class="row review-container shadow shadow-sm  __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
+        <div id="${_id}" class="row review-container shadow shadow-lg  __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
               <div class="card text-bg-light my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
                   <div class="card-header shadow-none card_header">
                   <img src="" style="width:30%;max-width:100px !important;min-width:65px !important;max-height:100px !important;border-radius:3px" class="img-thumbnail review-logo-${uuid}-${internalId} bg-transparent" alt="...">
@@ -670,11 +692,8 @@ export async function ReviewHTML(reviewsDataOject = {}, cardIsNew = false) {
                     <h5 class="card-title review-author d-inline m-1 text-left text-muted">
                       ${title ? `<q>${title}</q>` : ""}
                     </h5>
-                    <p class="review-body">${
-                      (reviewBody && reviewBody) ||
-                      "There are no comments available for this review"
-                    }</p>
-  
+                    ${reviewBodyHTML}
+
                       <span class="card-text review-submitted-date">
                         <small class="text-muted">Created: ${formatDate(
                           createdAt
@@ -754,6 +773,24 @@ export async function ReviewHTML(reviewsDataOject = {}, cardIsNew = false) {
       ],
       authorExternalId
     );
+
+    if (needsExpansion) {
+      const expandToggle = document.querySelector(
+        `.expand-toggle[data-review-id="${_id}"]`
+      );
+
+      const reviewBody = document.getElementById(`review-body-${_id}`);
+      const reviewText = reviewBody.querySelector(".review-text");
+
+      expandToggle.addEventListener("click", () => {
+        const isExpanded = reviewBody.classList.toggle("expanded");
+        reviewText.innerHTML = isExpanded
+          ? trimmedReviewBody
+          : trimmedReviewBody.slice(0, 700);
+        expandToggle.textContent = isExpanded ? "Collapse" : "...Read more";
+      });
+    }
+
     return InnerReviewHTMLContent;
   } catch (error) {
     console.log(error);
@@ -1009,7 +1046,7 @@ export async function handleSearchPannel(anchorSelector) {
   form.className = "w-100 main_search__container border";
 
   form.innerHTML = `
-      <fieldset class="bg-info _innter_search_cont p-1">
+      <fieldset class="bg-transparent _innter_search_cont p-1 shadow">
           <div class="row d-flex" style="justify-content:center; align-items-center;flex-wrap:wrap">
               <div class="col-12 col-md-2">
                   <label for="range_filter_field" class="form-label">Date Range</label>

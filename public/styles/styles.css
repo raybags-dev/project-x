@@ -116,14 +116,16 @@ body::after {
 .main_search__container {
   display: none !important;
   transition: all .3s;
+  background: #ffffff !important;
   justify-content: space-around;
   align-items: center;
-  -webkit-backdrop-filter: blur(5px);
-  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(50px) !important;
+  backdrop-filter: blur(50px) !important;
   position: absolute;
   opacity: 0;
   width: 100%;
   bottom: 100%;
+  z-index: 1000 !important;
 }
 .show_searchpannel {
   display: block !important;
@@ -134,14 +136,14 @@ body::after {
 @-webkit-keyframes search_pannel {
   to {
     opacity: 1;
-    bottom: -100%;
+    bottom: unset;
   }
 }
 
 @keyframes search_pannel {
   to {
     opacity: 1;
-    bottom: -100%;
+    bottom: unset;
   }
 }
 .action_buttons {
@@ -532,7 +534,9 @@ a {
   outline: transparent !important;
   box-shadow: unset !important;
 }
-
+.subb_head_ing{
+  min-width: fit-content !important;
+}
 .subb_head_ing a:hover {
   background-color: transparent;
   text-decoration: underline;
@@ -674,6 +678,27 @@ textarea:focus {
 .review-body {
   padding-left: .3rem;
 }
+.review-body {
+  max-height: 290px;
+  overflow: hidden;
+  position: relative;
+  transition: max-height 0.3s ease;
+  white-space: pre-line;
+}
+
+.review-body.expanded {
+  max-height: none;
+}
+
+.review-body .expand-toggle {
+  display: block;
+  color: #51a1f6;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 8px;
+  user-select: none;
+}
+
 
 .loader {
   position: relative;
@@ -1129,4 +1154,24 @@ textarea:focus {
     padding: .5rem;
     box-shadow: rgb(211, 210, 210, .3) 2px 2px 2px 2px;
   }
+  #__nav{
+    overflow: auto;
+    max-height: 90%;
+    justify-content: center;
+    align-items: center;
+  }
+  .subb_head_ing {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 100vw !important;
+  height: 3%;
+  z-index: 1000;
+  bottom: 0 !important;
+  color: rgb(255, 255, 255);
+  text-shadow: -1px -1px 1px rgba(255, 255, 255, 0.2), 
+               1px 1px 1px rgba(0, 0, 0, 0.6);
+  
+}
 }
