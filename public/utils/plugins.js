@@ -1270,17 +1270,9 @@ export const PLUGINS = {
           displayLabel([
             "review_main_wrapper",
             "alert-success",
-            `This is the last page: ${page}`,
+            `last page: ${page}`,
           ]);
           return data;
-        }
-
-        if (slug === "") {
-          displayLabel([
-            "review_main_wrapper",
-            "alert-success",
-            `Page: ${page}`,
-          ]);
         }
         return data;
       }
