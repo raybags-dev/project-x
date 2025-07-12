@@ -7,6 +7,7 @@ import {
 } from "../../middleware/limiters.js";
 
 import {
+  confirmAccountController,
   CreateUserController,
   GetAllUsersController,
   GetUserController,
@@ -56,6 +57,10 @@ router.put(
   isAdmin,
   isSubscribed,
   asyncMiddleware(UpdateSubscriptionController)
+);
+router.get(
+  "/raybags/v1/review-crawler/user/confirm-account",
+  asyncMiddleware(confirmAccountController)
 );
 
 export default router;

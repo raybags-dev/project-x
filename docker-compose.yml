@@ -138,7 +138,6 @@ services:
       - CONTEXT_USER_ELEVATED_STATUS=${CONTEXT_USER_ELEVATED_STATUS}
       - CONTEXT_USERID=${CONTEXT_USERID}
       - TEST_MODE=${TEST_MODE}
-
     volumes:
       - ./scripts:/app/scripts
       - ./logs/instance2:/app/logs
@@ -204,7 +203,6 @@ services:
       - CONTEXT_USER_ELEVATED_STATUS=${CONTEXT_USER_ELEVATED_STATUS}
       - CONTEXT_USERID=${CONTEXT_USERID}
       - TEST_MODE=${TEST_MODE}
-
     volumes:
       - ./scripts:/app/scripts
       - ./logs/instance3:/app/logs
@@ -270,7 +268,6 @@ services:
       - CONTEXT_USER_ELEVATED_STATUS=${CONTEXT_USER_ELEVATED_STATUS}
       - CONTEXT_USERID=${CONTEXT_USERID}
       - TEST_MODE=${TEST_MODE}
-
     volumes:
       - ./scripts:/app/scripts
       - ./logs/instance4:/app/logs
