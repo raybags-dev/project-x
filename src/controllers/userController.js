@@ -1,4 +1,6 @@
 import "dotenv/config";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
 import { sendNotificationEmail } from "../../middleware/emailer.js";
 import EmailTemplates from "../data/email/emailTemplates.js";
 import { logger } from "../loggers/logger.js";
@@ -8,14 +10,22 @@ import { USER_ID_MODEL, USER_MODEL } from "../models/user.js";
 import { sanitizeUser, validateRequest } from "../utilities/utilities.js";
 import { getAllSubscribedUsers } from "./userUtils.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const {
   RECIPIENT_EMAIL,
   SECRET_ADMIN_TOKEN,
   SUPER_USER_TOKEN,
   CONTEXT_USER_TOKEN,
+  PROD_URL,
+  NODE_ENV,
 } = process.env;
 
+const isProduction = NODE_ENV === "production";
+
 export async function CreateUserController(req, res) {
+  let confirmationUrl = null;
+
   try {
     const validationError = validateRequest(req.body);
     if (validationError) {
@@ -42,32 +52,15 @@ export async function CreateUserController(req, res) {
     const newUserId = await USER_ID_MODEL.create({});
     const userId = newUserId._id;
 
-    let user;
-    const isSubscribed = false;
-
-    if (isAdminUser || isSuperUser) {
-      user = new USER_MODEL({
-        name,
-        email,
-        password,
-        userId,
-        isAdmin: true,
-        superUserToken,
-        isSuperUser,
-        isSubscribed: isSuperUser ? true : isSubscribed,
-      });
-    } else {
-      user = new USER_MODEL({
-        name,
-        email,
-        password,
-        userId,
-        isAdmin: false,
-        isSubscribed,
-      });
-    }
-
-    await user.save();
+    const user = await USER_MODEL.createWithConfirmation({
+      name,
+      email,
+      password,
+      isAdmin: isAdminUser,
+      isSuperUser,
+      superUserToken,
+      userId,
+    });
 
     const sanitizedUser = sanitizeUser(user);
     const token = user.generateAuthToken();
@@ -81,15 +74,20 @@ export async function CreateUserController(req, res) {
       isSubscribed: sanitizedUser.isSubscribed,
     });
 
-    // For user welcome email (optional)
+    confirmationUrl = `${
+      (isProduction && PROD_URL) || "http://localhost:3001"
+    }/raybags/v1/review-crawler/user/confirm-account?token=${
+      user.accountConfirmationToken
+    }&email=${encodeURIComponent(user.email)}`;
+
     const welcomeEmailData = EmailTemplates.userWelcomeEmail({
       userName: sanitizedUser.name,
       userEmail: sanitizedUser.email,
       isAdmin: sanitizedUser.isAdmin,
       isSuperUser: sanitizedUser.isSuperUser,
+      confirmationUrl,
     });
 
-    // Send notifications
     await sendNotificationEmail(adminEmailData, RECIPIENT_EMAIL);
     await sendNotificationEmail(welcomeEmailData, sanitizedUser.email);
 
@@ -100,8 +98,9 @@ export async function CreateUserController(req, res) {
       token,
     });
   } catch (error) {
-    logger(`Error processing request:${error.message}`, "error");
-    res.status(400).send({ error: error.message });
+    const errMessage = error.message;
+    logger(`Error processing request:${errMessage}`, "error");
+    res.status(400).send({ error: errMessage });
   }
 }
 export async function LoginController(req, res) {
@@ -291,5 +290,37 @@ export async function UpdateSubscriptionController(req, res) {
   } catch (error) {
     logger(`Error updating subscription status: ${error}`, "error");
     res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+export async function confirmAccountController(req, res) {
+  try {
+    const { token, email } = req.query;
+
+    if (!token || !email) {
+      return res.status(400).send({ error: "Missing token or email." });
+    }
+
+    const user = await USER_MODEL.confirmAccount(token, email);
+    const isConfirmed = user.isAccountConfirmed;
+
+    if (isConfirmed) {
+      logger(`✅ Account confirmed for: ${email}`, "info");
+      return res
+        .status(200)
+        .sendFile(path.join(__dirname, "../../pages", "confirmed.html"));
+    }
+  } catch (error) {
+    const errMessage = "Invalid or expired confirmation link";
+    if (errMessage) {
+      logger(`❌ Account confirmation failed: ${errMessage}`, "error");
+
+      return res
+        .status(401)
+        .sendFile(
+          path.join(__dirname, "../../pages", "confirmationFailed.html")
+        );
+    }
+    logger(`Account confirmation failed: ${error.message}`, "error");
+    return res.status(400).send({ error: error.message });
   }
 }

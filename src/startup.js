@@ -50,7 +50,6 @@ const startServer = async (app, port, instanceId, attempt = 1) => {
 
       server.on("error", reject);
 
-      // Store server reference for graceful shutdown
       app.locals.server = server;
     });
   } catch (err) {

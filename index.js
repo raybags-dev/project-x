@@ -38,7 +38,7 @@ const INSTANCE_ID = process.env.INSTANCE_ID || "1";
 const RUN_AUTOMATION = INSTANCE_ID === "1";
 
 console.log(`Starting application instance: ${INSTANCE_ID}`);
-console.log(
+logger(
   `Automation ${RUN_AUTOMATION ? "ENABLED" : "DISABLED"} for this instance`
 );
 

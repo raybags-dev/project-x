@@ -1,36 +1,44 @@
-import path, { dirname } from 'path'
-import favicon from 'serve-favicon'
-import { fileURLToPath } from 'url'
-import axiosInstance from '../downloader/HTTPEngine.js'
+import path, { dirname } from "path";
+import favicon from "serve-favicon";
+import { fileURLToPath } from "url";
+import axiosInstance from "../downloader/HTTPEngine.js";
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-async function testUrl (url) {
+async function testUrl(url) {
   try {
-    const response = await axiosInstance.head(url)
-    return response.status >= 200 && response.status < 400
+    const response = await axiosInstance.head(url);
+    return response.status >= 200 && response.status < 400;
   } catch (error) {
-    return false
+    return false;
   }
 }
-export async function findAccessibleUrl (...urls) {
-  const accessibilityResults = await Promise.all(urls.map(testUrl))
+export async function findAccessibleUrl(...urls) {
+  const accessibilityResults = await Promise.all(urls.map(testUrl));
 
   for (let i = 0; i < urls.length; i++) {
-    if (accessibilityResults[i]) return urls[i]
+    if (accessibilityResults[i]) return urls[i];
   }
-  return null
+  return null;
 }
-export async function handleNotSupported (app) {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../notSupported', 'index.html'))
-  })
+export async function handleNotSupported(app) {
+  const excludedRoutes = ["/raybags/v1/review-crawler/user/confirm-account"];
+  app.get("*", (req, res, next) => {
+    const isExcluded = excludedRoutes.some((route) =>
+      req.originalUrl.startsWith(route)
+    );
+
+    if (isExcluded) {
+      return next();
+    }
+    res.sendFile(path.join(__dirname, "../../pages", "notFound.html"));
+  });
 }
-export async function miscellaneous (app) {
+export async function miscellaneous(app) {
   const faviconPath = path.join(
     dirname(fileURLToPath(import.meta.url)),
-    '../../public/images/favicon.ico'
-  )
-  app.use(favicon(faviconPath))
+    "../../public/images/favicon.ico"
+  );
+  app.use(favicon(faviconPath));
 }

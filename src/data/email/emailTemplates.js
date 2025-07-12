@@ -152,6 +152,7 @@ Generated on: ${new Date().toLocaleString()}
     userEmail,
     isAdmin,
     isSuperUser,
+    confirmationUrl,
     companyName = "raybags.com",
   }) {
     const accountType = isSuperUser
@@ -176,23 +177,23 @@ ${
     : ""
 }
 
-**What's Next?**
-${
-  isAdmin || isSuperUser
-    ? `As an ${accountType.toLowerCase()}, you have access to administrative features. Please review the admin documentation and contact support if you need assistance.`
-    : "You can now start using all the features available to you. Explore your dashboard and let us know if you need any help getting started."
-}
+**Next Step: Confirm Your Account**
+Please confirm your account by clicking the link below:
+Confirm account here 👉 ${confirmationUrl}
+
+This link will expire in 24 hours.
 
 **Need Help?**
 If you have any questions or need assistance, don't hesitate to reach out to our support team.
 
 Thank you for joining us!
 
-Best regards,
+Best regards,  
 The ${companyName} Team
     `.trim(),
     };
   }
+
   static subscriptionUpdateAdminNotification({
     userName,
     userEmail,
