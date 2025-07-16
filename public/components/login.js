@@ -161,8 +161,8 @@ export async function LOGIN_HTML() {
                       <label class="form-check-label" for="flexSwitchCheckDefault">Forgot password</label>
             </div>
             
-            <div>
-                <button type="submit"  class="btn btn shadow shadow-lg btn-outline-success login_btn">SUBMIT</button>
+            <div class="_loginSub">
+                <button type="submit"  class="btn btn-lg shadow shadow-lg btn-outline-success login_btn">SUBMIT</button>
             </div>
         </form>
     </div>

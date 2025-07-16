@@ -8,10 +8,10 @@ export async function runSpinner(isDone, message = "") {
     if (!loader) {
       const loaderHTML = `
             <div id="main-page-loader" class="d-flex align-items-center text-dark justify-content-center"
-              style="position:fixed; top:0; left:0; right:0; bottom:0;z-index:3000">
+              style="position:fixed; top:0; left:0; right:0; bottom:0;z-index:3000; backdrop-filter:blur(2px);">
               <div class="d-flex">
                 <p class="fs-4" id="my_text" style="position:absolute;top:50%;opacity:.8;left:50%;transform:translate(-50%, -50%);">
-                  ${message}
+                  ${message ? (message = "⌛") : "⌛"}
                 </p>
                 <span class="loader text-dark" style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);zindex:1000;"></span>
               </div>
@@ -668,7 +668,7 @@ export async function ReviewHTML(reviewsDataOject = {}, cardIsNew = false) {
       `;
 
     const InnerReviewHTMLContent = `
-        <div id="${_id}" class="row review-container shadow shadow-lg  __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
+        <div id="${_id}" class="row review-container shadow  __${authorExternalId}  m-auto ${userId}" data-reviewPageId="${reviewPageId}" data-slug="${reviewSiteSlug}">
               <div class="card text-bg-light my-font-color  card-left" data-userId="${userId}" style="width: 22%;margin:0 !important">
                   <div class="card-header shadow-none card_header">
                   <img src="" style="width:30%;max-width:100px !important;min-width:65px !important;max-height:100px !important;border-radius:3px" class="img-thumbnail review-logo-${uuid}-${internalId} bg-transparent" alt="...">
@@ -717,21 +717,21 @@ export async function ReviewHTML(reviewsDataOject = {}, cardIsNew = false) {
                         </div>
                     </div>
                   <div class="d-grid gap-2 col-6 mx-auto m-auto action_buttons right__body" style="width:100%;">
-                    <a class="btn btn-sm btn-transparent btn-outline-secondary action_2" href="${
+                    <a class="btn btn-sm btn-transparent btn-outline-secondary action_2 shadow" href="${
                       originalEndpoint || propertyProfileUrl
                     }" target="_blank"  type="button">Go to ${reviewSiteSlug}</a>
-                    <button disabled class="btn btn-sm btn-transparent btn-outline-secondary shadow shadow-sm action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
+                    <button disabled class="btn btn-sm btn-transparent btn-outline-secondary shadow action_4" pageid-data="${_id}" authorexternalid="${authorExternalId}"  type="button">Update review</button>
                     <a
                       href="${
                         originalEndpoint || propertyProfileUrl
                       }" target="_blank" 
-                      class="btn btn-sm btn-transparent btn-outline-secondary action_5 shadow shadow-sm 
+                      class="btn btn-sm btn-transparent btn-outline-secondary action_5 shadow
                         ${hasPropertyResponse ? "d-none" : ""}" 
                       respond-review-data="${_id}"  
                       type="button" 
                       ${hasPropertyResponse ? "disabled" : ""}
                     > Respond to review </a>
-                    <button class="btn btn-sm btn-transparent btn-outline-danger action_3 shadow shadow-sm" del-revie-data="${_id}"  type="button">Delete review</button>
+                    <button class="btn btn-sm btn-transparent btn-outline-danger action_3 shadow" del-revie-data="${_id}"  type="button">Delete review</button>
                   </div>
             </div>
         </div>`;

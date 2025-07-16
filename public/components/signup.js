@@ -1,77 +1,81 @@
-import { loginUser } from '../components/apiCallHandlers.js'
-import { justForAMoment, runSpinner } from '../utils/utilities.js'
-import { LOGIN_HTML } from './login.js'
-import { MAIN_PAGE } from './main_container.js'
+import { loginUser } from "../components/apiCallHandlers.js";
+import { justForAMoment, runSpinner } from "../utils/utilities.js";
+import { LOGIN_HTML } from "./login.js";
+import { MAIN_PAGE } from "./main_container.js";
 
-import { API_CLIENT, displayLabel } from './apiCallHandlers.js'
+import { API_CLIENT, displayLabel } from "./apiCallHandlers.js";
 
-const apiClient = await API_CLIENT()
+const apiClient = await API_CLIENT();
 
-async function handleSignupFormSubmit (event) {
-  event.preventDefault()
-  const formData = new FormData(event.target)
+async function handleSignupFormSubmit(event) {
+  event.preventDefault();
+  const formData = new FormData(event.target);
 
   const user = {
-    name: formData.get('name'),
-    email: formData.get('email'),
-    password: formData.get('password')
-  }
+    name: formData.get("name"),
+    email: formData.get("email"),
+    password: formData.get("password"),
+  };
 
   try {
-    justForAMoment('Creating...')
-    const url = '/create-user'
+    justForAMoment("Creating...");
+    const url = "/create-user";
     const response = await apiClient.post(url, user, {
-      headers: { 'Content-Type': 'application/json' }
-    })
+      headers: { "Content-Type": "application/json" },
+    });
 
-    const { status } = await response
+    const { status } = await response;
 
     if (status === 201) {
-      justForAMoment('Almost done')
+      justForAMoment("Almost done");
 
-      const userIsLoggedIn = await loginUser(user)
+      const userIsLoggedIn = await loginUser(user);
 
       if (userIsLoggedIn && userIsLoggedIn.status === 200) {
         displayLabel([
-          'review_main_wrapper',
-          'alert-success',
-          'Login successful 😀'
-        ])
+          "review_main_wrapper",
+          "alert-success",
+          "Login successful 😀",
+        ]);
 
         setTimeout(async () => {
-          history.pushState(null, null, '/')
-          return await MAIN_PAGE()
-        }, 800)
+          history.pushState(null, null, "/");
+          return await MAIN_PAGE();
+        }, 800);
       } else {
-        displayLabel(['review_main_wrapper', 'alert-danger', 'Login failed 😀'])
+        displayLabel([
+          "review_main_wrapper",
+          "alert-danger",
+          "Login failed 😀",
+        ]);
       }
-      return
+      return;
     }
 
     displayLabel([
-      'review_main_wrapper',
-      'alert-danger',
-      'Oops. Something went wrong, try again later.'
-    ])
-    setTimeout(() => runSpinner(true), 3000)
+      "review_main_wrapper",
+      "alert-danger",
+      "Oops. Something went wrong, try again later.",
+    ]);
+    setTimeout(() => runSpinner(true), 3000);
   } catch (error) {
-    console.warn('Signup error:', error)
+    console.warn("Signup error:", error);
   } finally {
-    runSpinner(true)
+    runSpinner(true);
   }
 }
 
-function setupEventListeners () {
-  const navbarBrand = document.querySelector('#to_login_p')
-  navbarBrand?.addEventListener('click', async () => {
-    LOGIN_HTML()
-  })
+function setupEventListeners() {
+  const navbarBrand = document.querySelector("#to_login_p");
+  navbarBrand?.addEventListener("click", async () => {
+    LOGIN_HTML();
+  });
 
-  const signupForm = document.querySelector('#signup_form')
-  signupForm?.addEventListener('submit', handleSignupFormSubmit)
+  const signupForm = document.querySelector("#signup_form");
+  signupForm?.addEventListener("submit", handleSignupFormSubmit);
 }
 
-export async function SIGNUP_HTML () {
+export async function SIGNUP_HTML() {
   let pageContent = `
       <nav class="navbar navbar-expand-lg bg-light shadow shadow-sm">
       <div class="container-fluid">
@@ -108,13 +112,13 @@ export async function SIGNUP_HTML () {
                       id="exampleInputPassword1" required>
                   <div class="invalid-feedback">Please enter your password.</div>
               </div>
-              <div>
+              <div class="_signupSub">
                   <button id="signup_bt" type="submit" class="btn btn-lg shadow shadow-lg btn-outline-success signup_btn" type="button">SUBMIT</button>
               </div>
           </form>
       </div>
   </main>
-    `
-  document.getElementById('innerBody').innerHTML = pageContent
-  setupEventListeners()
+    `;
+  document.getElementById("innerBody").innerHTML = pageContent;
+  setupEventListeners();
 }
