@@ -843,7 +843,7 @@ export const PLUGINS = {
     return isClicked;
   },
   setUpBackToTop: async function (mainContainerId) {
-    const buttonTopInnerHTML = `<a href="#" class="back-to-top shadow shadow-sm border-secondary" aria-label="Back to Top">&uarr;</a>`;
+    const buttonTopInnerHTML = `<a href="#" class="back-to-top shadow shadow border-secondary" style="backdrop-filter:blur(3px);" aria-label="Back to Top">&uarr;</a>`;
 
     const mainContainer = document.getElementById(mainContainerId);
     mainContainer?.insertAdjacentHTML("beforeend", buttonTopInnerHTML);
@@ -2015,7 +2015,7 @@ export const PLUGINS = {
           <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered bg-transparent">
             <div class="modal-content bg-transparent text-dark border-4 shadow shadow-lg" style="backdrop-filter:blur(30px);border-radius:.8rem;max-height:95%;overflow-y:auto;">
                   <div class="card shadow shadow-lg h-100 w-100">
-                    <h3 class="card-header text-center">${propertyName}</h3>
+                    <h3 class="card-header position-sticky top-0 z-3 shadow text-center" style="backdrop-filter:blur(3px);">${propertyName}</h3>
                     <div class="card-body  border-transparent">
                       <p class="card-title">ID: ${_id}</p>
                       <p class="card-title">Email Address: ${email}</p>
@@ -2085,7 +2085,7 @@ export const PLUGINS = {
             } = object;
 
             const card = document.createElement("div");
-            card.classList.add("card", "w-100", "inset_shadow");
+            card.classList.add("card", "w-100", "rounded", "shadow");
             card.setAttribute("draggable", true);
 
             const cardBody = document.createElement("div");
