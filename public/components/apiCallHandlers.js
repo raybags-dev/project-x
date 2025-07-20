@@ -77,8 +77,6 @@ export async function loginUser(user) {
     const { headers, status, data } = response;
 
     if (status === 200) {
-      runSpinner(true);
-
       if (isForgotPasswordMode) {
         displayLabel([
           "review_main_wrapper",
@@ -87,10 +85,12 @@ export async function loginUser(user) {
         ]);
         clearLoginFormState();
         restoreLoginFormState();
+        runSpinner(true);
         return response;
       }
 
       // Proceed with login flow
+      runSpinner(false);
       const { user: userData } = data;
       await setAuthHandler(userData, headers);
       sessionStorage.setItem("redirected", true);
@@ -111,7 +111,7 @@ export async function loginUser(user) {
     ]);
     return response;
   } catch (error) {
-    runSpinner(false, "Failed!");
+    runSpinner(false);
 
     const isUnauthorized =
       error.response?.status === 401 &&
@@ -134,7 +134,7 @@ export async function loginUser(user) {
         : "Login failed. Please try again.",
     ]);
 
-    setTimeout(() => runSpinner(true), 3000);
+    setTimeout(() => runSpinner(true), 5000);
     return error?.response;
   }
 }

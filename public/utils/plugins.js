@@ -13,6 +13,7 @@ import { SIGNUP_HTML } from "../components/signup.js";
 import {
   ReviewHTML,
   confirmAction,
+  getRequestHeaders,
   mountAdminPageHandler,
   removeChildElementsFromDOM,
   runSpinner,
@@ -93,7 +94,8 @@ export const PLUGINS = {
           "nav-link",
           "dropdown-toggle",
           "text-uppercase",
-          "text-dark"
+          "text-dark",
+          "bg-transparent"
         );
         adminLink.href = "#";
         adminLink.setAttribute("role", "button");
@@ -102,26 +104,155 @@ export const PLUGINS = {
         adminLink.textContent = "Super admin";
 
         const dropdownMenu = document.createElement("ul");
-        dropdownMenu.classList.add(
-          "dropdown-menu",
-          "border-3",
-          "rounded",
-          "shadow",
-          "border-secondary"
-        );
+        dropdownMenu.classList.add("dropdown-menu", "rounded", "shadow");
 
         const accountsAdminTab = document.createElement("li");
+        accountsAdminTab.classList.add("p-1");
         accountsAdminTab.innerHTML =
           '<a class="dropdown-item dropdown-item-dark text-dark accounts-admin-tab text-uppercase" href="#">user accounts</a>';
-
         dropdownMenu.appendChild(accountsAdminTab);
+
+        const adminLinks = [
+          {
+            label: "cron-job-stats",
+            href: "#cron-job-stats",
+            endpoint: "/scheduler/job-stats",
+          },
+          {
+            label: "cron-job-status",
+            href: "#cron-job-status",
+            endpoint: "/scheduler/job-status",
+          },
+          {
+            label: "clean-up-history",
+            href: "#clean-up-history",
+            endpoint: "/scheduler/cleanup-history",
+          },
+          {
+            label: "scheduler-health",
+            href: "#scheduler-health",
+            endpoint: "/scheduler/scheduler-health",
+          },
+        ];
+
+        for (const { label, href, endpoint } of adminLinks) {
+          const li = document.createElement("li");
+          li.classList.add("p-1");
+          const link = document.createElement("a");
+          link.className =
+            "dropdown-item dropdown-item-dark text-dark text-uppercase";
+          link.href = href;
+          link.setAttribute("data-job", label);
+          link.textContent = label;
+          li.appendChild(link);
+          dropdownMenu.appendChild(li);
+
+          // Attach click listener
+          setTimeout(() => {
+            link.addEventListener("click", async (e) => {
+              e.preventDefault();
+              runSpinner(false, `Fetching ${label}...`);
+
+              const user = await getAuthHandler();
+              if (!user) return;
+
+              const { "auth-token": token, isSuperUser, isAdmin } = user;
+              if (!isSuperUser && !isAdmin) {
+                displayLabel([
+                  "review_main_wrapper",
+                  "alert-danger",
+                  `Unauthorized action!`,
+                ]);
+                setTimeout(() => location.reload(), 5000);
+                return;
+              }
+
+              try {
+                const apiClient = await API_CLIENT();
+                const headers = getRequestHeaders(token);
+
+                const response = await apiClient.post(
+                  endpoint,
+                  {},
+                  { headers }
+                );
+
+                if (response.status === 200) {
+                  displayLabel([
+                    "review_main_wrapper",
+                    "alert-success",
+                    `Fetched ${label} data.`,
+                  ]);
+
+                  const modalParent = document.querySelector(
+                    "div.review__wrapper"
+                  );
+                  const json = JSON.stringify(response.data, null, 2);
+
+                  PLUGINS.renderStatsModalCard(modalParent, {
+                    title: `${label.replace(/-/g, " ").toUpperCase()}`,
+                    body: `<pre class="text-wrap small">${json}</pre>`,
+                    footer: `<button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`,
+                  });
+                } else {
+                  console.warn(`Unexpected response for ${label}`, response);
+                }
+              } catch (error) {
+                console.warn(`Error fetching ${label}:`, error);
+                displayLabel([
+                  "review_main_wrapper",
+                  "alert-danger",
+                  `Failed to fetch ${label}`,
+                ]);
+              } finally {
+                runSpinner(true);
+              }
+            });
+          });
+        }
+
         adminLi.appendChild(adminLink);
         adminLi.appendChild(dropdownMenu);
-
         navUl?.insertBefore(adminLi, navUl.firstChild);
       }
+
       return true;
     }
+  },
+  renderStatsModalCard: function (parentElement, options = {}) {
+    if (!parentElement) return;
+
+    const existingModal = document.querySelector("#statsModal");
+    if (existingModal) existingModal.remove();
+
+    const {
+      title = "Default Modal Title",
+      body = "This is the modal body content.",
+      footer = "",
+    } = options;
+
+    const modalHTML = `
+    <div class="modal fade" id="statsModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="statsModalLabel" style="backdrop-filter: blur(2px);">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content shadow">
+          <div class="modal-header">
+            <h5 class="modal-title" id="statsModalLabel">${title}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-wrap text-break">
+            ${body}
+          </div>
+          ${footer ? `<div class="modal-footer">${footer}</div>` : ""}
+        </div>
+      </div>
+    </div>
+  `;
+
+    parentElement.insertAdjacentHTML("beforeend", modalHTML);
+
+    const modalEl = document.getElementById("statsModal");
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
   },
   superManHandle: async function () {
     try {
@@ -156,10 +287,7 @@ export const PLUGINS = {
 
             const apiClient = await API_CLIENT();
             const baseUrl = `/get-users`;
-            const headers = {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            };
+            const headers = getRequestHeaders(token);
 
             // Function to fetch users for a specific page
             const fetchUsersPage = async (page) => {
@@ -198,7 +326,6 @@ export const PLUGINS = {
                     }
                   }
 
-                  // Mount the data (clear only for first page, append for subsequent pages)
                   if (page === 1) {
                     await removeChildElementsFromDOM(".admin-card");
                     await removeChildElementsFromDOM(".review-container");
@@ -330,12 +457,8 @@ export const PLUGINS = {
                 childList: true,
                 subtree: true,
               });
-
-              // Initial observation
               observeLastUserCard();
             };
-
-            // Start fetching the first page
             await fetchUsersPage(1);
           });
       }
@@ -972,10 +1095,7 @@ export const PLUGINS = {
       const { "auth-token": authToken, isAdmin, isSubscribed } = auth;
 
       if (isAdmin && isSubscribed) {
-        const headers = {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
-        };
+        const headers = getRequestHeaders(authToken);
 
         const baseUrl = "/document/delete-one";
         const url = `${baseUrl}/${documentId}`;
@@ -1010,11 +1130,7 @@ export const PLUGINS = {
     const auth = getAuthHandler();
     const { "auth-token": authToken, isAdmin, isSubscribed } = auth;
 
-    if (isAdmin && isSubscribed)
-      return {
-        Authorization: `Bearer ${authToken}`,
-        "Content-Type": "application/json",
-      };
+    if (isAdmin && isSubscribed) return getRequestHeaders(authToken);
     return {};
   },
   updateReview: async function (documentId, authorExternalId, reviewSiteSlug) {
@@ -1203,10 +1319,7 @@ export const PLUGINS = {
       const perPage = 20;
       const { "auth-token": token } = user;
 
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      };
+      const headers = getRequestHeaders(token);
 
       const knownSubbrands = {
         expedia: [
@@ -1456,10 +1569,7 @@ export const PLUGINS = {
         return false;
       }
 
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      };
+      const headers = getRequestHeaders(token);
       const url = `${baseUrl}${query}`;
       const res = await apiClient.post(url, {}, { headers });
 
@@ -1835,10 +1945,7 @@ export const PLUGINS = {
 
       const baseUrl = `/user/delete-own-profile-and-documents/${profile_Id}?slug=${slug}`;
 
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      };
+      const headers = getRequestHeaders(token);
       const apiClient = await API_CLIENT();
       const response = await apiClient.delete(baseUrl, { headers });
 
@@ -1874,10 +1981,7 @@ export const PLUGINS = {
       const { "auth-token": token } = user;
 
       const baseUrl = "/user/purge-own-user-account";
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      };
+      const headers = getRequestHeaders(token);
       const apiClient = await API_CLIENT();
       const response = await apiClient.delete(baseUrl, { headers });
       if (response.status === 200) {
@@ -1917,10 +2021,7 @@ export const PLUGINS = {
       const token = user["auth-token"];
       const baseUrl = `/document/delete-profile-documents/${profile_Id}?slug=${slug}`;
 
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      };
+      const headers = getRequestHeaders(token);
 
       const apiClient = await API_CLIENT();
       const response = await apiClient.delete(baseUrl, { headers });
@@ -2161,10 +2262,7 @@ export const PLUGINS = {
 
       const apiClient = await API_CLIENT();
       const baseUrl = `/load-site-slugs`;
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      };
+      const headers = getRequestHeaders(token);
 
       const response = await apiClient.post(baseUrl, {}, { headers });
       if (response.status === 200) {

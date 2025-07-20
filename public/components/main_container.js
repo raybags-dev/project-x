@@ -48,20 +48,20 @@ export async function MAIN_PAGE() {
             <ul id="__nav" class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll border-1 border-danger" 
                 style="--bs-scroll-height: 150px;">
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle text-dark text-uppercase" href="#" role="button" 
+                <a class="nav-link dropdown-toggle text-dark text-uppercase bg-transparent" href="#" role="button" 
                    data-bs-toggle="dropdown" aria-expanded="false">
                   account
                 </a>
                 <ul class="dropdown-menu text-dark bg-light shadow shadow-lg" style="z-index:10 !important">
-                  <li class="p-2"><a class="dropdown-item text-dark account_details text-uppercase" href="#">Account details</a></li>
-                  <li class="p-2"><a class="dropdown-item text-dark profile_details text-uppercase" href="#">Profile details</a></li>
-                  <li class="p-2"><a class="dropdown-item text-dark how_to_link text-uppercase" href="#">How to guide</a></li>
-                  <li class="p-2"><a class="dropdown-item text-dark create_profile text-uppercase" href="#">Create review profile</a></li>
-                  <li class="p-2"><a class="dropdown-item text-dark logoutuser_link text-uppercase" href="#">Logout</a></li>
+                  <li class="p-1"><a class="dropdown-item text-dark account_details text-uppercase" href="#">Account details</a></li>
+                  <li class="p-1"><a class="dropdown-item text-dark profile_details text-uppercase" href="#">Profile details</a></li>
+                  <li class="p-1"><a class="dropdown-item text-dark how_to_link text-uppercase" href="#">How to guide</a></li>
+                  <li class="p-1"><a class="dropdown-item text-dark create_profile text-uppercase" href="#">Create review profile</a></li>
+                  <li class="p-1"><a class="dropdown-item text-dark logoutuser_link text-uppercase" href="#">Logout</a></li>
                 </ul>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle text-dark text-uppercase" href="#" role="button" 
+                <a class="nav-link dropdown-toggle text-dark text-uppercase bg-transparent" href="#" role="button" 
                    data-bs-toggle="dropdown" aria-expanded="false">
                   sites
                 </a>
@@ -289,10 +289,10 @@ async function loadAvailableSites() {
 
     data.slugs.forEach((slug) => {
       const li = document.createElement("li");
-      li.className = "p-2";
+      li.className = "p-1";
 
       const a = document.createElement("a");
-      a.className = `dropdown-item btn btn-outline-success text-dark text-uppercase ${slug}`;
+      a.className = `dropdown-item text-dark text-uppercase ${slug}`;
       a.href = "#";
       a.textContent = slug;
 
