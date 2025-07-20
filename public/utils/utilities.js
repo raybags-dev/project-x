@@ -233,7 +233,6 @@ export function clearContainer(anchorTagOrElement) {
     return false;
   }
 }
-
 export function mountAdminPageHandler(parentSelector, data) {
   const parentElement = document.querySelector(parentSelector);
   const is_ready = clearContainer(parentElement);
@@ -353,10 +352,7 @@ async function toggleUserSubscription(
 
     const apiClient = await API_CLIENT();
     const url = `/user/update-subscription/${userId}`;
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    };
+    const headers = getRequestHeaders(token);
 
     const response = await apiClient.put(url, {}, { headers });
 
@@ -412,7 +408,6 @@ async function toggleUserSubscription(
     return false;
   }
 }
-
 function updateButtonState(buttonElement, isSubscribed) {
   // Update button text
   buttonElement.textContent = isSubscribed
@@ -426,7 +421,6 @@ function updateButtonState(buttonElement, isSubscribed) {
   // Update data attribute
   buttonElement.setAttribute("data-isSubscribed", isSubscribed.toString());
 }
-
 function updateSubscriptionStatusDisplay(parentCard, userId, isSubscribed) {
   // Find the subscription status element by data-sub attribute
   const subscriptionStatusElement = parentCard.querySelector(
@@ -444,7 +438,6 @@ function updateSubscriptionStatusDisplay(parentCard, userId, isSubscribed) {
     console.error(`Subscription status element for user ${userId} not found.`);
   }
 }
-
 function initializeSubscriptionButtonState(userId, buttonElement) {
   const subscriptionKey = `user_subscription_${userId}`;
   const storedSubscription = sessionStorage.getItem(subscriptionKey);
@@ -471,7 +464,6 @@ function initializeSubscriptionButtonState(userId, buttonElement) {
   // Update the button state
   updateButtonState(buttonElement, isSubscribed);
 }
-
 async function deleteUserAccount(userId, e) {
   try {
     const confirmation = await confirmAction(
@@ -498,10 +490,7 @@ async function deleteUserAccount(userId, e) {
       const query = `?page=${page}`;
       const url = `${baseUrl}${query}`;
 
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      };
+      const headers = getRequestHeaders(token);
 
       const response = await apiClient.delete(url, { headers });
 
@@ -579,10 +568,7 @@ export async function handleSearchFormSubmission(form) {
     const searchUrl = `${baseUrl}?${searchParams.toString()}`;
 
     // Set headers for the request
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    };
+    const headers = getRequestHeaders(token);
 
     // Make the API call
     const apiClient = await API_CLIENT();
@@ -1184,4 +1170,13 @@ export async function handleSearchPannel(anchorSelector) {
   });
 
   return form;
+}
+
+export function getRequestHeaders(token) {
+  return {
+    Accept: "application/json, text/plain, */*",
+    "Accept-Language": "en-US,en;q=0.9",
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
 }

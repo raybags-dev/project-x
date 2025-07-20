@@ -16,6 +16,8 @@ export async function getAllSubscribedUsers(
   page = 1,
   perPage = 10
 ) {
+  const isContextNull = !contextUserOverride;
+
   const context_user = contextUserOverride || {
     _id: CONTEXT_USER_ID,
     userId: CONTEXT_USERID,
@@ -27,8 +29,16 @@ export async function getAllSubscribedUsers(
 
   const skip = (page - 1) * perPage;
 
+  const matchStage = {
+    _id: { $ne: context_user._id },
+  };
+
+  if (!isContextNull) {
+    matchStage.isSubscribed = true;
+  }
+
   const users = await USER_MODEL.aggregate([
-    { $match: { _id: { $ne: context_user._id }, isSubscribed: true } },
+    { $match: matchStage },
     {
       $lookup: {
         from: "review-objects",
@@ -71,10 +81,7 @@ export async function getAllSubscribedUsers(
     user.data_size = formatSize(sizeInBytes);
   });
 
-  const totalUserCount = await USER_MODEL.countDocuments({
-    _id: { $ne: context_user._id },
-    isSubscribed: true,
-  });
+  const totalUserCount = await USER_MODEL.countDocuments(matchStage);
 
   const pageCount = Math.ceil(totalUserCount / perPage);
   const hasMore = totalUserCount > skip + users.length;

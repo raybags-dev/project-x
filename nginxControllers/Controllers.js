@@ -143,7 +143,7 @@ export function metricsController(options) {
         timestamp: Date.now(),
       };
 
-      // Simple Prometheus-style format (optional)
+      // Prometheus-style format
       if (req.query.format === "prometheus") {
         let prometheusMetrics = "";
         Object.entries(metrics).forEach(([key, value]) => {
@@ -166,7 +166,6 @@ export function metricsController(options) {
     }
   });
 }
-
 function withAuthorization(handler) {
   return function (req, res) {
     const isAuthorized = checkAuth(req, res);

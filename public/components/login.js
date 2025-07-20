@@ -10,6 +10,8 @@ import { MAIN_PAGE } from "./main_container.js";
 import { SIGNUP_HTML } from "./signup.js";
 
 async function handleLoginFormSubmit(event) {
+  runSpinner(false);
+
   event.preventDefault();
   justForAMoment();
 
@@ -50,12 +52,13 @@ async function handleLoginFormSubmit(event) {
       setTimeout(() => {
         history.pushState(null, null, "/");
         UPDATE_PASSWORD_HTML(email);
+        runSpinner(true);
       }, 1000);
       return;
     }
+    runSpinner(false);
 
     if (loginResponse.status === 200) {
-      // ✅ Save login email only for successful normal logins
       if (!isForgotMode) {
         let attemptedEmails =
           JSON.parse(localStorage.getItem(LOGIN_ATTEMPTS_KEY)) || [];
@@ -67,6 +70,7 @@ async function handleLoginFormSubmit(event) {
           LOGIN_ATTEMPTS_KEY,
           JSON.stringify(attemptedEmails)
         );
+        runSpinner(true);
       }
 
       justForAMoment("Almost done");
@@ -108,11 +112,12 @@ async function handleLoginFormSubmit(event) {
         "Login failed - Invalid user credentials",
       ]);
     }
+    runSpinner(true);
   } catch (error) {
-    runSpinner(false, "Failed!");
+    runSpinner(false);
     const errorMessage = error?.response?.data?.error || "An error occurred.";
     displayLabel(["review_main_wrapper", "alert-danger", `${errorMessage}`]);
-    setTimeout(() => runSpinner(true), 3000);
+    setTimeout(() => runSpinner(true), 5000);
   }
 }
 
