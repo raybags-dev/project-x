@@ -1,34 +1,31 @@
-# main modules
-.env
-node_modules/
-node_modules
-terraform.tfvars
 
 # Logs
-logs/*
+# main modules
+# scripts
+# tests
 *.log
-logs/
-.env.local
-.env.development
-.env.production
-package-lock.json
-yarn.lock
-npm-debug.log*
 .DS_Store
-Thumbs.db
-dist/
-build/
-.vscode/
-.idea/
 .docker/
+.env
+.env.development
+.env.local
+.env.production
+.idea/
+.vscode/
+Thumbs.db
+build/
+coverage
+dist/
 docker-compose.override.yml
 loaderV.mp4
+logs/
+logs/*
 logs/**/
 logs/**/*
-
-
-# scripts
+node_modules
+node_modules/
+npm-debug.log*
+package-lock.json
 rename-files.sh
-
-# tests
-coverage
+terraform.tfvars
+yarn.lock
